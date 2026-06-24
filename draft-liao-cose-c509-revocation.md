@@ -932,7 +932,7 @@ IANA is requested to create a new registry "C509 Hash Algorithms" under the regi
 
 The registration policy is either "Private Use", "IETF Review with Expert Review", or "Expert Review" per {{RFC8126, Section 4.5}}. "Expert Review" guidelines are provided in {{expert-review-guidelines}}.
 
-All assignments according to "IETF Review with Expert Review" are made on an "IETF Review" basis per {{RFC8126, Section 4.8}}, with Expert Review additionally required per {{RFC8126, Section 4.5}}. The procedure for early IANA allocation of Standards Track code points defined in {{RFC7120}} also applies. When such a procedure is used, IANA will ask the designated expert(s) to approve the early allocation before registration. In addition, WG chairs are encouraged to consult the expert(s) early during the process outlined in {{RFC7120, Section 3.1}.
+All assignments according to "IETF Review with Expert Review" are made on an "IETF Review" basis per {{RFC8126, Section 4.8}}, with Expert Review additionally required per {{RFC8126, Section 4.5}}. The procedure for early IANA allocation of Standards Track code points defined in {{RFC7120}} also applies. When such a procedure is used, IANA will ask the designated expert(s) to approve the early allocation before registration. In addition, WG chairs are encouraged to consult the expert(s) early during the process outlined in {{RFC7120, Section 3.1}}.
 
 The columns of this registry are:
 
