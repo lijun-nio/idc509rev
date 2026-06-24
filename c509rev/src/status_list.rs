@@ -22,6 +22,12 @@ use crate::time;
 /// `statusListType` discriminator. `0` = 1-bit revocation bitmap.
 pub const STATUS_TYPE_REVOCATION_BITMAP: u64 = 0;
 
+/// C509 certificate extension carrying the certificate's index into a
+/// `C509StatusList` (the bit position to test). Placeholder id pending IANA;
+/// alternatively, a deployment may use the certificate serial directly as the
+/// index when serials are densely assigned.
+pub const EXT_STATUS_LIST_INDEX: i64 = 0x5C; // TBD — experimental
+
 /// A C509 Status List.
 #[derive(Clone, Debug)]
 pub struct C509StatusList {
@@ -140,5 +146,39 @@ mod tests {
         assert_eq!(few, many);
         // ~ base overhead + 800/8 = 100 bytes of bitmap.
         assert!(few >= 100 && few < 250, "unexpected size {few}");
+    }
+
+    #[test]
+    fn round_trips_through_decode() {
+        let sl = sample(800, &[1, 7, 100, 799]);
+        let bytes = sl.encode();
+        let back = C509StatusList::decode(&bytes).unwrap();
+        // decode -> re-encode reproduces the bytes, and the bitmap survives.
+        assert_eq!(back.encode(), bytes);
+        for i in [1u64, 7, 100, 799] {
+            assert!(back.is_revoked(i));
+        }
+        assert!(!back.is_revoked(2));
+    }
+
+    #[test]
+    fn sign_verify_round_trip() {
+        const ED_PEM: &str = "-----BEGIN PRIVATE KEY-----\n\
+MC4CAQAwBQYDK2VwBCIEIC8/cbk33xCU6Pv97ni+qEo9nGD9fIwW19YVnp5XmH0I\n\
+-----END PRIVATE KEY-----\n";
+        use ed25519_dalek::pkcs8::DecodePrivateKey;
+        let pk = ed25519_dalek::SigningKey::from_pkcs8_pem(ED_PEM)
+            .unwrap().verifying_key().to_bytes().to_vec();
+
+        let mut sl = sample(800, &[3, 9]);
+        sl.signature_value = vec![];
+        sl.sign(ED_PEM).unwrap();
+        assert_eq!(sl.signature_value.len(), 64);
+        assert!(sl.verify(&pk).is_ok());
+
+        // Flipping a status bit invalidates the signature.
+        let mut tampered = sl.clone();
+        tampered.status_bits[0] ^= 0x01;
+        assert!(tampered.verify(&pk).is_err());
     }
 }

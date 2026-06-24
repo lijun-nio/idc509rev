@@ -101,6 +101,21 @@ impl crate::crl::C509Crl {
     }
 }
 
+impl crate::status_list::C509StatusList {
+    /// Sign the status list, setting `signature_value`.
+    pub fn sign(&mut self, privkey_pem: &str) -> Result<(), SignError> {
+        let sig = sign(&self.encode_tbs(), privkey_pem, self.signature_algorithm)?;
+        self.signature_value = sig;
+        Ok(())
+    }
+
+    /// Verify the status-list signature against `pubkey`.
+    pub fn verify(&self, pubkey: &[u8]) -> Result<(), VerifyError> {
+        verify(&self.encode_tbs(), &self.signature_value, pubkey,
+               self.signature_algorithm)
+    }
+}
+
 impl crate::ocsp_resp::C509OcspResponse {
     /// Verify a signed (Basic/Simple) response against `pubkey`. Returns
     /// `NotSigned` for an Error response.

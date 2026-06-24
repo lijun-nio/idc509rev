@@ -18,6 +18,7 @@ use crate::ocsp_req::{C509OcspRequest, PerIssuerOCSPRequest, SingleCertRequest};
 use crate::ocsp_resp::{
     C509OcspResponse, CertStatus, PerIssuerOCSPResponse, SingleCertResponse,
 };
+use crate::status_list::C509StatusList;
 
 /// Decoding error.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -237,6 +238,31 @@ impl C509Crl {
         };
         let signature_value = as_bytes(&a[10], "signatureValue")?;
         Ok(C509Crl { info, revoked_certs_list, signature_value })
+    }
+}
+
+impl C509StatusList {
+    /// Decode a `C509StatusList` from its CBOR bytes.
+    pub fn decode(bytes: &[u8]) -> Result<C509StatusList, DecodeError> {
+        let v: Value = serde_cbor::from_slice(bytes)
+            .map_err(|e| DecodeError::Cbor(e.to_string()))?;
+        let a = as_array(&v, "C509StatusList top-level")?;
+        if a.len() != 11 {
+            return Err(DecodeError::Malformed("C509StatusList must be array[11]"));
+        }
+        Ok(C509StatusList {
+            status_list_type: as_u64(&a[0], "statusListType")?,
+            signature_algorithm: as_i64(&a[1], "signatureAlgorithm")?,
+            authority_subject: decode_name(&a[2])?,
+            authority_key_identifier: opt_bytes(&a[3], "authorityKeyIdentifier")?,
+            status_list_number: as_u64(&a[4], "statusListNumber")?,
+            this_update: as_u64(&a[5], "thisUpdate")?,
+            next_update: opt_u64(&a[6], "nextUpdate")?,
+            base_index: as_u64(&a[7], "baseIndex")?,
+            status_bits: as_bytes(&a[8], "statusBits")?,
+            extensions: decode_extensions(&a[9])?,
+            signature_value: as_bytes(&a[10], "signatureValue")?,
+        })
     }
 }
 
