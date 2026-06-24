@@ -971,11 +971,11 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of [[this document]].
+Security considerations: See the Security Considerations section of \[this document\].
 
 Interoperability considerations: N/A
 
-Published specification: [[this document]]
+Published specification: \[this document\]
 
 Applications that use this media type: Any MIME-compliant transport
 
@@ -1009,11 +1009,11 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of [[this document]].
+Security considerations: See the Security Considerations section of \[this document\].
 
 Interoperability considerations: N/A
 
-Published specification: [[this document]]
+Published specification: \[this document\]
 
 Applications that use this media type: Any MIME-compliant transport
 
@@ -1047,11 +1047,11 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of [[this document]].
+Security considerations: See the Security Considerations section of \[this document\].
 
 Interoperability considerations: N/A
 
-Published specification: [[this document]]
+Published specification: \[this document\]
 
 Applications that use this media type: OCSP clients
 
@@ -1085,11 +1085,11 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of [[this document]].
+Security considerations: See the Security Considerations section of \[this document\].
 
 Interoperability considerations: N/A
 
-Published specification: [[this document]]
+Published specification: \[this document\]
 
 Applications that use this media type: OCSP servers
 
