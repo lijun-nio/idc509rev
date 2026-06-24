@@ -135,7 +135,7 @@ The following type is imported from {{RFC9360}}:
 
 This document further defines the following constrained alias for use in all CDDL definitions:
 
-~~~~~~~~~~~
+~~~~~~~~~~~ cddl
 IntAlgorithmIdentifier = int
 ~~~~~~~~~~~
 {: sourcecode-name="c509crl.cddl"}
@@ -347,7 +347,7 @@ The `expiredCertsOnCRL` extension indicates that this CRL includes revocation in
 
 The extension value MUST be encoded as follows.
 
-~~~~~~~~~~~
+~~~~~~~~~~~ cddl
 ExpiredCertsOnCRL = ~time
 ~~~~~~~~~~~
 {: sourcecode-name="c509crl.cddl"}
@@ -713,7 +713,7 @@ This document defines the following extension values:
 
 * Acceptable Response Types: The extension value MUST be encoded as follows.
 
-~~~~~~~~~~~
+~~~~~~~~~~~ cddl
 AcceptableResponseTypes = [ + int]
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
@@ -722,13 +722,15 @@ The integers in `AcceptableResponseTypes` form a sorted list of preferred `C509O
 
 * Preferred Signature Algorithms: The extension value MUST be encoded as follows.
 
-~~~~~~~~~~~
+~~~~~~~~~~~ cddl
 PreferredSignatureAlgorithm = (
   sigIdentifier        : IntAlgorithmIdentifier,
   pubKeyAlgIdentifiers : [ 2* IntAlgorithmIdentifier ]
                          / IntAlgorithmIdentifier
                          / null,
 )
+
+IntAlgorithmIdentifier = int
 
 PreferredSignatureAlgorithms = [ + PreferredSignatureAlgorithm ]
 ~~~~~~~~~~~
@@ -744,7 +746,7 @@ The `sigIdentifier` field carries the signature algorithm identifier.  The `pubK
 
 * TN Query: The extension value MUST be encoded as follows.
 
-~~~~~~~~~~~
+~~~~~~~~~~~ cddl
 TNQuery = text .size (1..15)
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
