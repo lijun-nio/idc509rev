@@ -30,6 +30,8 @@ pub enum VerifyError {
     Malformed,
     /// The signature algorithm is not implemented for verification here.
     UnsupportedAlg(i64),
+    /// The object is an unsigned variant (e.g. an Error OCSP response).
+    NotSigned,
 }
 
 /// Sign a TBS sequence, returning the **raw** signature bytes.
@@ -96,6 +98,33 @@ impl crate::crl::C509Crl {
     pub fn verify(&self, pubkey: &[u8]) -> Result<(), VerifyError> {
         verify(&self.encode_tbs(), &self.signature_value, pubkey,
                self.info.signature_algorithm)
+    }
+}
+
+impl crate::ocsp_resp::C509OcspResponse {
+    /// Verify a signed (Basic/Simple) response against `pubkey`. Returns
+    /// `NotSigned` for an Error response.
+    pub fn verify(&self, pubkey: &[u8]) -> Result<(), VerifyError> {
+        use crate::ocsp_resp::C509OcspResponse::*;
+        match self {
+            Error { .. } => Err(VerifyError::NotSigned),
+            Basic { signature_algorithm, signature_value, .. }
+            | Simple { signature_algorithm, signature_value, .. } =>
+                verify(&self.encode_tbs(), signature_value, pubkey, *signature_algorithm),
+        }
+    }
+}
+
+impl crate::ocsp_req::C509OcspRequest {
+    /// Verify a signed request against `pubkey`. Returns `NotSigned` for the
+    /// unsigned request types.
+    pub fn verify(&self, pubkey: &[u8]) -> Result<(), VerifyError> {
+        use crate::ocsp_req::C509OcspRequest::*;
+        match self {
+            Signed { signature_algorithm, signature_value, .. } =>
+                verify(&self.encode_tbs(), signature_value, pubkey, *signature_algorithm),
+            _ => Err(VerifyError::NotSigned),
+        }
     }
 }
 
