@@ -220,7 +220,7 @@ Unlike in {{RFC5280}}, where the signature algorithm appears outside the `TBSCer
 
 The `authoritySubject` and `authorityKeyIdentifier` fields identify the CRL authority.
 
-The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)`, where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}). 
+The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)`, where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}).
 
 The `authorityKeyIdentifier` field is identical to the value of the authority's `subjectKeyIdentifier` extension.  This field corresponds to the X.509 CRL extension `authorityKeyIdentifier` ({{RFC5280, Section 5.2.1}}).  It is promoted to a dedicated field because it MUST be present in conforming X.509 CRLs and because making it explicit simplifies the structure and reduces encoded size compared to representing it as a generic extension.
 
@@ -572,7 +572,7 @@ SingleCertResponse = (
 )
 
 CertStatus = 0        ; good
-           / 1        ; not-issued (issuer recognized, 
+           / 1        ; not-issued (issuer recognized,
                       ;   serial number not issued)
            / 2        ; unknown (issuer not recognized)
            / RevokedInfo
