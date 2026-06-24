@@ -13,6 +13,11 @@ use crate::common::{Extension, Name};
 use crate::crl::{
     C509Crl, CrlInfo, PerIssuerRevokedCerts, RemovedCert, RevokedCert, RevokedCertsControl,
 };
+use crate::discriminator;
+use crate::ocsp_req::{C509OcspRequest, PerIssuerOCSPRequest, SingleCertRequest};
+use crate::ocsp_resp::{
+    C509OcspResponse, CertStatus, PerIssuerOCSPResponse, SingleCertResponse,
+};
 
 /// Decoding error.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -235,9 +240,209 @@ impl C509Crl {
     }
 }
 
+// --- OCSP request -----------------------------------------------------------
+
+fn opt_certs(v: &Value) -> Result<Option<Vec<u8>>, DecodeError> {
+    // requestor/responder certs: opaque COSE_C509 / #6.121(COSE_X509) / null.
+    if is_null(v) { Ok(None) } else { Ok(Some(value_bytes(v)?)) }
+}
+
+fn decode_req_requests(v: &Value) -> Result<Vec<PerIssuerOCSPRequest>, DecodeError> {
+    let a = as_array(v, "requests")?;
+    if a.len() % 3 != 0 {
+        return Err(DecodeError::Malformed("requests not a multiple of 3"));
+    }
+    let mut out = Vec::new();
+    for g in a.chunks(3) {
+        let singles = as_array(&g[2], "singleRequests")?;
+        if singles.len() % 2 != 0 {
+            return Err(DecodeError::Malformed("singleRequests not a multiple of 2"));
+        }
+        let mut single_requests = Vec::new();
+        for s in singles.chunks(2) {
+            single_requests.push(SingleCertRequest {
+                serial_number_hash: as_bytes(&s[0], "serialNumberHash")?,
+                extensions: decode_extensions(&s[1])?,
+            });
+        }
+        out.push(PerIssuerOCSPRequest {
+            issuer_cert_hash: as_bytes(&g[0], "issuerCertHash")?,
+            extensions: decode_extensions(&g[1])?,
+            single_requests,
+        });
+    }
+    Ok(out)
+}
+
+impl C509OcspRequest {
+    /// Decode a `C509OCSPRequest` from its CBOR bytes.
+    pub fn decode(bytes: &[u8]) -> Result<C509OcspRequest, DecodeError> {
+        let v: Value = serde_cbor::from_slice(bytes)
+            .map_err(|e| DecodeError::Cbor(e.to_string()))?;
+        let a = as_array(&v, "C509OCSPRequest top-level")?;
+        let ty = as_u64(a.first().ok_or(DecodeError::Malformed("empty array"))?,
+                        "ocspRequestType")?;
+        match ty {
+            discriminator::OCSP_REQ_UNSIGNED => {
+                if a.len() != 5 {
+                    return Err(DecodeError::Malformed("Unsigned request must be array[5]"));
+                }
+                Ok(C509OcspRequest::Unsigned {
+                    hash_algorithm: as_i64(&a[1], "hashAlgorithm")?,
+                    nonce: opt_bytes(&a[2], "nonce")?,
+                    extensions: decode_extensions(&a[3])?,
+                    requests: decode_req_requests(&a[4])?,
+                })
+            }
+            discriminator::OCSP_REQ_SIMPLE => {
+                if a.len() != 6 {
+                    return Err(DecodeError::Malformed("Simple request must be array[6]"));
+                }
+                Ok(C509OcspRequest::Simple {
+                    hash_algorithm: as_i64(&a[1], "hashAlgorithm")?,
+                    nonce: opt_bytes(&a[2], "nonce")?,
+                    issuer_cert_hash: as_bytes(&a[3], "issuerCertHash")?,
+                    serial_number_hash: as_bytes(&a[4], "serialNumberHash")?,
+                    extensions: decode_extensions(&a[5])?,
+                })
+            }
+            discriminator::OCSP_REQ_SIGNED => {
+                if a.len() != 9 {
+                    return Err(DecodeError::Malformed("Signed request must be array[9]"));
+                }
+                Ok(C509OcspRequest::Signed {
+                    signature_algorithm: as_i64(&a[1], "signatureAlgorithm")?,
+                    hash_algorithm: as_i64(&a[2], "hashAlgorithm")?,
+                    nonce: opt_bytes(&a[3], "nonce")?,
+                    requestor_cert_hash: as_bytes(&a[4], "requestorCertHash")?,
+                    extensions: decode_extensions(&a[5])?,
+                    requests: decode_req_requests(&a[6])?,
+                    requestor_certs: opt_certs(&a[7])?,
+                    signature_value: as_bytes(&a[8], "signatureValue")?,
+                })
+            }
+            _ => Err(DecodeError::Malformed("unknown ocspRequestType")),
+        }
+    }
+}
+
+// --- OCSP response ------------------------------------------------------------
+
+fn decode_cert_status(v: &Value) -> Result<CertStatus, DecodeError> {
+    match v {
+        Value::Integer(0) => Ok(CertStatus::Good),
+        Value::Integer(1) => Ok(CertStatus::NotIssued),
+        Value::Integer(2) => Ok(CertStatus::Unknown),
+        Value::Array(a) if a.len() == 2 => Ok(CertStatus::Revoked {
+            revocation_time: as_u64(&a[0], "revocationTime")?,
+            revocation_reason: as_i64(&a[1], "revocationReason")?,
+        }),
+        _ => Err(DecodeError::Malformed("certStatus")),
+    }
+}
+
+/// OCSP `thisUpdate` is `nint / 0` (non-positive); return seconds *back*.
+fn decode_this_update_back(v: &Value) -> Result<u64, DecodeError> {
+    let i = as_i64(v, "thisUpdate")?;
+    if i > 0 {
+        return Err(DecodeError::Malformed("thisUpdate must be <= 0"));
+    }
+    Ok((-i) as u64)
+}
+
+fn decode_resp_responses(v: &Value) -> Result<Vec<PerIssuerOCSPResponse>, DecodeError> {
+    let a = as_array(v, "responses")?;
+    if a.len() % 3 != 0 {
+        return Err(DecodeError::Malformed("responses not a multiple of 3"));
+    }
+    let mut out = Vec::new();
+    for g in a.chunks(3) {
+        let singles = as_array(&g[2], "singleResponses")?;
+        if singles.len() % 5 != 0 {
+            return Err(DecodeError::Malformed("singleResponses not a multiple of 5"));
+        }
+        let mut single_responses = Vec::new();
+        for s in singles.chunks(5) {
+            single_responses.push(SingleCertResponse {
+                serial_number_hash: as_bytes(&s[0], "serialNumberHash")?,
+                cert_status: decode_cert_status(&s[1])?,
+                this_update_back: decode_this_update_back(&s[2])?,
+                next_update_forward: opt_u64(&s[3], "nextUpdate")?,
+                extensions: decode_extensions(&s[4])?,
+            });
+        }
+        out.push(PerIssuerOCSPResponse {
+            issuer_cert_hash: as_bytes(&g[0], "issuerCertHash")?,
+            extensions: decode_extensions(&g[1])?,
+            single_responses,
+        });
+    }
+    Ok(out)
+}
+
+impl C509OcspResponse {
+    /// Decode a `C509OCSPResponse` from its CBOR bytes.
+    pub fn decode(bytes: &[u8]) -> Result<C509OcspResponse, DecodeError> {
+        let v: Value = serde_cbor::from_slice(bytes)
+            .map_err(|e| DecodeError::Cbor(e.to_string()))?;
+        let a = as_array(&v, "C509OCSPResponse top-level")?;
+        let ty = as_u64(a.first().ok_or(DecodeError::Malformed("empty array"))?,
+                        "ocspResponseType")?;
+        match ty {
+            discriminator::OCSP_RESP_ERROR => {
+                if a.len() != 2 {
+                    return Err(DecodeError::Malformed("Error response must be array[2]"));
+                }
+                Ok(C509OcspResponse::Error {
+                    response_status: as_i64(&a[1], "responseStatus")?,
+                })
+            }
+            discriminator::OCSP_RESP_BASIC => {
+                if a.len() != 10 {
+                    return Err(DecodeError::Malformed("Basic response must be array[10]"));
+                }
+                Ok(C509OcspResponse::Basic {
+                    signature_algorithm: as_i64(&a[1], "signatureAlgorithm")?,
+                    hash_algorithm: as_i64(&a[2], "hashAlgorithm")?,
+                    nonce: opt_bytes(&a[3], "nonce")?,
+                    responder_cert_hash: as_bytes(&a[4], "responderCertHash")?,
+                    produced_at: as_u64(&a[5], "producedAt")?,
+                    extensions: decode_extensions(&a[6])?,
+                    responses: decode_resp_responses(&a[7])?,
+                    responder_certs: opt_certs(&a[8])?,
+                    signature_value: as_bytes(&a[9], "signatureValue")?,
+                })
+            }
+            discriminator::OCSP_RESP_SIMPLE => {
+                if a.len() != 14 {
+                    return Err(DecodeError::Malformed("Simple response must be array[14]"));
+                }
+                Ok(C509OcspResponse::Simple {
+                    signature_algorithm: as_i64(&a[1], "signatureAlgorithm")?,
+                    hash_algorithm: as_i64(&a[2], "hashAlgorithm")?,
+                    nonce: opt_bytes(&a[3], "nonce")?,
+                    responder_cert_hash: as_bytes(&a[4], "responderCertHash")?,
+                    issuer_cert_hash: as_bytes(&a[5], "issuerCertHash")?,
+                    serial_number_hash: as_bytes(&a[6], "serialNumberHash")?,
+                    cert_status: decode_cert_status(&a[7])?,
+                    produced_at: as_u64(&a[8], "producedAt")?,
+                    this_update_back: decode_this_update_back(&a[9])?,
+                    next_update_forward: opt_u64(&a[10], "nextUpdate")?,
+                    extensions: decode_extensions(&a[11])?,
+                    responder_certs: opt_certs(&a[12])?,
+                    signature_value: as_bytes(&a[13], "signatureValue")?,
+                })
+            }
+            _ => Err(DecodeError::Malformed("unknown ocspResponseType")),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::crl::C509Crl;
+    use crate::ocsp_req::C509OcspRequest;
+    use crate::ocsp_resp::C509OcspResponse;
 
     // The four CRL examples (full bytes), as in crl.rs.
     const NO_REVOKED: &str = "8b000c6f746573742063726c6f6373702d6361542f45e78d2caedf368cdf53c39005d492450e1056011a6775d7001a677f1180f680f6584078bea0b6c4f89bcacb600d2c6a878e6ce88c9313d2b32ee2ac289c95031ee0dfa5a2d42083f124bcc025c4a0b10677b993b05b10d74825eeb25dd7bdfb96bd09";
@@ -258,5 +463,39 @@ mod tests {
         round_trip(REVOKED);
         round_trip(DELTA);
         round_trip(INDIRECT);
+    }
+
+    // OCSP request examples.
+    const SIMPLE_REQ: &str = "86020150111111111111111111111111111111115820a01c73a5f3b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c582010652787fa0527bc2449a1bfc5ab31aa5a6f0d8d6b998e4fede7d90dca47f00480";
+    const UNSIGNED_REQ: &str = "850001501111111111111111111111111111111180865820a01c73a5f3b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c8086582010652787fa0527bc2449a1bfc5ab31aa5a6f0d8d6b998e4fede7d90dca47f00480582075d8bc4fbafc6694467641e748dfd53a8b9d176dfa3d05b3e98a4d6e5c55f165805820d1ac135d7da29bdcf4dca0d5281a51605b678400c26408cadc3a32fc1b6ad5e3805820222222222222222222222222222222222222222222222222222222222222222280825820d3a0c1e3db92e8f6810537d45cfaecf6ce417e3b264e50cb4f69dd853401c5dd80";
+    const SIGNED_REQ: &str = "89010c015011111111111111111111111111111111582044f0528b56f35ad998049b306ff9a8b06fa79de8146946fe254b00c62a622a5d80865820a01c73a5f3b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c8086582010652787fa0527bc2449a1bfc5ab31aa5a6f0d8d6b998e4fede7d90dca47f00480582075d8bc4fbafc6694467641e748dfd53a8b9d176dfa3d05b3e98a4d6e5c55f165805820d1ac135d7da29bdcf4dca0d5281a51605b678400c26408cadc3a32fc1b6ad5e3805820222222222222222222222222222222222222222222222222222222222222222280825820d3a0c1e3db92e8f6810537d45cfaecf6ce417e3b264e50cb4f69dd853401c5dd80f65840ff755e078e731174dfd1f93e24c5b539ce3e1fe1a1ce51f387f12c6cd8c13aea6d87d4be33b6b3bf20c268afa19dcb6bafedf5e8a26131a027474e7b5831c106";
+
+    // OCSP response examples.
+    const ERROR_RESP: &str = "820006";
+    const SIMPLE_RESP: &str = "8e020c01501111111111111111111111111111111158200600867838e3311aa78b9ed60c631c86b09a6de7bc43e02a7aa7006a3443a3b25820a01c73a5f3b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c582010652787fa0527bc2449a1bfc5ab31aa5a6f0d8d6b998e4fede7d90dca47f004001a67c4f10039707f19627080f65840bd269e74ac6c9ebfe4e0a46a64cfd432cc06068c4d073fd515d0d276437ae5ec8baa611d3a7795e6b299c7539af3140ee768d19a05bd23b1e2c2f546c7738b07";
+    const BASIC_RESP: &str = "8a010c01501111111111111111111111111111111158200600867838e3311aa78b9ed60c631c86b09a6de7bc43e02a7aa7006a3443a3b21a6a2853f680865820a01c73a5f3b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c808f582010652787fa0527bc2449a1bfc5ab31aa5a6f0d8d6b998e4fede7d90dca47f0040039707f19627080582075d8bc4fbafc6694467641e748dfd53a8b9d176dfa3d05b3e98a4d6e5c55f1650139707f196270805820d1ac135d7da29bdcf4dca0d5281a51605b678400c26408cadc3a32fc1b6ad5e3821a67c32f000439707f196270805820222222222222222222222222222222222222222222222222222222222222222280855820d3a0c1e3db92e8f6810537d45cfaecf6ce417e3b264e50cb4f69dd853401c5dd0239707f19627080f65840937ea7cccad3b9f113ed6ad0df113bf5e70fbf326e020ff5183ac87e5530ff06225f1aa048d76d39d412ec26c3ad9b74668791559e6973308e11dcabda826207";
+
+    fn rt_req(hexstr: &str) {
+        let bytes = hex::decode(hexstr).unwrap();
+        assert_eq!(hex::encode(C509OcspRequest::decode(&bytes).unwrap().encode()), hexstr);
+    }
+
+    fn rt_resp(hexstr: &str) {
+        let bytes = hex::decode(hexstr).unwrap();
+        assert_eq!(hex::encode(C509OcspResponse::decode(&bytes).unwrap().encode()), hexstr);
+    }
+
+    #[test]
+    fn ocsp_request_round_trips_all_examples() {
+        rt_req(SIMPLE_REQ);
+        rt_req(UNSIGNED_REQ);
+        rt_req(SIGNED_REQ);
+    }
+
+    #[test]
+    fn ocsp_response_round_trips_all_examples() {
+        rt_resp(ERROR_RESP);
+        rt_resp(SIMPLE_RESP);
+        rt_resp(BASIC_RESP);
     }
 }
