@@ -13,7 +13,7 @@ Expires: 26 December 2026                                     J. Höglund
                                                             24 June 2026
 
 
-                 C509 Certificate Revocation Management
+             CBOR Encoded Certificate Revocation Management
                  draft-liao-cose-c509-revocation-latest
 
 Abstract

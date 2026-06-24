@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>C509 Certificate Revocation Management</title>
+<title>CBOR Encoded Certificate Revocation Management</title>
 <meta content="Lijun Liao" name="author">
 <meta content="Marco Tiloca" name="author">
 <meta content="Joel Höglund" name="author">
@@ -1095,7 +1095,7 @@ svg {
 </dd>
 </dl>
 </div>
-<h1 id="title">C509 Certificate Revocation Management</h1>
+<h1 id="title">CBOR Encoded Certificate Revocation Management</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">This document specifies a set of CBOR-encoded PKI structures for use with C509 certificates <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>, X.509 certificates <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>, and any future certificate types.  It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span> and OCSP messages <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>, respectively.  The structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification.  C509 OCSP builds upon and improves <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span> by (1) signing over a wider set of fields than in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span> to prevent algorithm-substitution and certificate-chain substitution attacks, (2) replacing plaintext serial numbers with hashes to preserve requestor privacy, (3) replacing the two-hash issuer identity with a single certificate hash, and (4) identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields, enabling support for C509, X.509, and future certificate types without structural changes.  C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
