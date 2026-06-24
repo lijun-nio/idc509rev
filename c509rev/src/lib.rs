@@ -12,40 +12,8 @@
 //! byte-for-byte against the draft's worked examples (KAT). X.509-DER ↔ C509
 //! *semantic* interop is a later phase.
 
-/// C509 Hash Algorithms registry values (draft §"C509 Hash Algorithms").
-///
-/// Distinct from the C509 *signature*/PK algorithm registry reused from
-/// [`c509::registry`]; this is a new registry introduced by the revocation
-/// draft and governs `issuerCertHash`, `serialNumberHash`, and the
-/// requestor/responder cert hashes.
-pub mod hashalg {
-    /// `0` — SHA-1 (note: cryptographically broken; see IMPLEMENTATION_INSIGHTS A2).
-    pub const SHA_1: i64 = 0;
-    /// `1` — SHA-256 (the constrained default; hardware-accelerated on the target).
-    pub const SHA_256: i64 = 1;
-    /// `2` — SHA-384.
-    pub const SHA_384: i64 = 2;
-    /// `3` — SHA-512.
-    pub const SHA_512: i64 = 3;
-    /// `4` — SHA-224.
-    pub const SHA_224: i64 = 4;
-    /// `5` — SHA-512/256.
-    pub const SHA_512_256: i64 = 5;
-    /// `6` — SM3.
-    pub const SM3: i64 = 6;
-    /// `7` — SHA3-224.
-    pub const SHA3_224: i64 = 7;
-    /// `8` — SHA3-256.
-    pub const SHA3_256: i64 = 8;
-    /// `9` — SHA3-384.
-    pub const SHA3_384: i64 = 9;
-    /// `10` — SHA3-512.
-    pub const SHA3_512: i64 = 10;
-    /// `11` — SHAKE128.
-    pub const SHAKE128: i64 = 11;
-    /// `12` — SHAKE256.
-    pub const SHAKE256: i64 = 12;
-}
+pub mod hashalg;
+pub mod time;
 
 /// crlType / ocspRequestType / ocspResponseType discriminators (draft).
 pub mod discriminator {
