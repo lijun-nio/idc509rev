@@ -20,34 +20,8 @@
 
 use c509::lcbor;
 
+use crate::common::{encode_extensions, Extension, Name, CBOR_NULL};
 use crate::time;
-
-const CBOR_NULL: [u8; 1] = [0xf6];
-
-/// A C509 `Name`. v1 supports the single-CN UTF-8 text form (draft §7.1
-/// singleton optimisation) used by every CRL/OCSP example.
-#[derive(Clone, Debug)]
-pub enum Name {
-    /// A Name that is a single `CN` attribute carrying a UTF-8 string, encoded
-    /// directly as a CBOR text string.
-    Text(String),
-}
-
-impl Name {
-    fn encode(&self) -> Vec<u8> {
-        match self {
-            Name::Text(s) => lcbor::lcbor_text(s.as_bytes()),
-        }
-    }
-}
-
-/// One extension as the `(extensionID: int, extensionValue: Defined)` group.
-/// `value` is the already-encoded CBOR of the extension value.
-#[derive(Clone, Debug)]
-pub struct Extension {
-    pub id: i64,
-    pub value: Vec<u8>,
-}
 
 /// `RevokedCertsControl`: fixed-width parameters for one issuer's entries.
 #[derive(Clone, Debug)]
@@ -127,16 +101,6 @@ pub struct C509Crl {
     pub revoked_certs_list: Option<Vec<PerIssuerRevokedCerts>>,
     /// Set by `sign()`; required by `encode()`.
     pub signature_value: Vec<u8>,
-}
-
-fn encode_extensions(exts: &[Extension]) -> Vec<u8> {
-    // Each extension flattens to two array elements (id, value).
-    let mut items: Vec<Vec<u8>> = Vec::with_capacity(exts.len() * 2);
-    for e in exts {
-        items.push(lcbor::lcbor_int(e.id));
-        items.push(e.value.clone());
-    }
-    lcbor::lcbor_array(&items)
 }
 
 /// Big-endian fixed-width encoding of `value`, left-padded with zeros to `len`.

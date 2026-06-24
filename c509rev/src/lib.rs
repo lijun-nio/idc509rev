@@ -12,9 +12,11 @@
 //! byte-for-byte against the draft's worked examples (KAT). X.509-DER ↔ C509
 //! *semantic* interop is a later phase.
 
+pub mod common;
 pub mod hashalg;
 pub mod time;
 pub mod crl;
+pub mod ocsp_req;
 
 /// crlType / ocspRequestType / ocspResponseType discriminators (draft).
 pub mod discriminator {
