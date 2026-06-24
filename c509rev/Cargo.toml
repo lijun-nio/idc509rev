@@ -14,6 +14,9 @@ c509 = { path = "../../CBOR-certificates/c509_demo_impl" }
 serde_cbor = { version = "0.11", features = ["tags"] }
 sha2 = "0.10"
 hex = "0.4"
+# Signature verification (same versions as the c509 crate, so no extra build).
+ed25519-dalek = { version = "2", features = ["pkcs8"] }
+p256 = { version = "0.13", features = ["ecdsa"] }
 
 [[bin]]
 name = "c509rev"

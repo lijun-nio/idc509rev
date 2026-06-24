@@ -262,7 +262,9 @@ name = "c509rev"
 version = "0.1.0"
 dependencies = [
  "c509",
+ "ed25519-dalek",
  "hex",
+ "p256",
  "serde_cbor",
  "sha2",
 ]

@@ -20,6 +20,7 @@ pub mod crl;
 pub mod ocsp_req;
 pub mod ocsp_resp;
 pub mod decode;
+pub mod sign;
 
 /// crlType / ocspRequestType / ocspResponseType discriminators (draft).
 pub mod discriminator {
