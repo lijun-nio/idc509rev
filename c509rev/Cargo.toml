@@ -1,0 +1,20 @@
+[package]
+name = "c509rev"
+version = "0.1.0"
+edition = "2021"
+authors = ["Joel Höglund <joel.hoglund@ri.se>"]
+description = "Reference implementation of C509 Certificate Revocation Management (C509 CRL + C509 OCSP), draft-liao-cose-c509-revocation."
+
+[dependencies]
+# Reuse the C509 certificate codec: deterministic CBOR primitives (lcbor), the
+# algorithm registry, key handling, and TBS signing (type2::sign_tbs). Separate
+# crate, depended on by path — see REFERENCE-IMPL-PLAN.md.
+c509 = { path = "../../CBOR-certificates/c509_demo_impl" }
+
+serde_cbor = { version = "0.11", features = ["tags"] }
+sha2 = "0.10"
+hex = "0.4"
+
+[[bin]]
+name = "c509rev"
+path = "src/bin/c509rev.rs"
