@@ -93,6 +93,8 @@ Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} require
 
 CRLs as defined in {{RFC5280}} can be large, especially when many certificates have been revoked or when CRL extensions add overhead.  OCSP responses as defined in {{RFC6960}} carry per-certificate status information and may be exchanged during TLS {{RFC8446}} and DTLS {{RFC9147}} handshakes via OCSP stapling {{RFC6066}}, directly affecting handshake latency.
 
+Note on terminology: The label "C509" is used for consistency with the C509 certificate encoding and to promote a cohesive C509 PKI ecosystem (C509 certificates, CRLs, OCSP, and related tooling). Although names in this document include "C509", the encodings and protocols defined here are certificate-type agnostic and apply equally to X.509 certificates and other certificate types; see {{cert-type-interop}}.
+
 This document specifies:
 
 - **C509 CRL** -- a natively signed CBOR {{RFC8949}} encoding of X.509 CRLs ({{RFC5280, Section 5}}).  The signature is computed over the CBOR Sequence {{RFC8742}} `TBSCertList`; no ASN.1 encoding is involved.
