@@ -14,6 +14,7 @@
 
 pub mod hashalg;
 pub mod time;
+pub mod crl;
 
 /// crlType / ocspRequestType / ocspResponseType discriminators (draft).
 pub mod discriminator {
