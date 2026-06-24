@@ -1,19 +1,27 @@
 ---
 v: 3
+
 title: "CBOR Encoded Certificate Revocation Management"
 docname: draft-liao-cose-c509-revocation-latest
 abbrev: C509 Revocation
+
 ipr: trust200902
+area: Security
+wg: COSE Working Group
+kw: Internet-Draft
 cat: std
 submissiontype: IETF
+
 coding: utf-8
+
 pi:
   toc: yes
   sortrefs: yes
   symrefs: yes
   tocdepth: 4
+
 venue:
-  group: "CBOR Object Signing and Encryption"
+  group: "CBOR Object Signing and Encryption (cose)"
   type: "Working Group"
   mail: "cose@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/cose/"
@@ -70,6 +78,9 @@ informative:
     title: "ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)"
     target: https://www.itu.int/rec/T-REC-X.690
 
+entity:
+  SELF: "[RFC-XXXX]"
+
 --- abstract
 
 This document specifies a set of CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and any future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification. C509 OCSP builds upon and improves (RFC 6960) by (1) signing over a wider set of fields than in (RFC 6960) to prevent algorithm-substitution and certificate-chain substitution attacks, (2) replacing plaintext serial numbers with hashes to preserve requestor privacy, (3) replacing the two-hash issuer identity with a single certificate hash, and (4) identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields, enabling support for C509, X.509, and future certificate types without structural changes. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation.
@@ -103,7 +114,7 @@ C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded cou
 
 C509 CRL and C509 OCSP are designed to be compatible with certificate profiles for constrained deployments, such as {{RFC7925}}.
 
-# Notational Conventions {#notation}
+# Terminology {#terminology}
 
 {::boilerplate bcp14-tagged}
 
@@ -877,6 +888,10 @@ TODO
 
 # IANA Considerations {#iana}
 
+This document has the following actions for IANA.
+
+Note to RFC Editor: Please replace all occurrences of "{{&SELF}}" with the RFC number of this specification and delete this paragraph.
+
 ## Extension Identifiers Registry
 
 IANA is requested to assign the new values shown in {{tab-extensions-iana}} in the "C509 Extensions" registry under the new registry group "CBOR Encoded X.509 (C509)" defined in {{I-D.ietf-cose-cbor-encoded-cert}}.
@@ -961,11 +976,11 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of \[this document\].
+Security considerations: See the Security Considerations section of {{&SELF}}.
 
 Interoperability considerations: N/A
 
-Published specification: \[this document\]
+Published specification: {{&SELF}}
 
 Applications that use this media type: Any MIME-compliant transport
 
@@ -999,11 +1014,11 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of \[this document\].
+Security considerations: See the Security Considerations section of {{&SELF}}.
 
 Interoperability considerations: N/A
 
-Published specification: \[this document\]
+Published specification: {{&SELF}}
 
 Applications that use this media type: Any MIME-compliant transport
 
@@ -1037,11 +1052,11 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of \[this document\].
+Security considerations: See the Security Considerations section of {{&SELF}}.
 
 Interoperability considerations: N/A
 
-Published specification: \[this document\]
+Published specification: {{&SELF}}
 
 Applications that use this media type: OCSP clients
 
@@ -1075,11 +1090,11 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of \[this document\].
+Security considerations: See the Security Considerations section of {{&SELF}}.
 
 Interoperability considerations: N/A
 
-Published specification: \[this document\]
+Published specification: {{&SELF}}
 
 Applications that use this media type: OCSP servers
 
@@ -1128,7 +1143,7 @@ IANA is requested to add entries for "application/cose-c509-crl", "application/c
 +----------------------+---------+-------+------------+
 ~~~
 
-## Expert Review Guidelinee {#expert-review-guidelines}
+## Expert Review Guidelines {#expert-review-guidelines}
 
 TODO
 
@@ -3594,7 +3609,7 @@ Annotated hex
 770:     2A8CB2505B07
 ~~~~~
 
-# Acknowledgements {#acknowledgements}
+# Acknowledgments # {#acknowledgments}
 {:numbered="false"}
 
 The authors thank xxx for reviewing and commenting on intermediate versions of the draft.
