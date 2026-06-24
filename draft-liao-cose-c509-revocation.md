@@ -17,7 +17,7 @@ venue:
   type: "Working Group"
   mail: "cose@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/cose/"
-  github: "cose-wg/CBOR-certificates"
+  github: "lijun-nio/idc509rev"
 
 author:
   - name: Lijun Liao
