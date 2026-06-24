@@ -17,6 +17,7 @@ pub mod certhash;
 pub mod hashalg;
 pub mod time;
 pub mod crl;
+pub mod status_list;
 pub mod ocsp_req;
 pub mod ocsp_resp;
 pub mod decode;

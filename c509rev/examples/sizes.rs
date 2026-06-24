@@ -124,6 +124,27 @@ fn crl(r: usize) -> usize {
     .len()
 }
 
+/// C509 Status List covering N issued certs (size is independent of how many
+/// are revoked; use a few revoked).
+fn status_list(n_issued: usize) -> usize {
+    use c509rev::status_list::C509StatusList;
+    C509StatusList {
+        status_list_type: 0,
+        signature_algorithm: ED25519,
+        authority_subject: c509rev::common::Name::Text("test crlocsp-ca".into()),
+        authority_key_identifier: Some(vec![0u8; 20]),
+        status_list_number: 1,
+        this_update: 1_736_208_754,
+        next_update: Some(1_736_813_554),
+        base_index: 0,
+        status_bits: C509StatusList::revocation_bitmap(n_issued, &[1, 2, 3]),
+        extensions: vec![],
+        signature_value: vec![0u8; 64],
+    }
+    .encode()
+    .len()
+}
+
 fn main() {
     println!("scenario,N,hashlen,bytes");
     for l in [32usize, 8] {
@@ -136,5 +157,9 @@ fn main() {
     for r in [0usize, 1, 10, 100, 1000, 10000] {
         // hashlen N/A for CRL (raw fixed-width serials); use R in the N column.
         println!("crl,{r},-,{}", crl(r));
+    }
+    // Status list: N = issued population (size independent of #revoked).
+    for n in [64usize, 800, 8000, 80000, 800000] {
+        println!("status_list,{n},-,{}", status_list(n));
     }
 }
