@@ -330,6 +330,87 @@ cc745bc3464d349750e0ae18af6bf8d0f";
                    hex::encode(example_tbs(CRL_NO_REVOKED)));
     }
 
+    // crl-signer AKI used by the indirect CRL example.
+    const AKI_SIGNER: [u8; 20] = [
+        0x09, 0xe4, 0x33, 0x58, 0x25, 0x56, 0x55, 0x0a, 0x27, 0xdb,
+        0x4a, 0x19, 0xbc, 0xe2, 0xd6, 0x60, 0x88, 0x47, 0x22, 0xb6,
+    ];
+
+    const CRL_DELTA: &str = "8b000c6f746573742063726c6f6373702d6361542f45e78d2caedf36\
+8cdf53c39005d492450e1056031a677dc2f21a678065f2028085f6840302021a677d1a32804f3412000001785\
+6a84800bc9aa7d0004c11220000334400005566000058406a6db5affbc1e72b76709aa2b5eeaaf7660a9647d4\
+7520a32f61db220afdc6fc7c48e712993d4510b35832b15fc003da8be95280678dc793fb0795e1ce6d220a";
+
+    const CRL_INDIRECT: &str = "8b000c6a63726c2d7369676e65725409e433582556550a27db4a19\
+bce2d660884722b6041a677c71721a6785abf2f6808a6f746573742063726c6f6373702d6361840302031a677\
+4887280521234000000015678054600009abc02a30000f66a6578616d706c65204341840302031a6775d9f280\
+52112205460006334402a30006556600000006f65840a301bc4c9c68f5c4455cd811fdebcb04d643f1799b8f6\
+1935e6270cb1992030c0027960eac7924a3f01acdae25caaea45e5c324b00164819e369784adcd52509";
+
+    #[test]
+    fn tbs_matches_delta_example() {
+        let base_date = 1736251954;
+        let rc = |csn: u16, off: u16, reason: u8| RevokedCert {
+            serial: csn.to_be_bytes().to_vec(),
+            revocation_date: base_date + off as u64,
+            reason: Some(reason),
+        };
+        let rm = |csn: u16, off: u16| RemovedCert {
+            serial: csn.to_be_bytes().to_vec(),
+            removal_date: base_date + off as u64,
+        };
+        let per = PerIssuerRevokedCerts {
+            issuer: None,
+            control: Some(RevokedCertsControl {
+                flags: 0x03, serial_number_length: 2, date_length: 2, base_date,
+            }),
+            extensions: vec![],
+            revoked: vec![rc(0x3412, 0x0000, 1), rc(0x7856, 0xa848, 0), rc(0xbc9a, 0xa7d0, 0)],
+            removed: vec![rm(0x1122, 0x0000), rm(0x3344, 0x0000), rm(0x5566, 0x0000)],
+        };
+        let mut info = base_info(3, 1736295154, 1736467954);
+        info.base_crl_number = Some(2);
+        let crl = C509Crl { info, revoked_certs_list: Some(vec![per]), signature_value: vec![] };
+        assert_eq!(hex::encode(crl.encode_tbs()),
+                   hex::encode(example_tbs(CRL_DELTA)));
+    }
+
+    #[test]
+    fn tbs_matches_indirect_example() {
+        let mk = |base_date: u64, entries: &[(u16, u32, u8)]| PerIssuerRevokedCerts {
+            issuer: None, // set by caller
+            control: Some(RevokedCertsControl {
+                flags: 0x03, serial_number_length: 2, date_length: 3, base_date,
+            }),
+            extensions: vec![],
+            revoked: entries.iter().map(|&(csn, off, r)| RevokedCert {
+                serial: csn.to_be_bytes().to_vec(),
+                revocation_date: base_date + off as u64,
+                reason: Some(r),
+            }).collect(),
+            removed: vec![],
+        };
+        let mut g0 = mk(1735690354, &[(0x1234, 0x000000, 1), (0x5678, 0x054600, 0), (0x9abc, 0x02a300, 0)]);
+        g0.issuer = Some(Name::Text("test crlocsp-ca".to_string()));
+        let mut g1 = mk(1735776754, &[(0x1122, 0x054600, 6), (0x3344, 0x02a300, 6), (0x5566, 0x000000, 6)]);
+        g1.issuer = Some(Name::Text("example CA".to_string()));
+
+        let info = CrlInfo {
+            crl_type: 0,
+            signature_algorithm: c509::registry::SIG_ED25519,
+            authority_subject: Name::Text("crl-signer".to_string()),
+            authority_key_identifier: Some(AKI_SIGNER.to_vec()),
+            crl_number: 4,
+            this_update: 1736208754,
+            next_update: Some(1736813554),
+            base_crl_number: None,
+            crl_extensions: vec![],
+        };
+        let crl = C509Crl { info, revoked_certs_list: Some(vec![g0, g1]), signature_value: vec![] };
+        assert_eq!(hex::encode(crl.encode_tbs()),
+                   hex::encode(example_tbs(CRL_INDIRECT)));
+    }
+
     #[test]
     fn tbs_matches_revoked_example() {
         let control = RevokedCertsControl {
