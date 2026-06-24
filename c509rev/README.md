@@ -14,8 +14,8 @@ registry (`c509::registry`), and TBS signing (`c509::type2::sign_tbs`).
 
 ## Status
 
-Encoders are complete and validated byte-for-byte against the draft's worked
-examples (KAT). Decode, sign/verify, and a CLI are in progress.
+The v1 codec is complete: **encode + decode + sign + verify + a CLI**, validated
+byte-for-byte against the draft's worked examples (KAT).
 
 | Area | Module | State |
 |------|--------|-------|
@@ -26,11 +26,20 @@ examples (KAT). Decode, sign/verify, and a CLI are in progress.
 | C509 OCSP request encode (Simple/Unsigned/Signed) | `ocsp_req` | done — all examples match |
 | C509 OCSP response encode (Error/Basic/Simple) | `ocsp_resp` | done — all examples match |
 | Cert/serial identity hashes | `certhash` | functions done (see Findings) |
-| Decode, sign/verify, CLI | — | TODO |
+| Decode (CRL + OCSP) | `decode` | done — all 9 examples round-trip |
+| Sign + verify (Ed25519, ECDSA-secp256r1) | `sign` | done — sign↔verify round-trip |
+| CLI (`decode` / `verify`) | `bin/c509rev` | done |
 
-For signed objects (CRL, signed OCSP request/response) the KAT is a **TBS
+For signed objects (CRL, signed OCSP request/response) the encode KAT is a **TBS
 byte-match**, because the draft ships no example signing keys, so the
-`signatureValue` itself cannot be reproduced.
+`signatureValue` itself cannot be reproduced; sign/verify is validated with the
+crate's own test keys, and decode→re-encode round-trips the full example bytes
+including the original signature.
+
+Remaining polish (not blocking v1): encode-from-a-source-format in the CLI,
+the signed-request *with-cert*/*with-chain* variants (the `requestor_certs`
+field is already an opaque pass-through), and full `Name` beyond the single-CN
+text form. X.509-DER ↔ C509 *semantic* interop is the separate phase 2.
 
 ## Hash truncation
 
