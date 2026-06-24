@@ -13,6 +13,7 @@
 //! *semantic* interop is a later phase.
 
 pub mod common;
+pub mod certhash;
 pub mod hashalg;
 pub mod time;
 pub mod crl;
