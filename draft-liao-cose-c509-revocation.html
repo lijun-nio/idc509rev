@@ -14,6 +14,7 @@
        This document specifies a set of CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and any future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification. C509 OCSP builds upon and improves (RFC 6960) by (1) signing over a wider set of fields than in (RFC 6960) to prevent algorithm-substitution and certificate-chain substitution attacks, (2) replacing plaintext serial numbers with hashes to preserve requestor privacy, (3) replacing the two-hash issuer identity with a single certificate hash, and (4) identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields, enabling support for C509, X.509, and future certificate types without structural changes. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. 
     " name="description">
 <meta content="xml2rfc 3.34.0" name="generator">
+<meta content="Internet-Draft" name="keyword">
 <meta content="draft-liao-cose-c509-revocation-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.34.0
@@ -1059,7 +1060,7 @@ svg {
 <div id="internal-metadata" class="document-information">
 <dl id="identifiers">
 <dt class="label-workgroup">Workgroup:</dt>
-<dd class="workgroup">Network Working Group</dd>
+<dd class="workgroup">COSE Working Group</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
 <dd class="internet-draft">draft-liao-cose-c509-revocation-latest</dd>
 <dt class="label-published">Published:</dt>
@@ -1109,7 +1110,7 @@ svg {
         Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-liao-cose-c509-revocation/">https://datatracker.ietf.org/doc/draft-liao-cose-c509-revocation/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
-        CBOR Object Signing and Encryption Working Group mailing list (<span><a href="mailto:cose@ietf.org">mailto:cose@ietf.org</a></span>),
+        CBOR Object Signing and Encryption (cose) Working Group mailing list (<span><a href="mailto:cose@ietf.org">mailto:cose@ietf.org</a></span>),
         which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/cose/">https://mailarchive.ietf.org/arch/browse/cose/</a></span>.
         Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/cose/">https://www.ietf.org/mailman/listinfo/cose/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 <p id="section-note.1-4">Source for this draft and an issue tracker can be found at
@@ -1167,7 +1168,7 @@ svg {
             <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
-            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-notational-conventions" class="internal xref">Notational Conventions</a></p>
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
             <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-imported-definitions" class="internal xref">Imported Definitions</a></p>
@@ -1379,7 +1380,7 @@ svg {
                 <p id="section-toc.1-1.9.2.5.1"><a href="#section-9.5" class="auto internal xref">9.5</a>.  <a href="#name-coap-content-formats-regist" class="internal xref">CoAP Content-Formats Registry</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.6">
-                <p id="section-toc.1-1.9.2.6.1"><a href="#section-9.6" class="auto internal xref">9.6</a>.  <a href="#name-expert-review-guidelinee" class="internal xref">Expert Review Guidelinee</a></p>
+                <p id="section-toc.1-1.9.2.6.1"><a href="#section-9.6" class="auto internal xref">9.6</a>.  <a href="#name-expert-review-guidelines" class="internal xref">Expert Review Guidelines</a></p>
 </li>
             </ul>
 </li>
@@ -1621,7 +1622,7 @@ svg {
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
             <p id="section-toc.1-1.13.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
@@ -1669,10 +1670,10 @@ The request and response structures defined in this document are certificate-typ
 <p id="section-1-7">C509 CRL and C509 OCSP are designed to be compatible with certificate profiles for constrained deployments, such as <span>[<a href="#RFC7925" class="cite xref">RFC7925</a>]</span>.<a href="#section-1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="notation">
+<div id="terminology">
 <section id="section-2">
-      <h2 id="name-notational-conventions">
-<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-notational-conventions" class="section-name selfRef">Notational Conventions</a>
+      <h2 id="name-terminology">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
       </h2>
 <p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
 "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
@@ -3233,6 +3234,8 @@ TNQuery = text .size (1..15)
       <h2 id="name-iana-considerations">
 <a href="#section-9" class="section-number selfRef">9. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
+<p id="section-9-1">This document has the following actions for IANA.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-2">Note to RFC Editor: Please replace all occurrences of "[RFC-XXXX]" with the RFC number of this specification and delete this paragraph.<a href="#section-9-2" class="pilcrow">¶</a></p>
 <div id="extension-identifiers-registry">
 <section id="section-9.1">
         <h3 id="name-extension-identifiers-regis">
@@ -3367,9 +3370,9 @@ TNQuery = text .size (1..15)
 <p id="section-9.4.1-2">Subtype name: cose-c509-crl<a href="#section-9.4.1-2" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-3">Required parameters: N/A<a href="#section-9.4.1-3" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-4">Encoding considerations: binary<a href="#section-9.4.1-4" class="pilcrow">¶</a></p>
-<p id="section-9.4.1-5">Security considerations: See the Security Considerations section of [this document].<a href="#section-9.4.1-5" class="pilcrow">¶</a></p>
+<p id="section-9.4.1-5">Security considerations: See the Security Considerations section of [RFC-XXXX].<a href="#section-9.4.1-5" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-6">Interoperability considerations: N/A<a href="#section-9.4.1-6" class="pilcrow">¶</a></p>
-<p id="section-9.4.1-7">Published specification: [this document]<a href="#section-9.4.1-7" class="pilcrow">¶</a></p>
+<p id="section-9.4.1-7">Published specification: [RFC-XXXX]<a href="#section-9.4.1-7" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-8">Applications that use this media type: Any MIME-compliant transport<a href="#section-9.4.1-8" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-9">Fragment identifier considerations: N/A<a href="#section-9.4.1-9" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-10">Additional information:<a href="#section-9.4.1-10" class="pilcrow">¶</a></p>
@@ -3403,9 +3406,9 @@ TNQuery = text .size (1..15)
 <p id="section-9.4.2-2">Subtype name: cose-c509-crlinfo<a href="#section-9.4.2-2" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-3">Required parameters: N/A<a href="#section-9.4.2-3" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-4">Encoding considerations: binary<a href="#section-9.4.2-4" class="pilcrow">¶</a></p>
-<p id="section-9.4.2-5">Security considerations: See the Security Considerations section of [this document].<a href="#section-9.4.2-5" class="pilcrow">¶</a></p>
+<p id="section-9.4.2-5">Security considerations: See the Security Considerations section of [RFC-XXXX].<a href="#section-9.4.2-5" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-6">Interoperability considerations: N/A<a href="#section-9.4.2-6" class="pilcrow">¶</a></p>
-<p id="section-9.4.2-7">Published specification: [this document]<a href="#section-9.4.2-7" class="pilcrow">¶</a></p>
+<p id="section-9.4.2-7">Published specification: [RFC-XXXX]<a href="#section-9.4.2-7" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-8">Applications that use this media type: Any MIME-compliant transport<a href="#section-9.4.2-8" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-9">Fragment identifier considerations: N/A<a href="#section-9.4.2-9" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-10">Additional information:<a href="#section-9.4.2-10" class="pilcrow">¶</a></p>
@@ -3439,9 +3442,9 @@ TNQuery = text .size (1..15)
 <p id="section-9.4.3-2">Subtype name: cose-c509-ocsp-request<a href="#section-9.4.3-2" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-3">Required parameters: N/A<a href="#section-9.4.3-3" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-4">Encoding considerations: binary<a href="#section-9.4.3-4" class="pilcrow">¶</a></p>
-<p id="section-9.4.3-5">Security considerations: See the Security Considerations section of [this document].<a href="#section-9.4.3-5" class="pilcrow">¶</a></p>
+<p id="section-9.4.3-5">Security considerations: See the Security Considerations section of [RFC-XXXX].<a href="#section-9.4.3-5" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-6">Interoperability considerations: N/A<a href="#section-9.4.3-6" class="pilcrow">¶</a></p>
-<p id="section-9.4.3-7">Published specification: [this document]<a href="#section-9.4.3-7" class="pilcrow">¶</a></p>
+<p id="section-9.4.3-7">Published specification: [RFC-XXXX]<a href="#section-9.4.3-7" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-8">Applications that use this media type: OCSP clients<a href="#section-9.4.3-8" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-9">Fragment identifier considerations: N/A<a href="#section-9.4.3-9" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-10">Additional information:<a href="#section-9.4.3-10" class="pilcrow">¶</a></p>
@@ -3475,9 +3478,9 @@ TNQuery = text .size (1..15)
 <p id="section-9.4.4-2">Subtype name: cose-c509-ocsp-response<a href="#section-9.4.4-2" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-3">Required parameters: N/A<a href="#section-9.4.4-3" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-4">Encoding considerations: binary<a href="#section-9.4.4-4" class="pilcrow">¶</a></p>
-<p id="section-9.4.4-5">Security considerations: See the Security Considerations section of [this document].<a href="#section-9.4.4-5" class="pilcrow">¶</a></p>
+<p id="section-9.4.4-5">Security considerations: See the Security Considerations section of [RFC-XXXX].<a href="#section-9.4.4-5" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-6">Interoperability considerations: N/A<a href="#section-9.4.4-6" class="pilcrow">¶</a></p>
-<p id="section-9.4.4-7">Published specification: [this document]<a href="#section-9.4.4-7" class="pilcrow">¶</a></p>
+<p id="section-9.4.4-7">Published specification: [RFC-XXXX]<a href="#section-9.4.4-7" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-8">Applications that use this media type: OCSP servers<a href="#section-9.4.4-8" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-9">Fragment identifier considerations: N/A<a href="#section-9.4.4-9" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-10">Additional information:<a href="#section-9.4.4-10" class="pilcrow">¶</a></p>
@@ -3536,8 +3539,8 @@ TNQuery = text .size (1..15)
 </div>
 <div id="expert-review-guidelines">
 <section id="section-9.6">
-        <h3 id="name-expert-review-guidelinee">
-<a href="#section-9.6" class="section-number selfRef">9.6. </a><a href="#name-expert-review-guidelinee" class="section-name selfRef">Expert Review Guidelinee</a>
+        <h3 id="name-expert-review-guidelines">
+<a href="#section-9.6" class="section-number selfRef">9.6. </a><a href="#name-expert-review-guidelines" class="section-name selfRef">Expert Review Guidelines</a>
         </h3>
 <p id="section-9.6-1">TODO<a href="#section-9.6-1" class="pilcrow">¶</a></p>
 </section>
@@ -6554,10 +6557,10 @@ C509BasicOCSPResponse
 </div>
 </section>
 </div>
-<div id="acknowledgements">
+<div id="acknowledgments">
 <section id="appendix-B">
-      <h2 id="name-acknowledgements">
-<a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      <h2 id="name-acknowledgments">
+<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
 <p id="appendix-B-1">The authors thank xxx for reviewing and commenting on intermediate versions of the draft.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 </section>

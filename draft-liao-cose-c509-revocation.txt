@@ -2,7 +2,7 @@
 
 
 
-Network Working Group                                            L. Liao
+COSE Working Group                                               L. Liao
 Internet-Draft                                                       NIO
 Intended status: Standards Track                               M. Tiloca
 Expires: 26 December 2026                                     J. Höglund
@@ -47,9 +47,10 @@ About This Document
    https://datatracker.ietf.org/doc/draft-liao-cose-c509-revocation/.
 
    Discussion of this document takes place on the CBOR Object Signing
-   and Encryption Working Group mailing list (mailto:cose@ietf.org),
-   which is archived at https://mailarchive.ietf.org/arch/browse/cose/.
-   Subscribe at https://www.ietf.org/mailman/listinfo/cose/.
+   and Encryption (cose) Working Group mailing list
+   (mailto:cose@ietf.org), which is archived at
+   https://mailarchive.ietf.org/arch/browse/cose/.  Subscribe at
+   https://www.ietf.org/mailman/listinfo/cose/.
 
    Source for this draft and an issue tracker can be found at
    https://github.com/lijun-nio/idc509rev.
@@ -88,7 +89,7 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-   2.  Notational Conventions
+   2.  Terminology
    3.  Imported Definitions
    4.  Encoding of Time Fields
    5.  C509 CRL
@@ -153,7 +154,7 @@ Table of Contents
        9.4.3.  Media Type application/cose-c509-ocsp-request
        9.4.4.  Media Type application/cose-c509-ocsp-response
      9.5.  CoAP Content-Formats Registry
-     9.6.  Expert Review Guidelinee
+     9.6.  Expert Review Guidelines
    10. References
      10.1.  Normative References
      10.2.  Informative References
@@ -223,7 +224,7 @@ Table of Contents
                Certificate Chain
          A.5.5.1.  X.509 OCSP Response
          A.5.5.2.  C509 OCSP Response
-   Acknowledgements
+   Acknowledgments
    Authors' Addresses
 
 1.  Introduction
@@ -303,7 +304,7 @@ Table of Contents
    C509 CRL and C509 OCSP are designed to be compatible with certificate
    profiles for constrained deployments, such as [RFC7925].
 
-2.  Notational Conventions
+2.  Terminology
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
@@ -1713,6 +1714,11 @@ Table of Contents
 
 9.  IANA Considerations
 
+   This document has the following actions for IANA.
+
+   Note to RFC Editor: Please replace all occurrences of "[RFC-XXXX]"
+   with the RFC number of this specification and delete this paragraph.
+
 9.1.  Extension Identifiers Registry
 
    IANA is requested to assign the new values shown in Figure 5 in the
@@ -1844,11 +1850,11 @@ Table of Contents
    Encoding considerations: binary
 
    Security considerations: See the Security Considerations section of
-   [this document].
+   [RFC-XXXX].
 
    Interoperability considerations: N/A
 
-   Published specification: [this document]
+   Published specification: [RFC-XXXX]
 
    Applications that use this media type: Any MIME-compliant transport
 
@@ -1887,11 +1893,11 @@ Table of Contents
    Encoding considerations: binary
 
    Security considerations: See the Security Considerations section of
-   [this document].
+   [RFC-XXXX].
 
    Interoperability considerations: N/A
 
-   Published specification: [this document]
+   Published specification: [RFC-XXXX]
 
    Applications that use this media type: Any MIME-compliant transport
 
@@ -1930,11 +1936,11 @@ Table of Contents
    Encoding considerations: binary
 
    Security considerations: See the Security Considerations section of
-   [this document].
+   [RFC-XXXX].
 
    Interoperability considerations: N/A
 
-   Published specification: [this document]
+   Published specification: [RFC-XXXX]
 
    Applications that use this media type: OCSP clients
 
@@ -1973,11 +1979,11 @@ Table of Contents
    Encoding considerations: binary
 
    Security considerations: See the Security Considerations section of
-   [this document].
+   [RFC-XXXX].
 
    Interoperability considerations: N/A
 
-   Published specification: [this document]
+   Published specification: [RFC-XXXX]
 
    Applications that use this media type: OCSP servers
 
@@ -2031,7 +2037,7 @@ Table of Contents
    | response             |         |       |            |
    +----------------------+---------+-------+------------+
 
-9.6.  Expert Review Guidelinee
+9.6.  Expert Review Guidelines
 
    TODO
 
@@ -4479,7 +4485,7 @@ A.5.5.2.  C509 OCSP Response
    741:     AF733E66F4112011AACA150279F9CCDB34407D3F26448580F27B257C81
    770:     2A8CB2505B07
 
-Acknowledgements
+Acknowledgments
 
    The authors thank xxx for reviewing and commenting on intermediate
    versions of the draft.
