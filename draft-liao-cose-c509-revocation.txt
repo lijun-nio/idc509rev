@@ -245,6 +245,14 @@ Table of Contents
    [RFC9147] handshakes via OCSP stapling [RFC6066], directly affecting
    handshake latency.
 
+   Note on terminology: The label "C509" is used for consistency with
+   the C509 certificate encoding and to promote a cohesive C509 PKI
+   ecosystem (C509 certificates, CRLs, OCSP, and related tooling).
+   Although names in this document include "C509", the encodings and
+   protocols defined here are certificate-type agnostic and apply
+   equally to X.509 certificates and other certificate types; see
+   Section 6.4.
+
    This document specifies:
 
    *  *C509 CRL* -- a natively signed CBOR [RFC8949] encoding of X.509
