@@ -1844,11 +1844,11 @@ Table of Contents
    Encoding considerations: binary
 
    Security considerations: See the Security Considerations section of
-   [[this document]].
+   [this document].
 
    Interoperability considerations: N/A
 
-   Published specification: [[this document]]
+   Published specification: [this document]
 
    Applications that use this media type: Any MIME-compliant transport
 
@@ -1887,11 +1887,11 @@ Table of Contents
    Encoding considerations: binary
 
    Security considerations: See the Security Considerations section of
-   [[this document]].
+   [this document].
 
    Interoperability considerations: N/A
 
-   Published specification: [[this document]]
+   Published specification: [this document]
 
    Applications that use this media type: Any MIME-compliant transport
 
@@ -1930,11 +1930,11 @@ Table of Contents
    Encoding considerations: binary
 
    Security considerations: See the Security Considerations section of
-   [[this document]].
+   [this document].
 
    Interoperability considerations: N/A
 
-   Published specification: [[this document]]
+   Published specification: [this document]
 
    Applications that use this media type: OCSP clients
 
@@ -1973,11 +1973,11 @@ Table of Contents
    Encoding considerations: binary
 
    Security considerations: See the Security Considerations section of
-   [[this document]].
+   [this document].
 
    Interoperability considerations: N/A
 
-   Published specification: [[this document]]
+   Published specification: [this document]
 
    Applications that use this media type: OCSP servers
 
