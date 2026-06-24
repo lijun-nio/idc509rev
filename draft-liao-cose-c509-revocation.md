@@ -56,29 +56,19 @@ normative:
 
 informative:
   RFC7228:
-
   POSIX:
     title: IEEE Standard for Information Technology--Portable Operating System Interface (POSIX(TM)) Base Specifications, Issue 7
     target: https://pubs.opengroup.org/onlinepubs/9699919799/
     date: January 2018
-
   CborMe:
     target: https://cbor.me/
     title: CBOR Playground
     author:
       - ins: C. Bormann
     date: May 2018
-
   X.690:
     title: "ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)"
     target: https://www.itu.int/rec/T-REC-X.690
-
-  IANA-CBOR-TAGS:
-    target: https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml
-    title: Concise Binary Object Representation (CBOR) Tags
-    author:
-      -
-        ins: IANA
 
 --- abstract
 
