@@ -52,7 +52,7 @@ About This Document
    Subscribe at https://www.ietf.org/mailman/listinfo/cose/.
 
    Source for this draft and an issue tracker can be found at
-   https://github.com/cose-wg/CBOR-certificates.
+   https://github.com/lijun-nio/idc509rev.
 
 Status of This Memo
 
