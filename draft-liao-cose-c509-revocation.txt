@@ -1849,8 +1849,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See the Security Considerations section of
-   [RFC-XXXX].
+   Security considerations: See Section 8 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -1892,8 +1891,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See the Security Considerations section of
-   [RFC-XXXX].
+   Security considerations: See Section 8 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -1935,8 +1933,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See the Security Considerations section of
-   [RFC-XXXX].
+   Security considerations: See Section 8 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -1978,8 +1975,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See the Security Considerations section of
-   [RFC-XXXX].
+   Security considerations: See Section 8 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
