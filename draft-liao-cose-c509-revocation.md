@@ -976,7 +976,7 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of {{&SELF}}.
+Security considerations: See {{security}} of {{&SELF}}.
 
 Interoperability considerations: N/A
 
@@ -1014,7 +1014,7 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of {{&SELF}}.
+Security considerations: See {{security}} of {{&SELF}}.
 
 Interoperability considerations: N/A
 
@@ -1052,7 +1052,7 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of {{&SELF}}.
+Security considerations: See {{security}} of {{&SELF}}.
 
 Interoperability considerations: N/A
 
@@ -1090,7 +1090,7 @@ Required parameters: N/A
 
 Encoding considerations: binary
 
-Security considerations: See the Security Considerations section of {{&SELF}}.
+Security considerations: See {{security}} of {{&SELF}}.
 
 Interoperability considerations: N/A
 
