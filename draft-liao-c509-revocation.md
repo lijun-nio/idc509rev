@@ -1,7 +1,7 @@
 ---
 v: 3
 title: "C509 Certificate Revocation Management"
-docname: draft-liao-c509-revocation-00
+docname: draft-liao-c509-revocation-latest
 abbrev: C509 Revocation
 ipr: trust200902
 cat: std
