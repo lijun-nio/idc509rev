@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                       NIO
 Intended status: Standards Track                               M. Tiloca
-Expires: 26 December 2026                                     J. Höglund
+Expires: 27 December 2026                                     J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                            24 June 2026
+                                                            25 June 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -70,7 +70,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 December 2026.
+   This Internet-Draft will expire on 27 December 2026.
 
 Copyright Notice
 
@@ -160,19 +160,19 @@ Table of Contents
      10.2.  Informative References
    Appendix A.  Examples
      A.1.  Overview
-     A.2.  Helper Certificates
-       A.2.1.  CA Certificate
-         A.2.1.1.  Plain Hex
-         A.2.1.2.  Textual Representation
-       A.2.2.  CRL Signer Certificate
-         A.2.2.1.  Plain Hex
-         A.2.2.2.  Textual Representation
-       A.2.3.  OCSP Requestor Certificate
-         A.2.3.1.  Plain Hex
-         A.2.3.2.  Textual Representation
-       A.2.4.  OCSP Responder Certificate
-         A.2.4.1.  Plain Hex
-         A.2.4.2.  Textual Representation
+     A.2.  Helper Keys and Certificates
+       A.2.1.  CA Private Key and Certificate
+         A.2.1.1.  CA Private Key
+         A.2.1.2.  CA Certificate
+       A.2.2.  CRL Signer Private Key and Certificate
+         A.2.2.1.  CRL Signer Private Key
+         A.2.2.2.  CRL Signer Certificate
+       A.2.3.  OCSP Requestor Private Key and Certificate
+         A.2.3.1.  OCSP Requestor Private Key
+         A.2.3.2.  OCSP Requestor Certificate
+       A.2.4.  OCSP Responder Private Key and Certificate
+         A.2.4.1.  OCSP Responder Private Key
+         A.2.4.2.  OCSP Responder Certificate
      A.3.  CRL Examples
        A.3.1.  CRL Example Without Revoked Certificates
          A.3.1.1.  X.509 CRL
@@ -1624,19 +1624,26 @@ Table of Contents
    +-------+----------------------------------------------------------+
    | Value | Hash Algorithm                                           |
    +=======+==========================================================+
-   |   0   | Name:        SHA-1                                       |
+   |  -1   | Name:        SHA-1                                       |
    |       | Identifiers: id-sha1                                     |
    |       | OID:         1.3.14.3.2.26                               |
    |       | Parameters:  NULL                                        |
    |       | DER:         2B 0E 03 02 1A                              |
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
-   |   1   | Name:        SHA-256                                     |
+   |   0   | Name:        SHA-256                                     |
    |       | Identifiers: id-sha256                                   |
    |       | OID:         2.16.840.1.101.3.4.2.1                      |
    |       | Parameters:  absent                                      |
    |       | DER:         60 86 48 01 65 03 04 02 01                  |
    |       | Comments:                                                |
+   +-------+----------------------------------------------------------+
+   |   1   | Name:        SHA-256/160                                 |
+   |       | Identifiers: N/A                                         |
+   |       | OID:         N/A                                         |
+   |       | Parameters:  N/A                                         |
+   |       | DER:         N/A                                         |
+   |       | Comments:    truncated SHA-256, use first 160 bits       |
    +-------+----------------------------------------------------------+
    |   2   | Name:        SHA-384                                     |
    |       | Identifiers: id-sha384                                   |
@@ -1673,42 +1680,49 @@ Table of Contents
    |       | DER:         06 08 2A 81 1C 84 8E 35 01 04 01            |
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
-   |   7   | Name:        SHA3-224                                    |
+   |   7   | Name:        SM3/160                                     |
+   |       | Identifiers: N/A                                         |
+   |       | OID:         N/A                                         |
+   |       | Parameters:  N/A                                         |
+   |       | DER:         N/A                                         |
+   |       | Comments:    truncated SM3, use first 160 bits           |
+   +-------+----------------------------------------------------------+
+   |   8   | Name:        SHA3-224                                    |
    |       | Identifiers: id-sha3-224                                 |
    |       | OID:         2.16.840.1.101.3.4.2.7                      |
    |       | Parameters:  absent                                      |
    |       | DER:         60 86 48 01 65 03 04 02 07                  |
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
-   |   8   | Name:        SHA3-256                                    |
+   |   9   | Name:        SHA3-256                                    |
    |       | Identifiers: id-sha3-256                                 |
    |       | OID:         2.16.840.1.101.3.4.2.8                      |
    |       | Parameters:  absent                                      |
    |       | DER:         60 86 48 01 65 03 04 02 08                  |
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
-   |   9   | Name:        SHA3-384                                    |
+   |   10  | Name:        SHA3-384                                    |
    |       | Identifiers: id-sha3-384                                 |
    |       | OID:         2.16.840.1.101.3.4.2.9                      |
    |       | Parameters:  absent                                      |
    |       | DER:         60 86 48 01 65 03 04 02 09                  |
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
-   |   10  | Name:        SHA3-512                                    |
+   |   11  | Name:        SHA3-512                                    |
    |       | Identifiers: id-sha3-512                                 |
    |       | OID:         2.16.840.1.101.3.4.2.10                     |
    |       | Parameters:  absent                                      |
    |       | DER:         60 86 48 01 65 03 04 02 0A                  |
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
-   |   11  | Name:        SHAKE128                                    |
+   |   12  | Name:        SHAKE128                                    |
    |       | Identifiers: id-shake128                                 |
    |       | OID:         2.16.840.1.101.3.4.2.11                     |
    |       | Parameters:  absent                                      |
    |       | DER:         60 86 48 01 65 03 04 02 0B                  |
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
-   |   12  | Name:        SHAKE256                                    |
+   |   13  | Name:        SHAKE256                                    |
    |       | Identifiers: id-shake256                                 |
    |       | OID:         2.16.840.1.101.3.4.2.12                     |
    |       | Parameters:  absent                                      |
@@ -2224,20 +2238,28 @@ A.1.  Overview
          Table 12: Size comparison in examples (TODO: update the
                               percent data)
 
-A.2.  Helper Certificates
+A.2.  Helper Keys and Certificates
 
-A.2.1.  CA Certificate
+A.2.1.  CA Private Key and Certificate
 
-A.2.1.1.  Plain Hex
+A.2.1.1.  CA Private Key
 
-   0241010C73746573742063726C6F6373702D726F6F7463611A677485801A6B36EC7F
-   6F746573742063726C6F6373702D63610C58205EF8A355A001A7C50D234947012081
-   31A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF368CDF53C39005
-   D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F58
-   40E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F05D25
-   9847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F
+   -----BEGIN PRIVATE KEY-----
+   MC4CAQAwBQYDK2VwBCIEIDP+AdMbqXudBAN3YNAwoR0i3nl4IuoSSA6Hazy2oAKc
+   -----END PRIVATE KEY-----
 
-A.2.1.2.  Textual Representation
+A.2.1.2.  CA Certificate
+
+A.2.1.2.1.  Plain Hex
+
+   8B0241010C73746573742063726C6F6373702D726F6F7463611A677485801A6B36EC
+   7F6F746573742063726C6F6373702D63610C58205EF8A355A001A7C50D2349470120
+   8131A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF368CDF53C390
+   05D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F
+   5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F05D
+   259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F
+
+A.2.1.2.2.  Textual Representation
 
    Certificate
      TBSCertificate
@@ -2273,18 +2295,26 @@ A.2.1.2.  Textual Representation
        25:98:47:a4:f4:25:0b:2e:4b:0a:e2:09:97:62:a2:59:
        6d:3c:c1:db:2c:cd:18:0a:a0:a2:d0:e1:91:31:0b:0f
 
-A.2.2.  CRL Signer Certificate
+A.2.2.  CRL Signer Private Key and Certificate
 
-A.2.2.1.  Plain Hex
+A.2.2.1.  CRL Signer Private Key
 
-   024212340C6F746573742063726C6F6373702D63611A6775D7001A69570A806A6372
-   6C2D7369676E65720C5820C9BA1EC496DACB97AED087ADE390F398FBD477871EE920
-   3817EC0E31902789FF86015409E433582556550A27DB4A19BCE2D660884722B62118
-   4007542F45E78D2CAEDF368CDF53C39005D492450E10565840D46E6A8F9FD53417F3
-   6DFE56CBB8CACE0FC3E59ACBE72CD9916B3E4C5022D06D16CC9BF9AC54394037C954
-   33644194FAE18FF783381959584A21BDC0E1C6CB0B
+   -----BEGIN PRIVATE KEY-----
+   MC4CAQAwBQYDK2VwBCIEIOJ3HnsrBJ5g5Pb5oy7qlvijr3Wfx3ywAUvnmRV4354s
+   -----END PRIVATE KEY-----
 
-A.2.2.2.  Textual Representation
+A.2.2.2.  CRL Signer Certificate
+
+A.2.2.2.1.  Plain Hex
+
+   8B024212340C6F746573742063726C6F6373702D63611A6775D7001A69570A806A63
+   726C2D7369676E65720C5820C9BA1EC496DACB97AED087ADE390F398FBD477871EE9
+   203817EC0E31902789FF86015409E433582556550A27DB4A19BCE2D660884722B621
+   184007542F45E78D2CAEDF368CDF53C39005D492450E10565840D46E6A8F9FD53417
+   F36DFE56CBB8CACE0FC3E59ACBE72CD9916B3E4C5022D06D16CC9BF9AC54394037C9
+   5433644194FAE18FF783381959584A21BDC0E1C6CB0B
+
+A.2.2.2.2.  Textual Representation
 
    Certificate
      TBSCertificate
@@ -2318,18 +2348,26 @@ A.2.2.2.  Textual Representation
        16:cc:9b:f9:ac:54:39:40:37:c9:54:33:64:41:94:fa:
        e1:8f:f7:83:38:19:59:58:4a:21:bd:c0:e1:c6:cb:0b
 
-A.2.3.  OCSP Requestor Certificate
+A.2.3.  OCSP Requestor Private Key and Certificate
 
-A.2.3.1.  Plain Hex
+A.2.3.1.  OCSP Requestor Private Key
 
-   024212360C6F746573742063726C6F6373702D63611A6775D7001A69570A806E6F63
-   73702D726571756573746F720C582004530B1764EDD4B4E33AB44AF0F838961C0071
-   76D74B6A3546ECB7FD57320DD3860154DD51BDB2A2C791C062D4027856DBACF52607
-   F0BE210107542F45E78D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C
-   3EFD50DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772F
-   F04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
+   -----BEGIN PRIVATE KEY-----
+   MC4CAQAwBQYDK2VwBCIEIDoXZF67Rh+ENmXzefN4vLk/o2fK5q/otI2G1xQYtThH
+   -----END PRIVATE KEY-----
 
-A.2.3.2.  Textual Representation
+A.2.3.2.  OCSP Requestor Certificate
+
+A.2.3.2.1.  Plain Hex
+
+   8B024212360C6F746573742063726C6F6373702D63611A6775D7001A69570A806E6F
+   6373702D726571756573746F720C582004530B1764EDD4B4E33AB44AF0F838961C00
+   7176D74B6A3546ECB7FD57320DD3860154DD51BDB2A2C791C062D4027856DBACF526
+   07F0BE210107542F45E78D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF
+   8C3EFD50DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F77
+   2FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
+
+A.2.3.2.2.  Textual Representation
 
    Certificate
      TBSCertificate
@@ -2363,18 +2401,26 @@ A.2.3.2.  Textual Representation
        86:b7:ca:17:fc:9f:77:2f:f0:4c:80:e9:8b:60:d5:b4:
        b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:44:2d:07
 
-A.2.4.  OCSP Responder Certificate
+A.2.4.  OCSP Responder Private Key and Certificate
 
-A.2.4.1.  Plain Hex
+A.2.4.1.  OCSP Responder Private Key
 
-   024212350C6F746573742063726C6F6373702D63611A6775D7001A69570A806E6F63
-   73702D726573706F6E6465720C582081947BBC248AAC79738211A8D75BF92CB777D9
-   94073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629DB579DC8CCA4
-   53A8210107542F45E78D2CAEDF368CDF53C39005D492450E105627095840A01B0CBF
-   3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F375318
-   86A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A
+   -----BEGIN PRIVATE KEY-----
+   MC4CAQAwBQYDK2VwBCIEII5swSxWTjlZinUj+5kie//qjgBbzupdc0lmaHF9NkXl
+   -----END PRIVATE KEY-----
 
-A.2.4.2.  Textual Representation
+A.2.4.2.  OCSP Responder Certificate
+
+A.2.4.2.1.  Plain Hex
+
+   8B024212350C6F746573742063726C6F6373702D63611A6775D7001A69570A806E6F
+   6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D75BF92CB777
+   D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629DB579DC8CC
+   A453A8210107542F45E78D2CAEDF368CDF53C39005D492450E105627095840A01B0C
+   BF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F3753
+   1886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A
+
+A.2.4.2.2.  Textual Representation
 
    Certificate
      TBSCertificate
@@ -2416,7 +2462,7 @@ A.3.1.  CRL Example Without Revoked Certificates
 
    *  size(C509) / size(X509): 81%
 
-   *  Verifiable with certificate in Appendix A.2.1
+   *  Verifiable with certificate in Appendix A.2.1.2
 
    *  Direct CRL
 
@@ -2442,9 +2488,9 @@ A.3.1.2.  C509 CRL
    Plain Hex (120 bytes):
 
    8B000C6F746573742063726C6F6373702D6361542F45E78D2CAEDF368CDF53C39005
-   D492450E1056011A6775D7001A677F1180F680F6584078BEA0B6C4F89BCACB600D2C
-   6A878E6CE88C9313D2B32EE2AC289C95031EE0DFA5A2D42083F124BCC025C4A0B106
-   77B993B05B10D74825EEB25DD7BDFB96BD09
+   D492450E1056011A6775D7001A00093A80F680F6584013834F4E38AA9F0DC5B8D21C
+   8650C776A6D961C31C894C36A71A6433F5ED7D30E67F787F13C7E4C349B2848A181F
+   DBBCE361A14C220021C4A267367AD5F1D90D
 
    Textual Representation
 
@@ -2463,16 +2509,16 @@ A.3.1.2.  C509 CRL
        Extensions: <empty>
      revokedCertsList: <null>
      Signature Value
-       78:be:a0:b6:c4:f8:9b:ca:cb:60:0d:2c:6a:87:8e:6c:
-       e8:8c:93:13:d2:b3:2e:e2:ac:28:9c:95:03:1e:e0:df:
-       a5:a2:d4:20:83:f1:24:bc:c0:25:c4:a0:b1:06:77:b9:
-       93:b0:5b:10:d7:48:25:ee:b2:5d:d7:bd:fb:96:bd:09
+       13:83:4f:4e:38:aa:9f:0d:c5:b8:d2:1c:86:50:c7:76:
+       a6:d9:61:c3:1c:89:4c:36:a7:1a:64:33:f5:ed:7d:30:
+       e6:7f:78:7f:13:c7:e4:c3:49:b2:84:8a:18:1f:db:bc:
+       e3:61:a1:4c:22:00:21:c4:a2:67:36:7a:d5:f1:d9:0d
 
    Annotated hex
 
      0: 8B             # C509CRL=array[11]
      1:   00             # [0]. crlType=0
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
      3:   6F             # [2]. authoritySubject=char[15]
      4:     746573742063726C6F6373702D6361 # "test crlocsp-ca"
     19:   54             # [3]. authorityKeyIdentifier=byte[20]
@@ -2480,21 +2526,20 @@ A.3.1.2.  C509 CRL
     40:   01             # [4]. crlNumber=1
     41:   1A 6775D700    # [5]. thisUpdate=1735776000:
                          #      2025-01-02T00:00:00Z
-    46:   1A 677F1180    # [6]. nextUpdate=1736380800:
-                         #      2025-01-09T00:00:00Z
+    46:   1A 00093A80    # [6]. nextUpdate=604800
     51:   F6             # [7]. baseCrlNumber=<null>
     52:   80             # [8]. crlExtensions=array[0]
     53:   F6             # [9]. revokedCertsList: <null>
     54:   58 40          # [10]. signature value=byte[64]
-    56:     78BEA0B6C4F89BCACB600D2C6A878E6CE88C9313D2B32EE2AC289C9503
-    85:     1EE0DFA5A2D42083F124BCC025C4A0B10677B993B05B10D74825EEB25D
-   114:     D7BDFB96BD09
+    56:     13834F4E38AA9F0DC5B8D21C8650C776A6D961C31C894C36A71A6433F5
+    85:     ED7D30E67F787F13C7E4C349B2848A181FDBBCE361A14C220021C4A267
+   114:     367AD5F1D90D
 
 A.3.2.  CRL Example With Revoked Certificates
 
    *  size(C509) / size(X509): 52%
 
-   *  Verifiable with certificate in Appendix A.2.1
+   *  Verifiable with certificate in Appendix A.2.1.2
 
    *  Direct CRL
 
@@ -2525,11 +2570,11 @@ A.3.2.2.  C509 CRL
    Plain Hex (177 bytes):
 
    8B000C6F746573742063726C6F6373702D6361542F45E78D2CAEDF368CDF53C39005
-   D492450E1056021A677C71721A6785ABF2F68085F6840302031A677488728218571A
+   D492450E1056021A677C71721A00093A80F68085F6840302031A677488728218571A
    677485805824112206978006123400000001334403F4800655660151800656780546
-   00009ABC02A30000F6584071FA09F11E37B880CCDE7EE6DDE6A76244A36CA1F07F2E
-   C52AB03A7324C1E5D2A42A001731B3AF5977B30B0E2A38AE7CC745BC3464D349750E
-   0AE18AF6BF8D0F
+   00009ABC02A30000F6584070BB7A38065FBCABFE615170F05A9A9FE83DC892D5F735
+   812B2A053AF4B300EB466BABB4F1A387CDCE90D8302C680B77AA61566423D7C235F7
+   BD31344CF7F405
 
    Textual Representation
 
@@ -2566,16 +2611,16 @@ A.3.2.2.  C509 CRL
            0x9ABC, 2025-01-03T00:12:34Z, unspecified
          RemovedFromCRLCerts: <null>
      Signature Value
-       71:fa:09:f1:1e:37:b8:80:cc:de:7e:e6:dd:e6:a7:62:
-       44:a3:6c:a1:f0:7f:2e:c5:2a:b0:3a:73:24:c1:e5:d2:
-       a4:2a:00:17:31:b3:af:59:77:b3:0b:0e:2a:38:ae:7c:
-       c7:45:bc:34:64:d3:49:75:0e:0a:e1:8a:f6:bf:8d:0f
+       70:bb:7a:38:06:5f:bc:ab:fe:61:51:70:f0:5a:9a:9f:
+       e8:3d:c8:92:d5:f7:35:81:2b:2a:05:3a:f4:b3:00:eb:
+       46:6b:ab:b4:f1:a3:87:cd:ce:90:d8:30:2c:68:0b:77:
+       aa:61:56:64:23:d7:c2:35:f7:bd:31:34:4c:f7:f4:05
 
    Annotated hex
 
      0: 8B             # C509CRL=array[11]
      1:   00             # [0]. crlType=0
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
      3:   6F             # [2]. authoritySubject=char[15]
      4:     746573742063726C6F6373702D6361 # "test crlocsp-ca"
     19:   54             # [3]. authorityKeyIdentifier=byte[20]
@@ -2583,8 +2628,7 @@ A.3.2.2.  C509 CRL
     40:   02             # [4]. crlNumber=2
     41:   1A 677C7172    # [5]. thisUpdate=1736208754:
                          #      2025-01-07T00:12:34Z
-    46:   1A 6785ABF2    # [6]. nextUpdate=1736813554:
-                         #      2025-01-14T00:12:34Z
+    46:   1A 00093A80    # [6]. nextUpdate=604800
     51:   F6             # [7]. baseCrlNumber=<null>
     52:   80             # [8]. crlExtensions=array[0]
     53:   85             # [9]. revokedCertsList=array[5]
@@ -2598,7 +2642,7 @@ A.3.2.2.  C509 CRL
                              #      2025-01-01T00:12:34Z
     64:     82             # [2]. extensions=array[2]
                              #---extension[0]---
-    65:       18 57          # [0]. type: ExpiredCertsOnCRL (87)
+    65:       18 57          # [0]. type=ExpiredCertsOnCRL (87)
     67:       1A 67748580    # [1]. value=1735689600:
                              #      2025-01-01T00:00:00Z
     72:     58 24          # [3]. revokedCerts=byte[36]
@@ -2610,15 +2654,15 @@ A.3.2.2.  C509 CRL
    104:        9ABC02A30000  # CSN=9ABC, date=02A300, reason=0
    110:     F6             # [4]. removedFromCRLCerts=<null>
    111:   58 40          # [10]. signature value=byte[64]
-   113:     71FA09F11E37B880CCDE7EE6DDE6A76244A36CA1F07F2EC52AB03A7324
-   142:     C1E5D2A42A001731B3AF5977B30B0E2A38AE7CC745BC3464D349750E0A
-   171:     E18AF6BF8D0F
+   113:     70BB7A38065FBCABFE615170F05A9A9FE83DC892D5F735812B2A053AF4
+   142:     B300EB466BABB4F1A387CDCE90D8302C680B77AA61566423D7C235F7BD
+   171:     31344CF7F405
 
 A.3.3.  Delta CRL Example With Revoked Certificates
 
    *  size(C509) / size(X509): 47%
 
-   *  Verifiable with certificate in Appendix A.2.1
+   *  Verifiable with certificate in Appendix A.2.1.2
 
    *  Direct CRL
 
@@ -2649,10 +2693,10 @@ A.3.3.2.  C509 CRL
    Plain Hex (160 bytes):
 
    8B000C6F746573742063726C6F6373702D6361542F45E78D2CAEDF368CDF53C39005
-   D492450E1056031A677DC2F21A678065F2028085F6840302021A677D1A32804F3412
-   0000017856A84800BC9AA7D0004C11220000334400005566000058406A6DB5AFFBC1
-   E72B76709AA2B5EEAAF7660A9647D47520A32F61DB220AFDC6FC7C48E712993D4510
-   B35832B15FC003DA8BE95280678DC793FB0795E1CE6D220A
+   D492450E1056031A677DC2F21A0002A300028085F6840302021A677D1A32804F3412
+   0000017856A84800BC9AA7D0004C112200003344000055660000584051BDA2027CA7
+   AB1A3606BA1091E77200CEC9CD7A3C2ACD29E1868648D8B19CF9D14A0E268AD67FF4
+   A697FC0B684809DFC92D0B6882E5B06B1D49A1659291CE07
 
    Textual Representation
 
@@ -2687,16 +2731,16 @@ A.3.3.2.  C509 CRL
            0x3344, 2025-01-07T12:12:34Z
            0x5566, 2025-01-07T12:12:34Z
      Signature Value
-       6a:6d:b5:af:fb:c1:e7:2b:76:70:9a:a2:b5:ee:aa:f7:
-       66:0a:96:47:d4:75:20:a3:2f:61:db:22:0a:fd:c6:fc:
-       7c:48:e7:12:99:3d:45:10:b3:58:32:b1:5f:c0:03:da:
-       8b:e9:52:80:67:8d:c7:93:fb:07:95:e1:ce:6d:22:0a
+       51:bd:a2:02:7c:a7:ab:1a:36:06:ba:10:91:e7:72:00:
+       ce:c9:cd:7a:3c:2a:cd:29:e1:86:86:48:d8:b1:9c:f9:
+       d1:4a:0e:26:8a:d6:7f:f4:a6:97:fc:0b:68:48:09:df:
+       c9:2d:0b:68:82:e5:b0:6b:1d:49:a1:65:92:91:ce:07
 
    Annotated hex
 
      0: 8B             # C509CRL=array[11]
      1:   00             # [0]. crlType=0
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
      3:   6F             # [2]. authoritySubject=char[15]
      4:     746573742063726C6F6373702D6361 # "test crlocsp-ca"
     19:   54             # [3]. authorityKeyIdentifier=byte[20]
@@ -2704,8 +2748,7 @@ A.3.3.2.  C509 CRL
     40:   03             # [4]. crlNumber=3
     41:   1A 677DC2F2    # [5]. thisUpdate=1736295154:
                          #      2025-01-08T00:12:34Z
-    46:   1A 678065F2    # [6]. nextUpdate=1736467954:
-                         #      2025-01-10T00:12:34Z
+    46:   1A 0002A300    # [6]. nextUpdate=172800
     51:   02             # [7]. baseCrlNumber=2
     52:   80             # [8]. crlExtensions=array[0]
     53:   85             # [9]. revokedCertsList=array[5]
@@ -2727,15 +2770,15 @@ A.3.3.2.  C509 CRL
     86:        33440000      # CSN=3344, date=0000
     90:        55660000      # CSN=5566, date=0000
     94:   58 40          # [10]. signature value=byte[64]
-    96:     6A6DB5AFFBC1E72B76709AA2B5EEAAF7660A9647D47520A32F61DB220A
-   125:     FDC6FC7C48E712993D4510B35832B15FC003DA8BE95280678DC793FB07
-   154:     95E1CE6D220A
+    96:     51BDA2027CA7AB1A3606BA1091E77200CEC9CD7A3C2ACD29E1868648D8
+   125:     B19CF9D14A0E268AD67FF4A697FC0B684809DFC92D0B6882E5B06B1D49
+   154:     A1659291CE07
 
 A.3.4.  Indirect CRL Example With Revoked Certificates
 
    *  size(C509) / size(X509): 49%
 
-   *  Verifiable with certificate in Appendix A.2.2
+   *  Verifiable with certificate in Appendix A.2.2.2
 
    *  Indirect CRL
 
@@ -2768,11 +2811,11 @@ A.3.4.2.  C509 CRL
    Plain Hex (202 bytes):
 
    8B000C6A63726C2D7369676E65725409E433582556550A27DB4A19BCE2D660884722
-   B6041A677C71721A6785ABF2F6808A6F746573742063726C6F6373702D6361840302
+   B6041A677C71721A00093A80F6808A6F746573742063726C6F6373702D6361840302
    031A6774887280521234000000015678054600009ABC02A30000F66A6578616D706C
    65204341840302031A6775D9F28052112205460006334402A30006556600000006F6
-   5840A301BC4C9C68F5C4455CD811FDEBCB04D643F1799B8F61935E6270CB1992030C
-   0027960EAC7924A3F01ACDAE25CAAEA45E5C324B00164819E369784ADCD52509
+   5840F00D6270F91486A7F378D06F01A807E64E086BB366BE3A1592CE4A64BFFD621F
+   30E2AB93766B4F8818116AB7DA7BEDF7C3EBCBDEAC6D0455F5F5669712006205
 
    Textual Representation
 
@@ -2817,16 +2860,16 @@ A.3.4.2.  C509 CRL
            0x5566, 2025-01-02T00:12:34Z, certificateHold
          RemovedFromCRLCerts: <null>
      Signature Value
-       a3:01:bc:4c:9c:68:f5:c4:45:5c:d8:11:fd:eb:cb:04:
-       d6:43:f1:79:9b:8f:61:93:5e:62:70:cb:19:92:03:0c:
-       00:27:96:0e:ac:79:24:a3:f0:1a:cd:ae:25:ca:ae:a4:
-       5e:5c:32:4b:00:16:48:19:e3:69:78:4a:dc:d5:25:09
+       f0:0d:62:70:f9:14:86:a7:f3:78:d0:6f:01:a8:07:e6:
+       4e:08:6b:b3:66:be:3a:15:92:ce:4a:64:bf:fd:62:1f:
+       30:e2:ab:93:76:6b:4f:88:18:11:6a:b7:da:7b:ed:f7:
+       c3:eb:cb:de:ac:6d:04:55:f5:f5:66:97:12:00:62:05
 
    Annotated hex
 
      0: 8B             # C509CRL=array[11]
      1:   00             # [0]. crlType=0
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
      3:   6A             # [2]. authoritySubject=char[10]
      4:     63726C2D7369676E6572 # "crl-signer"
     14:   54             # [3]. authorityKeyIdentifier=byte[20]
@@ -2834,8 +2877,7 @@ A.3.4.2.  C509 CRL
     35:   04             # [4]. crlNumber=4
     36:   1A 677C7172    # [5]. thisUpdate=1736208754:
                          #      2025-01-07T00:12:34Z
-    41:   1A 6785ABF2    # [6]. nextUpdate=1736813554:
-                         #      2025-01-14T00:12:34Z
+    41:   1A 00093A80    # [6]. nextUpdate=604800
     46:   F6             # [7]. baseCrlNumber=<null>
     47:   80             # [8]. crlExtensions=array[0]
     48:   8A             # [9]. revokedCertsList=array[10]
@@ -2870,15 +2912,15 @@ A.3.4.2.  C509 CRL
    129:        556600000006  # CSN=5566, date=000000, reason=6
    135:     F6             # [9]. removedFromCRLCerts=<null>
    136:   58 40          # [10]. signature value=byte[64]
-   138:     A301BC4C9C68F5C4455CD811FDEBCB04D643F1799B8F61935E6270CB19
-   167:     92030C0027960EAC7924A3F01ACDAE25CAAEA45E5C324B00164819E369
-   196:     784ADCD52509
+   138:     F00D6270F91486A7F378D06F01A807E64E086BB366BE3A1592CE4A64BF
+   167:     FD621F30E2AB93766B4F8818116AB7DA7BEDF7C3EBCBDEAC6D0455F5F5
+   196:     669712006205
 
 A.4.  OCSP Request Examples
 
 A.4.1.  Simple OCSP Request Example
 
-   *  size(C509) / size(X509): 59%
+   *  size(C509) / size(X509): 58%
 
    *  Simpe OCSP Request (C509SimpleOCSPRequest)
 
@@ -2887,20 +2929,20 @@ A.4.1.  Simple OCSP Request Example
 
 A.4.1.1.  X.509 OCSP Request
 
-   PEM content (150 bytes):
+   PEM content (152 bytes):
 
    -----BEGIN OCSP REQUEST-----
-   MIGTMIGQMGswaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV11i5H26O
-   Onrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQS
-   NBI0EjQSNBI0EjQSNBI0EjQSNKIhMB8wHQYJKwYBBQUHMAECBBARERERERERERER
-   ERERERER
+   MIGVMIGSMG0wazBpMA0GCWCGSAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkf
+   bo46evOXoPQAYFxv+AQgzBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqIC
+   FBI0EjQSNBI0EjQSNBI0EjQSNBI0oiEwHzAdBgkrBgEFBQcwAQIEEBERERERERER
+   ERERERERERE=
    -----END OCSP REQUEST-----
 
 A.4.1.2.  C509 OCSP Request
 
    Plain Hex (89 bytes):
 
-   86020150111111111111111111111111111111115820A01C73A5F3B063344257D026
+   86020050111111111111111111111111111111115820A01C73A5F3B063344257D026
    93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C582010652787FA0527BC2449A1BF
    C5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F00480
 
@@ -2908,7 +2950,7 @@ A.4.1.2.  C509 OCSP Request
 
    C509SimpleOCSPRequest
      Type: C509SimpleOCSPRequest (2)
-     Hash Algorithm: SHA256 (1)
+     Hash Algorithm: SHA256 (0)
      IssuerCertHash:
        a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
        8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
@@ -2924,7 +2966,7 @@ A.4.1.2.  C509 OCSP Request
     0: 86             # C509OCSPRequest=array[6]
     1:   02             # [0]. ocspRequestType=C509SimpleOCSPRequest
                         #      (2)
-    2:   01             # [1]. hashAlgorithm: SHA256 (1)
+    2:   00             # [1]. hashAlgorithm=SHA256 (0)
     3:   50             # [2]. nonce=byte[16]
     4:     11111111111111111111111111111111
    20:   58 20          # [3]. issuerCertHash=byte[32]
@@ -2937,7 +2979,7 @@ A.4.1.2.  C509 OCSP Request
 
 A.4.2.  Unsigned OCSP Request Example
 
-   *  size(C509) / size(X509): 49%
+   *  size(C509) / size(X509): 48%
 
    *  Unsigned OCSP Request (C509UnsignedOCSPRequest)
 
@@ -2946,26 +2988,27 @@ A.4.2.  Unsigned OCSP Request Example
 
 A.4.2.1.  X.509 OCSP Request
 
-   PEM content (475 bytes):
+   PEM content (483 bytes):
 
    -----BEGIN OCSP REQUEST-----
-   MIIB1zCCAdMwggGsMGkwZzALBglghkgBZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddY
-   uR9ujjp685eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdm
-   ogIUEjQSNBI0EjQSNBI0EjQSNBI0EjQwaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9
-   N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2
-   DtY0fxPBbuclt2aiAhQ0VjRWNFY0VjRWNFY0VjRWNFY0VjBpMGcwCwYJYIZIAWUD
-   BAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQgzBHIdAoFCexN
-   oUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFFZ4VnhWeFZ4VnhWeFZ4VnhWeFZ4MGkw
-   ZzALBglghkgBZQMEAgEEIDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
-   BCBERERERERERERERERERERERERERERERERERERERERERAIUIjMiMyIzIjMiMyIz
-   IjMiMyIzIjOiITAfMB0GCSsGAQUFBzABAgQQEREREREREREREREREREREQ==
+   MIIB3zCCAdswggG0MGswaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV
+   11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbucl
+   t2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQSNDBrMGkwDQYJYIZIAWUDBAIBBQAEIDJT
+   jnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2
+   TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0VjRWNFYwazBpMA0GCWCG
+   SAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQgzBHI
+   dAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFFZ4VnhWeFZ4VnhWeFZ4VnhW
+   eFZ4MGswaTANBglghkgBZQMEAgEFAAQgMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
+   MzMzMzMzMzMEIEREREREREREREREREREREREREREREREREREREREREREAhQiMyIz
+   IjMiMyIzIjMiMyIzIjMiM6IhMB8wHQYJKwYBBQUHMAECBBARERERERERERERERER
+   ERER
    -----END OCSP REQUEST-----
 
 A.4.2.2.  C509 OCSP Request
 
    Plain Hex (234 bytes):
 
-   850001501111111111111111111111111111111180865820A01C73A5F3B063344257
+   850000501111111111111111111111111111111180865820A01C73A5F3B063344257
    D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C8086582010652787FA0527BC
    2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F00480582075D8BC4FBAFC66
    94467641E748DFD53A8B9D176DFA3D05B3E98A4D6E5C55F165805820D1AC135D7DA2
@@ -2977,7 +3020,7 @@ A.4.2.2.  C509 OCSP Request
 
    C509UnsignedOCSPRequest
      Type: C509UnsignedOCSPRequest (0)
-     Hash Algorithm: SHA256 (1)
+     Hash Algorithm: SHA256 (0)
      Nonce
        11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
      Requests
@@ -3020,7 +3063,7 @@ A.4.2.2.  C509 OCSP Request
      0: 85             # C509OCSPRequest=array[5]
      1:   00             # [0]. ocspRequestType=C509UnsignedOCSPRequest
                          #      (0)
-     2:   01             # [1]. hashAlgorithm: SHA256 (1)
+     2:   00             # [1]. hashAlgorithm=SHA256 (0)
      3:   50             # [2]. nonce=byte[16]
      4:     11111111111111111111111111111111
     20:   80             # [3]. extensions=array[0]
@@ -3060,9 +3103,9 @@ A.4.2.2.  C509 OCSP Request
 
 A.4.3.  Signed OCSP Request Example Without Requestor's Certificate
 
-   *  size(C509) / size(X509): 57%
+   *  size(C509) / size(X509): 56%
 
-   *  Verifiable with certificate in Appendix A.2.3
+   *  Verifiable with certificate in Appendix A.2.3.2
 
    *  Signed OCSP Request (C509UnsignedOCSPRequest) without requestor's
       certificate
@@ -3072,29 +3115,29 @@ A.4.3.  Signed OCSP Request Example Without Requestor's Certificate
 
 A.4.3.1.  X.509 OCSP Request
 
-   PEM content (584 bytes):
+   PEM content (592 bytes):
 
    -----BEGIN OCSP REQUEST-----
-   MIICRDCCAfKhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBrDBpMGcw
-   CwYJYIZIAWUDBAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQg
-   zBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFBI0EjQSNBI0EjQSNBI0
-   EjQSNBI0MGkwZzALBglghkgBZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp6
-   85eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0
-   VjRWNFY0VjRWNFY0VjRWNFYwaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8N
-   K5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPB
-   buclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBpMGcwCwYJYIZIAWUDBAIBBCAz
-   MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMwQgRERERERERERERERERERE
-   REREREREREREREREREREREQCFCIzIjMiMyIzIjMiMyIzIjMiMyIzoiEwHzAdBgkr
-   BgEFBQcwAQIEEBERERERERERERERERERERGgTDBKMAUGAytlcANBAJxdKYl8BFnb
-   nngr44EK7xqnJFQWfa8iM4Lje1eezFCTX1GiRVJEqS2Oe2HEdFggCngY5q5RkRaY
-   qvjTEhXlRwg=
+   MIICTDCCAfqhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBtDBrMGkw
+   DQYJYIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4
+   BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0
+   EjQSNBI0EjQwazBpMA0GCWCGSAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkf
+   bo46evOXoPQAYFxv+AQgzBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqIC
+   FDRWNFY0VjRWNFY0VjRWNFY0VjRWMGswaTANBglghkgBZQMEAgEFAAQgMlOOdIW9
+   N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2
+   DtY0fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBrMGkwDQYJYIZIAWUD
+   BAIBBQAEIDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzBCBERERERERE
+   RERERERERERERERERERERERERERERERERAIUIjMiMyIzIjMiMyIzIjMiMyIzIjOi
+   ITAfMB0GCSsGAQUFBzABAgQQEREREREREREREREREREREaBMMEowBQYDK2VwA0EA
+   DVI0VPbgwwEJDSdfds+dKJ6GpFdP724NTTYL1GMvn/loUMeJAnnJ7jbxvP/R1PE5
+   Zyh+lISXhR4F1lvXRAHYCA==
    -----END OCSP REQUEST-----
 
 A.4.3.2.  C509 OCSP Request
 
    Plain Hex (336 bytes):
 
-   89010C015011111111111111111111111111111111582044F0528B56F35AD998049B
+   89010C005011111111111111111111111111111111582044F0528B56F35AD998049B
    306FF9A8B06FA79DE8146946FE254B00C62A622A5D80865820A01C73A5F3B0633442
    57D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C8086582010652787FA0527
    BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F00480582075D8BC4FBAFC
@@ -3102,8 +3145,8 @@ A.4.3.2.  C509 OCSP Request
    A29BDCF4DCA0D5281A51605B678400C26408CADC3A32FC1B6AD5E380582022222222
    2222222222222222222222222222222222222222222222222222222280825820D3A0
    C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD80F65840
-   FF755E078E731174DFD1F93E24C5B539CE3E1FE1A1CE51F387F12C6CD8C13AEA6D87
-   D4BE33B6B3BF20C268AFA19DCB6BAFEDF5E8A26131A027474E7B5831C106
+   95A072BAEB2879F49518AF65C75ED603BA84F635665ABED2920453A8205790F7D14E
+   5E8258F42CBBAA5BD81E697516F758A571BE0A9C12FE222AF808768DDE0C
 
    Textual Representation
 
@@ -3111,7 +3154,7 @@ A.4.3.2.  C509 OCSP Request
      TBSOCSPRequest
        Type: C509SignedOCSPRequest (1)
        Signature Algorithm: Ed25519 (12)
-       Hash Algorithm: SHA256 (1)
+       Hash Algorithm: SHA256 (0)
        RequestorCertHash
          44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0:
          6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:2a:62:2a:5d
@@ -3153,18 +3196,18 @@ A.4.3.2.  C509 OCSP Request
                Extensions: <empty>
        Requestor Certs: null
      Signature Value
-       ff:75:5e:07:8e:73:11:74:df:d1:f9:3e:24:c5:b5:39:
-       ce:3e:1f:e1:a1:ce:51:f3:87:f1:2c:6c:d8:c1:3a:ea:
-       6d:87:d4:be:33:b6:b3:bf:20:c2:68:af:a1:9d:cb:6b:
-       af:ed:f5:e8:a2:61:31:a0:27:47:4e:7b:58:31:c1:06
+       95:a0:72:ba:eb:28:79:f4:95:18:af:65:c7:5e:d6:03:
+       ba:84:f6:35:66:5a:be:d2:92:04:53:a8:20:57:90:f7:
+       d1:4e:5e:82:58:f4:2c:bb:aa:5b:d8:1e:69:75:16:f7:
+       58:a5:71:be:0a:9c:12:fe:22:2a:f8:08:76:8d:de:0c
 
    Annotated hex
 
      0: 89             # C509OCSPRequest=array[9]
      1:   01             # [0]. ocspRequestType=C509SignedOCSPRequest
                          #      (1)
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
-     3:   01             # [2]. hashAlgorithm: SHA256 (1)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
+     3:   00             # [2]. hashAlgorithm=SHA256 (0)
      4:   50             # [3]. nonce=byte[16]
      5:     11111111111111111111111111111111
     21:   58 20          # [4]. requestorCertHash=byte[32]
@@ -3206,15 +3249,15 @@ A.4.3.2.  C509 OCSP Request
    268:       80             # [1]. extensions=array[0]
    269:   F6             # [7]. requestorCerts=<null>
    270:   58 40          # [8]. signatureValue=byte[64]
-   272:     FF755E078E731174DFD1F93E24C5B539CE3E1FE1A1CE51F387F12C6CD8
-   301:     C13AEA6D87D4BE33B6B3BF20C268AFA19DCB6BAFEDF5E8A26131A02747
-   330:     4E7B5831C106
+   272:     95A072BAEB2879F49518AF65C75ED603BA84F635665ABED2920453A820
+   301:     5790F7D14E5E8258F42CBBAA5BD81E697516F758A571BE0A9C12FE222A
+   330:     F808768DDE0C
 
 A.4.4.  Signed OCSP Request Example With Requestor's Certificate
 
    *  size(C509) / size(X509): 52%
 
-   *  Verifiable with certificate in Appendix A.2.3
+   *  Verifiable with certificate in Appendix A.2.3.2
 
    *  Signed OCSP Request (C509UnsignedOCSPRequest) with embedded
       requestor's certificate
@@ -3224,38 +3267,38 @@ A.4.4.  Signed OCSP Request Example With Requestor's Certificate
 
 A.4.4.1.  X.509 OCSP Request
 
-   PEM content (1035 bytes):
+   PEM content (1043 bytes):
 
    -----BEGIN OCSP REQUEST-----
-   MIIEBzCCAnGhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBrDBpMGcw
-   CwYJYIZIAWUDBAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQg
-   zBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFBI0EjQSNBI0EjQSNBI0
-   EjQSNBI0MGkwZzALBglghkgBZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp6
-   85eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0
-   VjRWNFY0VjRWNFY0VjRWNFYwaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8N
-   K5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPB
-   buclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBpMGcwCwYJYIZIAWUDBAIBBCAz
-   MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMwQgRERERERERERERERERERE
-   REREREREREREREREREREREQCFCIzIjMiMyIzIjMiMyIzIjMiMyIzooGfMIGcMBoG
-   CSsGAQUFBzABBAQNMAsGCSsGAQUFBzABATBfBgkrBgEFBQcwAQgEUjBQMAcwBQYD
-   K2VwMCEwCgYIKoZIzj0EAwIwEwYHKoZIzj0CAQYIKoZIzj0DAQcwIjAKBggqhkjO
-   PQQDAjAUBgcqhkjOPQIBBgkrJAMDAggBAQcwHQYJKwYBBQUHMAECBBARERERERER
-   ERERERERERERoIIBjjCCAYowBQYDK2VwA0EAnqnZjVvfg50lAZOGBiSExUCuMKja
-   IHCZKykPyiVpW8ECz2Ejd8NiIQ/pnXvzTRvbQz1i7y+figq4L4YZYGfjAaCCATww
-   ggE4MIIBNDCB56ADAgECAgISNjAFBgMrZXAwGjEYMBYGA1UEAwwPdGVzdCBjcmxv
-   Y3NwLWNhMB4XDTI1MDEwMjAwMDAwMFoXDTI2MDEwMjAwMDAwMFowGTEXMBUGA1UE
-   AwwOb2NzcC1yZXF1ZXN0b3IwKjAFBgMrZXADIQAEUwsXZO3UtOM6tErw+DiWHABx
-   dtdLajVG7Lf9VzIN06NSMFAwHQYDVR0OBBYEFLE21FmKGxtqhtplEK6lZNgSl+T5
-   MA4GA1UdDwEB/wQEAwIHgDAfBgNVHSMEGDAWgBTZfXfmNML3ADAMpY/IdzZbFVAH
-   ojAFBgMrZXADQQCY+ZIhXpHFm+r/HrfqPv0rqn4dvQHRKwN3gZhZyWeQP/nP6vYx
-   W73WoQgSSbXiyYVCHNASdBpZljgSyNJ6NX0C
+   MIIEDzCCAnmhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBtDBrMGkw
+   DQYJYIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4
+   BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0
+   EjQSNBI0EjQwazBpMA0GCWCGSAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkf
+   bo46evOXoPQAYFxv+AQgzBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqIC
+   FDRWNFY0VjRWNFY0VjRWNFY0VjRWMGswaTANBglghkgBZQMEAgEFAAQgMlOOdIW9
+   N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2
+   DtY0fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBrMGkwDQYJYIZIAWUD
+   BAIBBQAEIDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzBCBERERERERE
+   RERERERERERERERERERERERERERERERERAIUIjMiMyIzIjMiMyIzIjMiMyIzIjOi
+   gZ8wgZwwGgYJKwYBBQUHMAEEBA0wCwYJKwYBBQUHMAEBMF8GCSsGAQUFBzABCARS
+   MFAwBzAFBgMrZXAwITAKBggqhkjOPQQDAjATBgcqhkjOPQIBBggqhkjOPQMBBzAi
+   MAoGCCqGSM49BAMCMBQGByqGSM49AgEGCSskAwMCCAEBBzAdBgkrBgEFBQcwAQIE
+   EBERERERERERERERERERERGgggGOMIIBijAFBgMrZXADQQDwRoT41xL70gT6+NTW
+   ayTN07XdRKwHRyfduMPbJy0AsRw9TKioMQoLnts6C+6k4s+rORjaTcvZ0Aqv5fQ6
+   UJMFoIIBPDCCATgwggE0MIHnoAMCAQICAhI2MAUGAytlcDAaMRgwFgYDVQQDDA90
+   ZXN0IGNybG9jc3AtY2EwHhcNMjUwMTAyMDAwMDAwWhcNMjYwMTAyMDAwMDAwWjAZ
+   MRcwFQYDVQQDDA5vY3NwLXJlcXVlc3RvcjAqMAUGAytlcAMhAARTCxdk7dS04zq0
+   SvD4OJYcAHF210tqNUbst/1XMg3To1IwUDAdBgNVHQ4EFgQUsTbUWYobG2qG2mUQ
+   rqVk2BKX5PkwDgYDVR0PAQH/BAQDAgeAMB8GA1UdIwQYMBaAFNl9d+Y0wvcAMAyl
+   j8h3NlsVUAeiMAUGAytlcANBAJj5kiFekcWb6v8et+o+/Suqfh29AdErA3eBmFnJ
+   Z5A/+c/q9jFbvdahCBJJteLJhUIc0BJ0GlmWOBLI0no1fQI=
    -----END OCSP REQUEST-----
 
 A.4.4.2.  C509 OCSP Request
 
-   Plain Hex (546 bytes):
+   Plain Hex (547 bytes):
 
-   89010C015011111111111111111111111111111111582044F0528B56F35AD998049B
+   89010C005011111111111111111111111111111111582044F0528B56F35AD998049B
    306FF9A8B06FA79DE8146946FE254B00C62A622A5D84185D820001185E840CF60082
    011818865820A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
    F9D7E43C8086582010652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7
@@ -3263,15 +3306,15 @@ A.4.4.2.  C509 OCSP Request
    8A4D6E5C55F165805820D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CA
    DC3A32FC1B6AD5E38058202222222222222222222222222222222222222222222222
    22222222222222222280825820D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B26
-   4E50CB4F69DD853401C5DD8058C2024212360C6F746573742063726C6F6373702D63
-   611A6775D7001A69570A806E6F6373702D726571756573746F720C582004530B1764
-   EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51BDB2
-   A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C39005
-   D492450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A59717
-   8DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5E
-   D5442D07584059334BAFB83C250FB22F222B2DB594A00AA86BFAA5E249F7669DE076
-   7E08D1E36C800F31E23F152FC0EB2C1C209F3135243C7237D50783ACE0E1EB664B94
-   9207
+   4E50CB4F69DD853401C5DD8058C38B024212360C6F746573742063726C6F6373702D
+   63611A6775D7001A69570A806E6F6373702D726571756573746F720C582004530B17
+   64EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51BD
+   B2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C390
+   05D492450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A597
+   178DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F
+   5ED5442D075840E33F538FB9EE6A132A705D9B9911C47C6CFA89D98FB192E27317E4
+   91672C010CD8E2711AECB3C6D4B3D0E91E62C6DBD35177930B57554029040898E817
+   7FDA05
 
    Textual Representation
 
@@ -3279,7 +3322,7 @@ A.4.4.2.  C509 OCSP Request
      TBSOCSPRequest
        Type: C509SignedOCSPRequest (1)
        Signature Algorithm: Ed25519 (12)
-       Hash Algorithm: SHA256 (1)
+       Hash Algorithm: SHA256 (0)
        RequestorCertHash
          44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0:
          6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:2a:62:2a:5d
@@ -3331,33 +3374,33 @@ A.4.4.2.  C509 OCSP Request
                  ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
                Extensions: <empty>
        Requestor Certs
-         ~C509Certificate
-           02:42:12:36:0c:6f:74:65:73:74:20:63:72:6c:6f:63:
-           73:70:2d:63:61:1a:67:75:d7:00:1a:69:57:0a:80:6e:
-           6f:63:73:70:2d:72:65:71:75:65:73:74:6f:72:0c:58:
-           20:04:53:0b:17:64:ed:d4:b4:e3:3a:b4:4a:f0:f8:38:
-           96:1c:00:71:76:d7:4b:6a:35:46:ec:b7:fd:57:32:0d:
-           d3:86:01:54:dd:51:bd:b2:a2:c7:91:c0:62:d4:02:78:
-           56:db:ac:f5:26:07:f0:be:21:01:07:54:2f:45:e7:8d:
-           2c:ae:df:36:8c:df:53:c3:90:05:d4:92:45:0e:10:56:
-           58:40:f8:c6:18:3e:cf:8c:3e:fd:50:dd:49:42:d1:72:
-           81:4c:46:ec:0f:c0:1d:d5:86:a5:97:17:8d:f8:64:a0:
-           d9:da:86:b7:ca:17:fc:9f:77:2f:f0:4c:80:e9:8b:60:
-           d5:b4:b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:44:
-           2d:07
+         C509Certificate
+           8b:02:42:12:36:0c:6f:74:65:73:74:20:63:72:6c:6f:
+           63:73:70:2d:63:61:1a:67:75:d7:00:1a:69:57:0a:80:
+           6e:6f:63:73:70:2d:72:65:71:75:65:73:74:6f:72:0c:
+           58:20:04:53:0b:17:64:ed:d4:b4:e3:3a:b4:4a:f0:f8:
+           38:96:1c:00:71:76:d7:4b:6a:35:46:ec:b7:fd:57:32:
+           0d:d3:86:01:54:dd:51:bd:b2:a2:c7:91:c0:62:d4:02:
+           78:56:db:ac:f5:26:07:f0:be:21:01:07:54:2f:45:e7:
+           8d:2c:ae:df:36:8c:df:53:c3:90:05:d4:92:45:0e:10:
+           56:58:40:f8:c6:18:3e:cf:8c:3e:fd:50:dd:49:42:d1:
+           72:81:4c:46:ec:0f:c0:1d:d5:86:a5:97:17:8d:f8:64:
+           a0:d9:da:86:b7:ca:17:fc:9f:77:2f:f0:4c:80:e9:8b:
+           60:d5:b4:b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:
+           44:2d:07
      Signature Value
-       59:33:4b:af:b8:3c:25:0f:b2:2f:22:2b:2d:b5:94:a0:
-       0a:a8:6b:fa:a5:e2:49:f7:66:9d:e0:76:7e:08:d1:e3:
-       6c:80:0f:31:e2:3f:15:2f:c0:eb:2c:1c:20:9f:31:35:
-       24:3c:72:37:d5:07:83:ac:e0:e1:eb:66:4b:94:92:07
+       e3:3f:53:8f:b9:ee:6a:13:2a:70:5d:9b:99:11:c4:7c:
+       6c:fa:89:d9:8f:b1:92:e2:73:17:e4:91:67:2c:01:0c:
+       d8:e2:71:1a:ec:b3:c6:d4:b3:d0:e9:1e:62:c6:db:d3:
+       51:77:93:0b:57:55:40:29:04:08:98:e8:17:7f:da:05
 
    Annotated hex
 
      0: 89             # C509OCSPRequest=array[9]
      1:   01             # [0]. ocspRequestType=C509SignedOCSPRequest
                          #      (1)
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
-     3:   01             # [2]. hashAlgorithm: SHA256 (1)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
+     3:   00             # [2]. hashAlgorithm=SHA256 (0)
      4:   50             # [3]. nonce=byte[16]
      5:     11111111111111111111111111111111
     21:   58 20          # [4]. requestorCertHash=byte[32]
@@ -3365,25 +3408,24 @@ A.4.4.2.  C509 OCSP Request
     52:     622A5D
     55:   84             # [5]. extensions=array[4]
                            #---extension[0]---
-    56:     18 5D          # [0]. type: AcceptOCSPResponseTypes (93)
+    56:     18 5D          # [0]. type=AcceptOCSPResponseTypes (93)
     58:     82             # [1]. value=array[2]
     59:       00             # [0]. C509ErrorOCSPResponse (0)
     60:       01             # [1]. C509BasicOCSPResponse (1)
                            #---extension[1]---
-    61:     18 5E          # [2]. type: preferredSignatureAlgorithms
+    61:     18 5E          # [2]. type=preferredSignatureAlgorithms
                            #      (94)
     63:     84             # [3]. value=array[4]
                              #---preferredSignatureAlgorithms[0]---
-    64:       0C             # [0]. sigIdentifier: Ed25519 (12)
+    64:       0C             # [0]. sigIdentifier=Ed25519 (12)
     65:       F6             # [1]. pubKeyAlgIdentifiers=<null>
                              #---preferredSignatureAlgorithms[1]---
-    66:       00             # [2]. sigIdentifier: ecdsa-with-sha256
-                             #      (0)
+    66:       00             # [2]. sigIdentifier=ecdsa-with-sha256 (0)
     67:       82             # [3]. pubKeyAlgIdentifiers=array[2]
-    68:         01             # [0]. pubKeyAlgIdentifier: EC public
-                               #      key on curve secp256r1 (1)
-    69:         18 18          # [1]. pubKeyAlgIdentifier: EC public
-                               #      key on curve brainpoolp256r1 (24)
+    68:         01             # [0]. pubKeyAlgIdentifier=EC public key
+                               #      on curve secp256r1 (1)
+    69:         18 18          # [1]. pubKeyAlgIdentifier=EC public key
+                               #      on curve brainpoolp256r1 (24)
     71:   86             # [6]. requests=array[6]
                            #---PerIssuerRequests[0]---
     72:     58 20          # [0]. issuerCertHash=byte[32]
@@ -3417,24 +3459,24 @@ A.4.4.2.  C509 OCSP Request
    251:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD
    278:         853401C5DD
    283:       80             # [1]. extensions=array[0]
-   284:   58 C2          # [7]. requestorCerts(COSE_C509)=byte[194]
-   286:     024212360C6F746573742063726C6F6373702D63611A6775D7001A6957
-   315:     0A806E6F6373702D726571756573746F720C582004530B1764EDD4B4E3
-   344:     3AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51BD
-   373:     B2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF36
-   402:     8CDF53C39005D492450E10565840F8C6183ECF8C3EFD50DD4942D17281
-   431:     4C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772FF04C80E9
-   460:     8B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
-   480:   58 40          # [8]. signatureValue=byte[64]
-   482:     59334BAFB83C250FB22F222B2DB594A00AA86BFAA5E249F7669DE0767E
-   511:     08D1E36C800F31E23F152FC0EB2C1C209F3135243C7237D50783ACE0E1
-   540:     EB664B949207
+   284:   58 C3          # [7]. requestorCerts(COSE_C509)=byte[195]
+   286:     8B024212360C6F746573742063726C6F6373702D63611A6775D7001A69
+   315:     570A806E6F6373702D726571756573746F720C582004530B1764EDD4B4
+   344:     E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51
+   373:     BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF
+   402:     368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50DD4942D172
+   431:     814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772FF04C80
+   460:     E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
+   481:   58 40          # [8]. signatureValue=byte[64]
+   483:     E33F538FB9EE6A132A705D9B9911C47C6CFA89D98FB192E27317E49167
+   512:     2C010CD8E2711AECB3C6D4B3D0E91E62C6DBD35177930B575540290408
+   541:     98E8177FDA05
 
 A.4.5.  Signed OCSP Request Example With Requestor's Certificate Chain
 
    *  size(C509) / size(X509): 54%
 
-   *  Verifiable with certificate in Appendix A.2.3
+   *  Verifiable with certificate in Appendix A.2.3.2
 
    *  Signed OCSP Request (C509UnsignedOCSPRequest) with embedded
       requestor's certificate chain (2 certificates)
@@ -3444,45 +3486,45 @@ A.4.5.  Signed OCSP Request Example With Requestor's Certificate Chain
 
 A.4.5.1.  X.509 OCSP Request
 
-   PEM content (1371 bytes):
+   PEM content (1379 bytes):
 
    -----BEGIN OCSP REQUEST-----
-   MIIFVzCCAnGhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBrDBpMGcw
-   CwYJYIZIAWUDBAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQg
-   zBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFBI0EjQSNBI0EjQSNBI0
-   EjQSNBI0MGkwZzALBglghkgBZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp6
-   85eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0
-   VjRWNFY0VjRWNFY0VjRWNFYwaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8N
-   K5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPB
-   buclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBpMGcwCwYJYIZIAWUDBAIBBCAz
-   MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMwQgRERERERERERERERERERE
-   REREREREREREREREREREREQCFCIzIjMiMyIzIjMiMyIzIjMiMyIzooGfMIGcMBoG
-   CSsGAQUFBzABBAQNMAsGCSsGAQUFBzABATBfBgkrBgEFBQcwAQgEUjBQMAcwBQYD
-   K2VwMCEwCgYIKoZIzj0EAwIwEwYHKoZIzj0CAQYIKoZIzj0DAQcwIjAKBggqhkjO
-   PQQDAjAUBgcqhkjOPQIBBgkrJAMDAggBAQcwHQYJKwYBBQUHMAECBBARERERERER
-   ERERERERERERoIIC3jCCAtowBQYDK2VwA0EAnqnZjVvfg50lAZOGBiSExUCuMKja
-   IHCZKykPyiVpW8ECz2Ejd8NiIQ/pnXvzTRvbQz1i7y+figq4L4YZYGfjAaCCAoww
-   ggKIMIIBNDCB56ADAgECAgISNjAFBgMrZXAwGjEYMBYGA1UEAwwPdGVzdCBjcmxv
-   Y3NwLWNhMB4XDTI1MDEwMjAwMDAwMFoXDTI2MDEwMjAwMDAwMFowGTEXMBUGA1UE
-   AwwOb2NzcC1yZXF1ZXN0b3IwKjAFBgMrZXADIQAEUwsXZO3UtOM6tErw+DiWHABx
-   dtdLajVG7Lf9VzIN06NSMFAwHQYDVR0OBBYEFLE21FmKGxtqhtplEK6lZNgSl+T5
-   MA4GA1UdDwEB/wQEAwIHgDAfBgNVHSMEGDAWgBTZfXfmNML3ADAMpY/IdzZbFVAH
-   ojAFBgMrZXADQQCY+ZIhXpHFm+r/HrfqPv0rqn4dvQHRKwN3gZhZyWeQP/nP6vYx
-   W73WoQgSSbXiyYVCHNASdBpZljgSyNJ6NX0CMIIBTDCB/6ADAgECAgEBMAUGAytl
-   cDAeMRwwGgYDVQQDDBN0ZXN0IGNybG9jc3Atcm9vdGNhMB4XDTI1MDEwMTAwMDAw
-   MFoXDTI2MTIzMTIzNTk1OVowGjEYMBYGA1UEAwwPdGVzdCBjcmxvY3NwLWNhMCow
-   BQYDK2VwAyEAXvijVaABp8UNI0lHASCBMaS7Krkg1Av7DuH2qyj/dACjZjBkMB0G
-   A1UdDgQWBBTZfXfmNML3ADAMpY/IdzZbFVAHojAOBgNVHQ8BAf8EBAMCAQYwEgYD
-   VR0TAQH/BAgwBgEB/wIBATAfBgNVHSMEGDAWgBSRI5z6+eeDbLKfUeExkdsQ064W
-   kzAFBgMrZXADQQDWXgHXy/pBf7F7mfeX7Wknr1Yv9j6NNbPjp9OBYMxkZ0AQTY85
-   GJfdqxGY89BaJhkgQ2Km+DwziCEbNrxWPUEC
+   MIIFXzCCAnmhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBtDBrMGkw
+   DQYJYIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4
+   BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0
+   EjQSNBI0EjQwazBpMA0GCWCGSAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkf
+   bo46evOXoPQAYFxv+AQgzBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqIC
+   FDRWNFY0VjRWNFY0VjRWNFY0VjRWMGswaTANBglghkgBZQMEAgEFAAQgMlOOdIW9
+   N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2
+   DtY0fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBrMGkwDQYJYIZIAWUD
+   BAIBBQAEIDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzBCBERERERERE
+   RERERERERERERERERERERERERERERERERAIUIjMiMyIzIjMiMyIzIjMiMyIzIjOi
+   gZ8wgZwwGgYJKwYBBQUHMAEEBA0wCwYJKwYBBQUHMAEBMF8GCSsGAQUFBzABCARS
+   MFAwBzAFBgMrZXAwITAKBggqhkjOPQQDAjATBgcqhkjOPQIBBggqhkjOPQMBBzAi
+   MAoGCCqGSM49BAMCMBQGByqGSM49AgEGCSskAwMCCAEBBzAdBgkrBgEFBQcwAQIE
+   EBERERERERERERERERERERGgggLeMIIC2jAFBgMrZXADQQDwRoT41xL70gT6+NTW
+   ayTN07XdRKwHRyfduMPbJy0AsRw9TKioMQoLnts6C+6k4s+rORjaTcvZ0Aqv5fQ6
+   UJMFoIICjDCCAogwggE0MIHnoAMCAQICAhI2MAUGAytlcDAaMRgwFgYDVQQDDA90
+   ZXN0IGNybG9jc3AtY2EwHhcNMjUwMTAyMDAwMDAwWhcNMjYwMTAyMDAwMDAwWjAZ
+   MRcwFQYDVQQDDA5vY3NwLXJlcXVlc3RvcjAqMAUGAytlcAMhAARTCxdk7dS04zq0
+   SvD4OJYcAHF210tqNUbst/1XMg3To1IwUDAdBgNVHQ4EFgQUsTbUWYobG2qG2mUQ
+   rqVk2BKX5PkwDgYDVR0PAQH/BAQDAgeAMB8GA1UdIwQYMBaAFNl9d+Y0wvcAMAyl
+   j8h3NlsVUAeiMAUGAytlcANBAJj5kiFekcWb6v8et+o+/Suqfh29AdErA3eBmFnJ
+   Z5A/+c/q9jFbvdahCBJJteLJhUIc0BJ0GlmWOBLI0no1fQIwggFMMIH/oAMCAQIC
+   AQEwBQYDK2VwMB4xHDAaBgNVBAMME3Rlc3QgY3Jsb2NzcC1yb290Y2EwHhcNMjUw
+   MTAxMDAwMDAwWhcNMjYxMjMxMjM1OTU5WjAaMRgwFgYDVQQDDA90ZXN0IGNybG9j
+   c3AtY2EwKjAFBgMrZXADIQBe+KNVoAGnxQ0jSUcBIIExpLsquSDUC/sO4farKP90
+   AKNmMGQwHQYDVR0OBBYEFNl9d+Y0wvcAMAylj8h3NlsVUAeiMA4GA1UdDwEB/wQE
+   AwIBBjASBgNVHRMBAf8ECDAGAQH/AgEBMB8GA1UdIwQYMBaAFJEjnPr554Nssp9R
+   4TGR2xDTrhaTMAUGAytlcANBANZeAdfL+kF/sXuZ95ftaSevVi/2Po01s+On04Fg
+   zGRnQBBNjzkYl92rEZjz0FomGSBDYqb4PDOIIRs2vFY9QQI=
    -----END OCSP REQUEST-----
 
 A.4.5.2.  C509 OCSP Request
 
-   Plain Hex (750 bytes):
+   Plain Hex (752 bytes):
 
-   89010C015011111111111111111111111111111111582044F0528B56F35AD998049B
+   89010C005011111111111111111111111111111111582044F0528B56F35AD998049B
    306FF9A8B06FA79DE8146946FE254B00C62A622A5D84185D820001185E840CF60082
    011818865820A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
    F9D7E43C8086582010652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7
@@ -3490,21 +3532,21 @@ A.4.5.2.  C509 OCSP Request
    8A4D6E5C55F165805820D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CA
    DC3A32FC1B6AD5E38058202222222222222222222222222222222222222222222222
    22222222222222222280825820D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B26
-   4E50CB4F69DD853401C5DD808258C2024212360C6F746573742063726C6F6373702D
-   63611A6775D7001A69570A806E6F6373702D726571756573746F720C582004530B17
-   64EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51BD
-   B2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C390
-   05D492450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A597
-   178DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F
-   5ED5442D0758C90241010C73746573742063726C6F6373702D726F6F7463611A6774
-   85801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8A355A001A7C5
-   0D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF
-   368CDF53C39005D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA
-   8A839F557F0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2
-   AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E1
-   91310B0F58403780CA6F1CF3BF133E867BF8F2EF0BE8F6EA07CD08C2C8B5402700FD
-   78A001A24EBCFA01B9B05FDC0250540DC91E2BEAEE70E68E81AA9E74E3A2776D1858
-   B404
+   4E50CB4F69DD853401C5DD808258C38B024212360C6F746573742063726C6F637370
+   2D63611A6775D7001A69570A806E6F6373702D726571756573746F720C582004530B
+   1764EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51
+   BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C3
+   9005D492450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A5
+   97178DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A
+   3F5ED5442D0758CA8B0241010C73746573742063726C6F6373702D726F6F7463611A
+   677485801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8A355A001
+   A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2C
+   AEDF368CDF53C39005D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A
+   73BA8A839F557F0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3
+   F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
+   D0E191310B0F5840BDC536D59EFFD55CFDC1A05608295380A13C2B83606E5B3A6824
+   2E805C382E34AAC5A67605B438F5C2289FD9EA0303F682F6FBB1208955324FD3169F
+   6D022908
 
    Textual Representation
 
@@ -3512,7 +3554,7 @@ A.4.5.2.  C509 OCSP Request
      TBSOCSPRequest
        Type: C509SignedOCSPRequest (1)
        Signature Algorithm: Ed25519 (12)
-       Hash Algorithm: SHA256 (1)
+       Hash Algorithm: SHA256 (0)
        RequestorCertHash
          44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0:
          6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:2a:62:2a:5d
@@ -3564,47 +3606,47 @@ A.4.5.2.  C509 OCSP Request
                  ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
                Extensions: <empty>
        Requestor Certs
-         ~C509Certificate
-           02:42:12:36:0c:6f:74:65:73:74:20:63:72:6c:6f:63:
-           73:70:2d:63:61:1a:67:75:d7:00:1a:69:57:0a:80:6e:
-           6f:63:73:70:2d:72:65:71:75:65:73:74:6f:72:0c:58:
-           20:04:53:0b:17:64:ed:d4:b4:e3:3a:b4:4a:f0:f8:38:
-           96:1c:00:71:76:d7:4b:6a:35:46:ec:b7:fd:57:32:0d:
-           d3:86:01:54:dd:51:bd:b2:a2:c7:91:c0:62:d4:02:78:
-           56:db:ac:f5:26:07:f0:be:21:01:07:54:2f:45:e7:8d:
-           2c:ae:df:36:8c:df:53:c3:90:05:d4:92:45:0e:10:56:
-           58:40:f8:c6:18:3e:cf:8c:3e:fd:50:dd:49:42:d1:72:
-           81:4c:46:ec:0f:c0:1d:d5:86:a5:97:17:8d:f8:64:a0:
-           d9:da:86:b7:ca:17:fc:9f:77:2f:f0:4c:80:e9:8b:60:
-           d5:b4:b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:44:
-           2d:07
-         ~C509Certificate
-           02:41:01:0c:73:74:65:73:74:20:63:72:6c:6f:63:73:
-           70:2d:72:6f:6f:74:63:61:1a:67:74:85:80:1a:6b:36:
-           ec:7f:6f:74:65:73:74:20:63:72:6c:6f:63:73:70:2d:
-           63:61:0c:58:20:5e:f8:a3:55:a0:01:a7:c5:0d:23:49:
-           47:01:20:81:31:a4:bb:2a:b9:20:d4:0b:fb:0e:e1:f6:
-           ab:28:ff:74:00:88:01:54:2f:45:e7:8d:2c:ae:df:36:
-           8c:df:53:c3:90:05:d4:92:45:0e:10:56:21:18:60:23:
-           01:07:54:2d:a3:a4:03:f7:d2:f4:e0:b3:d8:03:1a:73:
-           ba:8a:83:9f:55:7f:0f:58:40:e5:04:65:d6:0c:02:a2:
-           11:1e:f3:fc:6e:44:f2:a3:60:08:76:5b:55:23:51:f9:
-           a3:f5:b2:aa:7c:76:f1:f0:5d:25:98:47:a4:f4:25:0b:
-           2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:18:
-           0a:a0:a2:d0:e1:91:31:0b:0f
+         C509Certificate
+           8b:02:42:12:36:0c:6f:74:65:73:74:20:63:72:6c:6f:
+           63:73:70:2d:63:61:1a:67:75:d7:00:1a:69:57:0a:80:
+           6e:6f:63:73:70:2d:72:65:71:75:65:73:74:6f:72:0c:
+           58:20:04:53:0b:17:64:ed:d4:b4:e3:3a:b4:4a:f0:f8:
+           38:96:1c:00:71:76:d7:4b:6a:35:46:ec:b7:fd:57:32:
+           0d:d3:86:01:54:dd:51:bd:b2:a2:c7:91:c0:62:d4:02:
+           78:56:db:ac:f5:26:07:f0:be:21:01:07:54:2f:45:e7:
+           8d:2c:ae:df:36:8c:df:53:c3:90:05:d4:92:45:0e:10:
+           56:58:40:f8:c6:18:3e:cf:8c:3e:fd:50:dd:49:42:d1:
+           72:81:4c:46:ec:0f:c0:1d:d5:86:a5:97:17:8d:f8:64:
+           a0:d9:da:86:b7:ca:17:fc:9f:77:2f:f0:4c:80:e9:8b:
+           60:d5:b4:b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:
+           44:2d:07
+         C509Certificate
+           8b:02:41:01:0c:73:74:65:73:74:20:63:72:6c:6f:63:
+           73:70:2d:72:6f:6f:74:63:61:1a:67:74:85:80:1a:6b:
+           36:ec:7f:6f:74:65:73:74:20:63:72:6c:6f:63:73:70:
+           2d:63:61:0c:58:20:5e:f8:a3:55:a0:01:a7:c5:0d:23:
+           49:47:01:20:81:31:a4:bb:2a:b9:20:d4:0b:fb:0e:e1:
+           f6:ab:28:ff:74:00:88:01:54:2f:45:e7:8d:2c:ae:df:
+           36:8c:df:53:c3:90:05:d4:92:45:0e:10:56:21:18:60:
+           23:01:07:54:2d:a3:a4:03:f7:d2:f4:e0:b3:d8:03:1a:
+           73:ba:8a:83:9f:55:7f:0f:58:40:e5:04:65:d6:0c:02:
+           a2:11:1e:f3:fc:6e:44:f2:a3:60:08:76:5b:55:23:51:
+           f9:a3:f5:b2:aa:7c:76:f1:f0:5d:25:98:47:a4:f4:25:
+           0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
+           18:0a:a0:a2:d0:e1:91:31:0b:0f
      Signature Value
-       37:80:ca:6f:1c:f3:bf:13:3e:86:7b:f8:f2:ef:0b:e8:
-       f6:ea:07:cd:08:c2:c8:b5:40:27:00:fd:78:a0:01:a2:
-       4e:bc:fa:01:b9:b0:5f:dc:02:50:54:0d:c9:1e:2b:ea:
-       ee:70:e6:8e:81:aa:9e:74:e3:a2:77:6d:18:58:b4:04
+       bd:c5:36:d5:9e:ff:d5:5c:fd:c1:a0:56:08:29:53:80:
+       a1:3c:2b:83:60:6e:5b:3a:68:24:2e:80:5c:38:2e:34:
+       aa:c5:a6:76:05:b4:38:f5:c2:28:9f:d9:ea:03:03:f6:
+       82:f6:fb:b1:20:89:55:32:4f:d3:16:9f:6d:02:29:08
 
    Annotated hex
 
      0: 89             # C509OCSPRequest=array[9]
      1:   01             # [0]. ocspRequestType=C509SignedOCSPRequest
                          #      (1)
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
-     3:   01             # [2]. hashAlgorithm: SHA256 (1)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
+     3:   00             # [2]. hashAlgorithm=SHA256 (0)
      4:   50             # [3]. nonce=byte[16]
      5:     11111111111111111111111111111111
     21:   58 20          # [4]. requestorCertHash=byte[32]
@@ -3612,25 +3654,24 @@ A.4.5.2.  C509 OCSP Request
     52:     622A5D
     55:   84             # [5]. extensions=array[4]
                            #---extension[0]---
-    56:     18 5D          # [0]. type: AcceptOCSPResponseTypes (93)
+    56:     18 5D          # [0]. type=AcceptOCSPResponseTypes (93)
     58:     82             # [1]. value=array[2]
     59:       00             # [0]. C509ErrorOCSPResponse (0)
     60:       01             # [1]. C509BasicOCSPResponse (1)
                            #---extension[1]---
-    61:     18 5E          # [2]. type: preferredSignatureAlgorithms
+    61:     18 5E          # [2]. type=preferredSignatureAlgorithms
                            #      (94)
     63:     84             # [3]. value=array[4]
                              #---preferredSignatureAlgorithms[0]---
-    64:       0C             # [0]. sigIdentifier: Ed25519 (12)
+    64:       0C             # [0]. sigIdentifier=Ed25519 (12)
     65:       F6             # [1]. pubKeyAlgIdentifiers=<null>
                              #---preferredSignatureAlgorithms[1]---
-    66:       00             # [2]. sigIdentifier: ecdsa-with-sha256
-                             #      (0)
+    66:       00             # [2]. sigIdentifier=ecdsa-with-sha256 (0)
     67:       82             # [3]. pubKeyAlgIdentifiers=array[2]
-    68:         01             # [0]. pubKeyAlgIdentifier: EC public
-                               #      key on curve secp256r1 (1)
-    69:         18 18          # [1]. pubKeyAlgIdentifier: EC public
-                               #      key on curve brainpoolp256r1 (24)
+    68:         01             # [0]. pubKeyAlgIdentifier=EC public key
+                               #      on curve secp256r1 (1)
+    69:         18 18          # [1]. pubKeyAlgIdentifier=EC public key
+                               #      on curve brainpoolp256r1 (24)
     71:   86             # [6]. requests=array[6]
                            #---PerIssuerRequests[0]---
     72:     58 20          # [0]. issuerCertHash=byte[32]
@@ -3665,27 +3706,27 @@ A.4.5.2.  C509 OCSP Request
    278:         853401C5DD
    283:       80             # [1]. extensions=array[0]
    284:   82             # [7]. requestorCerts(COSE_C509)=array[2]
-   285:     58 C2          # [0]. C509CertData=byte[194]
-   287:       024212360C6F746573742063726C6F6373702D63611A6775D7001A69
-   315:       570A806E6F6373702D726571756573746F720C582004530B1764EDD4
-   343:       B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154
-   371:       DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E78D
-   399:       2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50DD
-   427:       4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F
-   455:       772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
-   481:     58 C9          # [1]. C509CertData=byte[201]
-   483:       0241010C73746573742063726C6F6373702D726F6F7463611A677485
-   511:       801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8A3
-   539:       55A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF74
-   567:       008801542F45E78D2CAEDF368CDF53C39005D492450E105621186023
-   595:       0107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E50465
-   623:       D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F0
-   651:       5D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0
-   679:       E191310B0F
-   684:   58 40          # [8]. signatureValue=byte[64]
-   686:     3780CA6F1CF3BF133E867BF8F2EF0BE8F6EA07CD08C2C8B5402700FD78
-   715:     A001A24EBCFA01B9B05FDC0250540DC91E2BEAEE70E68E81AA9E74E3A2
-   744:     776D1858B404
+   285:     58 C3          # [0]. C509CertData=byte[195]
+   287:       8B024212360C6F746573742063726C6F6373702D63611A6775D7001A
+   315:       69570A806E6F6373702D726571756573746F720C582004530B1764ED
+   343:       D4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD38601
+   371:       54DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E7
+   399:       8D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50
+   427:       DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC
+   455:       9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
+   482:     58 CA          # [1]. C509CertData=byte[202]
+   484:       8B0241010C73746573742063726C6F6373702D726F6F7463611A6774
+   512:       85801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8
+   540:       A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF
+   568:       74008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860
+   596:       230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E504
+   624:       65D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1
+   652:       F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
+   680:       D0E191310B0F
+   686:   58 40          # [8]. signatureValue=byte[64]
+   688:     BDC536D59EFFD55CFDC1A05608295380A13C2B83606E5B3A68242E805C
+   717:     382E34AAC5A67605B438F5C2289FD9EA0303F682F6FBB1208955324FD3
+   746:     169F6D022908
 
 A.5.  OCSP Response Examples
 
@@ -3726,7 +3767,7 @@ A.5.2.  Simple OCSP Response Example
 
    *  size(C509) / size(X509): 60%
 
-   *  Verifiable with certificate in Appendix A.2.4
+   *  Verifiable with certificate in Appendix A.2.4.2
 
    *  Simple OCSP Response (C509SimpleOCSPResponse) without responder's
       certificate
@@ -3736,28 +3777,29 @@ A.5.2.  Simple OCSP Response Example
 
 A.5.2.1.  X.509 OCSP Response
 
-   PEM content (336 bytes):
+   PEM content (338 bytes):
 
    -----BEGIN OCSP RESPONSE-----
-   MIIBTAoBAKCCAUUwggFBBgkrBgEFBQcwAQEEggEyMIIBLjCB4aIWBBTq5ZqK6ar0
-   EEsV5Q6O4BcVF3QYrxgPMjAyNTAzMDMwMDAwMDBaMIGSMIGPMGcwCwYJYIZIAWUD
-   BAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQgzBHIdAoFCexN
-   oUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFBI0EjQSNBI0EjQSNBI0EjQSNBI0gAAY
-   DzIwMjUwMzAyMTYwMDAwWqARGA8yMDI1MDMwMzA3MDAwMFqhITAfMB0GCSsGAQUF
-   BzABAgQQERERERERERERERERERERETAFBgMrZXADQQAoVz6mB1JqePHWA2adyeK4
-   ElU3cwbFiAepAQkUhmtUT9vU4J4mc/QxA39Ja36kVABy8+f62xw0f+5v3G9LTS0M
+   MIIBTgoBAKCCAUcwggFDBgkrBgEFBQcwAQEEggE0MIIBMDCB46IWBBTq5ZqK6ar0
+   EEsV5Q6O4BcVF3QYrxgPMjAyNTAzMDMwMDAwMDBaMIGUMIGRMGkwDQYJYIZIAWUD
+   BAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ
+   7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0EjQSNBI0EjSA
+   ABgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWqEhMB8wHQYJKwYB
+   BQUHMAECBBARERERERERERERERERERERMAUGAytlcANBAGEzM3X9KkpZLfpEMRoz
+   3TwWMLEfWkJkVHA++53Yj9QrrI6Sqry4t9AouNcGLORbv42mroG3GkYESuMSK3uG
+   Wgg=
    -----END OCSP RESPONSE-----
 
 A.5.2.2.  C509 OCSP Response
 
    Plain Hex (203 bytes):
 
-   8E020C01501111111111111111111111111111111158200600867838E3311AA78B9E
+   8E020C00501111111111111111111111111111111158200600867838E3311AA78B9E
    D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B25820A01C73A5F3B063344257D0
    2693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C582010652787FA0527BC2449A1
    BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F004001A67C4F10039707F19627080
-   F65840BD269E74AC6C9EBFE4E0A46A64CFD432CC06068C4D073FD515D0D276437AE5
-   EC8BAA611D3A7795E6B299C7539AF3140EE768D19A05BD23B1E2C2F546C7738B07
+   F65840F4EC279F7556C435355AE9F863496853B0EFEC702623A8E13BD29A6A1DB56E
+   58A16D62E929B6E5C1C7EE2F3D5F04A27CFAAAA63F447AD97DB7B9A2B5C6348801
 
    Textual Representation
 
@@ -3765,7 +3807,7 @@ A.5.2.2.  C509 OCSP Response
      TBSSimpleOCSPResponse
        Type: C509SimpleOCSPResponse (2)
        Signature Algorithm: Ed25519 (12)
-       Hash Algorithm: SHA256 (1)
+       Hash Algorithm: SHA256 (0)
        Nonce
          11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
        ResponderCertHash
@@ -3783,18 +3825,18 @@ A.5.2.2.  C509 OCSP Response
        Extensions: <empty>
        Responder Certs: null
      Signature Value
-       bd:26:9e:74:ac:6c:9e:bf:e4:e0:a4:6a:64:cf:d4:32:
-       cc:06:06:8c:4d:07:3f:d5:15:d0:d2:76:43:7a:e5:ec:
-       8b:aa:61:1d:3a:77:95:e6:b2:99:c7:53:9a:f3:14:0e:
-       e7:68:d1:9a:05:bd:23:b1:e2:c2:f5:46:c7:73:8b:07
+       f4:ec:27:9f:75:56:c4:35:35:5a:e9:f8:63:49:68:53:
+       b0:ef:ec:70:26:23:a8:e1:3b:d2:9a:6a:1d:b5:6e:58:
+       a1:6d:62:e9:29:b6:e5:c1:c7:ee:2f:3d:5f:04:a2:7c:
+       fa:aa:a6:3f:44:7a:d9:7d:b7:b9:a2:b5:c6:34:88:01
 
    Annotated hex
 
      0: 8E             # C509OCSPResponse=array[14]
      1:   02             # [0]. ocspResponseType=C509SimpleOCSPResponse
                          #      (2)
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
-     3:   01             # [2]. hashAlgorithm: SHA256 (1)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
+     3:   00             # [2]. hashAlgorithm=SHA256 (0)
      4:   50             # [3]. nonce=byte[16]
      5:     11111111111111111111111111111111
     21:   58 20          # [4]. responderCertHash=byte[32]
@@ -3814,15 +3856,15 @@ A.5.2.2.  C509 OCSP Response
    135:   80             # [11]. extensions=array[0]
    136:   F6             # [12]. responderCerts=<null>
    137:   58 40          # [13]. signatureValue=byte[64]
-   139:     BD269E74AC6C9EBFE4E0A46A64CFD432CC06068C4D073FD515D0D27643
-   168:     7AE5EC8BAA611D3A7795E6B299C7539AF3140EE768D19A05BD23B1E2C2
-   197:     F546C7738B07
+   139:     F4EC279F7556C435355AE9F863496853B0EFEC702623A8E13BD29A6A1D
+   168:     B56E58A16D62E929B6E5C1C7EE2F3D5F04A27CFAAAA63F447AD97DB7B9
+   197:     A2B5C6348801
 
 A.5.3.  Basic OCSP Response Example Without Responder's Certificate
 
    *  size(C509) / size(X509): 44%
 
-   *  Verifiable with certificate in Appendix A.2.4
+   *  Verifiable with certificate in Appendix A.2.4.2
 
    *  Basic OCSP Response (C509BasicOCSPResponse) without responder's
       certificate
@@ -3832,35 +3874,35 @@ A.5.3.  Basic OCSP Response Example Without Responder's Certificate
 
 A.5.3.1.  X.509 OCSP Response
 
-   PEM content (837 bytes):
+   PEM content (845 bytes):
 
    -----BEGIN OCSP RESPONSE-----
-   MIIDQQoBAKCCAzowggM2BgkrBgEFBQcwAQEEggMnMIIDIzCCAtWiFgQU6uWaiumq
-   9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjA5MTc1NzEwWjCCAnQwgY8wZzALBglghkgB
-   ZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ
-   7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0EjQSNBI0EjSA
-   ABgPMjAyNjA2MDkwOTU3MTBaoBEYDzIwMjYwNjEwMDA1NzEwWjCBpTBnMAsGCWCG
-   SAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
-   BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQ0VjRWNFY0VjRWNFY0VjRWNFY0
-   VqEWGA8xOTcwMDEwMTAwMDAwMFqgAwoBBhgPMjAyNjA2MDkwOTU3MTBaoBEYDzIw
-   MjYwNjEwMDA1NzEwWjCBpTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV
-   11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbucl
-   t2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAwMFqgAwoB
-   BBgPMjAyNjA2MDkwOTU3MTBaoBEYDzIwMjYwNjEwMDA1NzEwWjCBjzBnMAsGCWCG
-   SAFlAwQCAQQgMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMEIERERERE
-   REREREREREREREREREREREREREREREREREREAhQiMyIzIjMiMyIzIjMiMyIzIjMi
-   M4IAGA8yMDI2MDYwOTA5NTcxMFqgERgPMjAyNjA2MTAwMDU3MTBaoTIwMDAdBgkr
-   BgEFBQcwAQIEEBEREREREREREREREREREREwDwYJKwYBBQUHMAEJBAIFADAFBgMr
-   ZXADQQCkIJZu415zr8fjnf0RiAg4rYVH/aBYaIGB1eYhWxu2zdQLdud66Ff+TAsN
-   1hQmDKNjLqOeIkzt82w5x5z7FMQF
+   MIIDSQoBAKCCA0IwggM+BgkrBgEFBQcwAQEEggMvMIIDKzCCAt2iFgQU6uWaiumq
+   9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjI1MTAwNTUyWjCCAnwwgZEwaTANBglghkgB
+   ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
+   BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
+   NIAAGA8yMDI2MDYyNTAyMDU1MlqgERgPMjAyNjA2MjUxNzA1NTJaMIGnMGkwDQYJ
+   YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
+   Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
+   VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjYwNjI1MDIwNTUyWqAR
+   GA8yMDI2MDYyNTE3MDU1MlowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
+   Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
+   fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
+   MFqgAwoBBBgPMjAyNjA2MjUwMjA1NTJaoBEYDzIwMjYwNjI1MTcwNTUyWjCBkTBp
+   MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
+   MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
+   MyIzIjMiMyIzggAYDzIwMjYwNjI1MDIwNTUyWqARGA8yMDI2MDYyNTE3MDU1Mlqh
+   MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
+   AgUAMAUGAytlcANBABU9FgxhX6hWtm2cuhNhI6wm7iiYGTHNLbG7p+bPlaXkW6Bo
+   49xjhqOVhR4+o3wJ4n4YBoIz8/k8JThs9gtenA8=
    -----END OCSP RESPONSE-----
 
 A.5.3.2.  C509 OCSP Response
 
    Plain Hex (375 bytes):
 
-   8A010C01501111111111111111111111111111111158200600867838E3311AA78B9E
-   D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A2853F680865820A01C73A5
+   8A010C00501111111111111111111111111111111158200600867838E3311AA78B9E
+   D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A3CFD8080865820A01C73A5
    F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C808F58201065
    2787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F0040039707F
    19627080582075D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D6E
@@ -3868,9 +3910,9 @@ A.5.3.2.  C509 OCSP Response
    C26408CADC3A32FC1B6AD5E3821A67C32F000439707F196270805820222222222222
    222222222222222222222222222222222222222222222222222280855820D3A0C1E3
    DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD0239707F1962
-   7080F65840937EA7CCCAD3B9F113ED6AD0DF113BF5E70FBF326E020FF5183AC87E55
-   30FF06225F1AA048D76D39D412EC26C3AD9B74668791559E6973308E11DCABDA8262
-   07
+   7080F658407DCCDF8C1B164DD93D2210DE8F01780BE711E678F1964DDE7F7B1A571D
+   0E3F16B1F1E7A180C5D967FB77B3127A7DD1279C24CAABC0732FEA39A850D21CAE94
+   0A
 
    Textual Representation
 
@@ -3878,13 +3920,13 @@ A.5.3.2.  C509 OCSP Response
      TBSBasicOCSPResponse
        Type: C509BasicOCSPResponse (1)
        Signature Algorithm: Ed25519 (12)
-       Hash Algorithm: SHA256 (1)
+       Hash Algorithm: SHA256 (0)
        Nonce
          11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
        ResponderCertHash
          06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86:
          b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:34:43:a3:b2
-       ProducedAt: 2026-06-09T17:57:10.299864Z
+       ProducedAt: 2026-06-25T10:05:52.354445Z
        Extensions: <empty>
        Responses
          OcspPerIssuerResponse
@@ -3934,25 +3976,25 @@ A.5.3.2.  C509 OCSP Response
                Extensions: <empty>
        Responder Certs: null
      Signature Value
-       93:7e:a7:cc:ca:d3:b9:f1:13:ed:6a:d0:df:11:3b:f5:
-       e7:0f:bf:32:6e:02:0f:f5:18:3a:c8:7e:55:30:ff:06:
-       22:5f:1a:a0:48:d7:6d:39:d4:12:ec:26:c3:ad:9b:74:
-       66:87:91:55:9e:69:73:30:8e:11:dc:ab:da:82:62:07
+       7d:cc:df:8c:1b:16:4d:d9:3d:22:10:de:8f:01:78:0b:
+       e7:11:e6:78:f1:96:4d:de:7f:7b:1a:57:1d:0e:3f:16:
+       b1:f1:e7:a1:80:c5:d9:67:fb:77:b3:12:7a:7d:d1:27:
+       9c:24:ca:ab:c0:73:2f:ea:39:a8:50:d2:1c:ae:94:0a
 
    Annotated hex
 
      0: 8A             # C509OCSPResponse=array[10]
      1:   01             # [0]. ocspResponseType=C509BasicOCSPResponse
                          #      (1)
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
-     3:   01             # [2]. hashAlgorithm: SHA256 (1)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
+     3:   00             # [2]. hashAlgorithm=SHA256 (0)
      4:   50             # [3]. nonce=byte[16]
      5:     11111111111111111111111111111111
     21:   58 20          # [4]. responderCertHash=byte[32]
     23:     0600867838E3311AA78B9ED60C631C86B09A6DE7BC43E02A7AA7006A34
     52:     43A3B2
-    55:   1A 6A2853F6    # [5]. producedAt=1781027830:
-                         #      2026-06-09T17:57:10Z
+    55:   1A 6A3CFD80    # [5]. producedAt=1782381952:
+                         #      2026-06-25T10:05:52Z
     60:   80             # [6]. extensions=array[0]
     61:   86             # [7]. responses=array[6]
                            #---PerIssuerResponses[0]---
@@ -4004,15 +4046,15 @@ A.5.3.2.  C509 OCSP Response
    307:       80             # [4]. extensions=array[0]
    308:   F6             # [8]. responderCerts=<null>
    309:   58 40          # [9]. signature value=byte[64]
-   311:     937EA7CCCAD3B9F113ED6AD0DF113BF5E70FBF326E020FF5183AC87E55
-   340:     30FF06225F1AA048D76D39D412EC26C3AD9B74668791559E6973308E11
-   369:     DCABDA826207
+   311:     7DCCDF8C1B164DD93D2210DE8F01780BE711E678F1964DDE7F7B1A571D
+   340:     0E3F16B1F1E7A180C5D967FB77B3127A7DD1279C24CAABC0732FEA39A8
+   369:     50D21CAE940A
 
 A.5.4.  Basic OCSP Response Example With Responder's Certificate
 
    *  size(C509) / size(X509): 48%
 
-   *  Verifiable with certificate in Appendix A.2.4
+   *  Verifiable with certificate in Appendix A.2.4.2
 
    *  Basic OCSP Response (C509BasicOCSPResponse) with embedded
       responder's certificate
@@ -4022,42 +4064,42 @@ A.5.4.  Basic OCSP Response Example With Responder's Certificate
 
 A.5.4.1.  X.509 OCSP Response
 
-   PEM content (1181 bytes):
+   PEM content (1189 bytes):
 
    -----BEGIN OCSP RESPONSE-----
-   MIIEmQoBAKCCBJIwggSOBgkrBgEFBQcwAQEEggR/MIIEezCCAtWiFgQU6uWaiumq
-   9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjA5MTc1NzEwWjCCAnQwgY8wZzALBglghkgB
-   ZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ
-   7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0EjQSNBI0EjSA
-   ABgPMjAyNjA2MDkwOTU3MTBaoBEYDzIwMjYwNjEwMDA1NzEwWjCBpTBnMAsGCWCG
-   SAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
-   BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQ0VjRWNFY0VjRWNFY0VjRWNFY0
-   VqEWGA8xOTcwMDEwMTAwMDAwMFqgAwoBBhgPMjAyNjA2MDkwOTU3MTBaoBEYDzIw
-   MjYwNjEwMDA1NzEwWjCBpTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV
-   11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbucl
-   t2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAwMFqgAwoB
-   BBgPMjAyNjA2MDkwOTU3MTBaoBEYDzIwMjYwNjEwMDA1NzEwWjCBjzBnMAsGCWCG
-   SAFlAwQCAQQgMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMEIERERERE
-   REREREREREREREREREREREREREREREREREREAhQiMyIzIjMiMyIzIjMiMyIzIjMi
-   M4IAGA8yMDI2MDYwOTA5NTcxMFqgERgPMjAyNjA2MTAwMDU3MTBaoTIwMDAdBgkr
-   BgEFBQcwAQIEEBEREREREREREREREREREREwDwYJKwYBBQUHMAEJBAIFADAFBgMr
-   ZXADQQCkIJZu415zr8fjnf0RiAg4rYVH/aBYaIGB1eYhWxu2zdQLdud66Ff+TAsN
-   1hQmDKNjLqOeIkzt82w5x5z7FMQFoIIBVDCCAVAwggFMMIH/oAMCAQICAhI1MAUG
-   AytlcDAaMRgwFgYDVQQDDA90ZXN0IGNybG9jc3AtY2EwHhcNMjUwMTAyMDAwMDAw
-   WhcNMjYwMTAyMDAwMDAwWjAZMRcwFQYDVQQDDA5vY3NwLXJlc3BvbmRlcjAqMAUG
-   AytlcAMhAIGUe7wkiqx5c4IRqNdb+Sy3d9mUBz3yOuBjgO8sVzl2o2owaDAdBgNV
-   HQ4EFgQU6uWaiumq9BBLFeUOjuAXFRd0GK8wDgYDVR0PAQH/BAQDAgeAMB8GA1Ud
-   IwQYMBaAFNl9d+Y0wvcAMAylj8h3NlsVUAeiMBYGA1UdJQEB/wQMMAoGCCsGAQUF
-   BwMJMAUGAytlcANBABOjKOFFurdnjAVsbGF91L4VCZ2qF1Dh+3wLKakj1yv394ef
-   hUq5LdEQsV83LeBZZoIvh06AhhH9Rd09LFwohwg=
+   MIIEoQoBAKCCBJowggSWBgkrBgEFBQcwAQEEggSHMIIEgzCCAt2iFgQU6uWaiumq
+   9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjI1MTAwNTUyWjCCAnwwgZEwaTANBglghkgB
+   ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
+   BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
+   NIAAGA8yMDI2MDYyNTAyMDU1MlqgERgPMjAyNjA2MjUxNzA1NTJaMIGnMGkwDQYJ
+   YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
+   Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
+   VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjYwNjI1MDIwNTUyWqAR
+   GA8yMDI2MDYyNTE3MDU1MlowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
+   Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
+   fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
+   MFqgAwoBBBgPMjAyNjA2MjUwMjA1NTJaoBEYDzIwMjYwNjI1MTcwNTUyWjCBkTBp
+   MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
+   MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
+   MyIzIjMiMyIzggAYDzIwMjYwNjI1MDIwNTUyWqARGA8yMDI2MDYyNTE3MDU1Mlqh
+   MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
+   AgUAMAUGAytlcANBABU9FgxhX6hWtm2cuhNhI6wm7iiYGTHNLbG7p+bPlaXkW6Bo
+   49xjhqOVhR4+o3wJ4n4YBoIz8/k8JThs9gtenA+gggFUMIIBUDCCAUwwgf+gAwIB
+   AgICEjUwBQYDK2VwMBoxGDAWBgNVBAMMD3Rlc3QgY3Jsb2NzcC1jYTAeFw0yNTAx
+   MDIwMDAwMDBaFw0yNjAxMDIwMDAwMDBaMBkxFzAVBgNVBAMMDm9jc3AtcmVzcG9u
+   ZGVyMCowBQYDK2VwAyEAgZR7vCSKrHlzghGo11v5LLd32ZQHPfI64GOA7yxXOXaj
+   ajBoMB0GA1UdDgQWBBTq5ZqK6ar0EEsV5Q6O4BcVF3QYrzAOBgNVHQ8BAf8EBAMC
+   B4AwHwYDVR0jBBgwFoAU2X135jTC9wAwDKWPyHc2WxVQB6IwFgYDVR0lAQH/BAww
+   CgYIKwYBBQUHAwkwBQYDK2VwA0EAE6Mo4UW6t2eMBWxsYX3UvhUJnaoXUOH7fAsp
+   qSPXK/f3h5+FSrkt0RCxXzct4Flmgi+HToCGEf1F3T0sXCiHCA==
    -----END OCSP RESPONSE-----
 
 A.5.4.2.  C509 OCSP Response
 
-   Plain Hex (572 bytes):
+   Plain Hex (573 bytes):
 
-   8A010C01501111111111111111111111111111111158200600867838E3311AA78B9E
-   D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A2853F680865820A01C73A5
+   8A010C00501111111111111111111111111111111158200600867838E3311AA78B9E
+   D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A3CFD8080865820A01C73A5
    F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C808F58201065
    2787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F0040039707F
    19627080582075D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D6E
@@ -4065,14 +4107,14 @@ A.5.4.2.  C509 OCSP Response
    C26408CADC3A32FC1B6AD5E3821A67C32F000439707F196270805820222222222222
    222222222222222222222222222222222222222222222222222280855820D3A0C1E3
    DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD0239707F1962
-   708058C4024212350C6F746573742063726C6F6373702D63611A6775D7001A69570A
-   806E6F6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D75BF9
-   2CB777D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629DB57
-   9DC8CCA453A8210107542F45E78D2CAEDF368CDF53C39005D492450E105627095840
-   A01B0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D8859
-   7F37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A5840BEEC
-   17B64803DB982258D246C443EBEF3757BBB236C578DB2E61FE4D2AD15111AD1E51C2
-   93F7D47A07839ECBF9A0EE96B7DB34342CFBDCD664ACB2B8928EE408
+   708058C58B024212350C6F746573742063726C6F6373702D63611A6775D7001A6957
+   0A806E6F6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D75B
+   F92CB777D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629DB
+   579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C39005D492450E1056270958
+   40A01B0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D88
+   597F37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A58404C
+   5AC21521FA673F72B36D570C33715213EE5294F465C2A3E6EC1563B4E5922BB882F9
+   DFFD5975627631E331202E2B56DDED2386D3E72DCE667FF64080E74B03
 
    Textual Representation
 
@@ -4080,13 +4122,13 @@ A.5.4.2.  C509 OCSP Response
      TBSBasicOCSPResponse
        Type: C509BasicOCSPResponse (1)
        Signature Algorithm: Ed25519 (12)
-       Hash Algorithm: SHA256 (1)
+       Hash Algorithm: SHA256 (0)
        Nonce
          11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
        ResponderCertHash
          06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86:
          b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:34:43:a3:b2
-       ProducedAt: 2026-06-09T17:57:10.309347Z
+       ProducedAt: 2026-06-25T10:05:52.359535Z
        Extensions: <empty>
        Responses
          OcspPerIssuerResponse
@@ -4135,40 +4177,40 @@ A.5.4.2.  C509 OCSP Response
                Next Update: 25200 seconds
                Extensions: <empty>
        Responder Certs
-         ~C509Certificate
-           02:42:12:35:0c:6f:74:65:73:74:20:63:72:6c:6f:63:
-           73:70:2d:63:61:1a:67:75:d7:00:1a:69:57:0a:80:6e:
-           6f:63:73:70:2d:72:65:73:70:6f:6e:64:65:72:0c:58:
-           20:81:94:7b:bc:24:8a:ac:79:73:82:11:a8:d7:5b:f9:
-           2c:b7:77:d9:94:07:3d:f2:3a:e0:63:80:ef:2c:57:39:
-           76:88:01:54:b5:b4:ca:f3:54:01:d0:61:51:df:96:29:
-           db:57:9d:c8:cc:a4:53:a8:21:01:07:54:2f:45:e7:8d:
-           2c:ae:df:36:8c:df:53:c3:90:05:d4:92:45:0e:10:56:
-           27:09:58:40:a0:1b:0c:bf:3e:34:a4:76:2d:05:40:4f:
-           d0:8a:7a:ec:10:30:35:35:83:14:68:6d:72:b6:15:90:
-           78:c7:6e:1d:88:59:7f:37:53:18:86:a3:f5:2f:25:6f:
-           d7:22:19:2b:28:9d:68:44:01:44:67:f1:f1:7f:05:ac:
-           bb:7b:66:0a
+         C509Certificate
+           8b:02:42:12:35:0c:6f:74:65:73:74:20:63:72:6c:6f:
+           63:73:70:2d:63:61:1a:67:75:d7:00:1a:69:57:0a:80:
+           6e:6f:63:73:70:2d:72:65:73:70:6f:6e:64:65:72:0c:
+           58:20:81:94:7b:bc:24:8a:ac:79:73:82:11:a8:d7:5b:
+           f9:2c:b7:77:d9:94:07:3d:f2:3a:e0:63:80:ef:2c:57:
+           39:76:88:01:54:b5:b4:ca:f3:54:01:d0:61:51:df:96:
+           29:db:57:9d:c8:cc:a4:53:a8:21:01:07:54:2f:45:e7:
+           8d:2c:ae:df:36:8c:df:53:c3:90:05:d4:92:45:0e:10:
+           56:27:09:58:40:a0:1b:0c:bf:3e:34:a4:76:2d:05:40:
+           4f:d0:8a:7a:ec:10:30:35:35:83:14:68:6d:72:b6:15:
+           90:78:c7:6e:1d:88:59:7f:37:53:18:86:a3:f5:2f:25:
+           6f:d7:22:19:2b:28:9d:68:44:01:44:67:f1:f1:7f:05:
+           ac:bb:7b:66:0a
      Signature Value
-       be:ec:17:b6:48:03:db:98:22:58:d2:46:c4:43:eb:ef:
-       37:57:bb:b2:36:c5:78:db:2e:61:fe:4d:2a:d1:51:11:
-       ad:1e:51:c2:93:f7:d4:7a:07:83:9e:cb:f9:a0:ee:96:
-       b7:db:34:34:2c:fb:dc:d6:64:ac:b2:b8:92:8e:e4:08
+       4c:5a:c2:15:21:fa:67:3f:72:b3:6d:57:0c:33:71:52:
+       13:ee:52:94:f4:65:c2:a3:e6:ec:15:63:b4:e5:92:2b:
+       b8:82:f9:df:fd:59:75:62:76:31:e3:31:20:2e:2b:56:
+       dd:ed:23:86:d3:e7:2d:ce:66:7f:f6:40:80:e7:4b:03
 
    Annotated hex
 
      0: 8A             # C509OCSPResponse=array[10]
      1:   01             # [0]. ocspResponseType=C509BasicOCSPResponse
                          #      (1)
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
-     3:   01             # [2]. hashAlgorithm: SHA256 (1)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
+     3:   00             # [2]. hashAlgorithm=SHA256 (0)
      4:   50             # [3]. nonce=byte[16]
      5:     11111111111111111111111111111111
     21:   58 20          # [4]. responderCertHash=byte[32]
     23:     0600867838E3311AA78B9ED60C631C86B09A6DE7BC43E02A7AA7006A34
     52:     43A3B2
-    55:   1A 6A2853F6    # [5]. producedAt=1781027830:
-                         #      2026-06-09T17:57:10Z
+    55:   1A 6A3CFD80    # [5]. producedAt=1782381952:
+                         #      2026-06-25T10:05:52Z
     60:   80             # [6]. extensions=array[0]
     61:   86             # [7]. responses=array[6]
                            #---PerIssuerResponses[0]---
@@ -4218,24 +4260,24 @@ A.5.4.2.  C509 OCSP Response
    301:       39 707F        # [2]. thisUpdate=-28800
    304:       19 6270        # [3]. nextUpdate=25200
    307:       80             # [4]. extensions=array[0]
-   308:   58 C4          # [8]. responderCerts(COSE_C509)=byte[196]
-   310:     024212350C6F746573742063726C6F6373702D63611A6775D7001A6957
-   339:     0A806E6F6373702D726573706F6E6465720C582081947BBC248AAC7973
-   368:     8211A8D75BF92CB777D994073DF23AE06380EF2C573976880154B5B4CA
-   397:     F35401D06151DF9629DB579DC8CCA453A8210107542F45E78D2CAEDF36
-   426:     8CDF53C39005D492450E105627095840A01B0CBF3E34A4762D05404FD0
-   455:     8A7AEC103035358314686D72B6159078C76E1D88597F37531886A3F52F
-   484:     256FD722192B289D6844014467F1F17F05ACBB7B660A
-   506:   58 40          # [9]. signature value=byte[64]
-   508:     BEEC17B64803DB982258D246C443EBEF3757BBB236C578DB2E61FE4D2A
-   537:     D15111AD1E51C293F7D47A07839ECBF9A0EE96B7DB34342CFBDCD664AC
-   566:     B2B8928EE408
+   308:   58 C5          # [8]. responderCerts(COSE_C509)=byte[197]
+   310:     8B024212350C6F746573742063726C6F6373702D63611A6775D7001A69
+   339:     570A806E6F6373702D726573706F6E6465720C582081947BBC248AAC79
+   368:     738211A8D75BF92CB777D994073DF23AE06380EF2C573976880154B5B4
+   397:     CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E78D2CAEDF
+   426:     368CDF53C39005D492450E105627095840A01B0CBF3E34A4762D05404F
+   455:     D08A7AEC103035358314686D72B6159078C76E1D88597F37531886A3F5
+   484:     2F256FD722192B289D6844014467F1F17F05ACBB7B660A
+   507:   58 40          # [9]. signature value=byte[64]
+   509:     4C5AC21521FA673F72B36D570C33715213EE5294F465C2A3E6EC1563B4
+   538:     E5922BB882F9DFFD5975627631E331202E2B56DDED2386D3E72DCE667F
+   567:     F64080E74B03
 
 A.5.5.  Basic OCSP Response Example With Responder's Certificate Chain
 
    *  size(C509) / size(X509): 51%
 
-   *  Verifiable with certificate in Appendix A.2.4
+   *  Verifiable with certificate in Appendix A.2.4.2
 
    *  Basic OCSP Response (C509BasicOCSPResponse) with embedded
       responder's certificate chain (2 certificates)
@@ -4245,49 +4287,49 @@ A.5.5.  Basic OCSP Response Example With Responder's Certificate Chain
 
 A.5.5.1.  X.509 OCSP Response
 
-   PEM content (1517 bytes):
+   PEM content (1525 bytes):
 
    -----BEGIN OCSP RESPONSE-----
-   MIIF6QoBAKCCBeIwggXeBgkrBgEFBQcwAQEEggXPMIIFyzCCAtWiFgQU6uWaiumq
-   9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjA5MTc1NzEwWjCCAnQwgY8wZzALBglghkgB
-   ZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ
-   7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0EjQSNBI0EjSA
-   ABgPMjAyNjA2MDkwOTU3MTBaoBEYDzIwMjYwNjEwMDA1NzEwWjCBpTBnMAsGCWCG
-   SAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
-   BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQ0VjRWNFY0VjRWNFY0VjRWNFY0
-   VqEWGA8xOTcwMDEwMTAwMDAwMFqgAwoBBhgPMjAyNjA2MDkwOTU3MTBaoBEYDzIw
-   MjYwNjEwMDA1NzEwWjCBpTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV
-   11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbucl
-   t2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAwMFqgAwoB
-   BBgPMjAyNjA2MDkwOTU3MTBaoBEYDzIwMjYwNjEwMDA1NzEwWjCBjzBnMAsGCWCG
-   SAFlAwQCAQQgMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMEIERERERE
-   REREREREREREREREREREREREREREREREREREAhQiMyIzIjMiMyIzIjMiMyIzIjMi
-   M4IAGA8yMDI2MDYwOTA5NTcxMFqgERgPMjAyNjA2MTAwMDU3MTBaoTIwMDAdBgkr
-   BgEFBQcwAQIEEBEREREREREREREREREREREwDwYJKwYBBQUHMAEJBAIFADAFBgMr
-   ZXADQQCkIJZu415zr8fjnf0RiAg4rYVH/aBYaIGB1eYhWxu2zdQLdud66Ff+TAsN
-   1hQmDKNjLqOeIkzt82w5x5z7FMQFoIICpDCCAqAwggFMMIH/oAMCAQICAhI1MAUG
-   AytlcDAaMRgwFgYDVQQDDA90ZXN0IGNybG9jc3AtY2EwHhcNMjUwMTAyMDAwMDAw
-   WhcNMjYwMTAyMDAwMDAwWjAZMRcwFQYDVQQDDA5vY3NwLXJlc3BvbmRlcjAqMAUG
-   AytlcAMhAIGUe7wkiqx5c4IRqNdb+Sy3d9mUBz3yOuBjgO8sVzl2o2owaDAdBgNV
-   HQ4EFgQU6uWaiumq9BBLFeUOjuAXFRd0GK8wDgYDVR0PAQH/BAQDAgeAMB8GA1Ud
-   IwQYMBaAFNl9d+Y0wvcAMAylj8h3NlsVUAeiMBYGA1UdJQEB/wQMMAoGCCsGAQUF
-   BwMJMAUGAytlcANBABOjKOFFurdnjAVsbGF91L4VCZ2qF1Dh+3wLKakj1yv394ef
-   hUq5LdEQsV83LeBZZoIvh06AhhH9Rd09LFwohwgwggFMMIH/oAMCAQICAQEwBQYD
-   K2VwMB4xHDAaBgNVBAMME3Rlc3QgY3Jsb2NzcC1yb290Y2EwHhcNMjUwMTAxMDAw
-   MDAwWhcNMjYxMjMxMjM1OTU5WjAaMRgwFgYDVQQDDA90ZXN0IGNybG9jc3AtY2Ew
-   KjAFBgMrZXADIQBe+KNVoAGnxQ0jSUcBIIExpLsquSDUC/sO4farKP90AKNmMGQw
-   HQYDVR0OBBYEFNl9d+Y0wvcAMAylj8h3NlsVUAeiMA4GA1UdDwEB/wQEAwIBBjAS
-   BgNVHRMBAf8ECDAGAQH/AgEBMB8GA1UdIwQYMBaAFJEjnPr554Nssp9R4TGR2xDT
-   rhaTMAUGAytlcANBANZeAdfL+kF/sXuZ95ftaSevVi/2Po01s+On04FgzGRnQBBN
-   jzkYl92rEZjz0FomGSBDYqb4PDOIIRs2vFY9QQI=
+   MIIF8QoBAKCCBeowggXmBgkrBgEFBQcwAQEEggXXMIIF0zCCAt2iFgQU6uWaiumq
+   9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjI1MTAwNTUyWjCCAnwwgZEwaTANBglghkgB
+   ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
+   BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
+   NIAAGA8yMDI2MDYyNTAyMDU1MlqgERgPMjAyNjA2MjUxNzA1NTJaMIGnMGkwDQYJ
+   YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
+   Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
+   VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjYwNjI1MDIwNTUyWqAR
+   GA8yMDI2MDYyNTE3MDU1MlowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
+   Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
+   fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
+   MFqgAwoBBBgPMjAyNjA2MjUwMjA1NTJaoBEYDzIwMjYwNjI1MTcwNTUyWjCBkTBp
+   MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
+   MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
+   MyIzIjMiMyIzggAYDzIwMjYwNjI1MDIwNTUyWqARGA8yMDI2MDYyNTE3MDU1Mlqh
+   MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
+   AgUAMAUGAytlcANBABU9FgxhX6hWtm2cuhNhI6wm7iiYGTHNLbG7p+bPlaXkW6Bo
+   49xjhqOVhR4+o3wJ4n4YBoIz8/k8JThs9gtenA+gggKkMIICoDCCAUwwgf+gAwIB
+   AgICEjUwBQYDK2VwMBoxGDAWBgNVBAMMD3Rlc3QgY3Jsb2NzcC1jYTAeFw0yNTAx
+   MDIwMDAwMDBaFw0yNjAxMDIwMDAwMDBaMBkxFzAVBgNVBAMMDm9jc3AtcmVzcG9u
+   ZGVyMCowBQYDK2VwAyEAgZR7vCSKrHlzghGo11v5LLd32ZQHPfI64GOA7yxXOXaj
+   ajBoMB0GA1UdDgQWBBTq5ZqK6ar0EEsV5Q6O4BcVF3QYrzAOBgNVHQ8BAf8EBAMC
+   B4AwHwYDVR0jBBgwFoAU2X135jTC9wAwDKWPyHc2WxVQB6IwFgYDVR0lAQH/BAww
+   CgYIKwYBBQUHAwkwBQYDK2VwA0EAE6Mo4UW6t2eMBWxsYX3UvhUJnaoXUOH7fAsp
+   qSPXK/f3h5+FSrkt0RCxXzct4Flmgi+HToCGEf1F3T0sXCiHCDCCAUwwgf+gAwIB
+   AgIBATAFBgMrZXAwHjEcMBoGA1UEAwwTdGVzdCBjcmxvY3NwLXJvb3RjYTAeFw0y
+   NTAxMDEwMDAwMDBaFw0yNjEyMzEyMzU5NTlaMBoxGDAWBgNVBAMMD3Rlc3QgY3Js
+   b2NzcC1jYTAqMAUGAytlcAMhAF74o1WgAafFDSNJRwEggTGkuyq5INQL+w7h9qso
+   /3QAo2YwZDAdBgNVHQ4EFgQU2X135jTC9wAwDKWPyHc2WxVQB6IwDgYDVR0PAQH/
+   BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHwYDVR0jBBgwFoAUkSOc+vnng2yy
+   n1HhMZHbENOuFpMwBQYDK2VwA0EA1l4B18v6QX+xe5n3l+1pJ69WL/Y+jTWz46fT
+   gWDMZGdAEE2PORiX3asRmPPQWiYZIENipvg8M4ghGza8Vj1BAg==
    -----END OCSP RESPONSE-----
 
 A.5.5.2.  C509 OCSP Response
 
-   Plain Hex (776 bytes):
+   Plain Hex (778 bytes):
 
-   8A010C01501111111111111111111111111111111158200600867838E3311AA78B9E
-   D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A2853F680865820A01C73A5
+   8A010C00501111111111111111111111111111111158200600867838E3311AA78B9E
+   D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A3CFD8080865820A01C73A5
    F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C808F58201065
    2787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F0040039707F
    19627080582075D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D6E
@@ -4295,20 +4337,20 @@ A.5.5.2.  C509 OCSP Response
    C26408CADC3A32FC1B6AD5E3821A67C32F000439707F196270805820222222222222
    222222222222222222222222222222222222222222222222222280855820D3A0C1E3
    DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD0239707F1962
-   70808258C4024212350C6F746573742063726C6F6373702D63611A6775D7001A6957
-   0A806E6F6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D75B
-   F92CB777D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629DB
-   579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C39005D492450E1056270958
-   40A01B0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D88
-   597F37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A58C902
-   41010C73746573742063726C6F6373702D726F6F7463611A677485801A6B36EC7F6F
-   746573742063726C6F6373702D63610C58205EF8A355A001A7C50D23494701208131
-   A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF368CDF53C39005D4
-   92450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840
-   E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F05D2598
-   47A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F58404C24
-   DD230EC5BC0760176761E0C085486BA084C3B2E97C4BE18CD4D341AF733E66F41120
-   11AACA150279F9CCDB34407D3F26448580F27B257C812A8CB2505B07
+   70808258C58B024212350C6F746573742063726C6F6373702D63611A6775D7001A69
+   570A806E6F6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D7
+   5BF92CB777D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629
+   DB579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C39005D492450E10562709
+   5840A01B0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D
+   88597F37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A58CA
+   8B0241010C73746573742063726C6F6373702D726F6F7463611A677485801A6B36EC
+   7F6F746573742063726C6F6373702D63610C58205EF8A355A001A7C50D2349470120
+   8131A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF368CDF53C390
+   05D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F
+   5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F05D
+   259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F5840
+   9E49842B712E8DCBE276122B5B6BAE0ADC5B64582ED0D52D41FD424A678D3D8C81E8
+   F173EBBAF83FC4EF1910E15105BE5751D0847F18D0814D99CD6BBC829F00
 
    Textual Representation
 
@@ -4316,13 +4358,13 @@ A.5.5.2.  C509 OCSP Response
      TBSBasicOCSPResponse
        Type: C509BasicOCSPResponse (1)
        Signature Algorithm: Ed25519 (12)
-       Hash Algorithm: SHA256 (1)
+       Hash Algorithm: SHA256 (0)
        Nonce
          11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
        ResponderCertHash
          06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86:
          b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:34:43:a3:b2
-       ProducedAt: 2026-06-09T17:57:10.313310Z
+       ProducedAt: 2026-06-25T10:05:52.363071Z
        Extensions: <empty>
        Responses
          OcspPerIssuerResponse
@@ -4371,54 +4413,54 @@ A.5.5.2.  C509 OCSP Response
                Next Update: 25200 seconds
                Extensions: <empty>
        Responder Certs
-         ~C509Certificate
-           02:42:12:35:0c:6f:74:65:73:74:20:63:72:6c:6f:63:
-           73:70:2d:63:61:1a:67:75:d7:00:1a:69:57:0a:80:6e:
-           6f:63:73:70:2d:72:65:73:70:6f:6e:64:65:72:0c:58:
-           20:81:94:7b:bc:24:8a:ac:79:73:82:11:a8:d7:5b:f9:
-           2c:b7:77:d9:94:07:3d:f2:3a:e0:63:80:ef:2c:57:39:
-           76:88:01:54:b5:b4:ca:f3:54:01:d0:61:51:df:96:29:
-           db:57:9d:c8:cc:a4:53:a8:21:01:07:54:2f:45:e7:8d:
-           2c:ae:df:36:8c:df:53:c3:90:05:d4:92:45:0e:10:56:
-           27:09:58:40:a0:1b:0c:bf:3e:34:a4:76:2d:05:40:4f:
-           d0:8a:7a:ec:10:30:35:35:83:14:68:6d:72:b6:15:90:
-           78:c7:6e:1d:88:59:7f:37:53:18:86:a3:f5:2f:25:6f:
-           d7:22:19:2b:28:9d:68:44:01:44:67:f1:f1:7f:05:ac:
-           bb:7b:66:0a
-         ~C509Certificate
-           02:41:01:0c:73:74:65:73:74:20:63:72:6c:6f:63:73:
-           70:2d:72:6f:6f:74:63:61:1a:67:74:85:80:1a:6b:36:
-           ec:7f:6f:74:65:73:74:20:63:72:6c:6f:63:73:70:2d:
-           63:61:0c:58:20:5e:f8:a3:55:a0:01:a7:c5:0d:23:49:
-           47:01:20:81:31:a4:bb:2a:b9:20:d4:0b:fb:0e:e1:f6:
-           ab:28:ff:74:00:88:01:54:2f:45:e7:8d:2c:ae:df:36:
-           8c:df:53:c3:90:05:d4:92:45:0e:10:56:21:18:60:23:
-           01:07:54:2d:a3:a4:03:f7:d2:f4:e0:b3:d8:03:1a:73:
-           ba:8a:83:9f:55:7f:0f:58:40:e5:04:65:d6:0c:02:a2:
-           11:1e:f3:fc:6e:44:f2:a3:60:08:76:5b:55:23:51:f9:
-           a3:f5:b2:aa:7c:76:f1:f0:5d:25:98:47:a4:f4:25:0b:
-           2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:18:
-           0a:a0:a2:d0:e1:91:31:0b:0f
+         C509Certificate
+           8b:02:42:12:35:0c:6f:74:65:73:74:20:63:72:6c:6f:
+           63:73:70:2d:63:61:1a:67:75:d7:00:1a:69:57:0a:80:
+           6e:6f:63:73:70:2d:72:65:73:70:6f:6e:64:65:72:0c:
+           58:20:81:94:7b:bc:24:8a:ac:79:73:82:11:a8:d7:5b:
+           f9:2c:b7:77:d9:94:07:3d:f2:3a:e0:63:80:ef:2c:57:
+           39:76:88:01:54:b5:b4:ca:f3:54:01:d0:61:51:df:96:
+           29:db:57:9d:c8:cc:a4:53:a8:21:01:07:54:2f:45:e7:
+           8d:2c:ae:df:36:8c:df:53:c3:90:05:d4:92:45:0e:10:
+           56:27:09:58:40:a0:1b:0c:bf:3e:34:a4:76:2d:05:40:
+           4f:d0:8a:7a:ec:10:30:35:35:83:14:68:6d:72:b6:15:
+           90:78:c7:6e:1d:88:59:7f:37:53:18:86:a3:f5:2f:25:
+           6f:d7:22:19:2b:28:9d:68:44:01:44:67:f1:f1:7f:05:
+           ac:bb:7b:66:0a
+         C509Certificate
+           8b:02:41:01:0c:73:74:65:73:74:20:63:72:6c:6f:63:
+           73:70:2d:72:6f:6f:74:63:61:1a:67:74:85:80:1a:6b:
+           36:ec:7f:6f:74:65:73:74:20:63:72:6c:6f:63:73:70:
+           2d:63:61:0c:58:20:5e:f8:a3:55:a0:01:a7:c5:0d:23:
+           49:47:01:20:81:31:a4:bb:2a:b9:20:d4:0b:fb:0e:e1:
+           f6:ab:28:ff:74:00:88:01:54:2f:45:e7:8d:2c:ae:df:
+           36:8c:df:53:c3:90:05:d4:92:45:0e:10:56:21:18:60:
+           23:01:07:54:2d:a3:a4:03:f7:d2:f4:e0:b3:d8:03:1a:
+           73:ba:8a:83:9f:55:7f:0f:58:40:e5:04:65:d6:0c:02:
+           a2:11:1e:f3:fc:6e:44:f2:a3:60:08:76:5b:55:23:51:
+           f9:a3:f5:b2:aa:7c:76:f1:f0:5d:25:98:47:a4:f4:25:
+           0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
+           18:0a:a0:a2:d0:e1:91:31:0b:0f
      Signature Value
-       4c:24:dd:23:0e:c5:bc:07:60:17:67:61:e0:c0:85:48:
-       6b:a0:84:c3:b2:e9:7c:4b:e1:8c:d4:d3:41:af:73:3e:
-       66:f4:11:20:11:aa:ca:15:02:79:f9:cc:db:34:40:7d:
-       3f:26:44:85:80:f2:7b:25:7c:81:2a:8c:b2:50:5b:07
+       9e:49:84:2b:71:2e:8d:cb:e2:76:12:2b:5b:6b:ae:0a:
+       dc:5b:64:58:2e:d0:d5:2d:41:fd:42:4a:67:8d:3d:8c:
+       81:e8:f1:73:eb:ba:f8:3f:c4:ef:19:10:e1:51:05:be:
+       57:51:d0:84:7f:18:d0:81:4d:99:cd:6b:bc:82:9f:00
 
    Annotated hex
 
      0: 8A             # C509OCSPResponse=array[10]
      1:   01             # [0]. ocspResponseType=C509BasicOCSPResponse
                          #      (1)
-     2:   0C             # [1]. signatureAlgorithm: Ed25519 (12)
-     3:   01             # [2]. hashAlgorithm: SHA256 (1)
+     2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
+     3:   00             # [2]. hashAlgorithm=SHA256 (0)
      4:   50             # [3]. nonce=byte[16]
      5:     11111111111111111111111111111111
     21:   58 20          # [4]. responderCertHash=byte[32]
     23:     0600867838E3311AA78B9ED60C631C86B09A6DE7BC43E02A7AA7006A34
     52:     43A3B2
-    55:   1A 6A2853F6    # [5]. producedAt=1781027830:
-                         #      2026-06-09T17:57:10Z
+    55:   1A 6A3CFD80    # [5]. producedAt=1782381952:
+                         #      2026-06-25T10:05:52Z
     60:   80             # [6]. extensions=array[0]
     61:   86             # [7]. responses=array[6]
                            #---PerIssuerResponses[0]---
@@ -4469,27 +4511,28 @@ A.5.5.2.  C509 OCSP Response
    304:       19 6270        # [3]. nextUpdate=25200
    307:       80             # [4]. extensions=array[0]
    308:   82             # [8]. responderCerts(COSE_C509)=array[2]
-   309:     58 C4          # [0]. C509CertData=byte[196]
-   311:       024212350C6F746573742063726C6F6373702D63611A6775D7001A69
-   339:       570A806E6F6373702D726573706F6E6465720C582081947BBC248AAC
-   367:       79738211A8D75BF92CB777D994073DF23AE06380EF2C573976880154
-   395:       B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E78D
-   423:       2CAEDF368CDF53C39005D492450E105627095840A01B0CBF3E34A476
-   451:       2D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F37
-   479:       531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A
-   507:     58 C9          # [1]. C509CertData=byte[201]
-   509:       0241010C73746573742063726C6F6373702D726F6F7463611A677485
-   537:       801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8A3
-   565:       55A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF74
-   593:       008801542F45E78D2CAEDF368CDF53C39005D492450E105621186023
-   621:       0107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E50465
-   649:       D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F0
-   677:       5D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0
-   705:       E191310B0F
-   710:   58 40          # [9]. signature value=byte[64]
-   712:     4C24DD230EC5BC0760176761E0C085486BA084C3B2E97C4BE18CD4D341
-   741:     AF733E66F4112011AACA150279F9CCDB34407D3F26448580F27B257C81
-   770:     2A8CB2505B07
+   309:     58 C5          # [0]. C509CertData=byte[197]
+   311:       8B024212350C6F746573742063726C6F6373702D63611A6775D7001A
+   339:       69570A806E6F6373702D726573706F6E6465720C582081947BBC248A
+   367:       AC79738211A8D75BF92CB777D994073DF23AE06380EF2C5739768801
+   395:       54B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E7
+   423:       8D2CAEDF368CDF53C39005D492450E105627095840A01B0CBF3E34A4
+   451:       762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F
+   479:       37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B66
+   507:       0A
+   508:     58 CA          # [1]. C509CertData=byte[202]
+   510:       8B0241010C73746573742063726C6F6373702D726F6F7463611A6774
+   538:       85801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8
+   566:       A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF
+   594:       74008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860
+   622:       230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E504
+   650:       65D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1
+   678:       F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
+   706:       D0E191310B0F
+   712:   58 40          # [9]. signature value=byte[64]
+   714:     9E49842B712E8DCBE276122B5B6BAE0ADC5B64582ED0D52D41FD424A67
+   743:     8D3D8C81E8F173EBBAF83FC4EF1910E15105BE5751D0847F18D0814D99
+   772:     CD6BBC829F00
 
 Acknowledgments
 
