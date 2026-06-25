@@ -1179,13 +1179,13 @@ TODO
 | {{exam-delta-crl-revoked}} | Delta CRL Example With Revoked Certificates | 48% |
 | {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 49% |
 | {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 59% |
-| {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 49% |
-| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 58% |
-| {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 53% |
+| {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 48% |
+| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 57% |
+| {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 52% |
 | {{exam-signed-ocsp-req-withcertchain}} | Signed OCSP Request Example With Requestor's Certificate Chain | 55% |
 | {{exam-error-ocsp-resp}} | Error OCSP Response Example | 60% |
 | {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 60% |
-| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 45% |
+| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 44% |
 | {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 48% |
 | {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 51% |
 {: #tab-examples-overview title="Size comparison in examples (TODO: update the percent data)"}
