@@ -1,0 +1,227 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2026-06-25T10:29:40.724547+00:00",
+  "repo": "lijun-nio/idc509rev",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOTDu4zs8AAAABGlG7uQ",
+      "title": "Update time field in examples to match the nextUpdate definition",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/1",
+      "state": "OPEN",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "nextUpdate is defined as a time delta, but the examples use absolute time. They need to be updated",
+      "createdAt": "2026-06-24T16:13:30Z",
+      "updatedAt": "2026-06-25T10:15:21Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Examples have been updated to use the delta time.",
+          "createdAt": "2026-06-25T10:15:21Z",
+          "updatedAt": "2026-06-25T10:15:21Z"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "id": "I_kwDOTDu4zs8AAAABGlJqNA",
+      "title": "Define the serialNumberHash + CertHash as truncated hashes",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/2",
+      "state": "OPEN",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "From the meeting: we don't want to spend 32 byte on serialNumberHash/CertHash, but rather use truncated versions.\n\n[What format/standard should we refer to? Something similar to kid = first 8 bytes of SHA-256(pubkey)?]",
+      "createdAt": "2026-06-24T16:20:03Z",
+      "updatedAt": "2026-06-25T10:26:11Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Related question: In my quick experiments, I have trouble reproducing the OCSP example identity SHA-256 hashes. Can you share the exact bytes for which the hashes are produced?",
+          "createdAt": "2026-06-24T16:59:30Z",
+          "updatedAt": "2026-06-24T16:59:30Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "I think truncated hash is OK. But I am not sure truncating hash to 64 bits is still secure enough.",
+          "createdAt": "2026-06-25T04:53:15Z",
+          "updatedAt": "2026-06-25T04:53:15Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "I registered now two truncated hash algorithms, SHA256/160 and SM3/160 which take the first 20 bytes of the original output. Using shorter (e.g. 8 bytes) may have security problem (I am not sure). Since the collision rate to have two serial numbers (1-20 bytes) is too high (e.g. 2^-32 for 8 bytes hash value).",
+          "createdAt": "2026-06-25T10:20:06Z",
+          "updatedAt": "2026-06-25T10:20:06Z"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "id": "I_kwDOTDu4zs8AAAABGlKJ7A",
+      "title": "Update size reduction tables",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/3",
+      "state": "OPEN",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Pending other updates; after agreeing on the hash trunctation format, we need to update the size comparison",
+      "createdAt": "2026-06-24T16:21:20Z",
+      "updatedAt": "2026-06-25T10:24:44Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "My current idea is to define dedicated integer value for the truncated hash algorithm, instead to introduce a new field to specify the hash value size. For the examples in appendix, the problem is there are no OIDs for SHA256/160 and SM3/160, so it is difficult to compare the reduction of C509 compared to X509. Another approach is to use SHA-1, but using a broken hash algorithm in the example is not suitable.",
+          "createdAt": "2026-06-25T10:24:44Z",
+          "updatedAt": "2026-06-25T10:24:44Z"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "id": "I_kwDOTDu4zs8AAAABGlPTVA",
+      "title": "Include example signing keys, to allow draft examples to be used as test vectors",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/4",
+      "state": "OPEN",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "<all in the title>",
+      "createdAt": "2026-06-24T16:34:26Z",
+      "updatedAt": "2026-06-25T10:14:42Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Done. See the latest I.D.",
+          "createdAt": "2026-06-25T10:14:42Z",
+          "updatedAt": "2026-06-25T10:14:42Z"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "I_kwDOTDu4zs8AAAABGlrHLA",
+      "title": "Enable building and deployment of the HTML Editor's Copy",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/5",
+      "state": "OPEN",
+      "author": "marco-tiloca-sics",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "@lijun-nio , on the GitHub web interface for this repository, please:\n\n* Go on \"Settings\" (on the top), then \"Pages\" on the left.\n\n* In the main frame, under \"Build and deployment\":\n\n  * Under \"Source\", select \"Deploy from a branch\"\n\n  * Under \"Branch\", select the \"gh-pages\" branch and the \"/ (root)\" folder, then hit \"Save\".",
+      "createdAt": "2026-06-24T17:44:31Z",
+      "updatedAt": "2026-06-24T21:26:35Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "This seems to be an enterprise feature.\n\nI got this message after clicking \"Pages\" in the main frame:\n\n\"Upgrade or make this repository public to enable Pages\"",
+          "createdAt": "2026-06-24T20:38:41Z",
+          "updatedAt": "2026-06-24T20:38:41Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Not surprising.\n\nWe can keep the issue open as a reminder. After we submit, we can make the repository public and this fix should become possible.",
+          "createdAt": "2026-06-24T21:26:35Z",
+          "updatedAt": "2026-06-24T21:26:35Z"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "id": "I_kwDOTDu4zs8AAAABGltSwA",
+      "title": "Should SHA-1 really own the cheapest 1-byte code point (value 0)?",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/6",
+      "state": "OPEN",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Currently, SHA-1 owns the cheapest 1-byte code point, value 0. Shouldn't that spot be given to a non-broken alg. (-256)? And demote -1 to a high range value",
+      "createdAt": "2026-06-24T17:50:15Z",
+      "updatedAt": "2026-06-25T10:14:18Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "I will assign a negative value for SHA-1. Another question is do we need SHA-1? We can replace it with truncated e.g. SHA256/160.",
+          "createdAt": "2026-06-25T04:50:04Z",
+          "updatedAt": "2026-06-25T04:50:04Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Now SHA-1 has `-1`",
+          "createdAt": "2026-06-25T10:14:18Z",
+          "updatedAt": "2026-06-25T10:14:18Z"
+        }
+      ]
+    }
+  ],
+  "pulls": []
+}
