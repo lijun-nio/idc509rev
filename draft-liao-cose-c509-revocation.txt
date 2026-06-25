@@ -2201,14 +2201,14 @@ A.1.  Overview
      | Appendix | Simple OCSP Request       | 59%                   |
      | A.4.1    | Example                   |                       |
      +----------+---------------------------+-----------------------+
-     | Appendix | Unsigned OCSP Request     | 49%                   |
+     | Appendix | Unsigned OCSP Request     | 48%                   |
      | A.4.2    | Example                   |                       |
      +----------+---------------------------+-----------------------+
-     | Appendix | Signed OCSP Request       | 58%                   |
+     | Appendix | Signed OCSP Request       | 57%                   |
      | A.4.3    | Example Without           |                       |
      |          | Requestor's Certificate   |                       |
      +----------+---------------------------+-----------------------+
-     | Appendix | Signed OCSP Request       | 53%                   |
+     | Appendix | Signed OCSP Request       | 52%                   |
      | A.4.4    | Example With Requestor's  |                       |
      |          | Certificate               |                       |
      +----------+---------------------------+-----------------------+
@@ -2222,7 +2222,7 @@ A.1.  Overview
      | Appendix | Simple OCSP Response      | 60%                   |
      | A.5.2    | Example                   |                       |
      +----------+---------------------------+-----------------------+
-     | Appendix | Basic OCSP Response       | 45%                   |
+     | Appendix | Basic OCSP Response       | 44%                   |
      | A.5.3    | Example Without           |                       |
      |          | Responder's Certificate   |                       |
      +----------+---------------------------+-----------------------+
