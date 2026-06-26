@@ -428,7 +428,7 @@ C509SimpleOCSPRequest = [
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   issuerCertHash     : HashId8,
-  serialNumberHash   : bytes,
+  serialNumberHash   : HashId20,
   extensions         : Extensions
 ]
 
@@ -443,7 +443,7 @@ PerIssuerOCSPRequest = (
 SingleCertRequests  = [ + SingleCertRequest ]
 
 SingleCertRequest = (
-  serialNumberHash : bytes,
+  serialNumberHash : HashId20,
   extensions       : Extensions,
 )
 
@@ -595,6 +595,9 @@ RevokedInfo = [
   revocationTime   : ~time,
   revocationReason : int,
 ]
+
+HashId8   = bytes .size 8
+HashId20  = bytes .size 20
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 {: #fig-OCSPRespCDDL title="CDDL for C509OCSPResponse"}
