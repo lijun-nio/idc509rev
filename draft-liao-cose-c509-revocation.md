@@ -404,7 +404,7 @@ TBSOCSPRequest = (
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
-  requestorCertHash  : bytes,
+  requestorCertHash  : HashId8,
   extensions         : Extensions,
   requests           : PerIssuerOCSPRequests,
   requestorCerts     : COSE_C509 / #6.121(COSE_X509) / null,
@@ -419,7 +419,7 @@ C509SimpleOCSPRequest = [
   ocspRequestType    : 2,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
-  issuerCertHash     : bytes,
+  issuerCertHash     : HashId8,
   serialNumberHash   : bytes,
   extensions         : Extensions
 ]
@@ -427,7 +427,7 @@ C509SimpleOCSPRequest = [
 PerIssuerOCSPRequests = [ + PerIssuerOCSPRequest ]
 
 PerIssuerOCSPRequest = (
-  issuerCertHash   : bytes,
+  issuerCertHash   : HashId8,
   extensions       : Extensions,
   singleRequests   : SingleCertRequests,
 )
@@ -438,6 +438,9 @@ SingleCertRequest = (
   serialNumberHash : bytes,
   extensions       : Extensions,
 )
+
+HashId8   = bytes .size 8
+HashId20  = bytes .size 20
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 {: #fig-OCSPReqCDDL title="CDDL for C509OCSPRequest"}
@@ -523,7 +526,7 @@ TBSBasicOCSPResponse = (
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
-  responderCertHash  : bytes,
+  responderCertHash  : HashId8,
   producedAt         : ~time,
   extensions         : Extensions,
   responses          : PerIssuerOCSPResponses,
@@ -540,9 +543,9 @@ TBSSimpleOCSPResponse = (
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
-  responderCertHash  : bytes,
-  issuerCertHash     : bytes,
-  serialNumberHash   : bytes,
+  responderCertHash  : HashId8,
+  issuerCertHash     : HashId8,
+  serialNumberHash   : HashId20,
   certStatus         : CertStatus,
   producedAt         : ~time,
   thisUpdate         : nint / 0,
@@ -559,7 +562,7 @@ C509SimpleOCSPResponse = [
 PerIssuerOCSPResponses = [ + PerIssuerOCSPResponse ]
 
 PerIssuerOCSPResponse = (
-  issuerCertHash   : bytes,
+  issuerCertHash   : HashId8,
   extensions       : Extensions,
   singleResponses  : SingleCertResponses,
 )
@@ -567,7 +570,7 @@ PerIssuerOCSPResponse = (
 SingleCertResponses = [ + SingleCertResponse ]
 
 SingleCertResponse = (
-  serialNumberHash : bytes,
+  serialNumberHash : HashId20,
   certStatus       : CertStatus,
   thisUpdate       : nint / 0,
   nextUpdate       : uint / null,
@@ -667,7 +670,7 @@ See {{ocsp-extensions}}.
 
 ##### serialNumberHash {#serialNumberHash-section}
 
-This field contains the hash of the serial number of the certificate being queried.  It is computed using the `hashAlgorithm` from the enclosing `TBSBasicOCSPResponse`.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing.  In X.509, a `CertificateSerialNumber` INTEGER is DER-encoded with a leading zero byte when the most-significant bit is set; that leading zero MUST be stripped before computing the hash.  In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure carries the plain `serialNumber` directly.  C509 OCSP replaces this with a hash to preserve privacy: an observer cannot determine which certificate was queried without already knowing the serial number.
+This field contains the truncated hash of the serial number of the certificate being queried.  It is computed using the `hashAlgorithm` from the enclosing `TBSBasicOCSPResponse` and contains the first 20 bytes.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing.  In X.509, a `CertificateSerialNumber` INTEGER is DER-encoded with a leading zero byte when the most-significant bit is set; that leading zero MUST be stripped before computing the hash.  In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure carries the plain `serialNumber` directly.  C509 OCSP replaces this with a hash to preserve privacy: an observer cannot determine which certificate was queried without already knowing the serial number.
 
 ##### singleExtensions
 
@@ -806,54 +809,54 @@ This document defines the followng hash algorithms.
 |       | DER:         60 86 48 01 65 03 04 02 01                  |
 |       | Comments:                                                |
 +-------+----------------------------------------------------------+
-|   1   | Name:        SHA-256/160                                 |
-|       | Identifiers: N/A                                         |
-|       | OID:         N/A                                         |
-|       | Parameters:  N/A                                         |
-|       | DER:         N/A                                         |
-|       | Comments:    truncated SHA-256, use first 160 bits       |
-+-------+----------------------------------------------------------+
-|   2   | Name:        SHA-384                                     |
+|   1   | Name:        SHA-384                                     |
 |       | Identifiers: id-sha384                                   |
 |       | OID:         2.16.840.1.101.3.4.2.2                      |
 |       | Parameters:  absent                                      |
 |       | DER:         60 86 48 01 65 03 04 02 02                  |
 |       | Comments:                                                |
 +-------+----------------------------------------------------------+
-|   3   | Name:        SHA-512                                     |
+|   2   | Name:        SHA-512                                     |
 |       | Identifiers: id-sha512                                   |
 |       | OID:         2.16.840.1.101.3.4.2.3                      |
 |       | Parameters:  absent                                      |
 |       | DER:         60 86 48 01 65 03 04 02 03                  |
 |       | Comments:                                                |
 +-------+----------------------------------------------------------+
-|   4   | Name:        SHA-224                                     |
+|   3   | Name:        SHA-224                                     |
 |       | Identifiers: id-sha224                                   |
 |       | OID:         2.16.840.1.101.3.4.2.4                      |
 |       | Parameters:  absent                                      |
 |       | DER:         60 86 48 01 65 03 04 02 04                  |
 |       | Comments:                                                |
 +-------+----------------------------------------------------------+
-|   5   | Name:        SHA-512/256                                 |
-|       | Identifiers: id-sha512-256                               |
-|       | OID:         2.16.840.1.101.3.4.2.6                      |
-|       | Parameters:  absent                                      |
-|       | DER:         60 86 48 01 65 03 04 02 06                  |
-|       | Comments:                                                |
-+-------+----------------------------------------------------------+
-|   6   | Name:        SM3                                         |
+|   4   | Name:        SM3                                         |
 |       | Identifiers: id-sm3                                      |
 |       | OID:         1.2.156.10197.1.401                         |
 |       | Parameters:  absent                                      |
 |       | DER:         06 08 2A 81 1C 84 8E 35 01 04 01            |
 |       | Comments:                                                |
 +-------+----------------------------------------------------------+
-|   7   | Name:        SM3/160                                     |
-|       | Identifiers: N/A                                         |
-|       | OID:         N/A                                         |
-|       | Parameters:  N/A                                         |
-|       | DER:         N/A                                         |
-|       | Comments:    truncated SM3, use first 160 bits           |
+|   5   | Name:        SHA3-256                                    |
+|       | Identifiers: id-sha3-256                                 |
+|       | OID:         2.16.840.1.101.3.4.2.8                      |
+|       | Parameters:  absent                                      |
+|       | DER:         60 86 48 01 65 03 04 02 08                  |
+|       | Comments:                                                |
++-------+----------------------------------------------------------+
+|   6   | Name:        SHA3-384                                    |
+|       | Identifiers: id-sha3-384                                 |
+|       | OID:         2.16.840.1.101.3.4.2.9                      |
+|       | Parameters:  absent                                      |
+|       | DER:         60 86 48 01 65 03 04 02 09                  |
+|       | Comments:                                                |
++-------+----------------------------------------------------------+
+|   7   | Name:        SHA3-512                                    |
+|       | Identifiers: id-sha3-512                                 |
+|       | OID:         2.16.840.1.101.3.4.2.10                     |
+|       | Parameters:  absent                                      |
+|       | DER:         60 86 48 01 65 03 04 02 0A                  |
+|       | Comments:                                                |
 +-------+----------------------------------------------------------+
 |   8   | Name:        SHA3-224                                    |
 |       | Identifiers: id-sha3-224                                 |
@@ -862,35 +865,14 @@ This document defines the followng hash algorithms.
 |       | DER:         60 86 48 01 65 03 04 02 07                  |
 |       | Comments:                                                |
 +-------+----------------------------------------------------------+
-|   9   | Name:        SHA3-256                                    |
-|       | Identifiers: id-sha3-256                                 |
-|       | OID:         2.16.840.1.101.3.4.2.8                      |
-|       | Parameters:  absent                                      |
-|       | DER:         60 86 48 01 65 03 04 02 08                  |
-|       | Comments:                                                |
-+-------+----------------------------------------------------------+
-|   10  | Name:        SHA3-384                                    |
-|       | Identifiers: id-sha3-384                                 |
-|       | OID:         2.16.840.1.101.3.4.2.9                      |
-|       | Parameters:  absent                                      |
-|       | DER:         60 86 48 01 65 03 04 02 09                  |
-|       | Comments:                                                |
-+-------+----------------------------------------------------------+
-|   11  | Name:        SHA3-512                                    |
-|       | Identifiers: id-sha3-512                                 |
-|       | OID:         2.16.840.1.101.3.4.2.10                     |
-|       | Parameters:  absent                                      |
-|       | DER:         60 86 48 01 65 03 04 02 0A                  |
-|       | Comments:                                                |
-+-------+----------------------------------------------------------+
-|   12  | Name:        SHAKE128                                    |
+|   0  | Name:        SHAKE128                                    |
 |       | Identifiers: id-shake128                                 |
 |       | OID:         2.16.840.1.101.3.4.2.11                     |
 |       | Parameters:  absent                                      |
 |       | DER:         60 86 48 01 65 03 04 02 0B                  |
 |       | Comments:                                                |
 +-------+----------------------------------------------------------+
-|   13  | Name:        SHAKE256                                    |
+|   10  | Name:        SHAKE256                                    |
 |       | Identifiers: id-shake256                                 |
 |       | OID:         2.16.840.1.101.3.4.2.12                     |
 |       | Parameters:  absent                                      |
@@ -1172,22 +1154,22 @@ TODO
 
 ## Overview
 
-| Section       | Description           | size(C509)/size(X509) |
-|:--------------|:----------------------|:----------------------|
-| {{exam-crl-no-revoked}} | CRL Example Without Revoked Certificates | 82% |
-| {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 53% |
-| {{exam-delta-crl-revoked}} | Delta CRL Example With Revoked Certificates | 48% |
-| {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 49% |
-| {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 59% |
-| {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 48% |
-| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 57% |
-| {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 52% |
-| {{exam-signed-ocsp-req-withcertchain}} | Signed OCSP Request Example With Requestor's Certificate Chain | 55% |
-| {{exam-error-ocsp-resp}} | Error OCSP Response Example | 60% |
-| {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 60% |
-| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 44% |
-| {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 48% |
-| {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 51% |
+| Section       | Description           | size(C509) | size(X509) | size(C509)/size(X509) |
+|:--------------|:----------------------|:-----------|:-----------|:----------------------|
+| {{exam-crl-no-revoked}} | CRL Example Without Revoked Certificates | 147 | 120 | 82% |
+| {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 335 | 177 | 53% |
+| {{exam-delta-crl-revoked}} | Delta CRL Example With Revoked Certificates | 335 | 160 | 48% |
+| {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 409 | 202 | 49% |
+| {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 152 | 51 | 34% |
+| {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 483 | 132 | 27% |
+| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 592 | 209 | 35% |
+| {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 1043 | 420 | 40% |
+| {{exam-signed-ocsp-req-withcertchain}} | Signed OCSP Request Example With Requestor's Certificate Chain | 1379 | 625 | 45% |
+| {{exam-error-ocsp-resp}} | Error OCSP Response Example | 5 | 3 | 60% |
+| {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 338 | 140 | 41% |
+| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 845 | 248 | 29% |
+| {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 1189 | 446 | 38% |
+| {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 1525 | 651 | 43% |
 {: #tab-examples-overview title="Size comparison in examples (TODO: update the percent data)"}
 
 ## Helper Keys and Certificates
@@ -1946,7 +1928,7 @@ Annotated hex
 ### Simple OCSP Request Example {#exam-simple-ocsp-req}
 
 [comment]: <> (replace-percent:ocspreq/simple-ocspreq/ocspreq.hex % ocspreq/simple-ocspreq/x509ocspreq.pem)
-- size(C509) / size(X509): 58%
+- size(C509) / size(X509): 33%
 - Simpe OCSP Request (`C509SimpleOCSPRequest`)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
@@ -1968,13 +1950,12 @@ ERERERERERE=
 #### C509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/simple-ocspreq/ocspreq.hex)
-Plain Hex (89 bytes):
+Plain Hex (51 bytes):
 
 [comment]: <> (replace-data:ocspreq/simple-ocspreq/ocspreq.hex)
 ~~~~~
-86020050111111111111111111111111111111115820A01C73A5F3B063344257D026
-93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C582010652787FA0527BC2449A1BF
-C5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F00480
+860200501111111111111111111111111111111148A01C73A5F3B063345410652787
+FA0527BC2449A1BFC5AB31AA5A6F0D8D80
 ~~~~~
 
 Textual Representation
@@ -1985,11 +1966,10 @@ C509SimpleOCSPRequest
   Type: C509SimpleOCSPRequest (2)
   Hash Algorithm: SHA256 (0)
   IssuerCertHash:
-    a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-    8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+    a0:1c:73:a5:f3:b0:63:34
   SerialNumberHash:
     10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-    5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+    5a:6f:0d:8d
   Nonce
     11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
   Extensions: <empty>
@@ -2005,19 +1985,17 @@ Annotated hex
  2:   00             # [1]. hashAlgorithm=SHA256 (0)
  3:   50             # [2]. nonce=byte[16]
  4:     11111111111111111111111111111111
-20:   58 20          # [3]. issuerCertHash=byte[32]
-22:     A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7F9
-51:     D7E43C
-54:   58 20          # [4]. serialNumberHash=byte[32]
-56:     10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA
-85:     47F004
-88:   80             # [5]. extensions=array[0]
+20:   48             # [3]. issuerCertHash=byte[8]
+21:     A01C73A5F3B06334
+29:   54             # [4]. serialNumberHash=byte[20]
+30:     10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+50:   80             # [5]. extensions=array[0]
 ~~~~~
 
 ### Unsigned OCSP Request Example {#exam-unsigned-ocsp-req}
 
 [comment]: <> (replace-percent:ocspreq/unsigned-ocspreq/ocspreq.hex % ocspreq/unsigned-ocspreq/x509ocspreq.pem)
-- size(C509) / size(X509): 48%
+- size(C509) / size(X509): 27%
 - Unsigned OCSP Request (`C509UnsignedOCSPRequest`)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
@@ -2046,17 +2024,14 @@ ERER
 #### C509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/unsigned-ocspreq/ocspreq.hex)
-Plain Hex (234 bytes):
+Plain Hex (132 bytes):
 
 [comment]: <> (replace-data:ocspreq/unsigned-ocspreq/ocspreq.hex)
 ~~~~~
-850000501111111111111111111111111111111180865820A01C73A5F3B063344257
-D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C8086582010652787FA0527BC
-2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F00480582075D8BC4FBAFC66
-94467641E748DFD53A8B9D176DFA3D05B3E98A4D6E5C55F165805820D1AC135D7DA2
-9BDCF4DCA0D5281A51605B678400C26408CADC3A32FC1B6AD5E38058202222222222
-22222222222222222222222222222222222222222222222222222280825820D3A0C1
-E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD80
+8500005011111111111111111111111111111111808648A01C73A5F3B06334808654
+10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D805475D8BC4FBAFC6694467641E7
+48DFD53A8B9D176D8054D1AC135D7DA29BDCF4DCA0D5281A51605B67840080482222
+222222222222808254D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B80
 ~~~~~
 
 Textual Representation
@@ -2071,35 +2046,33 @@ C509UnsignedOCSPRequest
   Requests
     OcspPerIssuerRequest
       issuerCertHash
-        a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-        8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+        a0:1c:73:a5:f3:b0:63:34
       extensions: <empty>
       singleRequests
         SingleCertRequest
           SerialNumberHash:
             10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-            5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+            5a:6f:0d:8d
           Extensions: <empty>
         SingleCertRequest
           SerialNumberHash:
             75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
-            8b:9d:17:6d:fa:3d:05:b3:e9:8a:4d:6e:5c:55:f1:65
+            8b:9d:17:6d
           Extensions: <empty>
         SingleCertRequest
           SerialNumberHash:
             d1:ac:13:5d:7d:a2:9b:dc:f4:dc:a0:d5:28:1a:51:60:
-            5b:67:84:00:c2:64:08:ca:dc:3a:32:fc:1b:6a:d5:e3
+            5b:67:84:00
           Extensions: <empty>
     OcspPerIssuerRequest
       issuerCertHash
-        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
+        22:22:22:22:22:22:22:22
       extensions: <empty>
       singleRequests
         SingleCertRequest
           SerialNumberHash:
             d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
-            ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
+            ce:41:7e:3b
           Extensions: <empty>
   Extensions: <empty>
 ~~~~~
@@ -2117,43 +2090,37 @@ Annotated hex
  20:   80             # [3]. extensions=array[0]
  21:   86             # [4]. requests=array[6]
                         #---PerIssuerRequests[0]---
- 22:     58 20          # [0]. issuerCertHash=byte[32]
- 24:       A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
- 52:       F9D7E43C
- 56:     80             # [1]. extensions=array[0]
- 57:     86             # [2]. singleRequests=array[6]
+ 22:     48             # [0]. issuerCertHash=byte[8]
+ 23:       A01C73A5F3B06334
+ 31:     80             # [1]. extensions=array[0]
+ 32:     86             # [2]. singleRequests=array[6]
                           #---SingleCertRequests[0]---
- 58:       58 20          # [0]. serialNumberHash=byte[32]
- 60:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D9
- 87:         0DCA47F004
- 92:       80             # [1]. extensions=array[0]
+ 33:       54             # [0]. serialNumberHash=byte[20]
+ 34:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+ 54:       80             # [1]. extensions=array[0]
                           #---SingleCertRequests[1]---
- 93:       58 20          # [2]. serialNumberHash=byte[32]
- 95:         75D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D
-122:         6E5C55F165
-127:       80             # [3]. extensions=array[0]
+ 55:       54             # [2]. serialNumberHash=byte[20]
+ 56:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
+ 76:       80             # [3]. extensions=array[0]
                           #---SingleCertRequests[2]---
-128:       58 20          # [4]. serialNumberHash=byte[32]
-130:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CADC3A32
-157:         FC1B6AD5E3
-162:       80             # [5]. extensions=array[0]
+ 77:       54             # [4]. serialNumberHash=byte[20]
+ 78:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400
+ 98:       80             # [5]. extensions=array[0]
                         #---PerIssuerRequests[1]---
-163:     58 20          # [3]. issuerCertHash=byte[32]
-165:       22222222222222222222222222222222222222222222222222222222
-193:       22222222
-197:     80             # [4]. extensions=array[0]
-198:     82             # [5]. singleRequests=array[2]
+ 99:     48             # [3]. issuerCertHash=byte[8]
+100:       2222222222222222
+108:     80             # [4]. extensions=array[0]
+109:     82             # [5]. singleRequests=array[2]
                           #---SingleCertRequests[0]---
-199:       58 20          # [0]. serialNumberHash=byte[32]
-201:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD
-228:         853401C5DD
-233:       80             # [1]. extensions=array[0]
+110:       54             # [0]. serialNumberHash=byte[20]
+111:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
+131:       80             # [1]. extensions=array[0]
 ~~~~~
 
 ### Signed OCSP Request Example Without Requestor's Certificate {#exam-signed-ocsp-req}
 
 [comment]: <> (replace-percent:ocspreq/signed-ocspreq/ocspreq.hex % ocspreq/signed-ocspreq/x509ocspreq.pem)
-- size(C509) / size(X509): 56%
+- size(C509) / size(X509): 35%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
 - Signed OCSP Request (`C509UnsignedOCSPRequest`) without requestor's certificate
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
@@ -2185,20 +2152,17 @@ Zyh+lISXhR4F1lvXRAHYCA==
 #### C509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/signed-ocspreq/ocspreq.hex)
-Plain Hex (336 bytes):
+Plain Hex (209 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq/ocspreq.hex)
 ~~~~~
-89010C005011111111111111111111111111111111582044F0528B56F35AD998049B
-306FF9A8B06FA79DE8146946FE254B00C62A622A5D80865820A01C73A5F3B0633442
-57D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C8086582010652787FA0527
-BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F00480582075D8BC4FBAFC
-6694467641E748DFD53A8B9D176DFA3D05B3E98A4D6E5C55F165805820D1AC135D7D
-A29BDCF4DCA0D5281A51605B678400C26408CADC3A32FC1B6AD5E380582022222222
-2222222222222222222222222222222222222222222222222222222280825820D3A0
-C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD80F65840
-95A072BAEB2879F49518AF65C75ED603BA84F635665ABED2920453A8205790F7D14E
-5E8258F42CBBAA5BD81E697516F758A571BE0A9C12FE222AF808768DDE0C
+89010C0050111111111111111111111111111111114844F0528B56F35AD9808648A0
+1C73A5F3B0633480865410652787FA0527BC2449A1BFC5AB31AA5A6F0D8D805475D8
+BC4FBAFC6694467641E748DFD53A8B9D176D8054D1AC135D7DA29BDCF4DCA0D5281A
+51605B67840080482222222222222222808254D3A0C1E3DB92E8F6810537D45CFAEC
+F6CE417E3B80F658407DA70BE70D8C88F5150218B2F60A21320D26FAF8DC198F1665
+4D54CB617A1C3C3F420B3F2FBF74C9B107D81D1815C2CE09B22EAF491313003C49D4
+3AAB8D970B
 ~~~~~
 
 Textual Representation
@@ -2211,50 +2175,47 @@ C509SignedOCSPRequest
     Signature Algorithm: Ed25519 (12)
     Hash Algorithm: SHA256 (0)
     RequestorCertHash
-      44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0:
-      6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:2a:62:2a:5d
+      44:f0:52:8b:56:f3:5a:d9
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     Extensions: <empty>
     Requests
       OcspPerIssuerRequest
         issuerCertHash
-          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-          8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34
         extensions: <empty>
         singleRequests
           SingleCertRequest
             SerialNumberHash:
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-              5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+              5a:6f:0d:8d
             Extensions: <empty>
           SingleCertRequest
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
-              8b:9d:17:6d:fa:3d:05:b3:e9:8a:4d:6e:5c:55:f1:65
+              8b:9d:17:6d
             Extensions: <empty>
           SingleCertRequest
             SerialNumberHash:
               d1:ac:13:5d:7d:a2:9b:dc:f4:dc:a0:d5:28:1a:51:60:
-              5b:67:84:00:c2:64:08:ca:dc:3a:32:fc:1b:6a:d5:e3
+              5b:67:84:00
             Extensions: <empty>
       OcspPerIssuerRequest
         issuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
+          22:22:22:22:22:22:22:22
         extensions: <empty>
         singleRequests
           SingleCertRequest
             SerialNumberHash:
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
-              ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
+              ce:41:7e:3b
             Extensions: <empty>
     Requestor Certs: null
   Signature Value
-    95:a0:72:ba:eb:28:79:f4:95:18:af:65:c7:5e:d6:03:
-    ba:84:f6:35:66:5a:be:d2:92:04:53:a8:20:57:90:f7:
-    d1:4e:5e:82:58:f4:2c:bb:aa:5b:d8:1e:69:75:16:f7:
-    58:a5:71:be:0a:9c:12:fe:22:2a:f8:08:76:8d:de:0c
+    7d:a7:0b:e7:0d:8c:88:f5:15:02:18:b2:f6:0a:21:32:
+    0d:26:fa:f8:dc:19:8f:16:65:4d:54:cb:61:7a:1c:3c:
+    3f:42:0b:3f:2f:bf:74:c9:b1:07:d8:1d:18:15:c2:ce:
+    09:b2:2e:af:49:13:13:00:3c:49:d4:3a:ab:8d:97:0b
 ~~~~~
 
 Annotated hex
@@ -2268,54 +2229,47 @@ Annotated hex
   3:   00             # [2]. hashAlgorithm=SHA256 (0)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   58 20          # [4]. requestorCertHash=byte[32]
- 23:     44F0528B56F35AD998049B306FF9A8B06FA79DE8146946FE254B00C62A
- 52:     622A5D
- 55:   80             # [5]. extensions=array[0]
- 56:   86             # [6]. requests=array[6]
+ 21:   48             # [4]. requestorCertHash=byte[8]
+ 22:     44F0528B56F35AD9
+ 30:   80             # [5]. extensions=array[0]
+ 31:   86             # [6]. requests=array[6]
                         #---PerIssuerRequests[0]---
- 57:     58 20          # [0]. issuerCertHash=byte[32]
- 59:       A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
- 87:       F9D7E43C
- 91:     80             # [1]. extensions=array[0]
- 92:     86             # [2]. singleRequests=array[6]
+ 32:     48             # [0]. issuerCertHash=byte[8]
+ 33:       A01C73A5F3B06334
+ 41:     80             # [1]. extensions=array[0]
+ 42:     86             # [2]. singleRequests=array[6]
                           #---SingleCertRequests[0]---
- 93:       58 20          # [0]. serialNumberHash=byte[32]
- 95:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D9
-122:         0DCA47F004
-127:       80             # [1]. extensions=array[0]
+ 43:       54             # [0]. serialNumberHash=byte[20]
+ 44:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+ 64:       80             # [1]. extensions=array[0]
                           #---SingleCertRequests[1]---
-128:       58 20          # [2]. serialNumberHash=byte[32]
-130:         75D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D
-157:         6E5C55F165
-162:       80             # [3]. extensions=array[0]
+ 65:       54             # [2]. serialNumberHash=byte[20]
+ 66:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
+ 86:       80             # [3]. extensions=array[0]
                           #---SingleCertRequests[2]---
-163:       58 20          # [4]. serialNumberHash=byte[32]
-165:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CADC3A32
-192:         FC1B6AD5E3
-197:       80             # [5]. extensions=array[0]
+ 87:       54             # [4]. serialNumberHash=byte[20]
+ 88:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400
+108:       80             # [5]. extensions=array[0]
                         #---PerIssuerRequests[1]---
-198:     58 20          # [3]. issuerCertHash=byte[32]
-200:       22222222222222222222222222222222222222222222222222222222
-228:       22222222
-232:     80             # [4]. extensions=array[0]
-233:     82             # [5]. singleRequests=array[2]
+109:     48             # [3]. issuerCertHash=byte[8]
+110:       2222222222222222
+118:     80             # [4]. extensions=array[0]
+119:     82             # [5]. singleRequests=array[2]
                           #---SingleCertRequests[0]---
-234:       58 20          # [0]. serialNumberHash=byte[32]
-236:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD
-263:         853401C5DD
-268:       80             # [1]. extensions=array[0]
-269:   F6             # [7]. requestorCerts=<null>
-270:   58 40          # [8]. signatureValue=byte[64]
-272:     95A072BAEB2879F49518AF65C75ED603BA84F635665ABED2920453A820
-301:     5790F7D14E5E8258F42CBBAA5BD81E697516F758A571BE0A9C12FE222A
-330:     F808768DDE0C
+120:       54             # [0]. serialNumberHash=byte[20]
+121:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
+141:       80             # [1]. extensions=array[0]
+142:   F6             # [7]. requestorCerts=<null>
+143:   58 40          # [8]. signatureValue=byte[64]
+145:     7DA70BE70D8C88F5150218B2F60A21320D26FAF8DC198F16654D54CB61
+174:     7A1C3C3F420B3F2FBF74C9B107D81D1815C2CE09B22EAF491313003C49
+203:     D43AAB8D970B
 ~~~~~
 
 ### Signed OCSP Request Example With Requestor's Certificate {#exam-signed-ocsp-req-withcert}
 
 [comment]: <> (replace-percent:ocspreq/signed-ocspreq-with-cert/ocspreq.hex % ocspreq/signed-ocspreq-with-cert/x509ocspreq.pem)
-- size(C509) / size(X509): 52%
+- size(C509) / size(X509): 40%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
 - Signed OCSP Request (`C509UnsignedOCSPRequest`) with embedded requestor's certificate
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
@@ -2356,27 +2310,23 @@ Z5A/+c/q9jFbvdahCBJJteLJhUIc0BJ0GlmWOBLI0no1fQI=
 #### C509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/signed-ocspreq-with-cert/ocspreq.hex)
-Plain Hex (547 bytes):
+Plain Hex (420 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq-with-cert/ocspreq.hex)
 ~~~~~
-89010C005011111111111111111111111111111111582044F0528B56F35AD998049B
-306FF9A8B06FA79DE8146946FE254B00C62A622A5D84185D820001185E840CF60082
-011818865820A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
-F9D7E43C8086582010652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7
-D90DCA47F00480582075D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E9
-8A4D6E5C55F165805820D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CA
-DC3A32FC1B6AD5E38058202222222222222222222222222222222222222222222222
-22222222222222222280825820D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B26
-4E50CB4F69DD853401C5DD8058C38B024212360C6F746573742063726C6F6373702D
-63611A6775D7001A69570A806E6F6373702D726571756573746F720C582004530B17
-64EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51BD
-B2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C390
-05D492450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A597
-178DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F
-5ED5442D075840E33F538FB9EE6A132A705D9B9911C47C6CFA89D98FB192E27317E4
-91672C010CD8E2711AECB3C6D4B3D0E91E62C6DBD35177930B57554029040898E817
-7FDA05
+89010C0050111111111111111111111111111111114844F0528B56F35AD984185D82
+0001185E840CF600820118188648A01C73A5F3B0633480865410652787FA0527BC24
+49A1BFC5AB31AA5A6F0D8D805475D8BC4FBAFC6694467641E748DFD53A8B9D176D80
+54D1AC135D7DA29BDCF4DCA0D5281A51605B67840080482222222222222222808254
+D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B8058C38B024212360C6F74657374
+2063726C6F6373702D63611A6775D7001A69570A806E6F6373702D72657175657374
+6F720C582004530B1764EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57
+320DD3860154DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E78D
+2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50DD4942D172814C
+46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B624
+08A277A5B70D0D2A3F5ED5442D075840EBF95F92812C9DF3DBC7C19699D5254485AD
+DC930695239D1D68BF7988F3F1B0C76A588BF42F4FCFF373C3705AEB56FC3B6CDEAA
+F66DA0F5BBB735F4A1CDB004
 ~~~~~
 
 Textual Representation
@@ -2389,8 +2339,7 @@ C509SignedOCSPRequest
     Signature Algorithm: Ed25519 (12)
     Hash Algorithm: SHA256 (0)
     RequestorCertHash
-      44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0:
-      6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:2a:62:2a:5d
+      44:f0:52:8b:56:f3:5a:d9
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     Extensions
@@ -2408,35 +2357,33 @@ C509SignedOCSPRequest
     Requests
       OcspPerIssuerRequest
         issuerCertHash
-          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-          8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34
         extensions: <empty>
         singleRequests
           SingleCertRequest
             SerialNumberHash:
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-              5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+              5a:6f:0d:8d
             Extensions: <empty>
           SingleCertRequest
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
-              8b:9d:17:6d:fa:3d:05:b3:e9:8a:4d:6e:5c:55:f1:65
+              8b:9d:17:6d
             Extensions: <empty>
           SingleCertRequest
             SerialNumberHash:
               d1:ac:13:5d:7d:a2:9b:dc:f4:dc:a0:d5:28:1a:51:60:
-              5b:67:84:00:c2:64:08:ca:dc:3a:32:fc:1b:6a:d5:e3
+              5b:67:84:00
             Extensions: <empty>
       OcspPerIssuerRequest
         issuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
+          22:22:22:22:22:22:22:22
         extensions: <empty>
         singleRequests
           SingleCertRequest
             SerialNumberHash:
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
-              ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
+              ce:41:7e:3b
             Extensions: <empty>
     Requestor Certs
       C509Certificate
@@ -2454,10 +2401,10 @@ C509SignedOCSPRequest
         60:d5:b4:b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:
         44:2d:07
   Signature Value
-    e3:3f:53:8f:b9:ee:6a:13:2a:70:5d:9b:99:11:c4:7c:
-    6c:fa:89:d9:8f:b1:92:e2:73:17:e4:91:67:2c:01:0c:
-    d8:e2:71:1a:ec:b3:c6:d4:b3:d0:e9:1e:62:c6:db:d3:
-    51:77:93:0b:57:55:40:29:04:08:98:e8:17:7f:da:05
+    eb:f9:5f:92:81:2c:9d:f3:db:c7:c1:96:99:d5:25:44:
+    85:ad:dc:93:06:95:23:9d:1d:68:bf:79:88:f3:f1:b0:
+    c7:6a:58:8b:f4:2f:4f:cf:f3:73:c3:70:5a:eb:56:fc:
+    3b:6c:de:aa:f6:6d:a0:f5:bb:b7:35:f4:a1:cd:b0:04
 ~~~~~
 
 Annotated hex
@@ -2471,80 +2418,73 @@ Annotated hex
   3:   00             # [2]. hashAlgorithm=SHA256 (0)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   58 20          # [4]. requestorCertHash=byte[32]
- 23:     44F0528B56F35AD998049B306FF9A8B06FA79DE8146946FE254B00C62A
- 52:     622A5D
- 55:   84             # [5]. extensions=array[4]
+ 21:   48             # [4]. requestorCertHash=byte[8]
+ 22:     44F0528B56F35AD9
+ 30:   84             # [5]. extensions=array[4]
                         #---extension[0]---
- 56:     18 5D          # [0]. type=AcceptOCSPResponseTypes (93)
- 58:     82             # [1]. value=array[2]
- 59:       00             # [0]. C509ErrorOCSPResponse (0)
- 60:       01             # [1]. C509BasicOCSPResponse (1)
+ 31:     18 5D          # [0]. type=AcceptOCSPResponseTypes (93)
+ 33:     82             # [1]. value=array[2]
+ 34:       00             # [0]. C509ErrorOCSPResponse (0)
+ 35:       01             # [1]. C509BasicOCSPResponse (1)
                         #---extension[1]---
- 61:     18 5E          # [2]. type=preferredSignatureAlgorithms
+ 36:     18 5E          # [2]. type=preferredSignatureAlgorithms
                         #      (94)
- 63:     84             # [3]. value=array[4]
+ 38:     84             # [3]. value=array[4]
                           #---preferredSignatureAlgorithms[0]---
- 64:       0C             # [0]. sigIdentifier=Ed25519 (12)
- 65:       F6             # [1]. pubKeyAlgIdentifiers=<null>
+ 39:       0C             # [0]. sigIdentifier=Ed25519 (12)
+ 40:       F6             # [1]. pubKeyAlgIdentifiers=<null>
                           #---preferredSignatureAlgorithms[1]---
- 66:       00             # [2]. sigIdentifier=ecdsa-with-sha256 (0)
- 67:       82             # [3]. pubKeyAlgIdentifiers=array[2]
- 68:         01             # [0]. pubKeyAlgIdentifier=EC public key
+ 41:       00             # [2]. sigIdentifier=ecdsa-with-sha256 (0)
+ 42:       82             # [3]. pubKeyAlgIdentifiers=array[2]
+ 43:         01             # [0]. pubKeyAlgIdentifier=EC public key
                             #      on curve secp256r1 (1)
- 69:         18 18          # [1]. pubKeyAlgIdentifier=EC public key
+ 44:         18 18          # [1]. pubKeyAlgIdentifier=EC public key
                             #      on curve brainpoolp256r1 (24)
- 71:   86             # [6]. requests=array[6]
+ 46:   86             # [6]. requests=array[6]
                         #---PerIssuerRequests[0]---
- 72:     58 20          # [0]. issuerCertHash=byte[32]
- 74:       A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
-102:       F9D7E43C
-106:     80             # [1]. extensions=array[0]
-107:     86             # [2]. singleRequests=array[6]
+ 47:     48             # [0]. issuerCertHash=byte[8]
+ 48:       A01C73A5F3B06334
+ 56:     80             # [1]. extensions=array[0]
+ 57:     86             # [2]. singleRequests=array[6]
                           #---SingleCertRequests[0]---
-108:       58 20          # [0]. serialNumberHash=byte[32]
-110:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D9
-137:         0DCA47F004
-142:       80             # [1]. extensions=array[0]
+ 58:       54             # [0]. serialNumberHash=byte[20]
+ 59:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+ 79:       80             # [1]. extensions=array[0]
                           #---SingleCertRequests[1]---
-143:       58 20          # [2]. serialNumberHash=byte[32]
-145:         75D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D
-172:         6E5C55F165
-177:       80             # [3]. extensions=array[0]
+ 80:       54             # [2]. serialNumberHash=byte[20]
+ 81:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
+101:       80             # [3]. extensions=array[0]
                           #---SingleCertRequests[2]---
-178:       58 20          # [4]. serialNumberHash=byte[32]
-180:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CADC3A32
-207:         FC1B6AD5E3
-212:       80             # [5]. extensions=array[0]
+102:       54             # [4]. serialNumberHash=byte[20]
+103:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400
+123:       80             # [5]. extensions=array[0]
                         #---PerIssuerRequests[1]---
-213:     58 20          # [3]. issuerCertHash=byte[32]
-215:       22222222222222222222222222222222222222222222222222222222
-243:       22222222
-247:     80             # [4]. extensions=array[0]
-248:     82             # [5]. singleRequests=array[2]
+124:     48             # [3]. issuerCertHash=byte[8]
+125:       2222222222222222
+133:     80             # [4]. extensions=array[0]
+134:     82             # [5]. singleRequests=array[2]
                           #---SingleCertRequests[0]---
-249:       58 20          # [0]. serialNumberHash=byte[32]
-251:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD
-278:         853401C5DD
-283:       80             # [1]. extensions=array[0]
-284:   58 C3          # [7]. requestorCerts(COSE_C509)=byte[195]
-286:     8B024212360C6F746573742063726C6F6373702D63611A6775D7001A69
-315:     570A806E6F6373702D726571756573746F720C582004530B1764EDD4B4
-344:     E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51
-373:     BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF
-402:     368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50DD4942D172
-431:     814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772FF04C80
-460:     E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
-481:   58 40          # [8]. signatureValue=byte[64]
-483:     E33F538FB9EE6A132A705D9B9911C47C6CFA89D98FB192E27317E49167
-512:     2C010CD8E2711AECB3C6D4B3D0E91E62C6DBD35177930B575540290408
-541:     98E8177FDA05
+135:       54             # [0]. serialNumberHash=byte[20]
+136:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
+156:       80             # [1]. extensions=array[0]
+157:   58 C3          # [7]. requestorCerts(COSE_C509)=byte[195]
+159:     8B024212360C6F746573742063726C6F6373702D63611A6775D7001A69
+188:     570A806E6F6373702D726571756573746F720C582004530B1764EDD4B4
+217:     E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51
+246:     BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF
+275:     368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50DD4942D172
+304:     814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772FF04C80
+333:     E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
+354:   58 40          # [8]. signatureValue=byte[64]
+356:     EBF95F92812C9DF3DBC7C19699D5254485ADDC930695239D1D68BF7988
+385:     F3F1B0C76A588BF42F4FCFF373C3705AEB56FC3B6CDEAAF66DA0F5BBB7
+414:     35F4A1CDB004
 ~~~~~
 
 ### Signed OCSP Request Example With Requestor's Certificate Chain {#exam-signed-ocsp-req-withcertchain}
 
 [comment]: <> (replace-percent:ocspreq/signed-ocspreq-with-certchain/ocspreq.hex % ocspreq/signed-ocspreq-with-certchain/x509ocspreq.pem)
-- size(C509) / size(X509): 54%
+- size(C509) / size(X509): 45%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
 - Signed OCSP Request (`C509UnsignedOCSPRequest`) with embedded requestor's certificate chain (2 certificates)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
@@ -2592,33 +2532,29 @@ zGRnQBBNjzkYl92rEZjz0FomGSBDYqb4PDOIIRs2vFY9QQI=
 #### C509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/signed-ocspreq-with-certchain/ocspreq.hex)
-Plain Hex (752 bytes):
+Plain Hex (625 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq-with-certchain/ocspreq.hex)
 ~~~~~
-89010C005011111111111111111111111111111111582044F0528B56F35AD998049B
-306FF9A8B06FA79DE8146946FE254B00C62A622A5D84185D820001185E840CF60082
-011818865820A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
-F9D7E43C8086582010652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7
-D90DCA47F00480582075D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E9
-8A4D6E5C55F165805820D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CA
-DC3A32FC1B6AD5E38058202222222222222222222222222222222222222222222222
-22222222222222222280825820D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B26
-4E50CB4F69DD853401C5DD808258C38B024212360C6F746573742063726C6F637370
-2D63611A6775D7001A69570A806E6F6373702D726571756573746F720C582004530B
-1764EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51
-BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C3
-9005D492450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A5
-97178DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A
-3F5ED5442D0758CA8B0241010C73746573742063726C6F6373702D726F6F7463611A
-677485801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8A355A001
-A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2C
-AEDF368CDF53C39005D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A
-73BA8A839F557F0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3
-F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
-D0E191310B0F5840BDC536D59EFFD55CFDC1A05608295380A13C2B83606E5B3A6824
-2E805C382E34AAC5A67605B438F5C2289FD9EA0303F682F6FBB1208955324FD3169F
-6D022908
+89010C0050111111111111111111111111111111114844F0528B56F35AD984185D82
+0001185E840CF600820118188648A01C73A5F3B0633480865410652787FA0527BC24
+49A1BFC5AB31AA5A6F0D8D805475D8BC4FBAFC6694467641E748DFD53A8B9D176D80
+54D1AC135D7DA29BDCF4DCA0D5281A51605B67840080482222222222222222808254
+D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B808258C38B024212360C6F746573
+742063726C6F6373702D63611A6775D7001A69570A806E6F6373702D726571756573
+746F720C582004530B1764EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD
+57320DD3860154DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E7
+8D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50DD4942D17281
+4C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B6
+2408A277A5B70D0D2A3F5ED5442D0758CA8B0241010C73746573742063726C6F6373
+702D726F6F7463611A677485801A6B36EC7F6F746573742063726C6F6373702D6361
+0C58205EF8A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF74
+008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860230107542DA3A4
+03F7D2F4E0B3D8031A73BA8A839F557F0F5840E50465D60C02A2111EF3FC6E44F2A3
+6008765B552351F9A3F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D
+3CC1DB2CCD180AA0A2D0E191310B0F584071D39CBD6611FD5B0C3092FCE58016B966
+232851AC3167CD0CDEF47DF0F0BC738616EB65BB2BA509C8CF45EDBC9B784A4A7092
+5E97AE152871E9D665C477500E
 ~~~~~
 
 Textual Representation
@@ -2631,8 +2567,7 @@ C509SignedOCSPRequest
     Signature Algorithm: Ed25519 (12)
     Hash Algorithm: SHA256 (0)
     RequestorCertHash
-      44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0:
-      6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:2a:62:2a:5d
+      44:f0:52:8b:56:f3:5a:d9
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     Extensions
@@ -2650,35 +2585,33 @@ C509SignedOCSPRequest
     Requests
       OcspPerIssuerRequest
         issuerCertHash
-          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-          8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34
         extensions: <empty>
         singleRequests
           SingleCertRequest
             SerialNumberHash:
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-              5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+              5a:6f:0d:8d
             Extensions: <empty>
           SingleCertRequest
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
-              8b:9d:17:6d:fa:3d:05:b3:e9:8a:4d:6e:5c:55:f1:65
+              8b:9d:17:6d
             Extensions: <empty>
           SingleCertRequest
             SerialNumberHash:
               d1:ac:13:5d:7d:a2:9b:dc:f4:dc:a0:d5:28:1a:51:60:
-              5b:67:84:00:c2:64:08:ca:dc:3a:32:fc:1b:6a:d5:e3
+              5b:67:84:00
             Extensions: <empty>
       OcspPerIssuerRequest
         issuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
+          22:22:22:22:22:22:22:22
         extensions: <empty>
         singleRequests
           SingleCertRequest
             SerialNumberHash:
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
-              ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
+              ce:41:7e:3b
             Extensions: <empty>
     Requestor Certs
       C509Certificate
@@ -2710,10 +2643,10 @@ C509SignedOCSPRequest
         0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
         18:0a:a0:a2:d0:e1:91:31:0b:0f
   Signature Value
-    bd:c5:36:d5:9e:ff:d5:5c:fd:c1:a0:56:08:29:53:80:
-    a1:3c:2b:83:60:6e:5b:3a:68:24:2e:80:5c:38:2e:34:
-    aa:c5:a6:76:05:b4:38:f5:c2:28:9f:d9:ea:03:03:f6:
-    82:f6:fb:b1:20:89:55:32:4f:d3:16:9f:6d:02:29:08
+    71:d3:9c:bd:66:11:fd:5b:0c:30:92:fc:e5:80:16:b9:
+    66:23:28:51:ac:31:67:cd:0c:de:f4:7d:f0:f0:bc:73:
+    86:16:eb:65:bb:2b:a5:09:c8:cf:45:ed:bc:9b:78:4a:
+    4a:70:92:5e:97:ae:15:28:71:e9:d6:65:c4:77:50:0e
 ~~~~~
 
 Annotated hex
@@ -2727,84 +2660,77 @@ Annotated hex
   3:   00             # [2]. hashAlgorithm=SHA256 (0)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   58 20          # [4]. requestorCertHash=byte[32]
- 23:     44F0528B56F35AD998049B306FF9A8B06FA79DE8146946FE254B00C62A
- 52:     622A5D
- 55:   84             # [5]. extensions=array[4]
+ 21:   48             # [4]. requestorCertHash=byte[8]
+ 22:     44F0528B56F35AD9
+ 30:   84             # [5]. extensions=array[4]
                         #---extension[0]---
- 56:     18 5D          # [0]. type=AcceptOCSPResponseTypes (93)
- 58:     82             # [1]. value=array[2]
- 59:       00             # [0]. C509ErrorOCSPResponse (0)
- 60:       01             # [1]. C509BasicOCSPResponse (1)
+ 31:     18 5D          # [0]. type=AcceptOCSPResponseTypes (93)
+ 33:     82             # [1]. value=array[2]
+ 34:       00             # [0]. C509ErrorOCSPResponse (0)
+ 35:       01             # [1]. C509BasicOCSPResponse (1)
                         #---extension[1]---
- 61:     18 5E          # [2]. type=preferredSignatureAlgorithms
+ 36:     18 5E          # [2]. type=preferredSignatureAlgorithms
                         #      (94)
- 63:     84             # [3]. value=array[4]
+ 38:     84             # [3]. value=array[4]
                           #---preferredSignatureAlgorithms[0]---
- 64:       0C             # [0]. sigIdentifier=Ed25519 (12)
- 65:       F6             # [1]. pubKeyAlgIdentifiers=<null>
+ 39:       0C             # [0]. sigIdentifier=Ed25519 (12)
+ 40:       F6             # [1]. pubKeyAlgIdentifiers=<null>
                           #---preferredSignatureAlgorithms[1]---
- 66:       00             # [2]. sigIdentifier=ecdsa-with-sha256 (0)
- 67:       82             # [3]. pubKeyAlgIdentifiers=array[2]
- 68:         01             # [0]. pubKeyAlgIdentifier=EC public key
+ 41:       00             # [2]. sigIdentifier=ecdsa-with-sha256 (0)
+ 42:       82             # [3]. pubKeyAlgIdentifiers=array[2]
+ 43:         01             # [0]. pubKeyAlgIdentifier=EC public key
                             #      on curve secp256r1 (1)
- 69:         18 18          # [1]. pubKeyAlgIdentifier=EC public key
+ 44:         18 18          # [1]. pubKeyAlgIdentifier=EC public key
                             #      on curve brainpoolp256r1 (24)
- 71:   86             # [6]. requests=array[6]
+ 46:   86             # [6]. requests=array[6]
                         #---PerIssuerRequests[0]---
- 72:     58 20          # [0]. issuerCertHash=byte[32]
- 74:       A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
-102:       F9D7E43C
-106:     80             # [1]. extensions=array[0]
-107:     86             # [2]. singleRequests=array[6]
+ 47:     48             # [0]. issuerCertHash=byte[8]
+ 48:       A01C73A5F3B06334
+ 56:     80             # [1]. extensions=array[0]
+ 57:     86             # [2]. singleRequests=array[6]
                           #---SingleCertRequests[0]---
-108:       58 20          # [0]. serialNumberHash=byte[32]
-110:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D9
-137:         0DCA47F004
-142:       80             # [1]. extensions=array[0]
+ 58:       54             # [0]. serialNumberHash=byte[20]
+ 59:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+ 79:       80             # [1]. extensions=array[0]
                           #---SingleCertRequests[1]---
-143:       58 20          # [2]. serialNumberHash=byte[32]
-145:         75D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D
-172:         6E5C55F165
-177:       80             # [3]. extensions=array[0]
+ 80:       54             # [2]. serialNumberHash=byte[20]
+ 81:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
+101:       80             # [3]. extensions=array[0]
                           #---SingleCertRequests[2]---
-178:       58 20          # [4]. serialNumberHash=byte[32]
-180:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CADC3A32
-207:         FC1B6AD5E3
-212:       80             # [5]. extensions=array[0]
+102:       54             # [4]. serialNumberHash=byte[20]
+103:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400
+123:       80             # [5]. extensions=array[0]
                         #---PerIssuerRequests[1]---
-213:     58 20          # [3]. issuerCertHash=byte[32]
-215:       22222222222222222222222222222222222222222222222222222222
-243:       22222222
-247:     80             # [4]. extensions=array[0]
-248:     82             # [5]. singleRequests=array[2]
+124:     48             # [3]. issuerCertHash=byte[8]
+125:       2222222222222222
+133:     80             # [4]. extensions=array[0]
+134:     82             # [5]. singleRequests=array[2]
                           #---SingleCertRequests[0]---
-249:       58 20          # [0]. serialNumberHash=byte[32]
-251:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD
-278:         853401C5DD
-283:       80             # [1]. extensions=array[0]
-284:   82             # [7]. requestorCerts(COSE_C509)=array[2]
-285:     58 C3          # [0]. C509CertData=byte[195]
-287:       8B024212360C6F746573742063726C6F6373702D63611A6775D7001A
-315:       69570A806E6F6373702D726571756573746F720C582004530B1764ED
-343:       D4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD38601
-371:       54DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E7
-399:       8D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50
-427:       DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC
-455:       9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
-482:     58 CA          # [1]. C509CertData=byte[202]
-484:       8B0241010C73746573742063726C6F6373702D726F6F7463611A6774
-512:       85801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8
-540:       A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF
-568:       74008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860
-596:       230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E504
-624:       65D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1
-652:       F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
-680:       D0E191310B0F
-686:   58 40          # [8]. signatureValue=byte[64]
-688:     BDC536D59EFFD55CFDC1A05608295380A13C2B83606E5B3A68242E805C
-717:     382E34AAC5A67605B438F5C2289FD9EA0303F682F6FBB1208955324FD3
-746:     169F6D022908
+135:       54             # [0]. serialNumberHash=byte[20]
+136:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
+156:       80             # [1]. extensions=array[0]
+157:   82             # [7]. requestorCerts(COSE_C509)=array[2]
+158:     58 C3          # [0]. C509CertData=byte[195]
+160:       8B024212360C6F746573742063726C6F6373702D63611A6775D7001A
+188:       69570A806E6F6373702D726571756573746F720C582004530B1764ED
+216:       D4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD38601
+244:       54DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E7
+272:       8D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50
+300:       DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC
+328:       9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
+355:     58 CA          # [1]. C509CertData=byte[202]
+357:       8B0241010C73746573742063726C6F6373702D726F6F7463611A6774
+385:       85801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8
+413:       A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF
+441:       74008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860
+469:       230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E504
+497:       65D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1
+525:       F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
+553:       D0E191310B0F
+559:   58 40          # [8]. signatureValue=byte[64]
+561:     71D39CBD6611FD5B0C3092FCE58016B966232851AC3167CD0CDEF47DF0
+590:     F0BC738616EB65BB2BA509C8CF45EDBC9B784A4A70925E97AE152871E9
+619:     D665C477500E
 ~~~~~
 
 ## OCSP Response Examples
@@ -2859,7 +2785,7 @@ Annotated hex
 ### Simple OCSP Response Example {#exam-simple-ocsp-resp}
 
 [comment]: <> (replace-percent:ocspresp/simple-ocspresp/ocspresp.hex % ocspresp/simple-ocspresp/x509ocspresp.pem)
-- size(C509) / size(X509): 60%
+- size(C509) / size(X509): 41%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Simple OCSP Response (`C509SimpleOCSPResponse`) without responder's certificate
 - Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
@@ -2886,16 +2812,15 @@ Wgg=
 #### C509 OCSP Response
 
 [comment]: <> (replace-size:ocspresp/simple-ocspresp/ocspresp.hex)
-Plain Hex (203 bytes):
+Plain Hex (140 bytes):
 
 [comment]: <> (replace-data:ocspresp/simple-ocspresp/ocspresp.hex)
 ~~~~~
-8E020C00501111111111111111111111111111111158200600867838E3311AA78B9E
-D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B25820A01C73A5F3B063344257D0
-2693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C582010652787FA0527BC2449A1
-BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F004001A67C4F10039707F19627080
-F65840F4EC279F7556C435355AE9F863496853B0EFEC702623A8E13BD29A6A1DB56E
-58A16D62E929B6E5C1C7EE2F3D5F04A27CFAAAA63F447AD97DB7B9A2B5C6348801
+8E020C005011111111111111111111111111111111480600867838E3311A48A01C73
+A5F3B063345410652787FA0527BC2449A1BFC5AB31AA5A6F0D8D001A67C4F1003970
+7F19627080F65840E3419955AEB3D74AD5BC7D32264E8976C3AB6F68643C6BF66CC2
+F9352FF3E861A0BD1506C78B09D3FAE869D1FD3C87EF461CF6D2096EA0AC11FCFF5E
+BC0FA70C
 ~~~~~
 
 Textual Representation
@@ -2910,24 +2835,23 @@ C509SimpleOCSPResponse
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
-      06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86:
-      b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:34:43:a3:b2
+      06:00:86:78:38:e3:31:1a
     IssuerCertHash
-      a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-      8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+      a0:1c:73:a5:f3:b0:63:34
     SerialNumberHash
       10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-      5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+      5a:6f:0d:8d
     Cert Status: good
-      This Update: -28800 seconds
-      Next Update: 25200 seconds
+    ProducedAt: 2025-03-03T00:00:00Z
+    This Update: -28800 seconds
+    Next Update: 25200 seconds
     Extensions: <empty>
     Responder Certs: null
   Signature Value
-    f4:ec:27:9f:75:56:c4:35:35:5a:e9:f8:63:49:68:53:
-    b0:ef:ec:70:26:23:a8:e1:3b:d2:9a:6a:1d:b5:6e:58:
-    a1:6d:62:e9:29:b6:e5:c1:c7:ee:2f:3d:5f:04:a2:7c:
-    fa:aa:a6:3f:44:7a:d9:7d:b7:b9:a2:b5:c6:34:88:01
+    e3:41:99:55:ae:b3:d7:4a:d5:bc:7d:32:26:4e:89:76:
+    c3:ab:6f:68:64:3c:6b:f6:6c:c2:f9:35:2f:f3:e8:61:
+    a0:bd:15:06:c7:8b:09:d3:fa:e8:69:d1:fd:3c:87:ef:
+    46:1c:f6:d2:09:6e:a0:ac:11:fc:ff:5e:bc:0f:a7:0c
 ~~~~~
 
 Annotated hex
@@ -2941,33 +2865,30 @@ Annotated hex
   3:   00             # [2]. hashAlgorithm=SHA256 (0)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   58 20          # [4]. responderCertHash=byte[32]
- 23:     0600867838E3311AA78B9ED60C631C86B09A6DE7BC43E02A7AA7006A34
- 52:     43A3B2
- 55:   58 20          # [5]. issuerCertHash=byte[32]
- 57:     A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7F9
- 86:     D7E43C
- 89:   58 20          # [6]. serialNumberHash=byte[32]
- 91:     10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA
-120:     47F004
-123:   00             # [7]. certStatus=good (0)
-124:   1A 67C4F100    # [8]. producedAt=1740960000:
+ 21:   48             # [4]. responderCertHash=byte[8]
+ 22:     0600867838E3311A
+ 30:   48             # [5]. issuerCertHash=byte[8]
+ 31:     A01C73A5F3B06334
+ 39:   54             # [6]. serialNumberHash=byte[20]
+ 40:     10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+ 60:   00             # [7]. certStatus=good (0)
+ 61:   1A 67C4F100    # [8]. producedAt=1740960000:
                       #      2025-03-03T00:00:00Z
-129:   39 707F        # [9]. thisUpdate=-28800
-132:   19 6270        # [10]. nextUpdate=25200
-135:   80             # [11]. extensions=array[0]
-136:   F6             # [12]. responderCerts=<null>
-137:   58 40          # [13]. signatureValue=byte[64]
-139:     F4EC279F7556C435355AE9F863496853B0EFEC702623A8E13BD29A6A1D
-168:     B56E58A16D62E929B6E5C1C7EE2F3D5F04A27CFAAAA63F447AD97DB7B9
-197:     A2B5C6348801
+ 66:   39 707F        # [9]. thisUpdate=-28800
+ 69:   19 6270        # [10]. nextUpdate=25200
+ 72:   80             # [11]. extensions=array[0]
+ 73:   F6             # [12]. responderCerts=<null>
+ 74:   58 40          # [13]. signatureValue=byte[64]
+ 76:     E3419955AEB3D74AD5BC7D32264E8976C3AB6F68643C6BF66CC2F9352F
+105:     F3E861A0BD1506C78B09D3FAE869D1FD3C87EF461CF6D2096EA0AC11FC
+134:     FF5EBC0FA70C
 ~~~~~
 
 
 ### Basic OCSP Response Example Without Responder's Certificate {#exam-basic-ocsp-resp}
 
 [comment]: <> (replace-percent:ocspresp/basic-ocspresp/ocspresp.hex % ocspresp/basic-ocspresp/x509ocspresp.pem)
-- size(C509) / size(X509): 44%
+- size(C509) / size(X509): 29%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) without responder's certificate
 - Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
@@ -2981,45 +2902,41 @@ PEM content (845 bytes):
 ~~~~~
 -----BEGIN OCSP RESPONSE-----
 MIIDSQoBAKCCA0IwggM+BgkrBgEFBQcwAQEEggMvMIIDKzCCAt2iFgQU6uWaiumq
-9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjI1MTAwNTUyWjCCAnwwgZEwaTANBglghkgB
+9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnwwgZEwaTANBglghkgB
 ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
 BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
-NIAAGA8yMDI2MDYyNTAyMDU1MlqgERgPMjAyNjA2MjUxNzA1NTJaMIGnMGkwDQYJ
+NIAAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaMIGnMGkwDQYJ
 YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
 Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
-VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjYwNjI1MDIwNTUyWqAR
-GA8yMDI2MDYyNTE3MDU1MlowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
+VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjUwMzAyMTYwMDAwWqAR
+GA8yMDI1MDMwMzA3MDAwMFowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
 Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
 fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
-MFqgAwoBBBgPMjAyNjA2MjUwMjA1NTJaoBEYDzIwMjYwNjI1MTcwNTUyWjCBkTBp
+MFqgAwoBBBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBkTBp
 MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
 MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
-MyIzIjMiMyIzggAYDzIwMjYwNjI1MDIwNTUyWqARGA8yMDI2MDYyNTE3MDU1Mlqh
+MyIzIjMiMyIzggAYDzIwMjUwMzAyMTYwMDAwWqARGA8yMDI1MDMwMzA3MDAwMFqh
 MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
-AgUAMAUGAytlcANBABU9FgxhX6hWtm2cuhNhI6wm7iiYGTHNLbG7p+bPlaXkW6Bo
-49xjhqOVhR4+o3wJ4n4YBoIz8/k8JThs9gtenA8=
+AgUAMAUGAytlcANBAHrbfHeKVrcvjeFMQT9cTvhYU81DmwQpZiyRtH+MhBfSjqsl
+riv95/TO4bhcpRnJl5T3D8ojWrMGiFJo1IB8gwc=
 -----END OCSP RESPONSE-----
 ~~~~~
 
 #### C509 OCSP Response
 
 [comment]: <> (replace-size:ocspresp/basic-ocspresp/ocspresp.hex)
-Plain Hex (375 bytes):
+Plain Hex (248 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp/ocspresp.hex)
 ~~~~~
-8A010C00501111111111111111111111111111111158200600867838E3311AA78B9E
-D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A3CFD8080865820A01C73A5
-F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C808F58201065
-2787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F0040039707F
-19627080582075D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D6E
-5C55F1650139707F196270805820D1AC135D7DA29BDCF4DCA0D5281A51605B678400
-C26408CADC3A32FC1B6AD5E3821A67C32F000439707F196270805820222222222222
-222222222222222222222222222222222222222222222222222280855820D3A0C1E3
-DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD0239707F1962
-7080F658407DCCDF8C1B164DD93D2210DE8F01780BE711E678F1964DDE7F7B1A571D
-0E3F16B1F1E7A180C5D967FB77B3127A7DD1279C24CAABC0732FEA39A850D21CAE94
-0A
+8A010C005011111111111111111111111111111111480600867838E3311A1A67C4F1
+00808648A01C73A5F3B06334808F5410652787FA0527BC2449A1BFC5AB31AA5A6F0D
+8D0039707F196270805475D8BC4FBAFC6694467641E748DFD53A8B9D176D0139707F
+1962708054D1AC135D7DA29BDCF4DCA0D5281A51605B678400821A67C32F00043970
+7F19627080482222222222222222808554D3A0C1E3DB92E8F6810537D45CFAECF6CE
+417E3B0239707F19627080F65840E4869C57A66BAB501ACAEB7E5024105253D72F45
+D349AE21FB941ABE4435F8A6C9D1CA5D2784AB30CF177FF075B5502AEAEE09C1146C
+F490663EAED9243A760D
 ~~~~~
 
 Textual Representation
@@ -3034,21 +2951,19 @@ C509BasicOCSPResponse
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
-      06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86:
-      b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:34:43:a3:b2
-    ProducedAt: 2026-06-25T10:05:52.354445Z
+      06:00:86:78:38:e3:31:1a
+    ProducedAt: 2025-03-03T00:00:00Z
     Extensions: <empty>
     Responses
       OcspPerIssuerResponse
         IssuerCertHash
-          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-          8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34
         Extensions: <empty>
         SingleResponses
           SingleCertResponse
             SerialNumberHash:
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-              5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+              5a:6f:0d:8d
             Cert Status: good
             This Update: -28800 seconds
             Next Update: 25200 seconds
@@ -3056,7 +2971,7 @@ C509BasicOCSPResponse
           SingleCertResponse
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
-              8b:9d:17:6d:fa:3d:05:b3:e9:8a:4d:6e:5c:55:f1:65
+              8b:9d:17:6d
             Cert Status: not-issued
             This Update: -28800 seconds
             Next Update: 25200 seconds
@@ -3064,7 +2979,7 @@ C509BasicOCSPResponse
           SingleCertResponse
             SerialNumberHash:
               d1:ac:13:5d:7d:a2:9b:dc:f4:dc:a0:d5:28:1a:51:60:
-              5b:67:84:00:c2:64:08:ca:dc:3a:32:fc:1b:6a:d5:e3
+              5b:67:84:00
             Cert Status: revoked (superseded)
               Revoked at 2025-03-01T16:00:00Z
             This Update: -28800 seconds
@@ -3072,24 +2987,23 @@ C509BasicOCSPResponse
             Extensions: <empty>
       OcspPerIssuerResponse
         IssuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
+          22:22:22:22:22:22:22:22
         Extensions: <empty>
         SingleResponses
           SingleCertResponse
             SerialNumberHash:
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
-              ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
+              ce:41:7e:3b
             Cert Status: unknown
             This Update: -28800 seconds
             Next Update: 25200 seconds
             Extensions: <empty>
     Responder Certs: null
   Signature Value
-    7d:cc:df:8c:1b:16:4d:d9:3d:22:10:de:8f:01:78:0b:
-    e7:11:e6:78:f1:96:4d:de:7f:7b:1a:57:1d:0e:3f:16:
-    b1:f1:e7:a1:80:c5:d9:67:fb:77:b3:12:7a:7d:d1:27:
-    9c:24:ca:ab:c0:73:2f:ea:39:a8:50:d2:1c:ae:94:0a
+    e4:86:9c:57:a6:6b:ab:50:1a:ca:eb:7e:50:24:10:52:
+    53:d7:2f:45:d3:49:ae:21:fb:94:1a:be:44:35:f8:a6:
+    c9:d1:ca:5d:27:84:ab:30:cf:17:7f:f0:75:b5:50:2a:
+    ea:ee:09:c1:14:6c:f4:90:66:3e:ae:d9:24:3a:76:0d
 ~~~~~
 
 Annotated hex
@@ -3103,71 +3017,64 @@ Annotated hex
   3:   00             # [2]. hashAlgorithm=SHA256 (0)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   58 20          # [4]. responderCertHash=byte[32]
- 23:     0600867838E3311AA78B9ED60C631C86B09A6DE7BC43E02A7AA7006A34
- 52:     43A3B2
- 55:   1A 6A3CFD80    # [5]. producedAt=1782381952:
-                      #      2026-06-25T10:05:52Z
- 60:   80             # [6]. extensions=array[0]
- 61:   86             # [7]. responses=array[6]
+ 21:   48             # [4]. responderCertHash=byte[8]
+ 22:     0600867838E3311A
+ 30:   1A 67C4F100    # [5]. producedAt=1740960000:
+                      #      2025-03-03T00:00:00Z
+ 35:   80             # [6]. extensions=array[0]
+ 36:   86             # [7]. responses=array[6]
                         #---PerIssuerResponses[0]---
- 62:     58 20          # [0]. issuerCertHash=byte[32]
- 64:       A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
- 92:       F9D7E43C
- 96:     80             # [1]. extensions=array[0]
- 97:     8F             # [2]. singleResponses=array[15]
+ 37:     48             # [0]. issuerCertHash=byte[8]
+ 38:       A01C73A5F3B06334
+ 46:     80             # [1]. extensions=array[0]
+ 47:     8F             # [2]. singleResponses=array[15]
                           #---SingleCertResponses[0]---
- 98:       58 20          # [0]. serialNumberHash=byte[32]
-100:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D9
-127:         0DCA47F004
-132:       00             # [1]. certStatus=good (0)
-133:       39 707F        # [2]. thisUpdate=-28800
-136:       19 6270        # [3]. nextUpdate=25200
-139:       80             # [4]. extensions=array[0]
+ 48:       54             # [0]. serialNumberHash=byte[20]
+ 49:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+ 69:       00             # [1]. certStatus=good (0)
+ 70:       39 707F        # [2]. thisUpdate=-28800
+ 73:       19 6270        # [3]. nextUpdate=25200
+ 76:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
-140:       58 20          # [5]. serialNumberHash=byte[32]
-142:         75D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D
-169:         6E5C55F165
-174:       01             # [6]. certStatus=not-issued (1)
-175:       39 707F        # [7]. thisUpdate=-28800
-178:       19 6270        # [8]. nextUpdate=25200
-181:       80             # [9]. extensions=array[0]
+ 77:       54             # [5]. serialNumberHash=byte[20]
+ 78:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
+ 98:       01             # [6]. certStatus=not-issued (1)
+ 99:       39 707F        # [7]. thisUpdate=-28800
+102:       19 6270        # [8]. nextUpdate=25200
+105:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
-182:       58 20          # [10]. serialNumberHash=byte[32]
-184:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CADC3A32
-211:         FC1B6AD5E3
-216:       82             # [11]. certStatus=array[2]
-217:         1A 67C32F00    # [0]. revocationTime=1740844800:
+106:       54             # [10]. serialNumberHash=byte[20]
+107:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400
+127:       82             # [11]. certStatus=array[2]
+128:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
-222:         04             # [1]. revocationReason=superseded (4)
-223:       39 707F        # [12]. thisUpdate=-28800
-226:       19 6270        # [13]. nextUpdate=25200
-229:       80             # [14]. extensions=array[0]
+133:         04             # [1]. revocationReason=superseded (4)
+134:       39 707F        # [12]. thisUpdate=-28800
+137:       19 6270        # [13]. nextUpdate=25200
+140:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
-230:     58 20          # [3]. issuerCertHash=byte[32]
-232:       22222222222222222222222222222222222222222222222222222222
-260:       22222222
-264:     80             # [4]. extensions=array[0]
-265:     85             # [5]. singleResponses=array[5]
+141:     48             # [3]. issuerCertHash=byte[8]
+142:       2222222222222222
+150:     80             # [4]. extensions=array[0]
+151:     85             # [5]. singleResponses=array[5]
                           #---SingleCertResponses[0]---
-266:       58 20          # [0]. serialNumberHash=byte[32]
-268:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD
-295:         853401C5DD
-300:       02             # [1]. certStatus=unknown (2)
-301:       39 707F        # [2]. thisUpdate=-28800
-304:       19 6270        # [3]. nextUpdate=25200
-307:       80             # [4]. extensions=array[0]
-308:   F6             # [8]. responderCerts=<null>
-309:   58 40          # [9]. signature value=byte[64]
-311:     7DCCDF8C1B164DD93D2210DE8F01780BE711E678F1964DDE7F7B1A571D
-340:     0E3F16B1F1E7A180C5D967FB77B3127A7DD1279C24CAABC0732FEA39A8
-369:     50D21CAE940A
+152:       54             # [0]. serialNumberHash=byte[20]
+153:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
+173:       02             # [1]. certStatus=unknown (2)
+174:       39 707F        # [2]. thisUpdate=-28800
+177:       19 6270        # [3]. nextUpdate=25200
+180:       80             # [4]. extensions=array[0]
+181:   F6             # [8]. responderCerts=<null>
+182:   58 40          # [9]. signature value=byte[64]
+184:     E4869C57A66BAB501ACAEB7E5024105253D72F45D349AE21FB941ABE44
+213:     35F8A6C9D1CA5D2784AB30CF177FF075B5502AEAEE09C1146CF490663E
+242:     AED9243A760D
 ~~~~~
 
 ### Basic OCSP Response Example With Responder's Certificate {#exam-basic-ocsp-resp-withcert}
 
 [comment]: <> (replace-percent:ocspresp/basic-ocspresp-with-cert/ocspresp.hex % ocspresp/basic-ocspresp-with-cert/x509ocspresp.pem)
-- size(C509) / size(X509): 48%
+- size(C509) / size(X509): 37%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) with embedded responder's certificate
 - Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
@@ -3181,23 +3088,23 @@ PEM content (1189 bytes):
 ~~~~~
 -----BEGIN OCSP RESPONSE-----
 MIIEoQoBAKCCBJowggSWBgkrBgEFBQcwAQEEggSHMIIEgzCCAt2iFgQU6uWaiumq
-9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjI1MTAwNTUyWjCCAnwwgZEwaTANBglghkgB
+9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnwwgZEwaTANBglghkgB
 ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
 BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
-NIAAGA8yMDI2MDYyNTAyMDU1MlqgERgPMjAyNjA2MjUxNzA1NTJaMIGnMGkwDQYJ
+NIAAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaMIGnMGkwDQYJ
 YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
 Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
-VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjYwNjI1MDIwNTUyWqAR
-GA8yMDI2MDYyNTE3MDU1MlowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
+VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjUwMzAyMTYwMDAwWqAR
+GA8yMDI1MDMwMzA3MDAwMFowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
 Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
 fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
-MFqgAwoBBBgPMjAyNjA2MjUwMjA1NTJaoBEYDzIwMjYwNjI1MTcwNTUyWjCBkTBp
+MFqgAwoBBBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBkTBp
 MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
 MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
-MyIzIjMiMyIzggAYDzIwMjYwNjI1MDIwNTUyWqARGA8yMDI2MDYyNTE3MDU1Mlqh
+MyIzIjMiMyIzggAYDzIwMjUwMzAyMTYwMDAwWqARGA8yMDI1MDMwMzA3MDAwMFqh
 MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
-AgUAMAUGAytlcANBABU9FgxhX6hWtm2cuhNhI6wm7iiYGTHNLbG7p+bPlaXkW6Bo
-49xjhqOVhR4+o3wJ4n4YBoIz8/k8JThs9gtenA+gggFUMIIBUDCCAUwwgf+gAwIB
+AgUAMAUGAytlcANBAHrbfHeKVrcvjeFMQT9cTvhYU81DmwQpZiyRtH+MhBfSjqsl
+riv95/TO4bhcpRnJl5T3D8ojWrMGiFJo1IB8gwegggFUMIIBUDCCAUwwgf+gAwIB
 AgICEjUwBQYDK2VwMBoxGDAWBgNVBAMMD3Rlc3QgY3Jsb2NzcC1jYTAeFw0yNTAx
 MDIwMDAwMDBaFw0yNjAxMDIwMDAwMDBaMBkxFzAVBgNVBAMMDm9jc3AtcmVzcG9u
 ZGVyMCowBQYDK2VwAyEAgZR7vCSKrHlzghGo11v5LLd32ZQHPfI64GOA7yxXOXaj
@@ -3211,27 +3118,24 @@ qSPXK/f3h5+FSrkt0RCxXzct4Flmgi+HToCGEf1F3T0sXCiHCA==
 #### C509 OCSP Response
 
 [comment]: <> (replace-size:ocspresp/basic-ocspresp-with-cert/ocspresp.hex)
-Plain Hex (573 bytes):
+Plain Hex (446 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp-with-cert/ocspresp.hex)
 ~~~~~
-8A010C00501111111111111111111111111111111158200600867838E3311AA78B9E
-D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A3CFD8080865820A01C73A5
-F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C808F58201065
-2787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F0040039707F
-19627080582075D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D6E
-5C55F1650139707F196270805820D1AC135D7DA29BDCF4DCA0D5281A51605B678400
-C26408CADC3A32FC1B6AD5E3821A67C32F000439707F196270805820222222222222
-222222222222222222222222222222222222222222222222222280855820D3A0C1E3
-DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD0239707F1962
-708058C58B024212350C6F746573742063726C6F6373702D63611A6775D7001A6957
-0A806E6F6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D75B
-F92CB777D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629DB
-579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C39005D492450E1056270958
-40A01B0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D88
-597F37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A58404C
-5AC21521FA673F72B36D570C33715213EE5294F465C2A3E6EC1563B4E5922BB882F9
-DFFD5975627631E331202E2B56DDED2386D3E72DCE667FF64080E74B03
+8A010C005011111111111111111111111111111111480600867838E3311A1A67C4F1
+00808648A01C73A5F3B06334808F5410652787FA0527BC2449A1BFC5AB31AA5A6F0D
+8D0039707F196270805475D8BC4FBAFC6694467641E748DFD53A8B9D176D0139707F
+1962708054D1AC135D7DA29BDCF4DCA0D5281A51605B678400821A67C32F00043970
+7F19627080482222222222222222808554D3A0C1E3DB92E8F6810537D45CFAECF6CE
+417E3B0239707F1962708058C58B024212350C6F746573742063726C6F6373702D63
+611A6775D7001A69570A806E6F6373702D726573706F6E6465720C582081947BBC24
+8AAC79738211A8D75BF92CB777D994073DF23AE06380EF2C573976880154B5B4CAF3
+5401D06151DF9629DB579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C39005
+D492450E105627095840A01B0CBF3E34A4762D05404FD08A7AEC103035358314686D
+72B6159078C76E1D88597F37531886A3F52F256FD722192B289D6844014467F1F17F
+05ACBB7B660A58400085EA27969E5A162EA31D371522F62F0DF278272225DEAD6F17
+3C42D5482142A3F032872850A4E2C2D9A759A0F460E1250B6FDEBB6636B3672CA02E
+FB880A04
 ~~~~~
 
 Textual Representation
@@ -3246,21 +3150,19 @@ C509BasicOCSPResponse
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
-      06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86:
-      b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:34:43:a3:b2
-    ProducedAt: 2026-06-25T10:05:52.359535Z
+      06:00:86:78:38:e3:31:1a
+    ProducedAt: 2025-03-03T00:00:00Z
     Extensions: <empty>
     Responses
       OcspPerIssuerResponse
         IssuerCertHash
-          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-          8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34
         Extensions: <empty>
         SingleResponses
           SingleCertResponse
             SerialNumberHash:
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-              5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+              5a:6f:0d:8d
             Cert Status: good
             This Update: -28800 seconds
             Next Update: 25200 seconds
@@ -3268,7 +3170,7 @@ C509BasicOCSPResponse
           SingleCertResponse
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
-              8b:9d:17:6d:fa:3d:05:b3:e9:8a:4d:6e:5c:55:f1:65
+              8b:9d:17:6d
             Cert Status: not-issued
             This Update: -28800 seconds
             Next Update: 25200 seconds
@@ -3276,7 +3178,7 @@ C509BasicOCSPResponse
           SingleCertResponse
             SerialNumberHash:
               d1:ac:13:5d:7d:a2:9b:dc:f4:dc:a0:d5:28:1a:51:60:
-              5b:67:84:00:c2:64:08:ca:dc:3a:32:fc:1b:6a:d5:e3
+              5b:67:84:00
             Cert Status: revoked (superseded)
               Revoked at 2025-03-01T16:00:00Z
             This Update: -28800 seconds
@@ -3284,14 +3186,13 @@ C509BasicOCSPResponse
             Extensions: <empty>
       OcspPerIssuerResponse
         IssuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
+          22:22:22:22:22:22:22:22
         Extensions: <empty>
         SingleResponses
           SingleCertResponse
             SerialNumberHash:
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
-              ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
+              ce:41:7e:3b
             Cert Status: unknown
             This Update: -28800 seconds
             Next Update: 25200 seconds
@@ -3312,10 +3213,10 @@ C509BasicOCSPResponse
         6f:d7:22:19:2b:28:9d:68:44:01:44:67:f1:f1:7f:05:
         ac:bb:7b:66:0a
   Signature Value
-    4c:5a:c2:15:21:fa:67:3f:72:b3:6d:57:0c:33:71:52:
-    13:ee:52:94:f4:65:c2:a3:e6:ec:15:63:b4:e5:92:2b:
-    b8:82:f9:df:fd:59:75:62:76:31:e3:31:20:2e:2b:56:
-    dd:ed:23:86:d3:e7:2d:ce:66:7f:f6:40:80:e7:4b:03
+    00:85:ea:27:96:9e:5a:16:2e:a3:1d:37:15:22:f6:2f:
+    0d:f2:78:27:22:25:de:ad:6f:17:3c:42:d5:48:21:42:
+    a3:f0:32:87:28:50:a4:e2:c2:d9:a7:59:a0:f4:60:e1:
+    25:0b:6f:de:bb:66:36:b3:67:2c:a0:2e:fb:88:0a:04
 ~~~~~
 
 Annotated hex
@@ -3329,78 +3230,71 @@ Annotated hex
   3:   00             # [2]. hashAlgorithm=SHA256 (0)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   58 20          # [4]. responderCertHash=byte[32]
- 23:     0600867838E3311AA78B9ED60C631C86B09A6DE7BC43E02A7AA7006A34
- 52:     43A3B2
- 55:   1A 6A3CFD80    # [5]. producedAt=1782381952:
-                      #      2026-06-25T10:05:52Z
- 60:   80             # [6]. extensions=array[0]
- 61:   86             # [7]. responses=array[6]
+ 21:   48             # [4]. responderCertHash=byte[8]
+ 22:     0600867838E3311A
+ 30:   1A 67C4F100    # [5]. producedAt=1740960000:
+                      #      2025-03-03T00:00:00Z
+ 35:   80             # [6]. extensions=array[0]
+ 36:   86             # [7]. responses=array[6]
                         #---PerIssuerResponses[0]---
- 62:     58 20          # [0]. issuerCertHash=byte[32]
- 64:       A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
- 92:       F9D7E43C
- 96:     80             # [1]. extensions=array[0]
- 97:     8F             # [2]. singleResponses=array[15]
+ 37:     48             # [0]. issuerCertHash=byte[8]
+ 38:       A01C73A5F3B06334
+ 46:     80             # [1]. extensions=array[0]
+ 47:     8F             # [2]. singleResponses=array[15]
                           #---SingleCertResponses[0]---
- 98:       58 20          # [0]. serialNumberHash=byte[32]
-100:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D9
-127:         0DCA47F004
-132:       00             # [1]. certStatus=good (0)
-133:       39 707F        # [2]. thisUpdate=-28800
-136:       19 6270        # [3]. nextUpdate=25200
-139:       80             # [4]. extensions=array[0]
+ 48:       54             # [0]. serialNumberHash=byte[20]
+ 49:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+ 69:       00             # [1]. certStatus=good (0)
+ 70:       39 707F        # [2]. thisUpdate=-28800
+ 73:       19 6270        # [3]. nextUpdate=25200
+ 76:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
-140:       58 20          # [5]. serialNumberHash=byte[32]
-142:         75D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D
-169:         6E5C55F165
-174:       01             # [6]. certStatus=not-issued (1)
-175:       39 707F        # [7]. thisUpdate=-28800
-178:       19 6270        # [8]. nextUpdate=25200
-181:       80             # [9]. extensions=array[0]
+ 77:       54             # [5]. serialNumberHash=byte[20]
+ 78:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
+ 98:       01             # [6]. certStatus=not-issued (1)
+ 99:       39 707F        # [7]. thisUpdate=-28800
+102:       19 6270        # [8]. nextUpdate=25200
+105:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
-182:       58 20          # [10]. serialNumberHash=byte[32]
-184:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CADC3A32
-211:         FC1B6AD5E3
-216:       82             # [11]. certStatus=array[2]
-217:         1A 67C32F00    # [0]. revocationTime=1740844800:
+106:       54             # [10]. serialNumberHash=byte[20]
+107:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400
+127:       82             # [11]. certStatus=array[2]
+128:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
-222:         04             # [1]. revocationReason=superseded (4)
-223:       39 707F        # [12]. thisUpdate=-28800
-226:       19 6270        # [13]. nextUpdate=25200
-229:       80             # [14]. extensions=array[0]
+133:         04             # [1]. revocationReason=superseded (4)
+134:       39 707F        # [12]. thisUpdate=-28800
+137:       19 6270        # [13]. nextUpdate=25200
+140:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
-230:     58 20          # [3]. issuerCertHash=byte[32]
-232:       22222222222222222222222222222222222222222222222222222222
-260:       22222222
-264:     80             # [4]. extensions=array[0]
-265:     85             # [5]. singleResponses=array[5]
+141:     48             # [3]. issuerCertHash=byte[8]
+142:       2222222222222222
+150:     80             # [4]. extensions=array[0]
+151:     85             # [5]. singleResponses=array[5]
                           #---SingleCertResponses[0]---
-266:       58 20          # [0]. serialNumberHash=byte[32]
-268:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD
-295:         853401C5DD
-300:       02             # [1]. certStatus=unknown (2)
-301:       39 707F        # [2]. thisUpdate=-28800
-304:       19 6270        # [3]. nextUpdate=25200
-307:       80             # [4]. extensions=array[0]
-308:   58 C5          # [8]. responderCerts(COSE_C509)=byte[197]
-310:     8B024212350C6F746573742063726C6F6373702D63611A6775D7001A69
-339:     570A806E6F6373702D726573706F6E6465720C582081947BBC248AAC79
-368:     738211A8D75BF92CB777D994073DF23AE06380EF2C573976880154B5B4
-397:     CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E78D2CAEDF
-426:     368CDF53C39005D492450E105627095840A01B0CBF3E34A4762D05404F
-455:     D08A7AEC103035358314686D72B6159078C76E1D88597F37531886A3F5
-484:     2F256FD722192B289D6844014467F1F17F05ACBB7B660A
-507:   58 40          # [9]. signature value=byte[64]
-509:     4C5AC21521FA673F72B36D570C33715213EE5294F465C2A3E6EC1563B4
-538:     E5922BB882F9DFFD5975627631E331202E2B56DDED2386D3E72DCE667F
-567:     F64080E74B03
+152:       54             # [0]. serialNumberHash=byte[20]
+153:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
+173:       02             # [1]. certStatus=unknown (2)
+174:       39 707F        # [2]. thisUpdate=-28800
+177:       19 6270        # [3]. nextUpdate=25200
+180:       80             # [4]. extensions=array[0]
+181:   58 C5          # [8]. responderCerts(COSE_C509)=byte[197]
+183:     8B024212350C6F746573742063726C6F6373702D63611A6775D7001A69
+212:     570A806E6F6373702D726573706F6E6465720C582081947BBC248AAC79
+241:     738211A8D75BF92CB777D994073DF23AE06380EF2C573976880154B5B4
+270:     CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E78D2CAEDF
+299:     368CDF53C39005D492450E105627095840A01B0CBF3E34A4762D05404F
+328:     D08A7AEC103035358314686D72B6159078C76E1D88597F37531886A3F5
+357:     2F256FD722192B289D6844014467F1F17F05ACBB7B660A
+380:   58 40          # [9]. signature value=byte[64]
+382:     0085EA27969E5A162EA31D371522F62F0DF278272225DEAD6F173C42D5
+411:     482142A3F032872850A4E2C2D9A759A0F460E1250B6FDEBB6636B3672C
+440:     A02EFB880A04
 ~~~~~
 
 ### Basic OCSP Response Example With Responder's Certificate Chain {#exam-basic-ocsp-resp-withcertchain}
 
 [comment]: <> (replace-percent:ocspresp/basic-ocspresp-with-certchain/ocspresp.hex % ocspresp/basic-ocspresp-with-certchain/x509ocspresp.pem)
-- size(C509) / size(X509): 51%
+- size(C509) / size(X509): 42%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) with embedded responder's certificate chain (2 certificates)
 - Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
@@ -3414,23 +3308,23 @@ PEM content (1525 bytes):
 ~~~~~
 -----BEGIN OCSP RESPONSE-----
 MIIF8QoBAKCCBeowggXmBgkrBgEFBQcwAQEEggXXMIIF0zCCAt2iFgQU6uWaiumq
-9BBLFeUOjuAXFRd0GK8YDzIwMjYwNjI1MTAwNTUyWjCCAnwwgZEwaTANBglghkgB
+9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnwwgZEwaTANBglghkgB
 ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
 BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
-NIAAGA8yMDI2MDYyNTAyMDU1MlqgERgPMjAyNjA2MjUxNzA1NTJaMIGnMGkwDQYJ
+NIAAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaMIGnMGkwDQYJ
 YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
 Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
-VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjYwNjI1MDIwNTUyWqAR
-GA8yMDI2MDYyNTE3MDU1MlowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
+VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjUwMzAyMTYwMDAwWqAR
+GA8yMDI1MDMwMzA3MDAwMFowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
 Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
 fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
-MFqgAwoBBBgPMjAyNjA2MjUwMjA1NTJaoBEYDzIwMjYwNjI1MTcwNTUyWjCBkTBp
+MFqgAwoBBBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBkTBp
 MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
 MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
-MyIzIjMiMyIzggAYDzIwMjYwNjI1MDIwNTUyWqARGA8yMDI2MDYyNTE3MDU1Mlqh
+MyIzIjMiMyIzggAYDzIwMjUwMzAyMTYwMDAwWqARGA8yMDI1MDMwMzA3MDAwMFqh
 MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
-AgUAMAUGAytlcANBABU9FgxhX6hWtm2cuhNhI6wm7iiYGTHNLbG7p+bPlaXkW6Bo
-49xjhqOVhR4+o3wJ4n4YBoIz8/k8JThs9gtenA+gggKkMIICoDCCAUwwgf+gAwIB
+AgUAMAUGAytlcANBAHrbfHeKVrcvjeFMQT9cTvhYU81DmwQpZiyRtH+MhBfSjqsl
+riv95/TO4bhcpRnJl5T3D8ojWrMGiFJo1IB8gwegggKkMIICoDCCAUwwgf+gAwIB
 AgICEjUwBQYDK2VwMBoxGDAWBgNVBAMMD3Rlc3QgY3Jsb2NzcC1jYTAeFw0yNTAx
 MDIwMDAwMDBaFw0yNjAxMDIwMDAwMDBaMBkxFzAVBgNVBAMMDm9jc3AtcmVzcG9u
 ZGVyMCowBQYDK2VwAyEAgZR7vCSKrHlzghGo11v5LLd32ZQHPfI64GOA7yxXOXaj
@@ -3451,33 +3345,30 @@ gWDMZGdAEE2PORiX3asRmPPQWiYZIENipvg8M4ghGza8Vj1BAg==
 #### C509 OCSP Response
 
 [comment]: <> (replace-size:ocspresp/basic-ocspresp-with-certchain/ocspresp.hex)
-Plain Hex (778 bytes):
+Plain Hex (651 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp-with-certchain/ocspresp.hex)
 ~~~~~
-8A010C00501111111111111111111111111111111158200600867838E3311AA78B9E
-D60C631C86B09A6DE7BC43E02A7AA7006A3443A3B21A6A3CFD8080865820A01C73A5
-F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7F9D7E43C808F58201065
-2787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D90DCA47F0040039707F
-19627080582075D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D6E
-5C55F1650139707F196270805820D1AC135D7DA29BDCF4DCA0D5281A51605B678400
-C26408CADC3A32FC1B6AD5E3821A67C32F000439707F196270805820222222222222
-222222222222222222222222222222222222222222222222222280855820D3A0C1E3
-DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD853401C5DD0239707F1962
-70808258C58B024212350C6F746573742063726C6F6373702D63611A6775D7001A69
-570A806E6F6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D7
-5BF92CB777D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629
-DB579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C39005D492450E10562709
-5840A01B0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D
-88597F37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A58CA
-8B0241010C73746573742063726C6F6373702D726F6F7463611A677485801A6B36EC
-7F6F746573742063726C6F6373702D63610C58205EF8A355A001A7C50D2349470120
-8131A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF368CDF53C390
-05D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F
-5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F05D
-259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F5840
-9E49842B712E8DCBE276122B5B6BAE0ADC5B64582ED0D52D41FD424A678D3D8C81E8
-F173EBBAF83FC4EF1910E15105BE5751D0847F18D0814D99CD6BBC829F00
+8A010C005011111111111111111111111111111111480600867838E3311A1A67C4F1
+00808648A01C73A5F3B06334808F5410652787FA0527BC2449A1BFC5AB31AA5A6F0D
+8D0039707F196270805475D8BC4FBAFC6694467641E748DFD53A8B9D176D0139707F
+1962708054D1AC135D7DA29BDCF4DCA0D5281A51605B678400821A67C32F00043970
+7F19627080482222222222222222808554D3A0C1E3DB92E8F6810537D45CFAECF6CE
+417E3B0239707F196270808258C58B024212350C6F746573742063726C6F6373702D
+63611A6775D7001A69570A806E6F6373702D726573706F6E6465720C582081947BBC
+248AAC79738211A8D75BF92CB777D994073DF23AE06380EF2C573976880154B5B4CA
+F35401D06151DF9629DB579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C390
+05D492450E105627095840A01B0CBF3E34A4762D05404FD08A7AEC10303535831468
+6D72B6159078C76E1D88597F37531886A3F52F256FD722192B289D6844014467F1F1
+7F05ACBB7B660A58CA8B0241010C73746573742063726C6F6373702D726F6F746361
+1A677485801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8A355A0
+01A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D
+2CAEDF368CDF53C39005D492450E1056211860230107542DA3A403F7D2F4E0B3D803
+1A73BA8A839F557F0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9
+A3F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0
+A2D0E191310B0F5840B633C9598073E3920876FE12B86AD32422E7F2C2361177A6D5
+90F20BEBBAA1EFDF94A0A944AC8CA67679CA04CEAF327C12CB9F1C2DCACA9D2E949B
+FEA755C405
 ~~~~~
 
 Textual Representation
@@ -3492,21 +3383,19 @@ C509BasicOCSPResponse
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
-      06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86:
-      b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:34:43:a3:b2
-    ProducedAt: 2026-06-25T10:05:52.363071Z
+      06:00:86:78:38:e3:31:1a
+    ProducedAt: 2025-03-03T00:00:00Z
     Extensions: <empty>
     Responses
       OcspPerIssuerResponse
         IssuerCertHash
-          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed:
-          8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34
         Extensions: <empty>
         SingleResponses
           SingleCertResponse
             SerialNumberHash:
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
-              5a:6f:0d:8d:6b:99:8e:4f:ed:e7:d9:0d:ca:47:f0:04
+              5a:6f:0d:8d
             Cert Status: good
             This Update: -28800 seconds
             Next Update: 25200 seconds
@@ -3514,7 +3403,7 @@ C509BasicOCSPResponse
           SingleCertResponse
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
-              8b:9d:17:6d:fa:3d:05:b3:e9:8a:4d:6e:5c:55:f1:65
+              8b:9d:17:6d
             Cert Status: not-issued
             This Update: -28800 seconds
             Next Update: 25200 seconds
@@ -3522,7 +3411,7 @@ C509BasicOCSPResponse
           SingleCertResponse
             SerialNumberHash:
               d1:ac:13:5d:7d:a2:9b:dc:f4:dc:a0:d5:28:1a:51:60:
-              5b:67:84:00:c2:64:08:ca:dc:3a:32:fc:1b:6a:d5:e3
+              5b:67:84:00
             Cert Status: revoked (superseded)
               Revoked at 2025-03-01T16:00:00Z
             This Update: -28800 seconds
@@ -3530,14 +3419,13 @@ C509BasicOCSPResponse
             Extensions: <empty>
       OcspPerIssuerResponse
         IssuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
+          22:22:22:22:22:22:22:22
         Extensions: <empty>
         SingleResponses
           SingleCertResponse
             SerialNumberHash:
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
-              ce:41:7e:3b:26:4e:50:cb:4f:69:dd:85:34:01:c5:dd
+              ce:41:7e:3b
             Cert Status: unknown
             This Update: -28800 seconds
             Next Update: 25200 seconds
@@ -3572,10 +3460,10 @@ C509BasicOCSPResponse
         0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
         18:0a:a0:a2:d0:e1:91:31:0b:0f
   Signature Value
-    9e:49:84:2b:71:2e:8d:cb:e2:76:12:2b:5b:6b:ae:0a:
-    dc:5b:64:58:2e:d0:d5:2d:41:fd:42:4a:67:8d:3d:8c:
-    81:e8:f1:73:eb:ba:f8:3f:c4:ef:19:10:e1:51:05:be:
-    57:51:d0:84:7f:18:d0:81:4d:99:cd:6b:bc:82:9f:00
+    b6:33:c9:59:80:73:e3:92:08:76:fe:12:b8:6a:d3:24:
+    22:e7:f2:c2:36:11:77:a6:d5:90:f2:0b:eb:ba:a1:ef:
+    df:94:a0:a9:44:ac:8c:a6:76:79:ca:04:ce:af:32:7c:
+    12:cb:9f:1c:2d:ca:ca:9d:2e:94:9b:fe:a7:55:c4:05
 ~~~~~
 
 Annotated hex
@@ -3589,83 +3477,76 @@ Annotated hex
   3:   00             # [2]. hashAlgorithm=SHA256 (0)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   58 20          # [4]. responderCertHash=byte[32]
- 23:     0600867838E3311AA78B9ED60C631C86B09A6DE7BC43E02A7AA7006A34
- 52:     43A3B2
- 55:   1A 6A3CFD80    # [5]. producedAt=1782381952:
-                      #      2026-06-25T10:05:52Z
- 60:   80             # [6]. extensions=array[0]
- 61:   86             # [7]. responses=array[6]
+ 21:   48             # [4]. responderCertHash=byte[8]
+ 22:     0600867838E3311A
+ 30:   1A 67C4F100    # [5]. producedAt=1740960000:
+                      #      2025-03-03T00:00:00Z
+ 35:   80             # [6]. extensions=array[0]
+ 36:   86             # [7]. responses=array[6]
                         #---PerIssuerResponses[0]---
- 62:     58 20          # [0]. issuerCertHash=byte[32]
- 64:       A01C73A5F3B063344257D02693059DED8E22C4433B1A4D85EFAE22F7
- 92:       F9D7E43C
- 96:     80             # [1]. extensions=array[0]
- 97:     8F             # [2]. singleResponses=array[15]
+ 37:     48             # [0]. issuerCertHash=byte[8]
+ 38:       A01C73A5F3B06334
+ 46:     80             # [1]. extensions=array[0]
+ 47:     8F             # [2]. singleResponses=array[15]
                           #---SingleCertResponses[0]---
- 98:       58 20          # [0]. serialNumberHash=byte[32]
-100:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D6B998E4FEDE7D9
-127:         0DCA47F004
-132:       00             # [1]. certStatus=good (0)
-133:       39 707F        # [2]. thisUpdate=-28800
-136:       19 6270        # [3]. nextUpdate=25200
-139:       80             # [4]. extensions=array[0]
+ 48:       54             # [0]. serialNumberHash=byte[20]
+ 49:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
+ 69:       00             # [1]. certStatus=good (0)
+ 70:       39 707F        # [2]. thisUpdate=-28800
+ 73:       19 6270        # [3]. nextUpdate=25200
+ 76:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
-140:       58 20          # [5]. serialNumberHash=byte[32]
-142:         75D8BC4FBAFC6694467641E748DFD53A8B9D176DFA3D05B3E98A4D
-169:         6E5C55F165
-174:       01             # [6]. certStatus=not-issued (1)
-175:       39 707F        # [7]. thisUpdate=-28800
-178:       19 6270        # [8]. nextUpdate=25200
-181:       80             # [9]. extensions=array[0]
+ 77:       54             # [5]. serialNumberHash=byte[20]
+ 78:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
+ 98:       01             # [6]. certStatus=not-issued (1)
+ 99:       39 707F        # [7]. thisUpdate=-28800
+102:       19 6270        # [8]. nextUpdate=25200
+105:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
-182:       58 20          # [10]. serialNumberHash=byte[32]
-184:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400C26408CADC3A32
-211:         FC1B6AD5E3
-216:       82             # [11]. certStatus=array[2]
-217:         1A 67C32F00    # [0]. revocationTime=1740844800:
+106:       54             # [10]. serialNumberHash=byte[20]
+107:         D1AC135D7DA29BDCF4DCA0D5281A51605B678400
+127:       82             # [11]. certStatus=array[2]
+128:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
-222:         04             # [1]. revocationReason=superseded (4)
-223:       39 707F        # [12]. thisUpdate=-28800
-226:       19 6270        # [13]. nextUpdate=25200
-229:       80             # [14]. extensions=array[0]
+133:         04             # [1]. revocationReason=superseded (4)
+134:       39 707F        # [12]. thisUpdate=-28800
+137:       19 6270        # [13]. nextUpdate=25200
+140:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
-230:     58 20          # [3]. issuerCertHash=byte[32]
-232:       22222222222222222222222222222222222222222222222222222222
-260:       22222222
-264:     80             # [4]. extensions=array[0]
-265:     85             # [5]. singleResponses=array[5]
+141:     48             # [3]. issuerCertHash=byte[8]
+142:       2222222222222222
+150:     80             # [4]. extensions=array[0]
+151:     85             # [5]. singleResponses=array[5]
                           #---SingleCertResponses[0]---
-266:       58 20          # [0]. serialNumberHash=byte[32]
-268:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B264E50CB4F69DD
-295:         853401C5DD
-300:       02             # [1]. certStatus=unknown (2)
-301:       39 707F        # [2]. thisUpdate=-28800
-304:       19 6270        # [3]. nextUpdate=25200
-307:       80             # [4]. extensions=array[0]
-308:   82             # [8]. responderCerts(COSE_C509)=array[2]
-309:     58 C5          # [0]. C509CertData=byte[197]
-311:       8B024212350C6F746573742063726C6F6373702D63611A6775D7001A
-339:       69570A806E6F6373702D726573706F6E6465720C582081947BBC248A
-367:       AC79738211A8D75BF92CB777D994073DF23AE06380EF2C5739768801
-395:       54B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E7
-423:       8D2CAEDF368CDF53C39005D492450E105627095840A01B0CBF3E34A4
-451:       762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F
-479:       37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B66
-507:       0A
-508:     58 CA          # [1]. C509CertData=byte[202]
-510:       8B0241010C73746573742063726C6F6373702D726F6F7463611A6774
-538:       85801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8
-566:       A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF
-594:       74008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860
-622:       230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E504
-650:       65D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1
-678:       F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
-706:       D0E191310B0F
-712:   58 40          # [9]. signature value=byte[64]
-714:     9E49842B712E8DCBE276122B5B6BAE0ADC5B64582ED0D52D41FD424A67
-743:     8D3D8C81E8F173EBBAF83FC4EF1910E15105BE5751D0847F18D0814D99
-772:     CD6BBC829F00
+152:       54             # [0]. serialNumberHash=byte[20]
+153:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
+173:       02             # [1]. certStatus=unknown (2)
+174:       39 707F        # [2]. thisUpdate=-28800
+177:       19 6270        # [3]. nextUpdate=25200
+180:       80             # [4]. extensions=array[0]
+181:   82             # [8]. responderCerts(COSE_C509)=array[2]
+182:     58 C5          # [0]. C509CertData=byte[197]
+184:       8B024212350C6F746573742063726C6F6373702D63611A6775D7001A
+212:       69570A806E6F6373702D726573706F6E6465720C582081947BBC248A
+240:       AC79738211A8D75BF92CB777D994073DF23AE06380EF2C5739768801
+268:       54B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E7
+296:       8D2CAEDF368CDF53C39005D492450E105627095840A01B0CBF3E34A4
+324:       762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F
+352:       37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B66
+380:       0A
+381:     58 CA          # [1]. C509CertData=byte[202]
+383:       8B0241010C73746573742063726C6F6373702D726F6F7463611A6774
+411:       85801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8
+439:       A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28FF
+467:       74008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860
+495:       230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E504
+523:       65D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1
+551:       F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
+579:       D0E191310B0F
+585:   58 40          # [9]. signature value=byte[64]
+587:     B633C9598073E3920876FE12B86AD32422E7F2C2361177A6D590F20BEB
+616:     BAA1EFDF94A0A944AC8CA67679CA04CEAF327C12CB9F1C2DCACA9D2E94
+645:     9BFEA755C405
 ~~~~~
 
 # Acknowledgments # {#acknowledgments}
