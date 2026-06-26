@@ -899,7 +899,7 @@ Table of Contents
       certificate that (a) validates under the same issuer chain and (b)
       has a serial number whose hash truncation equals an existing
       certificate's HashId20.  Such a construction is practically
-      imfeasible.
+      infeasible.
 
 6.2.  C509 OCSP Request
 
