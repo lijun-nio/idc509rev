@@ -1651,7 +1651,7 @@ Table of Contents
 
 7.  C509 Hash Algorithms
 
-   This document defines the followng hash algorithms.
+   This document defines the following hash algorithms.
 
    +-------+----------------------------------------------------------+
    | Value | Hash Algorithm                                           |
