@@ -797,7 +797,7 @@ When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-
 
 # C509 Hash Algorithms {#hashalg}
 
-This document defines the followng hash algorithms.
+This document defines the following hash algorithms.
 
 ~~~~~~~~~~~
 +-------+----------------------------------------------------------+
