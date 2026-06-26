@@ -803,13 +803,6 @@ This document defines the followng hash algorithms.
 +-------+----------------------------------------------------------+
 | Value | Hash Algorithm                                           |
 +=======+==========================================================+
-|  -1   | Name:        SHA-1                                       |
-|       | Identifiers: id-sha1                                     |
-|       | OID:         1.3.14.3.2.26                               |
-|       | Parameters:  NULL                                        |
-|       | DER:         2B 0E 03 02 1A                              |
-|       | Comments:                                                |
-+-------+----------------------------------------------------------+
 |   0   | Name:        SHA-256                                     |
 |       | Identifiers: id-sha256                                   |
 |       | OID:         2.16.840.1.101.3.4.2.1                      |
