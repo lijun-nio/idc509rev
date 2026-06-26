@@ -938,7 +938,7 @@ Table of Contents
      hashAlgorithm      : IntAlgorithmIdentifier,
      nonce              : bytes / null,
      issuerCertHash     : HashId8,
-     serialNumberHash   : bytes,
+     serialNumberHash   : HashId20,
      extensions         : Extensions
    ]
 
@@ -953,7 +953,7 @@ Table of Contents
    SingleCertRequests  = [ + SingleCertRequest ]
 
    SingleCertRequest = (
-     serialNumberHash : bytes,
+     serialNumberHash : HashId20,
      extensions       : Extensions,
    )
 
@@ -1208,6 +1208,9 @@ Table of Contents
      revocationTime   : ~time,
      revocationReason : int,
    ]
+
+   HashId8   = bytes .size 8
+   HashId20  = bytes .size 20
 
                     Figure 3: CDDL for C509OCSPResponse
 

@@ -2320,7 +2320,7 @@ C509SimpleOCSPRequest = [
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   issuerCertHash     : HashId8,
-  serialNumberHash   : bytes,
+  serialNumberHash   : HashId20,
   extensions         : Extensions
 ]
 
@@ -2335,7 +2335,7 @@ PerIssuerOCSPRequest = (
 SingleCertRequests  = [ + SingleCertRequest ]
 
 SingleCertRequest = (
-  serialNumberHash : bytes,
+  serialNumberHash : HashId20,
   extensions       : Extensions,
 )
 
@@ -2608,6 +2608,9 @@ RevokedInfo = [
   revocationTime   : ~time,
   revocationReason : int,
 ]
+
+HashId8   = bytes .size 8
+HashId20  = bytes .size 20
 </pre>
 </div>
 <figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
