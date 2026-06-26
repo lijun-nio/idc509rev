@@ -114,6 +114,7 @@ Table of Contents
        5.3.13. signatureValue
    6.  C509 OCSP
      6.1.  Overview
+       6.1.1.  Identification of Certificates
      6.2.  C509 OCSP Request
        6.2.1.  CDDL
        6.2.2.  Field Encodings
@@ -569,7 +570,7 @@ Table of Contents
    revokedCerts exactly of the same size.  The flags field can
    additionally indicate that entries are sorted in ascending order by
    serial number, enabling binary search and reducing lookup time to
-   O(log n).  Using a compact byte-string concatenation rather than a
+   O(log(n)).  Using a compact byte-string concatenation rather than a
    CBOR array of structured items further reduces encoded size and
    accelerates parsing.  Furthermore, certificates removed from the CRL
    (delta CRL removeFromCRL entries in X.509) are kept in a dedicated
@@ -596,10 +597,11 @@ Table of Contents
       by this PerIssuerRevokedCerts entry.  When the issuer is a C509
       CA, it is encoded as a Name value identical to the issuer field of
       the covered C509 certificates.  When the issuer is an X.509 CA, it
-      is encoded as #6.121(bytes), where the byte string contains the
-      DER-encoded Name from the issuer field of the covered X.509
-      certificates ([X.690]).  If the issuer is identical to the CRL's
-      authoritySubject field, it MUST be encoded as CBOR null.
+      is encoded as #6.121(bytes) (tag 121 is alternative 0), where the
+      byte string contains the DER-encoded Name from the issuer field of
+      the covered X.509 certificates ([X.690]).  If the issuer is
+      identical to the CRL's authoritySubject field, it MUST be encoded
+      as CBOR null.
 
    *  The revokedCertsControl field defines the controls for
       interpreting removedFromCRLCerts and revokedCerts.  If either
@@ -873,6 +875,32 @@ Table of Contents
    values, enabling new request or response structures to be introduced
    without modifying the existing types.
 
+6.1.1.  Identification of Certificates
+
+   To reduce OCSP message size, this document defines two truncated-hash
+   identifier types used to refer to certificates compactly:
+
+   *  HashId8 — the leading 8 bytes of the hash value computed using the
+      enclosing hashAlgorithm.  HashId8 is used to identify issuer
+      certificates and the certificates of OCSP requestors and
+      responders in request and response structures where a short
+      identifier provides sufficient uniqueness in the deployment
+      context.
+
+   *  HashId20 — the leading 20 bytes of the hash value computed using
+      the enclosing hashAlgorithm.  HashId20 is intended for identifying
+      certificate serial numbers (the serialNumberHash field) when
+      higher uniqueness is required to minimize collision risk.  When
+      derived from a secure hash (e.g., SHA-256 or SHA-3-256) and
+      treated as a random output, it gives ~2^160 preimage work and
+      ~2^80 collision resistance (birthday bound) for the truncated
+      value.  Since the relying party verifies a certificate's signature
+      before querying OCSP, an adversay needs to construct a different
+      certificate that (a) validates under the same issuer chain and (b)
+      has a serial number whose hash truncation equals an existing
+      certificate's HashId20.  Such a construction is practically
+      imfeasible.
+
 6.2.  C509 OCSP Request
 
 6.2.1.  CDDL
@@ -1001,14 +1029,14 @@ Table of Contents
 
    Each SingleCertRequest contains:
 
-   *  The serialNumberHash field is the hash of the certificate serial
-      number of the target certificate, computed using the hashAlgorithm
-      of the enclosing request structure.  The serial number is encoded
-      in big-endian byte order without a leading zero byte (as in C509
-      certificates) before hashing.  Using a hash rather than the plain
-      serial number preserves the privacy of the requestor: an observer
-      cannot determine which certificate is being queried without
-      already knowing the serial number.
+   *  The serialNumberHash field is the truncated hash of the
+      certificate serial number of the target certificate, computed
+      using the hashAlgorithm of the enclosing request structure.  The
+      serial number is encoded in big-endian byte order without a
+      leading zero byte (as in C509 certificates) before hashing.  Using
+      a hash rather than the plain serial number preserves the privacy
+      of the requestor: an observer cannot determine which certificate
+      is being queried without already knowing the serial number.
 
    *  The extensions field contains extensions for the single request;
       see Section 6.3.2.13.
@@ -1303,13 +1331,13 @@ Table of Contents
 
 6.3.2.5.  responderCertHash
 
-   responderCertHash is a hash over the responder's certificate,
-   computed using the same hashAlgorithm as issuerCertHash.  In X.509
-   OCSP ([RFC6960]), the responder is identified by a ResponderID CHOICE
-   that carries either a distinguished name or a public-key hash.  C509
-   OCSP replaces this with a single hash over the entire responder
-   certificate, which is consistent with the issuerCertHash design for
-   issuer identification.
+   responderCertHash is a truncated hash over the responder's
+   certificate, computed using the same hashAlgorithm as issuerCertHash.
+   In X.509 OCSP ([RFC6960]), the responder is identified by a
+   ResponderID CHOICE that carries either a distinguished name or a
+   public-key hash.  C509 OCSP replaces this with a single hash over the
+   entire responder certificate, which is consistent with the
+   issuerCertHash design for issuer identification.
 
 6.3.2.6.  responderCerts
 
