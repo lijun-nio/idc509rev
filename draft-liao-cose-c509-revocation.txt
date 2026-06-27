@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                       NIO
 Intended status: Standards Track                               M. Tiloca
-Expires: 28 December 2026                                     J. Höglund
+Expires: 29 December 2026                                     J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                            26 June 2026
+                                                            27 June 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -70,7 +70,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 December 2026.
+   This Internet-Draft will expire on 29 December 2026.
 
 Copyright Notice
 
@@ -114,35 +114,35 @@ Table of Contents
        5.3.13. signatureValue
    6.  C509 OCSP
      6.1.  Overview
-       6.1.1.  Identification of Certificates
-     6.2.  C509 OCSP Request
-       6.2.1.  CDDL
-       6.2.2.  Field Encodings
-         6.2.2.1.  ocspRequestType
-         6.2.2.2.  issuerCertHash
-         6.2.2.3.  PerIssuerOCSPRequests, PerIssuerOCSPRequest,
-                 SingleCertRequests and SingleCertRequest
-         6.2.2.4.  C509UnsignedOCSPRequest
-         6.2.2.5.  C509SignedOCSPRequest
-         6.2.2.6.  C509SimpleOCSPRequest
-     6.3.  C509 OCSP Response
+     6.2.  Identification of Certificates
+     6.3.  C509 OCSP Request
        6.3.1.  CDDL
        6.3.2.  Field Encodings
-         6.3.2.1.  C509ErrorOCSPResponse
-         6.3.2.2.  C509BasicOCSPResponse
-         6.3.2.3.  C509SimpleOCSPResponse
-         6.3.2.4.  nonce
-         6.3.2.5.  responderCertHash
-         6.3.2.6.  responderCerts
-         6.3.2.7.  signatureAlgorithm and signatureValue
-         6.3.2.8.  producedAt, thisUpdate, nextUpdate
-         6.3.2.9.  responseExtensions
-         6.3.2.10. PerIssuerOCSPResponses and PerIssuerOCSPResponse
-         6.3.2.11. SingleCertResponse
-         6.3.2.12. Per-Issuer OCSP Extensions
-         6.3.2.13. OCSP Extensions
-     6.4.  Certificate Type Interoperability
-     6.5.  OCSP Stapling in TLS
+         6.3.2.1.  ocspRequestType
+         6.3.2.2.  issuerCertHash
+         6.3.2.3.  PerIssuerOCSPRequests, PerIssuerOCSPRequest,
+                 SingleCertRequests and SingleCertRequest
+         6.3.2.4.  C509UnsignedOCSPRequest
+         6.3.2.5.  C509SignedOCSPRequest
+         6.3.2.6.  C509SimpleOCSPRequest
+     6.4.  C509 OCSP Response
+       6.4.1.  CDDL
+       6.4.2.  Field Encodings
+         6.4.2.1.  C509ErrorOCSPResponse
+         6.4.2.2.  C509BasicOCSPResponse
+         6.4.2.3.  C509SimpleOCSPResponse
+         6.4.2.4.  nonce
+         6.4.2.5.  responderCertHash
+         6.4.2.6.  responderCerts
+         6.4.2.7.  signatureAlgorithm and signatureValue
+         6.4.2.8.  producedAt, thisUpdate, nextUpdate
+         6.4.2.9.  responseExtensions
+         6.4.2.10. PerIssuerOCSPResponses and PerIssuerOCSPResponse
+         6.4.2.11. SingleCertResponse
+         6.4.2.12. Per-Issuer OCSP Extensions
+         6.4.2.13. OCSP Extensions
+     6.5.  Certificate Type Interoperability
+     6.6.  OCSP Stapling in TLS
    7.  C509 Hash Algorithms
    8.  Security Considerations
    9.  IANA Considerations
@@ -252,7 +252,7 @@ Table of Contents
    Although names in this document include "C509", the encodings and
    protocols defined here are certificate-type agnostic and apply
    equally to X.509 certificates and other certificate types; see
-   Section 6.4.
+   Section 6.5.
 
    This document specifies:
 
@@ -296,7 +296,7 @@ Table of Contents
       The request and response structures defined in this document are
       certificate-type agnostic: they can be used with C509
       certificates, X.509 certificates, or any future certificate type
-      without modification; see Section 6.4.
+      without modification; see Section 6.5.
 
    C509 CRL and C509 OCSP apply the same compression techniques as C509
    certificates: static fields are elided, OIDs are replaced with short
@@ -875,7 +875,7 @@ Table of Contents
    values, enabling new request or response structures to be introduced
    without modifying the existing types.
 
-6.1.1.  Identification of Certificates
+6.2.  Identification of Certificates
 
    To reduce OCSP message size, this document defines two truncated-hash
    identifier types used to refer to certificates compactly:
@@ -895,15 +895,18 @@ Table of Contents
       treated as a random output, it gives ~2^160 preimage work and
       ~2^80 collision resistance (birthday bound) for the truncated
       value.  Since the relying party verifies a certificate's signature
-      before querying OCSP, an adversay needs to construct a different
+      before querying OCSP, an adversery needs to construct a different
       certificate that (a) validates under the same issuer chain and (b)
       has a serial number whose hash truncation equals an existing
       certificate's HashId20.  Such a construction is practically
       infeasible.
 
-6.2.  C509 OCSP Request
+   HashId8   = bytes .size 8
+   HashId20  = bytes .size 20
 
-6.2.1.  CDDL
+6.3.  C509 OCSP Request
+
+6.3.1.  CDDL
 
    C509OCSPRequest = C509UnsignedOCSPRequest /
                      C509SignedOCSPRequest /
@@ -957,14 +960,11 @@ Table of Contents
      extensions       : Extensions,
    )
 
-   HashId8   = bytes .size 8
-   HashId20  = bytes .size 20
-
                      Figure 2: CDDL for C509OCSPRequest
 
-6.2.2.  Field Encodings
+6.3.2.  Field Encodings
 
-6.2.2.1.  ocspRequestType
+6.3.2.1.  ocspRequestType
 
    The ocspRequestType field serves as the discriminator for
    C509OCSPRequest:
@@ -981,7 +981,7 @@ Table of Contents
 
                                   Table 5
 
-6.2.2.2.  issuerCertHash
+6.3.2.2.  issuerCertHash
 
    The issuerCertHash field appears in PerIssuerOCSPRequest,
    PerIssuerOCSPResponse, C509SimpleOCSPRequest, and
@@ -1004,7 +1004,7 @@ Table of Contents
    with an RFC 6960 DER-encoded CertID must recompute the respective
    hash inputs; the values are not directly comparable.
 
-6.2.2.3.  PerIssuerOCSPRequests, PerIssuerOCSPRequest,
+6.3.2.3.  PerIssuerOCSPRequests, PerIssuerOCSPRequest,
           SingleCertRequests and SingleCertRequest
 
    PerIssuerOCSPRequests is a list of PerIssuerOCSPRequest entries.  In
@@ -1021,7 +1021,7 @@ Table of Contents
 
    *  The extensions field contains per-issuer extensions that apply to
       all single-certificate requests in this PerIssuerOCSPRequest
-      entry; see Section 6.3.2.12.  If no per-issuer extensions are
+      entry; see Section 6.4.2.12.  If no per-issuer extensions are
       present, this field MUST be encoded as an empty CBOR array.
 
    *  The singleRequests field is a list of SingleCertRequest entries
@@ -1039,9 +1039,9 @@ Table of Contents
       is being queried without already knowing the serial number.
 
    *  The extensions field contains extensions for the single request;
-      see Section 6.3.2.13.
+      see Section 6.4.2.13.
 
-6.2.2.4.  C509UnsignedOCSPRequest
+6.3.2.4.  C509UnsignedOCSPRequest
 
    *  The ocspRequestType field MUST be 0, which discriminates
       C509UnsignedOCSPRequest from C509SignedOCSPRequest.
@@ -1055,12 +1055,12 @@ Table of Contents
       no nonce is present.
 
    *  The extensions field contains request-level extensions; see
-      Section 6.3.2.13.
+      Section 6.4.2.13.
 
    *  The requests field is a list of PerIssuerOCSPRequest entries, each
-      grouping target certificates by issuer; see Section 6.2.2.3.
+      grouping target certificates by issuer; see Section 6.3.2.3.
 
-6.2.2.5.  C509SignedOCSPRequest
+6.3.2.5.  C509SignedOCSPRequest
 
    *  The ocspRequestType field MUST be 1, which discriminates
       C509SignedOCSPRequest from C509UnsignedOCSPRequest.
@@ -1074,7 +1074,7 @@ Table of Contents
       Algorithms" registry defined in Section 7.
 
    *  The nonce field is as defined for C509UnsignedOCSPRequest
-      (Section 6.2.2.4).
+      (Section 6.3.2.4).
 
    *  The requestorCertHash field is a hash of the signer's certificate,
       computed using hashAlgorithm. requestorCerts MUST carry the
@@ -1082,10 +1082,10 @@ Table of Contents
       the identity of the requestor.
 
    *  The extensions field contains request-level extensions; see
-      Section 6.3.2.13.
+      Section 6.4.2.13.
 
    *  The requests field is as defined for C509UnsignedOCSPRequest
-      (Section 6.2.2.4).
+      (Section 6.3.2.4).
 
    *  The requestorCerts field contains a sorted certificate chain
       starting with the signer's certificate, or MUST be null if no
@@ -1097,7 +1097,7 @@ Table of Contents
    *  The signatureValue field is the signature computed over the CBOR
       Sequence of the TBSOCSPRequest group.
 
-6.2.2.6.  C509SimpleOCSPRequest
+6.3.2.6.  C509SimpleOCSPRequest
 
    C509SimpleOCSPRequest is a compact request format for querying the
    status of a single certificate.  Unlike C509UnsignedOCSPRequest,
@@ -1114,7 +1114,7 @@ Table of Contents
       no nonce is present.
 
    *  The issuerCertHash field identifies the issuer of the target
-      certificate; see Section 6.2.2.2.
+      certificate; see Section 6.3.2.2.
 
    *  The serialNumberHash field is the hash of the certificate serial
       number of the target certificate, computed using the hashAlgorithm
@@ -1126,12 +1126,12 @@ Table of Contents
       number.
 
    *  The extensions field contains request-level extensions; see
-      Section 6.3.2.13.  If no extensions are present, this field MUST
+      Section 6.4.2.13.  If no extensions are present, this field MUST
       be encoded as an empty CBOR array.
 
-6.3.  C509 OCSP Response
+6.4.  C509 OCSP Response
 
-6.3.1.  CDDL
+6.4.1.  CDDL
 
    C509OCSPResponse = C509ErrorOCSPResponse /
                       C509BasicOCSPResponse /
@@ -1209,14 +1209,11 @@ Table of Contents
      revocationReason : int,
    ]
 
-   HashId8   = bytes .size 8
-   HashId20  = bytes .size 20
-
                     Figure 3: CDDL for C509OCSPResponse
 
-6.3.2.  Field Encodings
+6.4.2.  Field Encodings
 
-6.3.2.1.  C509ErrorOCSPResponse
+6.4.2.1.  C509ErrorOCSPResponse
 
    If the OCSP server cannot process the OCSP query, it returns a
    C509ErrorOCSPResponse.  The ocspResponseType value MUST be 0, and
@@ -1241,7 +1238,7 @@ Table of Contents
                                  Table 6:
                           responseStatus values
 
-6.3.2.2.  C509BasicOCSPResponse
+6.4.2.2.  C509BasicOCSPResponse
 
    The ocspResponseType field of C509BasicOCSPResponse is 1,
    distinguishing it from C509ErrorOCSPResponse.  It corresponds to
@@ -1254,11 +1251,11 @@ Table of Contents
    attacks; this design goes beyond the protections offered by the DER-
    encoded BasicOCSPResponse defined in [RFC6960].
 
-6.3.2.3.  C509SimpleOCSPResponse
+6.4.2.3.  C509SimpleOCSPResponse
 
    C509SimpleOCSPResponse is a compact signed response for a single-
    certificate status query.  It is the response counterpart to
-   C509SimpleOCSPRequest (see Section 6.2.2.6).  Unlike
+   C509SimpleOCSPRequest (see Section 6.3.2.6).  Unlike
    C509BasicOCSPResponse, which uses a two-level PerIssuerOCSPResponses
    / SingleCertResponse grouping to carry status for multiple
    certificates across one or more issuers, C509SimpleOCSPResponse
@@ -1286,19 +1283,19 @@ Table of Contents
       Algorithms" registry defined in Section 7.
 
    *  The responderCertHash field identifies the OCSP responder; see
-      Section 6.3.2.5.
+      Section 6.4.2.5.
 
    *  The nonce field contains the request nonce, or MUST be null when
       no nonce is present.  If present, it MUST have the same value as
       the nonce in the corresponding C509SimpleOCSPRequest.
 
    *  The issuerCertHash field identifies the issuer of the queried
-      certificate; see Section 6.2.2.2.
+      certificate; see Section 6.3.2.2.
 
    *  The serialNumberHash field is the hash of the certificate serial
       number of the queried certificate, computed using hashAlgorithm.
       The serial number is encoded in big-endian byte order without a
-      leading zero byte before hashing; see Section 6.3.2.11.1.
+      leading zero byte before hashing; see Section 6.4.2.11.1.
 
    *  The producedAt field is the time at which this response was
       produced, encoded as described in Section 4.
@@ -1314,25 +1311,25 @@ Table of Contents
       expected, or null if the update time is unknown.
 
    *  The certStatus field encodes the revocation status; see
-      Section 6.3.2.11.
+      Section 6.4.2.11.
 
    *  The extensions field contains response-level extensions; see
-      Section 6.3.2.13.  If no extensions are present, this field MUST
+      Section 6.4.2.13.  If no extensions are present, this field MUST
       be encoded as an empty CBOR array.
 
    *  The responderCerts field carries the certificate chain starting
       with the responder certificate identified by responderCertHash;
-      see Section 6.3.2.6.
+      see Section 6.4.2.6.
 
    *  The signatureValue field is the signature computed over the CBOR
       Sequence of the TBSSimpleOCSPResponse group.
 
-6.3.2.4.  nonce
+6.4.2.4.  nonce
 
    If present, this field MUST have the same value as the nonce in the
    corresponding request.
 
-6.3.2.5.  responderCertHash
+6.4.2.5.  responderCertHash
 
    responderCertHash is a truncated hash over the responder's
    certificate, computed using the same hashAlgorithm as issuerCertHash.
@@ -1342,7 +1339,7 @@ Table of Contents
    entire responder certificate, which is consistent with the
    issuerCertHash design for issuer identification.
 
-6.3.2.6.  responderCerts
+6.4.2.6.  responderCerts
 
    When present, the responderCerts field carries the certificate chain
    starting with the responder certificate identified by
@@ -1353,7 +1350,7 @@ Table of Contents
    of TBSBasicOCSPResponse and is therefore covered by the signature,
    which prevents certificate-chain substitution attacks.
 
-6.3.2.7.  signatureAlgorithm and signatureValue
+6.4.2.7.  signatureAlgorithm and signatureValue
 
    *  signatureAlgorithm: the signature algorithm used to compute
       signatureValue, as defined in [I-D.ietf-cose-cbor-encoded-cert],
@@ -1363,7 +1360,7 @@ Table of Contents
    *  signatureValue: the signature computed over the CBOR Sequence of
       the TBSBasicOCSPResponse group.
 
-6.3.2.8.  producedAt, thisUpdate, nextUpdate
+6.4.2.8.  producedAt, thisUpdate, nextUpdate
 
    The producedAt field is encoded as described in Section 4.  The
    thisUpdate field is encoded as a non-positive integer (nint / 0)
@@ -1375,32 +1372,32 @@ Table of Contents
    next update is expected to be available.  nextUpdate may be null,
    which indicates an unknown update time.
 
-6.3.2.9.  responseExtensions
+6.4.2.9.  responseExtensions
 
-   See Section 6.3.2.13.
+   See Section 6.4.2.13.
 
-6.3.2.10.  PerIssuerOCSPResponses and PerIssuerOCSPResponse
+6.4.2.10.  PerIssuerOCSPResponses and PerIssuerOCSPResponse
 
    PerIssuerOCSPResponses is a list of PerIssuerOCSPResponse entries.
-   For the same reason as on the request side (see Section 6.2.2.3), the
+   For the same reason as on the request side (see Section 6.3.2.3), the
    issuerCertHash field is encoded once per issuer and shared across all
    SingleCertResponse entries in the singleResponses list, avoiding the
    per-entry repetition that would occur if the issuer identity were
    embedded in every individual response entry.  PerIssuerOCSPResponse
    groups single responses for certificates issued by the same issuer;
-   the issuer is identified by issuerCertHash (see Section 6.2.2.2).
+   the issuer is identified by issuerCertHash (see Section 6.3.2.2).
 
    *  The extensions field contains per-issuer extensions that apply to
       all single-certificate responses in this PerIssuerOCSPResponse
-      entry; see Section 6.3.2.12.  If no per-issuer extensions are
+      entry; see Section 6.4.2.12.  If no per-issuer extensions are
       present, this field MUST be encoded as an empty CBOR array.
 
    *  The singleResponses field contains one SingleCertResponse for each
       queried certificate issued by that issuer.
 
-6.3.2.11.  SingleCertResponse
+6.4.2.11.  SingleCertResponse
 
-6.3.2.11.1.  serialNumberHash
+6.4.2.11.1.  serialNumberHash
 
    This field contains the truncated hash of the serial number of the
    certificate being queried.  It is computed using the hashAlgorithm
@@ -1415,11 +1412,11 @@ Table of Contents
    an observer cannot determine which certificate was queried without
    already knowing the serial number.
 
-6.3.2.11.2.  singleExtensions
+6.4.2.11.2.  singleExtensions
 
-   See Section 6.3.2.13.
+   See Section 6.4.2.13.
 
-6.3.2.11.3.  certStatus
+6.4.2.11.3.  certStatus
 
    CertStatus is encoded either as an integer (for good, not-issued, and
    unknown) or as a RevokedInfo array:
@@ -1448,7 +1445,7 @@ Table of Contents
    thereby maintaining a contiguous integer range for the non-revoked
    statuses.
 
-6.3.2.12.  Per-Issuer OCSP Extensions
+6.4.2.12.  Per-Issuer OCSP Extensions
 
    PerIssuerOCSPRequest.extensions and PerIssuerOCSPResponse.extensions
    carry per-issuer extensions.  Only the (extensionID: int,
@@ -1466,7 +1463,7 @@ Table of Contents
 
                    Table 7: Per-issuer OCSP extensions
 
-6.3.2.13.  OCSP Extensions
+6.4.2.13.  OCSP Extensions
 
    Table 8 describes the OCSP extensions defined in [RFC6960] and their
    mapping in this document.
@@ -1589,7 +1586,7 @@ Table of Contents
    Clients MUST include this extension in the single-request extensions
    per [I-D.ietf-stir-certificates-ocsp].
 
-6.4.  Certificate Type Interoperability
+6.5.  Certificate Type Interoperability
 
    C509 OCSP uses a single set of request and response structures that
    handles both C509 and X.509 certificates without modification.  All
@@ -1631,7 +1628,7 @@ Table of Contents
    at the top level of each request or response structure governs all
    hashes within that structure.
 
-6.5.  OCSP Stapling in TLS
+6.6.  OCSP Stapling in TLS
 
    In standard TLS certificate status stapling (see the status_request
    extension, [RFC8446], Section 4.4.2.1), the stapled OCSP response is
@@ -1722,7 +1719,7 @@ Table of Contents
    |       | DER:         60 86 48 01 65 03 04 02 07                  |
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
-   |   0  | Name:        SHAKE128                                    |
+   |   9   | Name:        SHAKE128                                    |
    |       | Identifiers: id-shake128                                 |
    |       | OID:         2.16.840.1.101.3.4.2.11                     |
    |       | Parameters:  absent                                      |
