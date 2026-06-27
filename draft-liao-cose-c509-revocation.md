@@ -382,13 +382,19 @@ C509 OCSP requests and responses are not wire-format-compatible with DER-encoded
 
 `C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an unsigned integer that identifies the structure type.  This document defines types 0, 1, and 2.  Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
 
-### Identification of Certificates {#cert-identification}
+## Identification of Certificates {#cert-identification}
 
 To reduce OCSP message size, this document defines two truncated-hash identifier types used to refer to certificates compactly:
 
 - `HashId8` — the leading 8 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId8` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures where a short identifier provides sufficient uniqueness in the deployment context.
 
-- `HashId20` — the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA‑256 or SHA‑3‑256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversay needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
+- `HashId20` — the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA‑256 or SHA‑3‑256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversery needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
+
+~~~~~~~~~~~ cddl
+HashId8   = bytes .size 8
+HashId20  = bytes .size 20
+~~~~~~~~~~~
+{: sourcecode-name="c509ocsp.cddl"}
 
 ## C509 OCSP Request {#ocsp-request}
 
@@ -446,9 +452,6 @@ SingleCertRequest = (
   serialNumberHash : HashId20,
   extensions       : Extensions,
 )
-
-HashId8   = bytes .size 8
-HashId20  = bytes .size 20
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 {: #fig-OCSPReqCDDL title="CDDL for C509OCSPRequest"}
@@ -595,9 +598,6 @@ RevokedInfo = [
   revocationTime   : ~time,
   revocationReason : int,
 ]
-
-HashId8   = bytes .size 8
-HashId20  = bytes .size 20
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 {: #fig-OCSPRespCDDL title="CDDL for C509OCSPResponse"}
@@ -869,7 +869,7 @@ This document defines the following hash algorithms.
 |       | DER:         60 86 48 01 65 03 04 02 07                  |
 |       | Comments:                                                |
 +-------+----------------------------------------------------------+
-|   0  | Name:        SHAKE128                                    |
+|   9   | Name:        SHAKE128                                    |
 |       | Identifiers: id-shake128                                 |
 |       | OID:         2.16.840.1.101.3.4.2.11                     |
 |       | Parameters:  absent                                      |
