@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-06-25T10:29:40.724547+00:00",
+  "timestamp": "2026-06-28T10:13:03.186684+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -86,7 +86,7 @@
       "labels": [],
       "body": "From the meeting: we don't want to spend 32 byte on serialNumberHash/CertHash, but rather use truncated versions.\n\n[What format/standard should we refer to? Something similar to kid = first 8 bytes of SHA-256(pubkey)?]",
       "createdAt": "2026-06-24T16:20:03Z",
-      "updatedAt": "2026-06-25T10:26:11Z",
+      "updatedAt": "2026-06-26T14:25:15Z",
       "closedAt": null,
       "comments": [
         {
@@ -109,6 +109,27 @@
           "body": "I registered now two truncated hash algorithms, SHA256/160 and SM3/160 which take the first 20 bytes of the original output. Using shorter (e.g. 8 bytes) may have security problem (I am not sure). Since the collision rate to have two serial numbers (1-20 bytes) is too high (e.g. 2^-32 for 8 bytes hash value).",
           "createdAt": "2026-06-25T10:20:06Z",
           "updatedAt": "2026-06-25T10:20:06Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "> Related question: In my quick experiments, I have trouble reproducing the OCSP example identity SHA-256 hashes. Can you share the exact bytes for which the hashes are produced?\n\nThe original serial numbers can be extracted from the X.509 OCSP Requests and Responses. E.g. for the examples in section `Simple OCSP Request Example`. The serial number can be extracted via the command `openssl asn1parse -i -in file.pem` with output\n```\n~% openssl asn1parse -i -in x509ocspreq.pem \n    0:d=0  hl=3 l= 149 cons: SEQUENCE          \n    3:d=1  hl=3 l= 146 cons:  SEQUENCE          \n    6:d=2  hl=2 l= 109 cons:   SEQUENCE          \n    8:d=3  hl=2 l= 107 cons:    SEQUENCE          \n   10:d=4  hl=2 l= 105 cons:     SEQUENCE          \n   12:d=5  hl=2 l=  13 cons:      SEQUENCE          \n   14:d=6  hl=2 l=   9 prim:       OBJECT            :sha256\n   25:d=6  hl=2 l=   0 prim:       NULL              \n   27:d=5  hl=2 l=  32 prim:      OCTET STRING      [HEX DUMP]:32538E7485BD37AE454F1F0D2B9755D758B91F6E8E3A7AF397A0F400605C6FF8\n   61:d=5  hl=2 l=  32 prim:      OCTET STRING      [HEX DUMP]:CC11C8740A0509EC4DA14CE5886E72364C0F63B60ED6347F13C16EE725B766A2\n   95:d=5  hl=2 l=  20 prim:      INTEGER           :1234123412341234123412341234123412341234\n  117:d=2  hl=2 l=  33 cons:   cont [ 2 ]        \n  119:d=3  hl=2 l=  31 cons:    SEQUENCE          \n  121:d=4  hl=2 l=  29 cons:     SEQUENCE          \n  123:d=5  hl=2 l=   9 prim:      OBJECT            :OCSP Nonce\n  134:d=5  hl=2 l=  16 prim:      OCTET STRING      [HEX DUMP]:11111111111111111111111111111111\n```\n\n And then you may verify the SHA-256 hash value via `echo -n \"1234123412341234123412341234123412341234\" | xxd -r -p | sha256sum`.",
+          "createdAt": "2026-06-25T10:39:51Z",
+          "updatedAt": "2026-06-25T10:40:14Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "For a simple (usually unsigned) OCSP request : we have 2 hash values (issuerCertHash, serialNumberHash), and\nfor a simple (always signed) OCSP response: we have 3 hash values (issuerCertHash, serialNumberHash, responderCertHash).\n\nFor the serialNumberHash, the hash (algorithm) must be cryptographically secure. But for the issuerCertHash and responderCertHash, we may use shorter hash value (e.g. 8 bytes), it is used to identify the corresponding certificate among small certificate pool.",
+          "createdAt": "2026-06-25T18:18:33Z",
+          "updatedAt": "2026-06-25T18:18:33Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "In the latest version, I changed *certHash from length of full length to HashId8 (8 bytes), and SerialNumberHash to HashId20 (20 bytes). See commit https://github.com/lijun-nio/idc509rev/commit/7695bd0e08dcd98489e65187eea97488610b1c91 and https://github.com/lijun-nio/idc509rev/commit/7dc2c83e2fd790a4ad4e8ce2eae849981950bc42 for details.",
+          "createdAt": "2026-06-26T09:36:14Z",
+          "updatedAt": "2026-06-26T14:25:15Z"
         }
       ]
     },
@@ -203,7 +224,7 @@
       "labels": [],
       "body": "Currently, SHA-1 owns the cheapest 1-byte code point, value 0. Shouldn't that spot be given to a non-broken alg. (-256)? And demote -1 to a high range value",
       "createdAt": "2026-06-24T17:50:15Z",
-      "updatedAt": "2026-06-25T10:14:18Z",
+      "updatedAt": "2026-06-26T14:26:52Z",
       "closedAt": null,
       "comments": [
         {
@@ -219,6 +240,51 @@
           "body": "Now SHA-1 has `-1`",
           "createdAt": "2026-06-25T10:14:18Z",
           "updatedAt": "2026-06-25T10:14:18Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "In the latest version, I removed SHA-1.",
+          "createdAt": "2026-06-26T14:26:52Z",
+          "updatedAt": "2026-06-26T14:26:52Z"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "id": "I_kwDOTDu4zs8AAAABGy3R9w",
+      "title": "Prepare for IETF 126 Vienna",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/7",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "@rikard-sics @marco-tiloca-sics @highlunder I do not have and plan known changes. Please review the latest I.D.\n\nAfter that, @rikard-sics please upload the I.D. and reserve a presentation time slot in the COSE-WG.",
+      "createdAt": "2026-06-26T09:40:06Z",
+      "updatedAt": "2026-06-26T19:56:55Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Please check the fixes to the CDDL notation at https://github.com/lijun-nio/idc509rev/commit/3f3bcf94797ea5da6eaff07a8f765c813010149f",
+          "createdAt": "2026-06-26T19:19:59Z",
+          "updatedAt": "2026-06-26T19:19:59Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "> Please check the fixes to the CDDL notation at [3f3bcf9](https://github.com/lijun-nio/idc509rev/commit/3f3bcf94797ea5da6eaff07a8f765c813010149f)\n\nWhat exactly?",
+          "createdAt": "2026-06-26T19:28:59Z",
+          "updatedAt": "2026-06-26T19:28:59Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Before the commit https://github.com/lijun-nio/idc509rev/commit/3f3bcf94797ea5da6eaff07a8f765c813010149f  :\n\n* Figure 2 was still using \"bytes\" as CBOR type for \"serialNumberHash\", instead of the new \"HashId20\" (2 instances).\n\n* Figure 3 was missing the definition of \"HashId8\" and \"HashId20\".\n\nThe commit fixes that.",
+          "createdAt": "2026-06-26T19:56:55Z",
+          "updatedAt": "2026-06-26T19:56:55Z"
         }
       ]
     }
