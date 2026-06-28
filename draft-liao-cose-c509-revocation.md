@@ -83,17 +83,17 @@ entity:
 
 --- abstract
 
-This document specifies a set of CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and any future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification. C509 OCSP builds upon and improves (RFC 6960) by (1) signing over a wider set of fields than in (RFC 6960) to prevent algorithm-substitution and certificate-chain substitution attacks, (2) replacing plaintext serial numbers with hashes to preserve requestor privacy, (3) replacing the two-hash issuer identity with a single certificate hash, and (4) identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields, enabling support for C509, X.509, and future certificate types without structural changes. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation.
+This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation.
 
 --- middle
 
 # Introduction {#intro}
 
-Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} requires compact certificate representations as well as compact revocation information.  {{I-D.ietf-cose-cbor-encoded-cert}} defines C509 certificates, a CBOR encoding of X.509 certificates {{RFC5280}} that reduces certificate size by over 50% for typical constrained-device profiles.  However, revocation mechanisms -- Certificate Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP) messages -- have not yet received the same treatment.
+Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} requires compact certificate representations and compact revocation information.  {{I-D.ietf-cose-cbor-encoded-cert}} defines C509 certificates, a CBOR encoding of X.509 certificates {{RFC5280}} that reduces certificate size by over 50% for typical constrained-device profiles.  However, revocation mechanisms -- Certificate Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP) messages -- have not yet received the same treatment.
 
 CRLs as defined in {{RFC5280}} can be large, especially when many certificates have been revoked or when CRL extensions add overhead.  OCSP responses as defined in {{RFC6960}} carry per-certificate status information and may be exchanged during TLS {{RFC8446}} and DTLS {{RFC9147}} handshakes via OCSP stapling {{RFC6066}}, directly affecting handshake latency.
 
-Note on terminology: The label "C509" is used for consistency with the C509 certificate encoding and to promote a cohesive C509 PKI ecosystem (C509 certificates, CRLs, OCSP, and related tooling). Although names in this document include "C509", the encodings and protocols defined here are certificate-type agnostic and apply equally to X.509 certificates and other certificate types; see {{cert-type-interop}}.
+Note on terminology: The label "C509" is used for consistency with the C509 certificate encoding and to promote a cohesive C509 PKI ecosystem (C509 certificates, CRLs, OCSP, and related tooling). Although this document uses "C509" in its names, the encodings and protocols defined here are certificate-type agnostic and apply equally to X.509 certificates and other certificate types; see {{cert-type-interop}}.
 
 This document specifies:
 
@@ -104,13 +104,13 @@ This document specifies:
    - The signature in signed requests and responses is computed over a wider set of fields than in {{RFC6960}}, including the signature algorithm and the certificate chain, preventing algorithm-substitution and certificate-chain substitution attacks.
    - Certificate serial numbers in requests and responses are replaced by hashes (`serialNumberHash`), providing privacy against passive observers who do not already know the queried serial numbers.
    - The issuer is identified by a single hash over the issuer certificate (`issuerCertHash`) rather than by the two-hash `CertID`, reducing per-issuer overhead.
-   - All participants -- requestor, responder, and issuer -- are identified by a hash over their certificate (`requestorCertHash`, `responderCertHash`, `issuerCertHash`) rather than by a plaintext Subject distinguished name or SubjectKeyIdentifier, avoiding structural `CHOICE` types such as the X.509 `ResponderID` (`byName` or `byKey`), providing a uniform, compact identity representation, and simplifying support for different certificate types (e.g., C509, X.509, or future types) since a hash applies uniformly regardless of the certificate encoding.
+   - All participants -- requestor, responder, and issuer -- are identified by a hash over their certificate (`requestorCertHash`, `responderCertHash`, `issuerCertHash`) rather than by a plaintext Subject distinguished name or SubjectKeyIdentifier, avoiding structural `CHOICE` types such as the X.509 `ResponderID` (`byName` or `byKey`) and simplifying support for different certificate types (e.g., C509, X.509, or future types) because the same hash applies regardless of the certificate encoding.
 
    See the field encoding sections of this document for details.
 
    The request and response structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification; see {{cert-type-interop}}.
 
-C509 CRL and C509 OCSP apply the same compression techniques as C509 certificates: static fields are elided, OIDs are replaced with short integers, time values are compressed to POSIX timestamps, and redundant encoding is removed.  Implementers can use the CBOR playground {{CborMe}} to inspect encoded examples.
+C509 CRL and C509 OCSP apply the same compression techniques as C509 certificates: static fields are elided, OIDs are replaced with short integers, time values are compressed to POSIX timestamps, and redundant encoding is removed.  Implementers may use the CBOR playground {{CborMe}} to inspect encoded examples.
 
 C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded counterparts defined in {{RFC5280}} and {{RFC6960}}.  Systems that use C509 CRL or C509 OCSP must explicitly support these CBOR-encoded formats; they cannot be transparently substituted for or derived from the corresponding DER-encoded structures.
 
@@ -388,7 +388,7 @@ To reduce OCSP message size, this document defines two truncated-hash identifier
 
 - `HashId8` — the leading 8 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId8` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures where a short identifier provides sufficient uniqueness in the deployment context.
 
-- `HashId20` — the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA‑256 or SHA‑3‑256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversery needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
+- `HashId20` — the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA‑256 or SHA‑3‑256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversary needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
 
 ~~~~~~~~~~~ cddl
 HashId8   = bytes .size 8
@@ -622,7 +622,7 @@ If the OCSP server cannot process the OCSP query, it returns a `C509ErrorOCSPRes
 
 The `ocspResponseType` field of `C509BasicOCSPResponse` is 1, distinguishing it from `C509ErrorOCSPResponse`.  It corresponds to `BasicOCSPResponse` in {{RFC6960}}.
 
-`TBSBasicOCSPResponse` is the group of fields to be signed. The `signatureValue` field is the only field outside the signed group.  Covering `signatureAlgorithm` and `certs` within the signed content prevents algorithm-substitution and certificate-chain substitution attacks; this design goes beyond the protections offered by the DER-encoded `BasicOCSPResponse` defined in {{RFC6960}}.
+`TBSBasicOCSPResponse` is the group of fields to be signed. The `signatureValue` field is the only field outside the signed group.  Covering `signatureAlgorithm` and `responderCerts` within the signed content prevents algorithm-substitution and certificate-chain substitution attacks; this design goes beyond the protections offered by the DER-encoded `BasicOCSPResponse` defined in {{RFC6960}}.
 
 #### C509SimpleOCSPResponse {#C509SimpleOCSPResponse}
 
@@ -666,7 +666,7 @@ When present, the `responderCerts` field carries the certificate chain starting 
 
 The `producedAt` field is encoded as described in {{time-encoding}}.  The `thisUpdate` field is encoded as a non-positive integer (`nint / 0`) representing the number of seconds from `producedAt` at which the indicated status is known to be correct; it MUST be 0 or negative, since the status cannot be known at a time in the future relative to when the response was produced.  The `nextUpdate` field is encoded as a `uint` representing the number of seconds from `producedAt` until the next update is expected to be available.  `nextUpdate` may be `null`, which indicates an unknown update time.
 
-#### responseExtensions
+#### extensions
 
 See {{ocsp-extensions}}.
 
@@ -683,7 +683,7 @@ See {{ocsp-extensions}}.
 
 This field contains the truncated hash of the serial number of the certificate being queried.  It is computed using the `hashAlgorithm` from the enclosing `TBSBasicOCSPResponse` and contains the first 20 bytes.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing.  In X.509, a `CertificateSerialNumber` INTEGER is DER-encoded with a leading zero byte when the most-significant bit is set; that leading zero MUST be stripped before computing the hash.  In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure carries the plain `serialNumber` directly.  C509 OCSP replaces this with a hash to preserve privacy: an observer cannot determine which certificate was queried without already knowing the serial number.
 
-##### singleExtensions
+##### extensions
 
 See {{ocsp-extensions}}.
 
