@@ -2038,24 +2038,22 @@ Table of Contents
    Formats" registry in the registry group "Constrained RESTful
    Environments (CoRE) Parameters".
 
-   +----------------------+---------+-------+------------+
-   | Content              | Content | ID    | Reference  |
-   | Type                 | Coding  |       |            |
-   +======================+=========+=======+============+
-   | application/         | -       | TBD7  | [[this     |
-   | c509-crl+cbor        |         |       | document]] |
-   +----------------------+---------+-------+------------+
-   | application/         |         |       | [[this     |
-   | c509-crlinfo+cbor    | -       | TBD8  | document]] |
-   +----------------------+---------+-------+------------+
-   | application/         | -       | TBD9  | [[this     |
-   | c509-ocsp-           |         |       | document]] |
-   | request+cbor         |         |       |            |
-   +----------------------+---------+-------+------------+
-   | application/         | -       | TBD10 | [[this     |
-   | c509-ocsp-           |         |       | document]] |
-   | response+cbor        |         |       |            |
-   +----------------------+---------+-------+------------+
+   +-------------------------+---------+-------+------------+
+   | Content                 | Content | ID    | Reference  |
+   | Type                    | Coding  |       |            |
+   +=========================+=========+=======+============+
+   | application/            | -       | TBD7  | [[this     |
+   | c509-crl+cbor           |         |       | document]] |
+   +-------------------------+---------+-------+------------+
+   | application/            |         |       | [[this     |
+   | c509-crlinfo+cbor       | -       | TBD8  | document]] |
+   +-------------------------+---------+-------+------------+
+   | application/            | -       | TBD9  | [[this     |
+   | c509-ocsp-request+cbor  |         |       | document]] |
+   +-------------------------+---------+-------+------------+
+   | application/            | -       | TBD10 | [[this     |
+   | c509-ocsp-response+cbor |         |       | document]] |
+   +-------------------------+---------+-------+------------+
 
 9.6.  Expert Review Guidelines
 
