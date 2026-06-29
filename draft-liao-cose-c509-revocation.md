@@ -1158,22 +1158,22 @@ TODO
 
 ## Overview
 
-| Section       | Description           | size(C509) | size(X509) | size(C509)/size(X509) |
+| Section       | Description           | size(C509) | size(X509) | Size Reduction |
 |:--------------|:----------------------|:-----------|:-----------|:----------------------|
-| {{exam-crl-no-revoked}} | CRL Example Without Revoked Certificates | 147 | 120 | 82% |
-| {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 335 | 177 | 53% |
-| {{exam-delta-crl-revoked}} | Delta CRL Example With Revoked Certificates | 335 | 160 | 48% |
-| {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 409 | 202 | 49% |
-| {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 152 | 51 | 34% |
-| {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 483 | 132 | 27% |
-| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 592 | 209 | 35% |
-| {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 1043 | 420 | 40% |
-| {{exam-signed-ocsp-req-withcertchain}} | Signed OCSP Request Example With Requestor's Certificate Chain | 1379 | 625 | 45% |
-| {{exam-error-ocsp-resp}} | Error OCSP Response Example | 5 | 3 | 60% |
-| {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 338 | 140 | 41% |
-| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 845 | 248 | 29% |
-| {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 1189 | 446 | 38% |
-| {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 1525 | 651 | 43% |
+| {{exam-crl-no-revoked}} | CRL Example Without Revoked Certificates | 147 | 120 | 18% |
+| {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 335 | 177 |47% |
+| {{exam-delta-crl-revoked}} | Delta CRL Example With Revoked Certificates | 335 | 160 | 52% |
+| {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 409 | 202 | 51% |
+| {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 152 | 51 | 66% |
+| {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 483 | 132 | 73% |
+| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 592 | 209 | 65% |
+| {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 1043 | 420 | 60% |
+| {{exam-signed-ocsp-req-withcertchain}} | Signed OCSP Request Example With Requestor's Certificate Chain | 1379 | 625 | 55% |
+| {{exam-error-ocsp-resp}} | Error OCSP Response Example | 5 | 3 | 40% |
+| {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 338 | 140 | 59% |
+| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 845 | 248 | 71% |
+| {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 1189 | 446 | 62% |
+| {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 1525 | 651 | 57% |
 {: #tab-examples-overview title="Size comparison in examples (TODO: update the percent data)"}
 
 ## Helper Keys and Certificates
@@ -1434,8 +1434,8 @@ Certificate
 
 ### CRL Example Without Revoked Certificates {#exam-crl-no-revoked}
 
-[comment]: <> (replace-percent:crl/full-direct-no-revocation-crl/crl.hex % crl/full-direct-no-revocation-crl/x509crl.pem)
-- size(C509) / size(X509): 81%
+[comment]: <> (replace-reduction:crl/full-direct-no-revocation-crl/crl.hex % crl/full-direct-no-revocation-crl/x509crl.pem)
+- Size reduction: 18%
 - Verifiable with certificate in {{ca-cert}}
 - Direct CRL
 - Full CRL
@@ -1521,8 +1521,8 @@ Annotated hex
 
 ### CRL Example With Revoked Certificates {#exam-crl-revoked}
 
-[comment]: <> (replace-percent:crl/full-direct-with-revocation-crl/crl.hex % crl/full-direct-with-revocation-crl/x509crl.pem)
-- size(C509) / size(X509): 52%
+[comment]: <> (replace-reduction:crl/full-direct-with-revocation-crl/crl.hex % crl/full-direct-with-revocation-crl/x509crl.pem)
+- Size reduction: 47%
 - Verifiable with certificate in {{ca-cert}}
 - Direct CRL
 - Full CRL
@@ -1653,8 +1653,8 @@ Annotated hex
 
 ### Delta CRL Example With Revoked Certificates {#exam-delta-crl-revoked}
 
-[comment]: <> (replace-percent:crl/delta-with-revocation-crl/crl.hex % crl/delta-with-revocation-crl/x509crl.pem)
-- size(C509) / size(X509): 47%
+[comment]: <> (replace-reduction:crl/delta-with-revocation-crl/crl.hex % crl/delta-with-revocation-crl/x509crl.pem)
+- Size reduction: 52%
 - Verifiable with certificate in {{ca-cert}}
 - Direct CRL
 - Delta CRL
@@ -1778,8 +1778,8 @@ Annotated hex
 
 ### Indirect CRL Example With Revoked Certificates {#exam-indirect-crl-revoked}
 
-[comment]: <> (replace-percent:crl/full-indirect-with-revocation-crl/crl.hex % crl/full-indirect-with-revocation-crl/x509crl.pem)
-- size(C509) / size(X509): 49%
+[comment]: <> (replace-reduction:crl/full-indirect-with-revocation-crl/crl.hex % crl/full-indirect-with-revocation-crl/x509crl.pem)
+- Size reduction: 51%
 - Verifiable with certificate in {{crl-signer-cert}}
 - Indirect CRL
 - Full CRL
@@ -1931,8 +1931,8 @@ Annotated hex
 
 ### Simple OCSP Request Example {#exam-simple-ocsp-req}
 
-[comment]: <> (replace-percent:ocspreq/simple-ocspreq/ocspreq.hex % ocspreq/simple-ocspreq/x509ocspreq.pem)
-- size(C509) / size(X509): 33%
+[comment]: <> (replace-reduction:ocspreq/simple-ocspreq/ocspreq.hex % ocspreq/simple-ocspreq/x509ocspreq.pem)
+- Size reduction: 66%
 - Simpe OCSP Request (`C509SimpleOCSPRequest`)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
@@ -1998,8 +1998,8 @@ Annotated hex
 
 ### Unsigned OCSP Request Example {#exam-unsigned-ocsp-req}
 
-[comment]: <> (replace-percent:ocspreq/unsigned-ocspreq/ocspreq.hex % ocspreq/unsigned-ocspreq/x509ocspreq.pem)
-- size(C509) / size(X509): 27%
+[comment]: <> (replace-reduction:ocspreq/unsigned-ocspreq/ocspreq.hex % ocspreq/unsigned-ocspreq/x509ocspreq.pem)
+- Size reduction: 73%
 - Unsigned OCSP Request (`C509UnsignedOCSPRequest`)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
@@ -2123,8 +2123,8 @@ Annotated hex
 
 ### Signed OCSP Request Example Without Requestor's Certificate {#exam-signed-ocsp-req}
 
-[comment]: <> (replace-percent:ocspreq/signed-ocspreq/ocspreq.hex % ocspreq/signed-ocspreq/x509ocspreq.pem)
-- size(C509) / size(X509): 35%
+[comment]: <> (replace-reduction:ocspreq/signed-ocspreq/ocspreq.hex % ocspreq/signed-ocspreq/x509ocspreq.pem)
+- Size reduction: 65%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
 - Signed OCSP Request (`C509UnsignedOCSPRequest`) without requestor's certificate
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
@@ -2272,8 +2272,8 @@ Annotated hex
 
 ### Signed OCSP Request Example With Requestor's Certificate {#exam-signed-ocsp-req-withcert}
 
-[comment]: <> (replace-percent:ocspreq/signed-ocspreq-with-cert/ocspreq.hex % ocspreq/signed-ocspreq-with-cert/x509ocspreq.pem)
-- size(C509) / size(X509): 40%
+[comment]: <> (replace-reduction:ocspreq/signed-ocspreq-with-cert/ocspreq.hex % ocspreq/signed-ocspreq-with-cert/x509ocspreq.pem)
+- Size reduction: 60%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
 - Signed OCSP Request (`C509UnsignedOCSPRequest`) with embedded requestor's certificate
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
@@ -2487,8 +2487,8 @@ Annotated hex
 
 ### Signed OCSP Request Example With Requestor's Certificate Chain {#exam-signed-ocsp-req-withcertchain}
 
-[comment]: <> (replace-percent:ocspreq/signed-ocspreq-with-certchain/ocspreq.hex % ocspreq/signed-ocspreq-with-certchain/x509ocspreq.pem)
-- size(C509) / size(X509): 45%
+[comment]: <> (replace-reduction:ocspreq/signed-ocspreq-with-certchain/ocspreq.hex % ocspreq/signed-ocspreq-with-certchain/x509ocspreq.pem)
+- Size reduction: 55%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
 - Signed OCSP Request (`C509UnsignedOCSPRequest`) with embedded requestor's certificate chain (2 certificates)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
@@ -2741,8 +2741,8 @@ Annotated hex
 
 ### Error OCSP Response Example {#exam-error-ocsp-resp}
 
-[comment]: <> (replace-percent:ocspresp/error-ocspresp/ocspresp.hex % ocspresp/error-ocspresp/x509ocspresp.pem)
-- size(C509) / size(X509): 60%
+[comment]: <> (replace-reduction:ocspresp/error-ocspresp/ocspresp.hex % ocspresp/error-ocspresp/x509ocspresp.pem)
+- Size reduction: 40%
 - Error Response (`C509ErrorOCSPResponse`)
 
 #### X.509 OCSP Response
@@ -2788,8 +2788,8 @@ Annotated hex
 
 ### Simple OCSP Response Example {#exam-simple-ocsp-resp}
 
-[comment]: <> (replace-percent:ocspresp/simple-ocspresp/ocspresp.hex % ocspresp/simple-ocspresp/x509ocspresp.pem)
-- size(C509) / size(X509): 41%
+[comment]: <> (replace-reduction:ocspresp/simple-ocspresp/ocspresp.hex % ocspresp/simple-ocspresp/x509ocspresp.pem)
+- Size reduction: 59%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Simple OCSP Response (`C509SimpleOCSPResponse`) without responder's certificate
 - Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
@@ -2891,8 +2891,8 @@ Annotated hex
 
 ### Basic OCSP Response Example Without Responder's Certificate {#exam-basic-ocsp-resp}
 
-[comment]: <> (replace-percent:ocspresp/basic-ocspresp/ocspresp.hex % ocspresp/basic-ocspresp/x509ocspresp.pem)
-- size(C509) / size(X509): 29%
+[comment]: <> (replace-reduction:ocspresp/basic-ocspresp/ocspresp.hex % ocspresp/basic-ocspresp/x509ocspresp.pem)
+- Size reduction: 71%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) without responder's certificate
 - Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
@@ -3077,8 +3077,8 @@ Annotated hex
 
 ### Basic OCSP Response Example With Responder's Certificate {#exam-basic-ocsp-resp-withcert}
 
-[comment]: <> (replace-percent:ocspresp/basic-ocspresp-with-cert/ocspresp.hex % ocspresp/basic-ocspresp-with-cert/x509ocspresp.pem)
-- size(C509) / size(X509): 37%
+[comment]: <> (replace-reduction:ocspresp/basic-ocspresp-with-cert/ocspresp.hex % ocspresp/basic-ocspresp-with-cert/x509ocspresp.pem)
+- Size reduction: 62%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) with embedded responder's certificate
 - Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
@@ -3297,8 +3297,8 @@ Annotated hex
 
 ### Basic OCSP Response Example With Responder's Certificate Chain {#exam-basic-ocsp-resp-withcertchain}
 
-[comment]: <> (replace-percent:ocspresp/basic-ocspresp-with-certchain/ocspresp.hex % ocspresp/basic-ocspresp-with-certchain/x509ocspresp.pem)
-- size(C509) / size(X509): 42%
+[comment]: <> (replace-reduction:ocspresp/basic-ocspresp-with-certchain/ocspresp.hex % ocspresp/basic-ocspresp-with-certchain/x509ocspresp.pem)
+- Size reduction: 57%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) with embedded responder's certificate chain (2 certificates)
 - Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
