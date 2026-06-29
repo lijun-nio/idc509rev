@@ -1127,24 +1127,22 @@ Change controller: IETF
 IANA is requested to add entries for "application/c509-crl+cbor", "application/c509-crlinfo+cbor", "application/c509-ocsp-request+cbor" and "application/c509-ocsp-response+cbor" to the "CoAP Content-Formats" registry in the registry group "Constrained RESTful Environments (CoRE) Parameters".
 
 ~~~
-+----------------------+---------+-------+------------+
-| Content              | Content | ID    | Reference  |
-| Type                 | Coding  |       |            |
-+======================+=========+=======+============+
-| application/         | -       | TBD7  | [[this     |
-| c509-crl+cbor        |         |       | document]] |
-+----------------------+---------+-------+------------+
-| application/         |         |       | [[this     |
-| c509-crlinfo+cbor    | -       | TBD8  | document]] |
-+----------------------+---------+-------+------------+
-| application/         | -       | TBD9  | [[this     |
-| c509-ocsp-           |         |       | document]] |
-| request+cbor         |         |       |            |
-+----------------------+---------+-------+------------+
-| application/         | -       | TBD10 | [[this     |
-| c509-ocsp-           |         |       | document]] |
-| response+cbor        |         |       |            |
-+----------------------+---------+-------+------------+
++-------------------------+---------+-------+------------+
+| Content                 | Content | ID    | Reference  |
+| Type                    | Coding  |       |            |
++=========================+=========+=======+============+
+| application/            | -       | TBD7  | [[this     |
+| c509-crl+cbor           |         |       | document]] |
++-------------------------+---------+-------+------------+
+| application/            |         |       | [[this     |
+| c509-crlinfo+cbor       | -       | TBD8  | document]] |
++-------------------------+---------+-------+------------+
+| application/            | -       | TBD9  | [[this     |
+| c509-ocsp-request+cbor  |         |       | document]] |
++-------------------------+---------+-------+------------+
+| application/            | -       | TBD10 | [[this     |
+| c509-ocsp-response+cbor |         |       | document]] |
++-------------------------+---------+-------+------------+
 ~~~
 
 ## Expert Review Guidelines {#expert-review-guidelines}
