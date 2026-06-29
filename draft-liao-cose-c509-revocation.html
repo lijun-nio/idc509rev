@@ -1366,16 +1366,16 @@ svg {
                 <p id="section-toc.1-1.9.2.4.1"><a href="#section-9.4" class="auto internal xref">9.4</a>.  <a href="#name-media-type-application-regi" class="internal xref">Media Type Application Registry</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4.2.1">
-                    <p id="section-toc.1-1.9.2.4.2.1.1"><a href="#section-9.4.1" class="auto internal xref">9.4.1</a>.  <a href="#name-media-type-application-cose" class="internal xref">Media Type application/cose-c509-crl</a></p>
+                    <p id="section-toc.1-1.9.2.4.2.1.1"><a href="#section-9.4.1" class="auto internal xref">9.4.1</a>.  <a href="#name-media-type-application-c509" class="internal xref">Media Type application/c509-crl+cbor</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4.2.2">
-                    <p id="section-toc.1-1.9.2.4.2.2.1"><a href="#section-9.4.2" class="auto internal xref">9.4.2</a>.  <a href="#name-media-type-application-cose-" class="internal xref">Media Type application/cose-c509-crlinfo</a></p>
+                    <p id="section-toc.1-1.9.2.4.2.2.1"><a href="#section-9.4.2" class="auto internal xref">9.4.2</a>.  <a href="#name-media-type-application-c509-" class="internal xref">Media Type application/c509-crlinfo+cbor</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4.2.3">
-                    <p id="section-toc.1-1.9.2.4.2.3.1"><a href="#section-9.4.3" class="auto internal xref">9.4.3</a>.  <a href="#name-media-type-application-cose-c" class="internal xref">Media Type application/cose-c509-ocsp-request</a></p>
+                    <p id="section-toc.1-1.9.2.4.2.3.1"><a href="#section-9.4.3" class="auto internal xref">9.4.3</a>.  <a href="#name-media-type-application-c509-o" class="internal xref">Media Type application/c509-ocsp-request+cbor</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4.2.4">
-                    <p id="section-toc.1-1.9.2.4.2.4.1"><a href="#section-9.4.4" class="auto internal xref">9.4.4</a>.  <a href="#name-media-type-application-cose-c5" class="internal xref">Media Type application/cose-c509-ocsp-response</a></p>
+                    <p id="section-toc.1-1.9.2.4.2.4.1"><a href="#section-9.4.4" class="auto internal xref">9.4.4</a>.  <a href="#name-media-type-application-c509-oc" class="internal xref">Media Type application/c509-ocsp-response+cbor</a></p>
 </li>
                 </ul>
 </li>
@@ -3375,13 +3375,13 @@ TNQuery = text .size (1..15)
 <a href="#section-9.4" class="section-number selfRef">9.4. </a><a href="#name-media-type-application-regi" class="section-name selfRef">Media Type Application Registry</a>
         </h3>
 <p id="section-9.4-1">IANA is requested to assign the following entries into the "application" registry in the registry group "Media Types" with this document as reference.<a href="#section-9.4-1" class="pilcrow">¶</a></p>
-<div id="media-type-applicationcose-c509-crl">
+<div id="media-type-applicationc509-crlcbor">
 <section id="section-9.4.1">
-          <h4 id="name-media-type-application-cose">
-<a href="#section-9.4.1" class="section-number selfRef">9.4.1. </a><a href="#name-media-type-application-cose" class="section-name selfRef">Media Type application/cose-c509-crl</a>
+          <h4 id="name-media-type-application-c509">
+<a href="#section-9.4.1" class="section-number selfRef">9.4.1. </a><a href="#name-media-type-application-c509" class="section-name selfRef">Media Type application/c509-crl+cbor</a>
           </h4>
-<p id="section-9.4.1-1">When the application/cose-c509-crl media type is used, the data is a C509CRL structure.<a href="#section-9.4.1-1" class="pilcrow">¶</a></p>
-<p id="section-9.4.1-2">Subtype name: cose-c509-crl<a href="#section-9.4.1-2" class="pilcrow">¶</a></p>
+<p id="section-9.4.1-1">When the application/c509-crl+cbor media type is used, the data is a C509CRL structure.<a href="#section-9.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-9.4.1-2">Subtype name: c509-crl+cbor<a href="#section-9.4.1-2" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-3">Required parameters: N/A<a href="#section-9.4.1-3" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-4">Encoding considerations: binary<a href="#section-9.4.1-4" class="pilcrow">¶</a></p>
 <p id="section-9.4.1-5">Security considerations: See <a href="#security" class="auto internal xref">Section 8</a> of [RFC-XXXX].<a href="#section-9.4.1-5" class="pilcrow">¶</a></p>
@@ -3411,13 +3411,13 @@ TNQuery = text .size (1..15)
 <p id="section-9.4.1-16">Change controller: IETF<a href="#section-9.4.1-16" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="media-type-applicationcose-c509-crlinfo">
+<div id="media-type-applicationc509-crlinfocbor">
 <section id="section-9.4.2">
-          <h4 id="name-media-type-application-cose-">
-<a href="#section-9.4.2" class="section-number selfRef">9.4.2. </a><a href="#name-media-type-application-cose-" class="section-name selfRef">Media Type application/cose-c509-crlinfo</a>
+          <h4 id="name-media-type-application-c509-">
+<a href="#section-9.4.2" class="section-number selfRef">9.4.2. </a><a href="#name-media-type-application-c509-" class="section-name selfRef">Media Type application/c509-crlinfo+cbor</a>
           </h4>
-<p id="section-9.4.2-1">When the application/cose-c509-crlinfo media type is used, the data is a C509CRLInfo structure.<a href="#section-9.4.2-1" class="pilcrow">¶</a></p>
-<p id="section-9.4.2-2">Subtype name: cose-c509-crlinfo<a href="#section-9.4.2-2" class="pilcrow">¶</a></p>
+<p id="section-9.4.2-1">When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.<a href="#section-9.4.2-1" class="pilcrow">¶</a></p>
+<p id="section-9.4.2-2">Subtype name: c509-crlinfo+cbor<a href="#section-9.4.2-2" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-3">Required parameters: N/A<a href="#section-9.4.2-3" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-4">Encoding considerations: binary<a href="#section-9.4.2-4" class="pilcrow">¶</a></p>
 <p id="section-9.4.2-5">Security considerations: See <a href="#security" class="auto internal xref">Section 8</a> of [RFC-XXXX].<a href="#section-9.4.2-5" class="pilcrow">¶</a></p>
@@ -3447,13 +3447,13 @@ TNQuery = text .size (1..15)
 <p id="section-9.4.2-16">Change controller: IETF<a href="#section-9.4.2-16" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="media-type-applicationcose-c509-ocsp-request">
+<div id="media-type-applicationc509-ocsp-requestcbor">
 <section id="section-9.4.3">
-          <h4 id="name-media-type-application-cose-c">
-<a href="#section-9.4.3" class="section-number selfRef">9.4.3. </a><a href="#name-media-type-application-cose-c" class="section-name selfRef">Media Type application/cose-c509-ocsp-request</a>
+          <h4 id="name-media-type-application-c509-o">
+<a href="#section-9.4.3" class="section-number selfRef">9.4.3. </a><a href="#name-media-type-application-c509-o" class="section-name selfRef">Media Type application/c509-ocsp-request+cbor</a>
           </h4>
-<p id="section-9.4.3-1">When the application/cose-c509-ocsp-request media type is used, the data is a C509OCSPRequest structure.<a href="#section-9.4.3-1" class="pilcrow">¶</a></p>
-<p id="section-9.4.3-2">Subtype name: cose-c509-ocsp-request<a href="#section-9.4.3-2" class="pilcrow">¶</a></p>
+<p id="section-9.4.3-1">When the application/c509-ocsp-request+cbor media type is used, the data is a C509OCSPRequest structure.<a href="#section-9.4.3-1" class="pilcrow">¶</a></p>
+<p id="section-9.4.3-2">Subtype name: c509-ocsp-request+cbor<a href="#section-9.4.3-2" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-3">Required parameters: N/A<a href="#section-9.4.3-3" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-4">Encoding considerations: binary<a href="#section-9.4.3-4" class="pilcrow">¶</a></p>
 <p id="section-9.4.3-5">Security considerations: See <a href="#security" class="auto internal xref">Section 8</a> of [RFC-XXXX].<a href="#section-9.4.3-5" class="pilcrow">¶</a></p>
@@ -3483,13 +3483,13 @@ TNQuery = text .size (1..15)
 <p id="section-9.4.3-16">Change controller: IETF<a href="#section-9.4.3-16" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="media-type-applicationcose-c509-ocsp-response">
+<div id="media-type-applicationc509-ocsp-responsecbor">
 <section id="section-9.4.4">
-          <h4 id="name-media-type-application-cose-c5">
-<a href="#section-9.4.4" class="section-number selfRef">9.4.4. </a><a href="#name-media-type-application-cose-c5" class="section-name selfRef">Media Type application/cose-c509-ocsp-response</a>
+          <h4 id="name-media-type-application-c509-oc">
+<a href="#section-9.4.4" class="section-number selfRef">9.4.4. </a><a href="#name-media-type-application-c509-oc" class="section-name selfRef">Media Type application/c509-ocsp-response+cbor</a>
           </h4>
-<p id="section-9.4.4-1">When the application/cose-c509-ocsp-response media type is used, the data is a C509OCSPResponse structure.<a href="#section-9.4.4-1" class="pilcrow">¶</a></p>
-<p id="section-9.4.4-2">Subtype name: cose-c509-ocsp-response<a href="#section-9.4.4-2" class="pilcrow">¶</a></p>
+<p id="section-9.4.4-1">When the application/c509-ocsp-response+cbor media type is used, the data is a C509OCSPResponse structure.<a href="#section-9.4.4-1" class="pilcrow">¶</a></p>
+<p id="section-9.4.4-2">Subtype name: c509-ocsp-response+cbor<a href="#section-9.4.4-2" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-3">Required parameters: N/A<a href="#section-9.4.4-3" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-4">Encoding considerations: binary<a href="#section-9.4.4-4" class="pilcrow">¶</a></p>
 <p id="section-9.4.4-5">Security considerations: See <a href="#security" class="auto internal xref">Section 8</a> of [RFC-XXXX].<a href="#section-9.4.4-5" class="pilcrow">¶</a></p>
@@ -3526,7 +3526,7 @@ TNQuery = text .size (1..15)
         <h3 id="name-coap-content-formats-regist">
 <a href="#section-9.5" class="section-number selfRef">9.5. </a><a href="#name-coap-content-formats-regist" class="section-name selfRef">CoAP Content-Formats Registry</a>
         </h3>
-<p id="section-9.5-1">IANA is requested to add entries for "application/cose-c509-crl", "application/cose-c509-crlinfo", "application/cose-c509-ocsp-request" and "application/cose-c509-ocsp-response" to the "CoAP Content-Formats" registry in the registry group "Constrained RESTful Environments (CoRE) Parameters".<a href="#section-9.5-1" class="pilcrow">¶</a></p>
+<p id="section-9.5-1">IANA is requested to add entries for "application/c509-crl+cbor", "application/c509-crlinfo+cbor", "application/c509-ocsp-request+cbor" and "application/c509-ocsp-response+cbor" to the "CoAP Content-Formats" registry in the registry group "Constrained RESTful Environments (CoRE) Parameters".<a href="#section-9.5-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-9.5-2">
 <pre>
 +----------------------+---------+-------+------------+
@@ -3534,18 +3534,18 @@ TNQuery = text .size (1..15)
 | Type                 | Coding  |       |            |
 +======================+=========+=======+============+
 | application/         | -       | TBD7  | [[this     |
-| cose-c509-crl        |         |       | document]] |
+| c509-crl+cbor        |         |       | document]] |
 +----------------------+---------+-------+------------+
 | application/         |         |       | [[this     |
-| cose-c509-crlinfo    | -       | TBD8  | document]] |
+| c509-crlinfo+cbor    | -       | TBD8  | document]] |
 +----------------------+---------+-------+------------+
 | application/         | -       | TBD9  | [[this     |
-| cose-c509-ocsp-      |         |       | document]] |
-| request              |         |       |            |
+| c509-ocsp-           |         |       | document]] |
+| request+cbor         |         |       |            |
 +----------------------+---------+-------+------------+
 | application/         | -       | TBD10 | [[this     |
-| cose-c509-ocsp-      |         |       | document]] |
-| response             |         |       |            |
+| c509-ocsp-           |         |       | document]] |
+| response+cbor        |         |       |            |
 +----------------------+---------+-------+------------+
 </pre><a href="#section-9.5-2" class="pilcrow">¶</a>
 </div>

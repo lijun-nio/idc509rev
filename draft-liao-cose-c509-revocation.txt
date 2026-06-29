@@ -147,10 +147,10 @@ Table of Contents
      9.2.  C509 Hash Algorithms Registry
      9.3.  TLS CertificateStatusType Registry
      9.4.  Media Type Application Registry
-       9.4.1.  Media Type application/cose-c509-crl
-       9.4.2.  Media Type application/cose-c509-crlinfo
-       9.4.3.  Media Type application/cose-c509-ocsp-request
-       9.4.4.  Media Type application/cose-c509-ocsp-response
+       9.4.1.  Media Type application/c509-crl+cbor
+       9.4.2.  Media Type application/c509-crlinfo+cbor
+       9.4.3.  Media Type application/c509-ocsp-request+cbor
+       9.4.4.  Media Type application/c509-ocsp-response+cbor
      9.5.  CoAP Content-Formats Registry
      9.6.  Expert Review Guidelines
    10. References
@@ -1862,12 +1862,12 @@ Table of Contents
    "application" registry in the registry group "Media Types" with this
    document as reference.
 
-9.4.1.  Media Type application/cose-c509-crl
+9.4.1.  Media Type application/c509-crl+cbor
 
-   When the application/cose-c509-crl media type is used, the data is a
+   When the application/c509-crl+cbor media type is used, the data is a
    C509CRL structure.
 
-   Subtype name: cose-c509-crl
+   Subtype name: c509-crl+cbor
 
    Required parameters: N/A
 
@@ -1904,12 +1904,12 @@ Table of Contents
 
    Change controller: IETF
 
-9.4.2.  Media Type application/cose-c509-crlinfo
+9.4.2.  Media Type application/c509-crlinfo+cbor
 
-   When the application/cose-c509-crlinfo media type is used, the data
+   When the application/c509-crlinfo+cbor media type is used, the data
    is a C509CRLInfo structure.
 
-   Subtype name: cose-c509-crlinfo
+   Subtype name: c509-crlinfo+cbor
 
    Required parameters: N/A
 
@@ -1946,12 +1946,12 @@ Table of Contents
 
    Change controller: IETF
 
-9.4.3.  Media Type application/cose-c509-ocsp-request
+9.4.3.  Media Type application/c509-ocsp-request+cbor
 
-   When the application/cose-c509-ocsp-request media type is used, the
+   When the application/c509-ocsp-request+cbor media type is used, the
    data is a C509OCSPRequest structure.
 
-   Subtype name: cose-c509-ocsp-request
+   Subtype name: c509-ocsp-request+cbor
 
    Required parameters: N/A
 
@@ -1988,12 +1988,12 @@ Table of Contents
 
    Change controller: IETF
 
-9.4.4.  Media Type application/cose-c509-ocsp-response
+9.4.4.  Media Type application/c509-ocsp-response+cbor
 
-   When the application/cose-c509-ocsp-response media type is used, the
+   When the application/c509-ocsp-response+cbor media type is used, the
    data is a C509OCSPResponse structure.
 
-   Subtype name: cose-c509-ocsp-response
+   Subtype name: c509-ocsp-response+cbor
 
    Required parameters: N/A
 
@@ -2032,9 +2032,9 @@ Table of Contents
 
 9.5.  CoAP Content-Formats Registry
 
-   IANA is requested to add entries for "application/cose-c509-crl",
-   "application/cose-c509-crlinfo", "application/cose-c509-ocsp-request"
-   and "application/cose-c509-ocsp-response" to the "CoAP Content-
+   IANA is requested to add entries for "application/c509-crl+cbor",
+   "application/c509-crlinfo+cbor", "application/c509-ocsp-request+cbor"
+   and "application/c509-ocsp-response+cbor" to the "CoAP Content-
    Formats" registry in the registry group "Constrained RESTful
    Environments (CoRE) Parameters".
 
@@ -2043,18 +2043,18 @@ Table of Contents
    | Type                 | Coding  |       |            |
    +======================+=========+=======+============+
    | application/         | -       | TBD7  | [[this     |
-   | cose-c509-crl        |         |       | document]] |
+   | c509-crl+cbor        |         |       | document]] |
    +----------------------+---------+-------+------------+
    | application/         |         |       | [[this     |
-   | cose-c509-crlinfo    | -       | TBD8  | document]] |
+   | c509-crlinfo+cbor    | -       | TBD8  | document]] |
    +----------------------+---------+-------+------------+
    | application/         | -       | TBD9  | [[this     |
-   | cose-c509-ocsp-      |         |       | document]] |
-   | request              |         |       |            |
+   | c509-ocsp-           |         |       | document]] |
+   | request+cbor         |         |       |            |
    +----------------------+---------+-------+------------+
    | application/         | -       | TBD10 | [[this     |
-   | cose-c509-ocsp-      |         |       | document]] |
-   | response             |         |       |            |
+   | c509-ocsp-           |         |       | document]] |
+   | response+cbor        |         |       |            |
    +----------------------+---------+-------+------------+
 
 9.6.  Expert Review Guidelines
