@@ -970,49 +970,11 @@ IANA is requested to assign the value shown in {{tab-tls-certstatus-iana}} in th
 
 IANA is requested to assign the following entries into the "application" registry in the registry group "Media Types" with this document as reference.
 
-### Media Type application/cose-c509-crl
+### Media Type application/c509-crl+cbor
 
-When the application/cose-c509-crl media type is used, the data is a C509CRL structure.
+When the application/c509-crl+cbor media type is used, the data is a C509CRL structure.
 
-Subtype name: cose-c509-crl
-
-Required parameters: N/A
-
-Encoding considerations: binary
-
-Security considerations: See {{security}} of {{&SELF}}.
-
-Interoperability considerations: N/A
-
-Published specification: {{&SELF}}
-
-Applications that use this media type: Any MIME-compliant transport
-
-Fragment identifier considerations: N/A
-
-Additional information:
-
-* Deprecated alias names for this type: N/A
-* Magic number(s): N/A
-* File extension(s): .c509
-
-* Macintosh file type code(s): N/A
-
-Person & email address to contact for further information: iesg@ietf.org
-
-Intended usage: COMMON
-
-Restrictions on usage: N/A
-
-Author: COSE WG
-
-Change controller: IETF
-
-### Media Type application/cose-c509-crlinfo
-
-When the application/cose-c509-crlinfo media type is used, the data is a C509CRLInfo structure.
-
-Subtype name: cose-c509-crlinfo
+Subtype name: c509-crl+cbor
 
 Required parameters: N/A
 
@@ -1046,11 +1008,49 @@ Author: COSE WG
 
 Change controller: IETF
 
-### Media Type application/cose-c509-ocsp-request
+### Media Type application/c509-crlinfo+cbor
 
-When the application/cose-c509-ocsp-request media type is used, the data is a C509OCSPRequest structure.
+When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.
 
-Subtype name: cose-c509-ocsp-request
+Subtype name: c509-crlinfo+cbor
+
+Required parameters: N/A
+
+Encoding considerations: binary
+
+Security considerations: See {{security}} of {{&SELF}}.
+
+Interoperability considerations: N/A
+
+Published specification: {{&SELF}}
+
+Applications that use this media type: Any MIME-compliant transport
+
+Fragment identifier considerations: N/A
+
+Additional information:
+
+* Deprecated alias names for this type: N/A
+* Magic number(s): N/A
+* File extension(s): .c509
+
+* Macintosh file type code(s): N/A
+
+Person & email address to contact for further information: iesg@ietf.org
+
+Intended usage: COMMON
+
+Restrictions on usage: N/A
+
+Author: COSE WG
+
+Change controller: IETF
+
+### Media Type application/c509-ocsp-request+cbor
+
+When the application/c509-ocsp-request+cbor media type is used, the data is a C509OCSPRequest structure.
+
+Subtype name: c509-ocsp-request+cbor
 
 Required parameters: N/A
 
@@ -1084,11 +1084,11 @@ Author: COSE WG
 
 Change controller: IETF
 
-### Media Type application/cose-c509-ocsp-response
+### Media Type application/c509-ocsp-response+cbor
 
-When the application/cose-c509-ocsp-response media type is used, the data is a C509OCSPResponse structure.
+When the application/c509-ocsp-response+cbor media type is used, the data is a C509OCSPResponse structure.
 
-Subtype name: cose-c509-ocsp-response
+Subtype name: c509-ocsp-response+cbor
 
 Required parameters: N/A
 
@@ -1124,7 +1124,7 @@ Change controller: IETF
 
 ## CoAP Content-Formats Registry {#content-format}
 
-IANA is requested to add entries for "application/cose-c509-crl", "application/cose-c509-crlinfo", "application/cose-c509-ocsp-request" and "application/cose-c509-ocsp-response" to the "CoAP Content-Formats" registry in the registry group "Constrained RESTful Environments (CoRE) Parameters".
+IANA is requested to add entries for "application/c509-crl+cbor", "application/c509-crlinfo+cbor", "application/c509-ocsp-request+cbor" and "application/c509-ocsp-response+cbor" to the "CoAP Content-Formats" registry in the registry group "Constrained RESTful Environments (CoRE) Parameters".
 
 ~~~
 +----------------------+---------+-------+------------+
@@ -1132,18 +1132,18 @@ IANA is requested to add entries for "application/cose-c509-crl", "application/c
 | Type                 | Coding  |       |            |
 +======================+=========+=======+============+
 | application/         | -       | TBD7  | [[this     |
-| cose-c509-crl        |         |       | document]] |
+| c509-crl+cbor        |         |       | document]] |
 +----------------------+---------+-------+------------+
 | application/         |         |       | [[this     |
-| cose-c509-crlinfo    | -       | TBD8  | document]] |
+| c509-crlinfo+cbor    | -       | TBD8  | document]] |
 +----------------------+---------+-------+------------+
 | application/         | -       | TBD9  | [[this     |
-| cose-c509-ocsp-      |         |       | document]] |
-| request              |         |       |            |
+| c509-ocsp-           |         |       | document]] |
+| request+cbor         |         |       |            |
 +----------------------+---------+-------+------------+
 | application/         | -       | TBD10 | [[this     |
-| cose-c509-ocsp-      |         |       | document]] |
-| response             |         |       |            |
+| c509-ocsp-           |         |       | document]] |
+| response+cbor        |         |       |            |
 +----------------------+---------+-------+------------+
 ~~~
 
