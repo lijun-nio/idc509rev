@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                       NIO
 Intended status: Standards Track                               M. Tiloca
-Expires: 30 December 2026                                     J. Höglund
+Expires: 31 December 2026                                     J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                            28 June 2026
+                                                            29 June 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -67,7 +67,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 30 December 2026.
+   This Internet-Draft will expire on 31 December 2026.
 
 Copyright Notice
 
@@ -2183,87 +2183,82 @@ Appendix A.  Examples
 
 A.1.  Overview
 
-    +========+============+==========+==========+=====================+
-    |Section |Description |size(C509)|size(X509)|size(C509)/size(X509)|
-    +========+============+==========+==========+=====================+
-    |Appendix|CRL Example |147       |120       |82%                  |
-    |A.3.1   |Without     |          |          |                     |
-    |        |Revoked     |          |          |                     |
-    |        |Certificates|          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|CRL Example |335       |177       |53%                  |
-    |A.3.2   |With Revoked|          |          |                     |
-    |        |Certificates|          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Delta CRL   |335       |160       |48%                  |
-    |A.3.3   |Example With|          |          |                     |
-    |        |Revoked     |          |          |                     |
-    |        |Certificates|          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Indirect CRL|409       |202       |49%                  |
-    |A.3.4   |Example With|          |          |                     |
-    |        |Revoked     |          |          |                     |
-    |        |Certificates|          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Simple OCSP |152       |51        |34%                  |
-    |A.4.1   |Request     |          |          |                     |
-    |        |Example     |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Unsigned    |483       |132       |27%                  |
-    |A.4.2   |OCSP Request|          |          |                     |
-    |        |Example     |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Signed OCSP |592       |209       |35%                  |
-    |A.4.3   |Request     |          |          |                     |
-    |        |Example     |          |          |                     |
-    |        |Without     |          |          |                     |
-    |        |Requestor's |          |          |                     |
-    |        |Certificate |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Signed OCSP |1043      |420       |40%                  |
-    |A.4.4   |Request     |          |          |                     |
-    |        |Example With|          |          |                     |
-    |        |Requestor's |          |          |                     |
-    |        |Certificate |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Signed OCSP |1379      |625       |45%                  |
-    |A.4.5   |Request     |          |          |                     |
-    |        |Example With|          |          |                     |
-    |        |Requestor's |          |          |                     |
-    |        |Certificate |          |          |                     |
-    |        |Chain       |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Error OCSP  |5         |3         |60%                  |
-    |A.5.1   |Response    |          |          |                     |
-    |        |Example     |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Simple OCSP |338       |140       |41%                  |
-    |A.5.2   |Response    |          |          |                     |
-    |        |Example     |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Basic OCSP  |845       |248       |29%                  |
-    |A.5.3   |Response    |          |          |                     |
-    |        |Example     |          |          |                     |
-    |        |Without     |          |          |                     |
-    |        |Responder's |          |          |                     |
-    |        |Certificate |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Basic OCSP  |1189      |446       |38%                  |
-    |A.5.4   |Response    |          |          |                     |
-    |        |Example With|          |          |                     |
-    |        |Responder's |          |          |                     |
-    |        |Certificate |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
-    |Appendix|Basic OCSP  |1525      |651       |43%                  |
-    |A.5.5   |Response    |          |          |                     |
-    |        |Example With|          |          |                     |
-    |        |Responder's |          |          |                     |
-    |        |Certificate |          |          |                     |
-    |        |Chain       |          |          |                     |
-    +--------+------------+----------+----------+---------------------+
+   +==========+==================+============+============+===========+
+   | Section  | Description      | size(C509) | size(X509) | Size      |
+   |          |                  |            |            | Reduction |
+   +==========+==================+============+============+===========+
+   | Appendix | CRL Example      | 147        | 120        | 18%       |
+   | A.3.1    | Without Revoked  |            |            |           |
+   |          | Certificates     |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | CRL Example      | 335        | 177        | 47%       |
+   | A.3.2    | With Revoked     |            |            |           |
+   |          | Certificates     |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Delta CRL        | 335        | 160        | 52%       |
+   | A.3.3    | Example With     |            |            |           |
+   |          | Revoked          |            |            |           |
+   |          | Certificates     |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Indirect CRL     | 409        | 202        | 51%       |
+   | A.3.4    | Example With     |            |            |           |
+   |          | Revoked          |            |            |           |
+   |          | Certificates     |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Simple OCSP      | 152        | 51         | 66%       |
+   | A.4.1    | Request Example  |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Unsigned OCSP    | 483        | 132        | 73%       |
+   | A.4.2    | Request Example  |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Signed OCSP      | 592        | 209        | 65%       |
+   | A.4.3    | Request Example  |            |            |           |
+   |          | Without          |            |            |           |
+   |          | Requestor's      |            |            |           |
+   |          | Certificate      |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Signed OCSP      | 1043       | 420        | 60%       |
+   | A.4.4    | Request Example  |            |            |           |
+   |          | With             |            |            |           |
+   |          | Requestor's      |            |            |           |
+   |          | Certificate      |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Signed OCSP      | 1379       | 625        | 55%       |
+   | A.4.5    | Request Example  |            |            |           |
+   |          | With             |            |            |           |
+   |          | Requestor's      |            |            |           |
+   |          | Certificate      |            |            |           |
+   |          | Chain            |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Error OCSP       | 5          | 3          | 40%       |
+   | A.5.1    | Response         |            |            |           |
+   |          | Example          |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Simple OCSP      | 338        | 140        | 59%       |
+   | A.5.2    | Response         |            |            |           |
+   |          | Example          |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Basic OCSP       | 845        | 248        | 71%       |
+   | A.5.3    | Response         |            |            |           |
+   |          | Example Without  |            |            |           |
+   |          | Responder's      |            |            |           |
+   |          | Certificate      |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Basic OCSP       | 1189       | 446        | 62%       |
+   | A.5.4    | Response         |            |            |           |
+   |          | Example With     |            |            |           |
+   |          | Responder's      |            |            |           |
+   |          | Certificate      |            |            |           |
+   +----------+------------------+------------+------------+-----------+
+   | Appendix | Basic OCSP       | 1525       | 651        | 57%       |
+   | A.5.5    | Response         |            |            |           |
+   |          | Example With     |            |            |           |
+   |          | Responder's      |            |            |           |
+   |          | Certificate      |            |            |           |
+   |          | Chain            |            |            |           |
+   +----------+------------------+------------+------------+-----------+
 
-      Table 12: Size comparison in examples (TODO: update the percent
-                                   data)
+   Table 12: Size comparison in examples (TODO: update the percent data)
 
 A.2.  Helper Keys and Certificates
 
@@ -2487,7 +2482,7 @@ A.3.  CRL Examples
 
 A.3.1.  CRL Example Without Revoked Certificates
 
-   *  size(C509) / size(X509): 81%
+   *  Size reduction: 18%
 
    *  Verifiable with certificate in Appendix A.2.1.2
 
@@ -2564,7 +2559,7 @@ A.3.1.2.  C509 CRL
 
 A.3.2.  CRL Example With Revoked Certificates
 
-   *  size(C509) / size(X509): 52%
+   *  Size reduction: 47%
 
    *  Verifiable with certificate in Appendix A.2.1.2
 
@@ -2687,7 +2682,7 @@ A.3.2.2.  C509 CRL
 
 A.3.3.  Delta CRL Example With Revoked Certificates
 
-   *  size(C509) / size(X509): 47%
+   *  Size reduction: 52%
 
    *  Verifiable with certificate in Appendix A.2.1.2
 
@@ -2803,7 +2798,7 @@ A.3.3.2.  C509 CRL
 
 A.3.4.  Indirect CRL Example With Revoked Certificates
 
-   *  size(C509) / size(X509): 49%
+   *  Size reduction: 51%
 
    *  Verifiable with certificate in Appendix A.2.2.2
 
@@ -2947,7 +2942,7 @@ A.4.  OCSP Request Examples
 
 A.4.1.  Simple OCSP Request Example
 
-   *  size(C509) / size(X509): 33%
+   *  Size reduction: 66%
 
    *  Simpe OCSP Request (C509SimpleOCSPRequest)
 
@@ -3002,7 +2997,7 @@ A.4.1.2.  C509 OCSP Request
 
 A.4.2.  Unsigned OCSP Request Example
 
-   *  size(C509) / size(X509): 27%
+   *  Size reduction: 73%
 
    *  Unsigned OCSP Request (C509UnsignedOCSPRequest)
 
@@ -3115,7 +3110,7 @@ A.4.2.2.  C509 OCSP Request
 
 A.4.3.  Signed OCSP Request Example Without Requestor's Certificate
 
-   *  size(C509) / size(X509): 35%
+   *  Size reduction: 65%
 
    *  Verifiable with certificate in Appendix A.2.3.2
 
@@ -3254,7 +3249,7 @@ A.4.3.2.  C509 OCSP Request
 
 A.4.4.  Signed OCSP Request Example With Requestor's Certificate
 
-   *  size(C509) / size(X509): 40%
+   *  Size reduction: 60%
 
    *  Verifiable with certificate in Appendix A.2.3.2
 
@@ -3459,7 +3454,7 @@ A.4.4.2.  C509 OCSP Request
 
 A.4.5.  Signed OCSP Request Example With Requestor's Certificate Chain
 
-   *  size(C509) / size(X509): 45%
+   *  Size reduction: 55%
 
    *  Verifiable with certificate in Appendix A.2.3.2
 
@@ -3703,7 +3698,7 @@ A.5.  OCSP Response Examples
 
 A.5.1.  Error OCSP Response Example
 
-   *  size(C509) / size(X509): 60%
+   *  Size reduction: 40%
 
    *  Error Response (C509ErrorOCSPResponse)
 
@@ -3736,7 +3731,7 @@ A.5.1.2.  C509 OCSP Response
 
 A.5.2.  Simple OCSP Response Example
 
-   *  size(C509) / size(X509): 41%
+   *  Size reduction: 59%
 
    *  Verifiable with certificate in Appendix A.2.4.2
 
@@ -3828,7 +3823,7 @@ A.5.2.2.  C509 OCSP Response
 
 A.5.3.  Basic OCSP Response Example Without Responder's Certificate
 
-   *  size(C509) / size(X509): 29%
+   *  Size reduction: 71%
 
    *  Verifiable with certificate in Appendix A.2.4.2
 
@@ -4004,7 +3999,7 @@ A.5.3.2.  C509 OCSP Response
 
 A.5.4.  Basic OCSP Response Example With Responder's Certificate
 
-   *  size(C509) / size(X509): 37%
+   *  Size reduction: 62%
 
    *  Verifiable with certificate in Appendix A.2.4.2
 
@@ -4214,7 +4209,7 @@ A.5.4.2.  C509 OCSP Response
 
 A.5.5.  Basic OCSP Response Example With Responder's Certificate Chain
 
-   *  size(C509) / size(X509): 42%
+   *  Size reduction: 57%
 
    *  Verifiable with certificate in Appendix A.2.4.2
 
