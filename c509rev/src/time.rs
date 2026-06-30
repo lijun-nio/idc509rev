@@ -11,11 +11,12 @@
 //!   from `producedAt`, so 0 or negative) and `nextUpdate` (`uint`, seconds
 //!   forward from `producedAt`).
 //!
-//! ## CRL `nextUpdate` (see REFERENCE-IMPL-PLAN.md §risks)
-//! Draft §5.3.6 *text* says CRL `nextUpdate` is a delta from `thisUpdate`, but
-//! all four CRL examples encode an **absolute** timestamp (confirmed unresolved
-//! in the latest idc509rev draft). This impl follows the **examples** (absolute)
-//! and flags the discrepancy via [`crl_next_update`].
+//! ## CRL `nextUpdate`
+//! Draft §5.3.6 defines CRL `nextUpdate` as a **delta** in seconds from
+//! `thisUpdate` (resolved in idc509rev issue #1; the examples were regenerated to
+//! match). The structs keep `next_update` as an absolute time for ergonomics; the
+//! delta conversion is localised to [`crl_next_update`] on encode and to the
+//! decoder on the way back.
 
 use c509::lcbor;
 
@@ -39,14 +40,12 @@ pub fn encode_delta_back(back: u64) -> Vec<u8> {
     lcbor::lcbor_int(v)
 }
 
-/// Encode a CRL `nextUpdate`.
-///
-/// Per the decision above this follows the **examples** (absolute `~time`),
-/// *not* the §5.3.6 text (delta from `thisUpdate`). The `_this_update` argument
-/// is accepted so the call site is explicit and a future delta-mode switch is a
-/// one-line change here if the draft text wins instead.
-pub fn crl_next_update(next_update_abs: u64, _this_update: u64) -> Vec<u8> {
-    encode_abs(next_update_abs)
+/// Encode a CRL `nextUpdate` as the §5.3.6 forward delta in seconds from
+/// `this_update`, as a CBOR uint. `next_update_abs` is the absolute next-update
+/// time held by the struct; callers guarantee `next_update_abs >= this_update`,
+/// and `saturating_sub` keeps a misordered pair from panicking.
+pub fn crl_next_update(next_update_abs: u64, this_update: u64) -> Vec<u8> {
+    encode_abs(next_update_abs.saturating_sub(this_update))
 }
 
 #[cfg(test)]
@@ -55,7 +54,7 @@ mod tests {
 
     #[test]
     fn abs_matches_example_encoding() {
-        // CRL "no revoked" example: nextUpdate=1736380800 -> 1A 677F1180.
+        // Absolute ~time encodings (e.g. a CRL thisUpdate / OCSP producedAt).
         assert_eq!(encode_abs(1736380800), vec![0x1a, 0x67, 0x7f, 0x11, 0x80]);
         // thisUpdate=1735776000 -> 1A 6775D700.
         assert_eq!(encode_abs(1735776000), vec![0x1a, 0x67, 0x75, 0xd7, 0x00]);
@@ -72,8 +71,12 @@ mod tests {
     }
 
     #[test]
-    fn crl_next_update_is_absolute() {
+    fn crl_next_update_is_forward_delta() {
+        // CRL "no revoked" example: thisUpdate=1735776000, nextUpdate delta
+        // 604800 (7 days) -> 1A 00093A80.
         assert_eq!(crl_next_update(1736380800, 1735776000),
-                   encode_abs(1736380800));
+                   encode_abs(604800));
+        assert_eq!(crl_next_update(1736380800, 1735776000),
+                   vec![0x1a, 0x00, 0x09, 0x3a, 0x80]);
     }
 }

@@ -1,9 +1,11 @@
 //! Size harness for the LRev follow-up (experiment E1/E2, Tier 0).
 //!
 //! Emits CSV of encoded byte sizes for C509 OCSP and C509 CRL as a function of
-//! the number of validated certificates (N) and revoked entries (R), in both the
-//! full-32-byte hash and the 8-byte KID-truncated modes. Hashes/nonces are
-//! opaque placeholders (their *length* is what matters for size).
+//! the number of validated certificates (N) and revoked entries (R), in two hash
+//! modes: the draft's truncated identifiers (`spec`: cert hashes `HashId8` = 8 B,
+//! `serialNumberHash` `HashId20` = 20 B) and an untruncated `full` (32 B)
+//! baseline. Hashes/nonces are opaque placeholders (their *length* is what
+//! matters for size).
 //!
 //!   cargo run --example sizes
 //!
@@ -16,37 +18,38 @@ use c509rev::ocsp_resp::{
     C509OcspResponse, CertStatus, PerIssuerOCSPResponse, SingleCertResponse,
 };
 
-const SHA256: i64 = 1;
+const SHA256: i64 = 0;
 const ED25519: i64 = 12;
 
 fn h(l: usize) -> Vec<u8> {
     vec![0u8; l]
 }
 
-/// C509 Simple OCSP request (one certificate), hash length `l`.
-fn simple_req(l: usize) -> usize {
+/// C509 Simple OCSP request (one certificate). `cl` = cert-hash length (HashId8),
+/// `sl` = serialNumberHash length (HashId20).
+fn simple_req(cl: usize, sl: usize) -> usize {
     C509OcspRequest::Simple {
         hash_algorithm: SHA256,
         nonce: Some(vec![0u8; 16]),
-        issuer_cert_hash: h(l),
-        serial_number_hash: h(l),
+        issuer_cert_hash: h(cl),
+        serial_number_hash: h(sl),
         extensions: vec![],
     }
     .encode()
     .len()
 }
 
-/// C509 Unsigned OCSP request, one issuer, `n` certificates, hash length `l`.
-fn unsigned_req(n: usize, l: usize) -> usize {
+/// C509 Unsigned OCSP request, one issuer, `n` certificates.
+fn unsigned_req(n: usize, cl: usize, sl: usize) -> usize {
     let singles = (0..n)
-        .map(|_| SingleCertRequest { serial_number_hash: h(l), extensions: vec![] })
+        .map(|_| SingleCertRequest { serial_number_hash: h(sl), extensions: vec![] })
         .collect();
     C509OcspRequest::Unsigned {
         hash_algorithm: SHA256,
         nonce: Some(vec![0u8; 16]),
         extensions: vec![],
         requests: vec![PerIssuerOCSPRequest {
-            issuer_cert_hash: h(l),
+            issuer_cert_hash: h(cl),
             extensions: vec![],
             single_requests: singles,
         }],
@@ -55,11 +58,11 @@ fn unsigned_req(n: usize, l: usize) -> usize {
     .len()
 }
 
-/// C509 Basic OCSP response, one issuer, `n` statuses, hash length `l`.
-fn basic_resp(n: usize, l: usize) -> usize {
+/// C509 Basic OCSP response, one issuer, `n` statuses.
+fn basic_resp(n: usize, cl: usize, sl: usize) -> usize {
     let singles = (0..n)
         .map(|_| SingleCertResponse {
-            serial_number_hash: h(l),
+            serial_number_hash: h(sl),
             cert_status: CertStatus::Good,
             this_update_back: 28800,
             next_update_forward: Some(25200),
@@ -70,11 +73,11 @@ fn basic_resp(n: usize, l: usize) -> usize {
         signature_algorithm: ED25519,
         hash_algorithm: SHA256,
         nonce: Some(vec![0u8; 16]),
-        responder_cert_hash: h(l),
+        responder_cert_hash: h(cl),
         produced_at: 1_781_027_830,
         extensions: vec![],
         responses: vec![PerIssuerOCSPResponse {
-            issuer_cert_hash: h(l),
+            issuer_cert_hash: h(cl),
             extensions: vec![],
             single_responses: singles,
         }],
@@ -146,12 +149,13 @@ fn status_list(n_issued: usize) -> usize {
 }
 
 fn main() {
-    println!("scenario,N,hashlen,bytes");
-    for l in [32usize, 8] {
-        println!("simple_req,1,{l},{}", simple_req(l));
+    println!("scenario,N,hashmode,bytes");
+    // (label, cert-hash len, serialNumberHash len): spec = HashId8 + HashId20.
+    for (mode, cl, sl) in [("spec", 8usize, 20usize), ("full", 32usize, 32usize)] {
+        println!("simple_req,1,{mode},{}", simple_req(cl, sl));
         for n in 1..=16 {
-            println!("unsigned_req,{n},{l},{}", unsigned_req(n, l));
-            println!("basic_resp,{n},{l},{}", basic_resp(n, l));
+            println!("unsigned_req,{n},{mode},{}", unsigned_req(n, cl, sl));
+            println!("basic_resp,{n},{mode},{}", basic_resp(n, cl, sl));
         }
     }
     for r in [0usize, 1, 10, 100, 1000, 10000] {

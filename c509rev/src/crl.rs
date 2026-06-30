@@ -87,8 +87,9 @@ pub struct CrlInfo {
     pub authority_key_identifier: Option<Vec<u8>>,
     pub crl_number: u64,
     pub this_update: u64,
-    /// Absolute next-update time, or `None` for null. (Encoded absolute to match
-    /// the examples; see `time::crl_next_update`.)
+    /// Absolute next-update time, or `None` for null. Encoded on the wire as a
+    /// forward delta in seconds from `this_update` (draft §5.3.6); see
+    /// `time::crl_next_update`.
     pub next_update: Option<u64>,
     pub base_crl_number: Option<u64>,
     pub crl_extensions: Vec<Extension>,
@@ -273,15 +274,15 @@ mod tests {
     }
 
     const CRL_NO_REVOKED: &str = "8b000c6f746573742063726c6f6373702d6361542f45e78d2c\
-aedf368cdf53c39005d492450e1056011a6775d7001a677f1180f680f6584078bea0b6c4f89bcacb600d2c6a\
-878e6ce88c9313d2b32ee2ac289c95031ee0dfa5a2d42083f124bcc025c4a0b10677b993b05b10d74825eeb2\
-5dd7bdfb96bd09";
+aedf368cdf53c39005d492450e1056011a6775d7001a00093a80f680f6584013834f4e38aa9f0dc5b8d21c86\
+50c776a6d961c31c894c36a71a6433f5ed7d30e67f787f13c7e4c349b2848a181fdbbce361a14c220021c4a2\
+67367ad5f1d90d";
 
     const CRL_REVOKED: &str = "8b000c6f746573742063726c6f6373702d6361542f45e78d2caedf36\
-8cdf53c39005d492450e1056021a677c71721a6785abf2f68085f6840302031a677488728218571a67748580\
-5824112206978006123400000001334403f480065566015180065678054600009abc02a30000f6584071fa09\
-f11e37b880ccde7ee6dde6a76244a36ca1f07f2ec52ab03a7324c1e5d2a42a001731b3af5977b30b0e2a38ae7\
-cc745bc3464d349750e0ae18af6bf8d0f";
+8cdf53c39005d492450e1056021a677c71721a00093a80f68085f6840302031a677488728218571a67748580\
+5824112206978006123400000001334403f480065566015180065678054600009abc02a30000f6584070bb7a\
+38065fbcabfe615170f05a9a9fe83dc892d5f735812b2a053af4b300eb466babb4f1a387cdce90d8302c680b7\
+7aa61566423d7c235f7bd31344cf7f405";
 
     #[test]
     fn tbs_matches_no_revoked_example() {
@@ -294,6 +295,36 @@ cc745bc3464d349750e0ae18af6bf8d0f";
                    hex::encode(example_tbs(CRL_NO_REVOKED)));
     }
 
+    // The draft now publishes the example signing keys (idc509rev issue #4), so
+    // the examples double as cross-implementation KATs. The "no revoked" CRL is
+    // signed by the crlocsp-ca Ed25519 key; Ed25519 is deterministic (RFC 8032),
+    // so signing our TBS must reproduce the example's signatureValue byte-for-byte.
+    const CA_PRIV_PEM: &str = "-----BEGIN PRIVATE KEY-----\n\
+MC4CAQAwBQYDK2VwBCIEIDP+AdMbqXudBAN3YNAwoR0i3nl4IuoSSA6Hazy2oAKc\n\
+-----END PRIVATE KEY-----\n";
+    // crlocsp-ca raw Ed25519 public key (from the CA certificate, draft §ca-cert).
+    const CA_PUB_HEX: &str =
+        "5ef8a355a001a7c50d23494701208131a4bb2ab920d40bfb0ee1f6ab28ff7400";
+
+    #[test]
+    fn signs_no_revoked_example_with_published_ca_key() {
+        let mut crl = C509Crl {
+            info: base_info(1, 1735776000, 1736380800),
+            revoked_certs_list: None,
+            signature_value: vec![],
+        };
+        crl.sign(CA_PRIV_PEM).unwrap();
+
+        // The example's signatureValue = the trailing 64 bytes (after `58 40`).
+        let full = hex::decode(CRL_NO_REVOKED).unwrap();
+        let want = &full[full.len() - 64..];
+        assert_eq!(crl.signature_value, want,
+                   "signature must match the published example byte-for-byte");
+
+        let pk = hex::decode(CA_PUB_HEX).unwrap();
+        assert!(crl.verify(&pk).is_ok());
+    }
+
     // crl-signer AKI used by the indirect CRL example.
     const AKI_SIGNER: [u8; 20] = [
         0x09, 0xe4, 0x33, 0x58, 0x25, 0x56, 0x55, 0x0a, 0x27, 0xdb,
@@ -301,15 +332,15 @@ cc745bc3464d349750e0ae18af6bf8d0f";
     ];
 
     const CRL_DELTA: &str = "8b000c6f746573742063726c6f6373702d6361542f45e78d2caedf36\
-8cdf53c39005d492450e1056031a677dc2f21a678065f2028085f6840302021a677d1a32804f3412000001785\
-6a84800bc9aa7d0004c11220000334400005566000058406a6db5affbc1e72b76709aa2b5eeaaf7660a9647d4\
-7520a32f61db220afdc6fc7c48e712993d4510b35832b15fc003da8be95280678dc793fb0795e1ce6d220a";
+8cdf53c39005d492450e1056031a677dc2f21a0002a300028085f6840302021a677d1a32804f3412000001785\
+6a84800bc9aa7d0004c112200003344000055660000584051bda2027ca7ab1a3606ba1091e77200cec9cd7a3c\
+2acd29e1868648d8b19cf9d14a0e268ad67ff4a697fc0b684809dfc92d0b6882e5b06b1d49a1659291ce07";
 
     const CRL_INDIRECT: &str = "8b000c6a63726c2d7369676e65725409e433582556550a27db4a19\
-bce2d660884722b6041a677c71721a6785abf2f6808a6f746573742063726c6f6373702d6361840302031a677\
+bce2d660884722b6041a677c71721a00093a80f6808a6f746573742063726c6f6373702d6361840302031a677\
 4887280521234000000015678054600009abc02a30000f66a6578616d706c65204341840302031a6775d9f280\
-52112205460006334402a30006556600000006f65840a301bc4c9c68f5c4455cd811fdebcb04d643f1799b8f6\
-1935e6270cb1992030c0027960eac7924a3f01acdae25caaea45e5c324b00164819e369784adcd52509";
+52112205460006334402a30006556600000006f65840f00d6270f91486a7f378d06f01a807e64e086bb366be3\
+a1592ce4a64bffd621f30e2ab93766b4f8818116ab7da7bedf7c3ebcbdeac6d0455f5f5669712006205";
 
     #[test]
     fn tbs_matches_delta_example() {

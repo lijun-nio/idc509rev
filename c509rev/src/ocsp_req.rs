@@ -14,9 +14,9 @@
 //! `SingleCertRequest` groups `(serialNumberHash, extensions)`.
 //!
 //! Cert/serial hashes are carried as **opaque bytes** here — their *length* is
-//! the [`crate::hashalg::HashLen`] decision (8-byte KID by default), their
-//! *computation* is validated in `certhash`. v1 implements Simple + Unsigned;
-//! Signed lands with signing.
+//! the [`crate::hashalg::HashLen`] decision (cert hashes `HashId8` = 8 bytes,
+//! `serialNumberHash` `HashId20` = 20 bytes), their *computation* is validated in
+//! `certhash`. v1 implements Simple + Unsigned; Signed lands with signing.
 
 use c509::lcbor;
 
@@ -171,32 +171,33 @@ mod tests {
     use super::*;
     use crate::hashalg;
 
-    const SIMPLE_REQ: &str = "86020150111111111111111111111111111111115820a01c73a5f3\
-b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c582010652787fa0527bc2449a1bfc5ab31a\
-a5a6f0d8d6b998e4fede7d90dca47f00480";
+    const SIMPLE_REQ: &str = "860200501111111111111111111111111111111148a01c73a5f3b063\
+345410652787fa0527bc2449a1bfc5ab31aa5a6f0d8d80";
 
-    const UNSIGNED_REQ: &str = "850001501111111111111111111111111111111180865820a01c73\
-a5f3b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c8086582010652787fa0527bc2449a1b\
-fc5ab31aa5a6f0d8d6b998e4fede7d90dca47f00480582075d8bc4fbafc6694467641e748dfd53a8b9d176dfa\
-3d05b3e98a4d6e5c55f165805820d1ac135d7da29bdcf4dca0d5281a51605b678400c26408cadc3a32fc1b6ad\
-5e3805820222222222222222222222222222222222222222222222222222222222222222280825820d3a0c1e\
-3db92e8f6810537d45cfaecf6ce417e3b264e50cb4f69dd853401c5dd80";
+    const UNSIGNED_REQ: &str = "8500005011111111111111111111111111111111808648a01c73a5f3\
+b0633480865410652787fa0527bc2449a1bfc5ab31aa5a6f0d8d805475d8bc4fbafc6694467641e748dfd53a8\
+b9d176d8054d1ac135d7da29bdcf4dca0d5281a51605b67840080482222222222222222808254d3a0c1e3db92\
+e8f6810537d45cfaecf6ce417e3b80";
 
-    // Pull a 32-byte field at byte offset `off` from a decoded example.
-    fn h32(full: &[u8], off: usize) -> Vec<u8> {
-        full[off..off + 32].to_vec()
+    // Cert identity hashes are HashId8 (8 bytes); serialNumberHash is HashId20
+    // (20 bytes). Pull each field by length at the annotated byte offset.
+    fn cert8(full: &[u8], off: usize) -> Vec<u8> {
+        full[off..off + 8].to_vec()
+    }
+    fn serial20(full: &[u8], off: usize) -> Vec<u8> {
+        full[off..off + 20].to_vec()
     }
 
     #[test]
     fn simple_request_matches_example() {
         let full = hex::decode(SIMPLE_REQ).unwrap();
-        // Offsets from the draft annotation: nonce@4 (16B), issuerCertHash@22,
-        // serialNumberHash@56.
+        // Offsets from the draft annotation: nonce@4 (16B), issuerCertHash@21
+        // (8B), serialNumberHash@30 (20B).
         let req = C509OcspRequest::Simple {
             hash_algorithm: hashalg::SHA_256,
             nonce: Some(full[4..20].to_vec()),
-            issuer_cert_hash: h32(&full, 22),
-            serial_number_hash: h32(&full, 56),
+            issuer_cert_hash: cert8(&full, 21),
+            serial_number_hash: serial20(&full, 30),
             extensions: vec![],
         };
         assert_eq!(hex::encode(req.encode()), hex::encode(&full));
@@ -205,11 +206,10 @@ fc5ab31aa5a6f0d8d6b998e4fede7d90dca47f00480582075d8bc4fbafc6694467641e748dfd53a8
     #[test]
     fn unsigned_request_matches_example() {
         let full = hex::decode(UNSIGNED_REQ).unwrap();
-        // Hash data starts 2 bytes after each `58 20` header. From the
-        // annotation: nonce@4; issuer0 hash@24; serial hashes@60,95,130;
-        // issuer1 hash@165; serial hash@201.
+        // From the annotation: nonce@4; issuer0 hash@23; serial hashes@34,56,78;
+        // issuer1 hash@100; serial hash@111.
         let sc = |off: usize| SingleCertRequest {
-            serial_number_hash: h32(&full, off),
+            serial_number_hash: serial20(&full, off),
             extensions: vec![],
         };
         let req = C509OcspRequest::Unsigned {
@@ -218,21 +218,26 @@ fc5ab31aa5a6f0d8d6b998e4fede7d90dca47f00480582075d8bc4fbafc6694467641e748dfd53a8
             extensions: vec![],
             requests: vec![
                 PerIssuerOCSPRequest {
-                    issuer_cert_hash: h32(&full, 24),
+                    issuer_cert_hash: cert8(&full, 23),
                     extensions: vec![],
-                    single_requests: vec![sc(60), sc(95), sc(130)],
+                    single_requests: vec![sc(34), sc(56), sc(78)],
                 },
                 PerIssuerOCSPRequest {
-                    issuer_cert_hash: h32(&full, 165),
+                    issuer_cert_hash: cert8(&full, 100),
                     extensions: vec![],
-                    single_requests: vec![sc(201)],
+                    single_requests: vec![sc(111)],
                 },
             ],
         };
         assert_eq!(hex::encode(req.encode()), hex::encode(&full));
     }
 
-    const SIGNED_REQ_NO_CERT: &str = "89010c015011111111111111111111111111111111582044f0528b56f35ad998049b306ff9a8b06fa79de8146946fe254b00c62a622a5d80865820a01c73a5f3b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c8086582010652787fa0527bc2449a1bfc5ab31aa5a6f0d8d6b998e4fede7d90dca47f00480582075d8bc4fbafc6694467641e748dfd53a8b9d176dfa3d05b3e98a4d6e5c55f165805820d1ac135d7da29bdcf4dca0d5281a51605b678400c26408cadc3a32fc1b6ad5e3805820222222222222222222222222222222222222222222222222222222222222222280825820d3a0c1e3db92e8f6810537d45cfaecf6ce417e3b264e50cb4f69dd853401c5dd80f65840ff755e078e731174dfd1f93e24c5b539ce3e1fe1a1ce51f387f12c6cd8c13aea6d87d4be33b6b3bf20c268afa19dcb6bafedf5e8a26131a027474e7b5831c106";
+    const SIGNED_REQ_NO_CERT: &str = "89010c0050111111111111111111111111111111114844f052\
+8b56f35ad9808648a01c73a5f3b0633480865410652787fa0527bc2449a1bfc5ab31aa5a6f0d8d805475d8bc4\
+fbafc6694467641e748dfd53a8b9d176d8054d1ac135d7da29bdcf4dca0d5281a51605b67840080482222222222\
+222222808254d3a0c1e3db92e8f6810537d45cfaecf6ce417e3b80f658407da70be70d8c88f5150218b2f60a21\
+320d26faf8dc198f16654d54cb617a1c3c3f420b3f2fbf74c9b107d81d1815c2ce09b22eaf491313003c49d43a\
+ab8d970b";
 
     fn example_tbs(full_hex: &str) -> Vec<u8> {
         let full = hex::decode(full_hex).unwrap();
@@ -242,28 +247,28 @@ fc5ab31aa5a6f0d8d6b998e4fede7d90dca47f00480582075d8bc4fbafc6694467641e748dfd53a8
     #[test]
     fn signed_request_no_cert_tbs_matches_example() {
         let full = hex::decode(SIGNED_REQ_NO_CERT).unwrap();
-        // requestorCertHash@23; issuer0 hash@59; serials@95,130,165;
-        // issuer1 hash@200; serial@236 (data = `58 20` header + 2).
+        // requestorCertHash@22; issuer0 hash@33; serials@44,66,88;
+        // issuer1 hash@110; serial@121.
         let sc = |off: usize| SingleCertRequest {
-            serial_number_hash: full[off..off + 32].to_vec(),
+            serial_number_hash: serial20(&full, off),
             extensions: vec![],
         };
         let req = C509OcspRequest::Signed {
             signature_algorithm: c509::registry::SIG_ED25519,
             hash_algorithm: hashalg::SHA_256,
             nonce: Some(full[5..21].to_vec()),
-            requestor_cert_hash: full[23..55].to_vec(),
+            requestor_cert_hash: cert8(&full, 22),
             extensions: vec![],
             requests: vec![
                 PerIssuerOCSPRequest {
-                    issuer_cert_hash: full[59..91].to_vec(),
+                    issuer_cert_hash: cert8(&full, 33),
                     extensions: vec![],
-                    single_requests: vec![sc(95), sc(130), sc(165)],
+                    single_requests: vec![sc(44), sc(66), sc(88)],
                 },
                 PerIssuerOCSPRequest {
-                    issuer_cert_hash: full[200..232].to_vec(),
+                    issuer_cert_hash: cert8(&full, 110),
                     extensions: vec![],
-                    single_requests: vec![sc(236)],
+                    single_requests: vec![sc(121)],
                 },
             ],
             requestor_certs: None,

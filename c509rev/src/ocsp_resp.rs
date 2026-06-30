@@ -220,16 +220,25 @@ mod tests {
     use super::*;
     use crate::hashalg;
 
-    const SIMPLE_RESP: &str = "8e020c01501111111111111111111111111111111158200600867838\
-e3311aa78b9ed60c631c86b09a6de7bc43e02a7aa7006a3443a3b25820a01c73a5f3b063344257d02693059de\
-d8e22c4433b1a4d85efae22f7f9d7e43c582010652787fa0527bc2449a1bfc5ab31aa5a6f0d8d6b998e4fede7\
-d90dca47f004001a67c4f10039707f19627080f65840bd269e74ac6c9ebfe4e0a46a64cfd432cc06068c4d073\
-fd515d0d276437ae5ec8baa611d3a7795e6b299c7539af3140ee768d19a05bd23b1e2c2f546c7738b07";
+    const SIMPLE_RESP: &str = "8e020c005011111111111111111111111111111111480600867838e3\
+311a48a01c73a5f3b063345410652787fa0527bc2449a1bfc5ab31aa5a6f0d8d001a67c4f10039707f1962708\
+0f65840e3419955aeb3d74ad5bc7d32264e8976c3ab6f68643c6bf66cc2f9352ff3e861a0bd1506c78b09d3fa\
+e869d1fd3c87ef461cf6d2096ea0ac11fcff5ebc0fa70c";
 
-    const BASIC_RESP: &str = "8a010c01501111111111111111111111111111111158200600867838e3311aa78b9ed60c631c86b09a6de7bc43e02a7aa7006a3443a3b21a6a2853f680865820a01c73a5f3b063344257d02693059ded8e22c4433b1a4d85efae22f7f9d7e43c808f582010652787fa0527bc2449a1bfc5ab31aa5a6f0d8d6b998e4fede7d90dca47f0040039707f19627080582075d8bc4fbafc6694467641e748dfd53a8b9d176dfa3d05b3e98a4d6e5c55f1650139707f196270805820d1ac135d7da29bdcf4dca0d5281a51605b678400c26408cadc3a32fc1b6ad5e3821a67c32f000439707f196270805820222222222222222222222222222222222222222222222222222222222222222280855820d3a0c1e3db92e8f6810537d45cfaecf6ce417e3b264e50cb4f69dd853401c5dd0239707f19627080f65840937ea7cccad3b9f113ed6ad0df113bf5e70fbf326e020ff5183ac87e5530ff06225f1aa048d76d39d412ec26c3ad9b74668791559e6973308e11dcabda826207";
+    const BASIC_RESP: &str = "8a010c005011111111111111111111111111111111480600867838e3311a\
+1a67c4f100808648a01c73a5f3b06334808f5410652787fa0527bc2449a1bfc5ab31aa5a6f0d8d0039707f1962\
+70805475d8bc4fbafc6694467641e748dfd53a8b9d176d0139707f1962708054d1ac135d7da29bdcf4dca0d528\
+1a51605b678400821a67c32f000439707f19627080482222222222222222808554d3a0c1e3db92e8f6810537d4\
+5cfaecf6ce417e3b0239707f19627080f65840e4869c57a66bab501acaeb7e5024105253d72f45d349ae21fb94\
+1abe4435f8a6c9d1ca5d2784ab30cf177ff075b5502aeaee09c1146cf490663eaed9243a760d";
 
-    fn h32(full: &[u8], off: usize) -> Vec<u8> {
-        full[off..off + 32].to_vec()
+    // Cert identity hashes are HashId8 (8 bytes); serialNumberHash is HashId20
+    // (20 bytes). Pull each field by length at the annotated byte offset.
+    fn cert8(full: &[u8], off: usize) -> Vec<u8> {
+        full[off..off + 8].to_vec()
+    }
+    fn serial20(full: &[u8], off: usize) -> Vec<u8> {
+        full[off..off + 20].to_vec()
     }
 
     fn example_tbs(full_hex: &str) -> Vec<u8> {
@@ -246,14 +255,15 @@ fd515d0d276437ae5ec8baa611d3a7795e6b299c7539af3140ee768d19a05bd23b1e2c2f546c7738
     #[test]
     fn simple_response_tbs_matches_example() {
         let full = hex::decode(SIMPLE_RESP).unwrap();
-        // nonce@5; responderCertHash@23; issuerCertHash@57; serialNumberHash@91.
+        // nonce@5; responderCertHash@22 (8B); issuerCertHash@31 (8B);
+        // serialNumberHash@40 (20B).
         let resp = C509OcspResponse::Simple {
             signature_algorithm: c509::registry::SIG_ED25519,
             hash_algorithm: hashalg::SHA_256,
             nonce: Some(full[5..21].to_vec()),
-            responder_cert_hash: h32(&full, 23),
-            issuer_cert_hash: h32(&full, 57),
-            serial_number_hash: h32(&full, 91),
+            responder_cert_hash: cert8(&full, 22),
+            issuer_cert_hash: cert8(&full, 31),
+            serial_number_hash: serial20(&full, 40),
             cert_status: CertStatus::Good,
             produced_at: 1740960000,
             this_update_back: 28800,
@@ -269,10 +279,10 @@ fd515d0d276437ae5ec8baa611d3a7795e6b299c7539af3140ee768d19a05bd23b1e2c2f546c7738
     #[test]
     fn basic_response_tbs_matches_example() {
         let full = hex::decode(BASIC_RESP).unwrap();
-        // nonce@5; responderCertHash@23; issuer0 hash@64; serial hashes@100,142,
-        // 184; issuer1 hash@232; serial hash@268.
+        // nonce@5; responderCertHash@22 (8B); issuer0 hash@38 (8B); serial
+        // hashes@49,78,107 (20B); issuer1 hash@142 (8B); serial hash@153 (20B).
         let sr = |off: usize, status: CertStatus| SingleCertResponse {
-            serial_number_hash: h32(&full, off),
+            serial_number_hash: serial20(&full, off),
             cert_status: status,
             this_update_back: 28800,
             next_update_forward: Some(25200),
@@ -282,25 +292,25 @@ fd515d0d276437ae5ec8baa611d3a7795e6b299c7539af3140ee768d19a05bd23b1e2c2f546c7738
             signature_algorithm: c509::registry::SIG_ED25519,
             hash_algorithm: hashalg::SHA_256,
             nonce: Some(full[5..21].to_vec()),
-            responder_cert_hash: h32(&full, 23),
-            produced_at: 1781027830,
+            responder_cert_hash: cert8(&full, 22),
+            produced_at: 1740960000,
             extensions: vec![],
             responses: vec![
                 PerIssuerOCSPResponse {
-                    issuer_cert_hash: h32(&full, 64),
+                    issuer_cert_hash: cert8(&full, 38),
                     extensions: vec![],
                     single_responses: vec![
-                        sr(100, CertStatus::Good),
-                        sr(142, CertStatus::NotIssued),
-                        sr(184, CertStatus::Revoked {
+                        sr(49, CertStatus::Good),
+                        sr(78, CertStatus::NotIssued),
+                        sr(107, CertStatus::Revoked {
                             revocation_time: 1740844800, revocation_reason: 4,
                         }),
                     ],
                 },
                 PerIssuerOCSPResponse {
-                    issuer_cert_hash: h32(&full, 232),
+                    issuer_cert_hash: cert8(&full, 142),
                     extensions: vec![],
-                    single_responses: vec![sr(268, CertStatus::Unknown)],
+                    single_responses: vec![sr(153, CertStatus::Unknown)],
                 },
             ],
             responder_certs: None,
