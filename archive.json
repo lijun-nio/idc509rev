@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-06-28T10:13:03.186684+00:00",
+  "timestamp": "2026-06-30T11:27:01.527618+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -55,15 +55,15 @@
       "id": "I_kwDOTDu4zs8AAAABGlG7uQ",
       "title": "Update time field in examples to match the nextUpdate definition",
       "url": "https://github.com/lijun-nio/idc509rev/issues/1",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "highlunder",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "nextUpdate is defined as a time delta, but the examples use absolute time. They need to be updated",
       "createdAt": "2026-06-24T16:13:30Z",
-      "updatedAt": "2026-06-25T10:15:21Z",
-      "closedAt": null,
+      "updatedAt": "2026-06-29T07:58:49Z",
+      "closedAt": "2026-06-29T07:58:49Z",
       "comments": [
         {
           "author": "lijun-nio",
@@ -71,6 +71,13 @@
           "body": "Examples have been updated to use the delta time.",
           "createdAt": "2026-06-25T10:15:21Z",
           "updatedAt": "2026-06-25T10:15:21Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Fixed",
+          "createdAt": "2026-06-29T07:58:49Z",
+          "updatedAt": "2026-06-29T07:58:49Z"
         }
       ]
     },
@@ -79,15 +86,15 @@
       "id": "I_kwDOTDu4zs8AAAABGlJqNA",
       "title": "Define the serialNumberHash + CertHash as truncated hashes",
       "url": "https://github.com/lijun-nio/idc509rev/issues/2",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "highlunder",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "From the meeting: we don't want to spend 32 byte on serialNumberHash/CertHash, but rather use truncated versions.\n\n[What format/standard should we refer to? Something similar to kid = first 8 bytes of SHA-256(pubkey)?]",
       "createdAt": "2026-06-24T16:20:03Z",
-      "updatedAt": "2026-06-26T14:25:15Z",
-      "closedAt": null,
+      "updatedAt": "2026-06-29T08:03:30Z",
+      "closedAt": "2026-06-29T08:03:30Z",
       "comments": [
         {
           "author": "highlunder",
@@ -130,6 +137,13 @@
           "body": "In the latest version, I changed *certHash from length of full length to HashId8 (8 bytes), and SerialNumberHash to HashId20 (20 bytes). See commit https://github.com/lijun-nio/idc509rev/commit/7695bd0e08dcd98489e65187eea97488610b1c91 and https://github.com/lijun-nio/idc509rev/commit/7dc2c83e2fd790a4ad4e8ce2eae849981950bc42 for details.",
           "createdAt": "2026-06-26T09:36:14Z",
           "updatedAt": "2026-06-26T14:25:15Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Fixed.",
+          "createdAt": "2026-06-29T08:03:30Z",
+          "updatedAt": "2026-06-29T08:03:30Z"
         }
       ]
     },
@@ -145,7 +159,7 @@
       "labels": [],
       "body": "Pending other updates; after agreeing on the hash trunctation format, we need to update the size comparison",
       "createdAt": "2026-06-24T16:21:20Z",
-      "updatedAt": "2026-06-25T10:24:44Z",
+      "updatedAt": "2026-06-29T08:04:28Z",
       "closedAt": null,
       "comments": [
         {
@@ -154,6 +168,13 @@
           "body": "My current idea is to define dedicated integer value for the truncated hash algorithm, instead to introduce a new field to specify the hash value size. For the examples in appendix, the problem is there are no OIDs for SHA256/160 and SM3/160, so it is difficult to compare the reduction of C509 compared to X509. Another approach is to use SHA-1, but using a broken hash algorithm in the example is not suitable.",
           "createdAt": "2026-06-25T10:24:44Z",
           "updatedAt": "2026-06-25T10:24:44Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "We need to keep this issue open, since due to the future change the size comparison will also change.",
+          "createdAt": "2026-06-29T08:04:28Z",
+          "updatedAt": "2026-06-29T08:04:28Z"
         }
       ]
     },
@@ -162,15 +183,15 @@
       "id": "I_kwDOTDu4zs8AAAABGlPTVA",
       "title": "Include example signing keys, to allow draft examples to be used as test vectors",
       "url": "https://github.com/lijun-nio/idc509rev/issues/4",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "highlunder",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "<all in the title>",
       "createdAt": "2026-06-24T16:34:26Z",
-      "updatedAt": "2026-06-25T10:14:42Z",
-      "closedAt": null,
+      "updatedAt": "2026-06-29T08:01:15Z",
+      "closedAt": "2026-06-29T08:01:15Z",
       "comments": [
         {
           "author": "lijun-nio",
@@ -178,6 +199,13 @@
           "body": "Done. See the latest I.D.",
           "createdAt": "2026-06-25T10:14:42Z",
           "updatedAt": "2026-06-25T10:14:42Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Fixed.",
+          "createdAt": "2026-06-29T08:01:15Z",
+          "updatedAt": "2026-06-29T08:01:15Z"
         }
       ]
     },
@@ -217,15 +245,15 @@
       "id": "I_kwDOTDu4zs8AAAABGltSwA",
       "title": "Should SHA-1 really own the cheapest 1-byte code point (value 0)?",
       "url": "https://github.com/lijun-nio/idc509rev/issues/6",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "highlunder",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Currently, SHA-1 owns the cheapest 1-byte code point, value 0. Shouldn't that spot be given to a non-broken alg. (-256)? And demote -1 to a high range value",
       "createdAt": "2026-06-24T17:50:15Z",
-      "updatedAt": "2026-06-26T14:26:52Z",
-      "closedAt": null,
+      "updatedAt": "2026-06-28T22:43:26Z",
+      "closedAt": "2026-06-28T22:43:26Z",
       "comments": [
         {
           "author": "lijun-nio",
@@ -247,6 +275,13 @@
           "body": "In the latest version, I removed SHA-1.",
           "createdAt": "2026-06-26T14:26:52Z",
           "updatedAt": "2026-06-26T14:26:52Z"
+        },
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Ok! Then I consider this issue ready to close :) ",
+          "createdAt": "2026-06-28T22:43:26Z",
+          "updatedAt": "2026-06-28T22:43:26Z"
         }
       ]
     },
