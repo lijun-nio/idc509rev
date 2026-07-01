@@ -1046,11 +1046,11 @@ Author: COSE WG
 
 Change controller: IETF
 
-### Media Type application/c509-ocsp-request+cbor
+### Media Type application/c509-ocspreq+cbor
 
-When the application/c509-ocsp-request+cbor media type is used, the data is a C509OCSPRequest structure.
+When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.
 
-Subtype name: c509-ocsp-request+cbor
+Subtype name: c509-ocspreq+cbor
 
 Required parameters: N/A
 
@@ -1084,11 +1084,11 @@ Author: COSE WG
 
 Change controller: IETF
 
-### Media Type application/c509-ocsp-response+cbor
+### Media Type application/c509-ocspresp+cbor
 
-When the application/c509-ocsp-response+cbor media type is used, the data is a C509OCSPResponse structure.
+When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.
 
-Subtype name: c509-ocsp-response+cbor
+Subtype name: c509-ocspresp+cbor
 
 Required parameters: N/A
 
@@ -1124,7 +1124,7 @@ Change controller: IETF
 
 ## CoAP Content-Formats Registry {#content-format}
 
-IANA is requested to add entries for "application/c509-crl+cbor", "application/c509-crlinfo+cbor", "application/c509-ocsp-request+cbor" and "application/c509-ocsp-response+cbor" to the "CoAP Content-Formats" registry in the registry group "Constrained RESTful Environments (CoRE) Parameters".
+IANA is requested to add entries for "application/c509-crl+cbor", "application/c509-crlinfo+cbor", "application/c509-ocspreq+cbor" and "application/c509-ocspresp+cbor" to the "CoAP Content-Formats" registry in the registry group "Constrained RESTful Environments (CoRE) Parameters".
 
 ~~~
 +-------------------------+---------+-------+------------+
@@ -1138,10 +1138,10 @@ IANA is requested to add entries for "application/c509-crl+cbor", "application/c
 | c509-crlinfo+cbor       | -       | TBD8  | document]] |
 +-------------------------+---------+-------+------------+
 | application/            | -       | TBD9  | [[this     |
-| c509-ocsp-request+cbor  |         |       | document]] |
+| c509-ocspreq+cbor       |         |       | document]] |
 +-------------------------+---------+-------+------------+
 | application/            | -       | TBD10 | [[this     |
-| c509-ocsp-response+cbor |         |       | document]] |
+| c509-ocspresp+cbor      |         |       | document]] |
 +-------------------------+---------+-------+------------+
 ~~~
 
