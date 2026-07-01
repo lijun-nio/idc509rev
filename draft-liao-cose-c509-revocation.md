@@ -1507,7 +1507,7 @@ Annotated hex
  40:   01             # [4]. crlNumber=1
  41:   1A 6775D700    # [5]. thisUpdate=1735776000:
                       #      2025-01-02T00:00:00Z
- 46:   1A 00093A80    # [6]. nextUpdate=604800
+ 46:   1A 00093A80    # [6]. nextUpdate=604800: 2025-01-09T00:00:00Z
  51:   F6             # [7]. baseCrlNumber=<null>
  52:   80             # [8]. crlExtensions=array[0]
  53:   F6             # [9]. revokedCertsList: <null>
@@ -1618,7 +1618,7 @@ Annotated hex
  40:   02             # [4]. crlNumber=2
  41:   1A 677C7172    # [5]. thisUpdate=1736208754:
                       #      2025-01-07T00:12:34Z
- 46:   1A 00093A80    # [6]. nextUpdate=604800
+ 46:   1A 00093A80    # [6]. nextUpdate=604800: 2025-01-14T00:12:34Z
  51:   F6             # [7]. baseCrlNumber=<null>
  52:   80             # [8]. crlExtensions=array[0]
  53:   85             # [9]. revokedCertsList=array[5]
@@ -1635,13 +1635,31 @@ Annotated hex
  65:       18 57          # [0]. type=ExpiredCertsOnCRL (87)
  67:       1A 67748580    # [1]. value=1735689600:
                           #      2025-01-01T00:00:00Z
- 72:     58 24          # [3]. revokedCerts=byte[36]
- 74:        112206978006  # CSN=1122, date=069780, reason=6
- 80:        123400000001  # CSN=1234, date=000000, reason=1
- 86:        334403F48006  # CSN=3344, date=03F480, reason=6
- 92:        556601518006  # CSN=5566, date=015180, reason=6
- 98:        567805460000  # CSN=5678, date=054600, reason=0
-104:        9ABC02A30000  # CSN=9ABC, date=02A300, reason=0
+ 72:     58 24          # [3]. revokedCerts=byte[36], 6 entries
+                          #---entries[0]---
+ 74:       1122           # CSN=1122
+ 76:       069780         # date=069780: 2025-01-06T00:12:34Z
+ 79:       06             # reason=6: certificateHold
+                          #---entries[1]---
+ 80:       1234           # CSN=1234
+ 82:       000000         # date=000000: 2025-01-01T00:12:34Z
+ 85:       01             # reason=1: keyCompromise
+                          #---entries[2]---
+ 86:       3344           # CSN=3344
+ 88:       03F480         # date=03F480: 2025-01-04T00:12:34Z
+ 91:       06             # reason=6: certificateHold
+                          #---entries[3]---
+ 92:       5566           # CSN=5566
+ 94:       015180         # date=015180: 2025-01-02T00:12:34Z
+ 97:       06             # reason=6: certificateHold
+                          #---entries[4]---
+ 98:       5678           # CSN=5678
+100:       054600         # date=054600: 2025-01-05T00:12:34Z
+103:       00             # reason=0: unspecified
+                          #---entries[5]---
+104:       9ABC           # CSN=9ABC
+106:       02A300         # date=02A300: 2025-01-03T00:12:34Z
+109:       00             # reason=0: unspecified
 110:     F6             # [4]. removedFromCRLCerts=<null>
 111:   58 40          # [10]. signature value=byte[64]
 113:     70BB7A38065FBCABFE615170F05A9A9FE83DC892D5F735812B2A053AF4
@@ -1671,10 +1689,10 @@ PEM content (335 bytes):
 MIIBSzCB/gIBATAFBgMrZXAwGjEYMBYGA1UEAwwPdGVzdCBjcmxvY3NwLWNhFw0y
 NTAxMDgwMDEyMzRaFw0yNTAxMTAwMDEyMzRaMIG3MCECAjQSFw0yNTAxMDcxMjEy
 MzRaMAwwCgYDVR0VBAMKAQEwEwICeFYXDTI1MDEwODAwMTAzNFowFAIDALyaFw0y
-NTAxMDgwMDA4MzRaMCECAhEiFw0yNTAxMDcxMjEyMzRaMAwwCgYDVR0VBAMKAQgw
-IQICM0QXDTI1MDEwNzEyMTIzNFowDDAKBgNVHRUEAwoBCDAhAgJVZhcNMjUwMTA3
-MTIxMjM0WjAMMAoGA1UdFQQDCgEIMAUGAytlcANBAHDD/7XEXjP0xrSaEatwHcgc
-V31eqR+XfEh2fQssXZx18KKK4ybiBivLorhqg6aJpjx2z/HBcxhKI1Hrk2X8qwo=
+NTAxMDgwMDA4MzRaMCECAhEiFw0yNTAxMDcxMzEyMzRaMAwwCgYDVR0VBAMKAQgw
+IQICM0QXDTI1MDEwNzE0MTIzNFowDDAKBgNVHRUEAwoBCDAhAgJVZhcNMjUwMTA3
+MTUxMjM0WjAMMAoGA1UdFQQDCgEIMAUGAytlcANBAKxSjqeefzjGdniA3bQCg3rL
+d7rrJnfh8GfsWdawC9BHjK1G336hRYaxwLOtyQS4Mn80jjSwrN+bXg10spSA4gA=
 -----END X509 CRL-----
 ~~~~~
 
@@ -1687,9 +1705,9 @@ Plain Hex (160 bytes):
 ~~~~~
 8B000C6F746573742063726C6F6373702D6361542F45E78D2CAEDF368CDF53C39005
 D492450E1056031A677DC2F21A0002A300028085F6840302021A677D1A32804F3412
-0000017856A84800BC9AA7D0004C112200003344000055660000584051BDA2027CA7
-AB1A3606BA1091E77200CEC9CD7A3C2ACD29E1868648D8B19CF9D14A0E268AD67FF4
-A697FC0B684809DFC92D0B6882E5B06B1D49A1659291CE07
+0000017856A84800BC9AA7D0004C11220E1033441C2055662A305840369C3E6412E9
+D0537CD39EA1DA40C68C32B4EC0E5678650D6AF73677A5A0CF37F1CDE75D663DE374
+9101F4354CCD6D8D05773887650046932B583C5365D7EB0B
 ~~~~~
 
 Textual Representation
@@ -1723,14 +1741,14 @@ C509CRL
         0x7856, 2025-01-08T00:10:34Z, unspecified
         0xBC9A, 2025-01-08T00:08:34Z, unspecified
       RemovedFromCRLCerts:
-        0x1122, 2025-01-07T12:12:34Z
-        0x3344, 2025-01-07T12:12:34Z
-        0x5566, 2025-01-07T12:12:34Z
+        0x1122, 2025-01-07T13:12:34Z
+        0x3344, 2025-01-07T14:12:34Z
+        0x5566, 2025-01-07T15:12:34Z
   Signature Value
-    51:bd:a2:02:7c:a7:ab:1a:36:06:ba:10:91:e7:72:00:
-    ce:c9:cd:7a:3c:2a:cd:29:e1:86:86:48:d8:b1:9c:f9:
-    d1:4a:0e:26:8a:d6:7f:f4:a6:97:fc:0b:68:48:09:df:
-    c9:2d:0b:68:82:e5:b0:6b:1d:49:a1:65:92:91:ce:07
+    36:9c:3e:64:12:e9:d0:53:7c:d3:9e:a1:da:40:c6:8c:
+    32:b4:ec:0e:56:78:65:0d:6a:f7:36:77:a5:a0:cf:37:
+    f1:cd:e7:5d:66:3d:e3:74:91:01:f4:35:4c:cd:6d:8d:
+    05:77:38:87:65:00:46:93:2b:58:3c:53:65:d7:eb:0b
 ~~~~~
 
 Annotated hex
@@ -1747,7 +1765,7 @@ Annotated hex
  40:   03             # [4]. crlNumber=3
  41:   1A 677DC2F2    # [5]. thisUpdate=1736295154:
                       #      2025-01-08T00:12:34Z
- 46:   1A 0002A300    # [6]. nextUpdate=172800
+ 46:   1A 0002A300    # [6]. nextUpdate=172800: 2025-01-10T00:12:34Z
  51:   02             # [7]. baseCrlNumber=2
  52:   80             # [8]. crlExtensions=array[0]
  53:   85             # [9]. revokedCertsList=array[5]
@@ -1760,18 +1778,34 @@ Annotated hex
  59:       1A 677D1A32    # [3]. baseDate=1736251954:
                           #      2025-01-07T12:12:34Z
  64:     80             # [2]. extensions=array[0]
- 65:     4F             # [3]. revokedCerts=byte[15]
- 66:        3412000001    # CSN=3412, date=0000, reason=1
- 71:        7856A84800    # CSN=7856, date=A848, reason=0
- 76:        BC9AA7D000    # CSN=BC9A, date=A7D0, reason=0
- 81:     4C             # [4]. removedFromCRLCerts=byte[12]
- 82:        11220000      # CSN=1122, date=0000
- 86:        33440000      # CSN=3344, date=0000
- 90:        55660000      # CSN=5566, date=0000
+ 65:     4F             # [3]. revokedCerts=byte[15], 3 entries
+                          #---entries[0]---
+ 66:       3412           # CSN=3412
+ 68:       0000           # date=0000: 2025-01-07T12:12:34Z
+ 70:       01             # reason=1: keyCompromise
+                          #---entries[1]---
+ 71:       7856           # CSN=7856
+ 73:       A848           # date=A848: 2025-01-08T00:10:34Z
+ 75:       00             # reason=0: unspecified
+                          #---entries[2]---
+ 76:       BC9A           # CSN=BC9A
+ 78:       A7D0           # date=A7D0: 2025-01-08T00:08:34Z
+ 80:       00             # reason=0: unspecified
+ 81:     4C             # [4]. removedFromCRLCerts=byte[12], 3
+                        #      entries
+                          #---entries[0]---
+ 82:       1122           # CSN=1122
+ 84:       0E10           # date=0E10: 2025-01-07T13:12:34Z
+                          #---entries[1]---
+ 86:       3344           # CSN=3344
+ 88:       1C20           # date=1C20: 2025-01-07T14:12:34Z
+                          #---entries[2]---
+ 90:       5566           # CSN=5566
+ 92:       2A30           # date=2A30: 2025-01-07T15:12:34Z
  94:   58 40          # [10]. signature value=byte[64]
- 96:     51BDA2027CA7AB1A3606BA1091E77200CEC9CD7A3C2ACD29E1868648D8
-125:     B19CF9D14A0E268AD67FF4A697FC0B684809DFC92D0B6882E5B06B1D49
-154:     A1659291CE07
+ 96:     369C3E6412E9D0537CD39EA1DA40C68C32B4EC0E5678650D6AF73677A5
+125:     A0CF37F1CDE75D663DE3749101F4354CCD6D8D05773887650046932B58
+154:     3C5365D7EB0B
 ~~~~~
 
 ### Indirect CRL Example With Revoked Certificates {#exam-indirect-crl-revoked}
@@ -1885,7 +1919,7 @@ Annotated hex
  35:   04             # [4]. crlNumber=4
  36:   1A 677C7172    # [5]. thisUpdate=1736208754:
                       #      2025-01-07T00:12:34Z
- 41:   1A 00093A80    # [6]. nextUpdate=604800
+ 41:   1A 00093A80    # [6]. nextUpdate=604800: 2025-01-14T00:12:34Z
  46:   F6             # [7]. baseCrlNumber=<null>
  47:   80             # [8]. crlExtensions=array[0]
  48:   8A             # [9]. revokedCertsList=array[10]
@@ -1899,10 +1933,19 @@ Annotated hex
  69:       1A 67748872    # [3]. baseDate=1735690354:
                           #      2025-01-01T00:12:34Z
  74:     80             # [2]. extensions=array[0]
- 75:     52             # [3]. revokedCerts=byte[18]
- 76:        123400000001  # CSN=1234, date=000000, reason=1
- 82:        567805460000  # CSN=5678, date=054600, reason=0
- 88:        9ABC02A30000  # CSN=9ABC, date=02A300, reason=0
+ 75:     52             # [3]. revokedCerts=byte[18], 3 entries
+                          #---entries[0]---
+ 76:       1234           # CSN=1234
+ 78:       000000         # date=000000: 2025-01-01T00:12:34Z
+ 81:       01             # reason=1: keyCompromise
+                          #---entries[1]---
+ 82:       5678           # CSN=5678
+ 84:       054600         # date=054600: 2025-01-05T00:12:34Z
+ 87:       00             # reason=0: unspecified
+                          #---entries[2]---
+ 88:       9ABC           # CSN=9ABC
+ 90:       02A300         # date=02A300: 2025-01-03T00:12:34Z
+ 93:       00             # reason=0: unspecified
  94:     F6             # [4]. removedFromCRLCerts=<null>
                         #---PerIssuedRevokedCerts[1]---
  95:     6A             # [5]. issuer=char[10]
@@ -1914,10 +1957,19 @@ Annotated hex
 110:       1A 6775D9F2    # [3]. baseDate=1735776754:
                           #      2025-01-02T00:12:34Z
 115:     80             # [7]. extensions=array[0]
-116:     52             # [8]. revokedCerts=byte[18]
-117:        112205460006  # CSN=1122, date=054600, reason=6
-123:        334402A30006  # CSN=3344, date=02A300, reason=6
-129:        556600000006  # CSN=5566, date=000000, reason=6
+116:     52             # [8]. revokedCerts=byte[18], 3 entries
+                          #---entries[0]---
+117:       1122           # CSN=1122
+119:       054600         # date=054600: 2025-01-06T00:12:34Z
+122:       06             # reason=6: certificateHold
+                          #---entries[1]---
+123:       3344           # CSN=3344
+125:       02A300         # date=02A300: 2025-01-04T00:12:34Z
+128:       06             # reason=6: certificateHold
+                          #---entries[2]---
+129:       5566           # CSN=5566
+131:       000000         # date=000000: 2025-01-02T00:12:34Z
+134:       06             # reason=6: certificateHold
 135:     F6             # [9]. removedFromCRLCerts=<null>
 136:   58 40          # [10]. signature value=byte[64]
 138:     F00D6270F91486A7F378D06F01A807E64E086BB366BE3A1592CE4A64BF
@@ -2845,8 +2897,8 @@ C509SimpleOCSPResponse
       5a:6f:0d:8d
     Cert Status: good
     ProducedAt: 2025-03-03T00:00:00Z
-    This Update: -28800 seconds
-    Next Update: 25200 seconds
+    This Update: -28800, 2025-03-02T16:00:00Z
+    Next Update: 25200, 2025-03-03T07:00:00Z
     Extensions: <empty>
     Responder Certs: null
   Signature Value
@@ -2876,8 +2928,8 @@ Annotated hex
  60:   00             # [7]. certStatus=good (0)
  61:   1A 67C4F100    # [8]. producedAt=1740960000:
                       #      2025-03-03T00:00:00Z
- 66:   39 707F        # [9]. thisUpdate=-28800
- 69:   19 6270        # [10]. nextUpdate=25200
+ 66:   39 707F        # [9]. thisUpdate=-28800: 2025-03-02T16:00:00Z
+ 69:   19 6270        # [10]. nextUpdate=25200: 2025-03-03T07:00:00Z
  72:   80             # [11]. extensions=array[0]
  73:   F6             # [12]. responderCerts=<null>
  74:   58 40          # [13]. signatureValue=byte[64]
@@ -2967,16 +3019,16 @@ C509BasicOCSPResponse
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
               5a:6f:0d:8d
             Cert Status: good
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
           SingleCertResponse
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
               8b:9d:17:6d
             Cert Status: not-issued
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
           SingleCertResponse
             SerialNumberHash:
@@ -2984,8 +3036,8 @@ C509BasicOCSPResponse
               5b:67:84:00
             Cert Status: revoked (superseded)
               Revoked at 2025-03-01T16:00:00Z
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
       OcspPerIssuerResponse
         IssuerCertHash
@@ -2997,8 +3049,8 @@ C509BasicOCSPResponse
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
               ce:41:7e:3b
             Cert Status: unknown
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
     Responder Certs: null
   Signature Value
@@ -3034,15 +3086,19 @@ Annotated hex
  48:       54             # [0]. serialNumberHash=byte[20]
  49:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
  69:       00             # [1]. certStatus=good (0)
- 70:       39 707F        # [2]. thisUpdate=-28800
- 73:       19 6270        # [3]. nextUpdate=25200
+ 70:       39 707F        # [2]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+ 73:       19 6270        # [3]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
  76:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
  77:       54             # [5]. serialNumberHash=byte[20]
  78:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
  98:       01             # [6]. certStatus=not-issued (1)
- 99:       39 707F        # [7]. thisUpdate=-28800
-102:       19 6270        # [8]. nextUpdate=25200
+ 99:       39 707F        # [7]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+102:       19 6270        # [8]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
 105:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
 106:       54             # [10]. serialNumberHash=byte[20]
@@ -3051,8 +3107,10 @@ Annotated hex
 128:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
 133:         04             # [1]. revocationReason=superseded (4)
-134:       39 707F        # [12]. thisUpdate=-28800
-137:       19 6270        # [13]. nextUpdate=25200
+134:       39 707F        # [12]. thisUpdate=-28800:
+                          #       2025-03-02T16:00:00Z
+137:       19 6270        # [13]. nextUpdate=25200:
+                          #       2025-03-03T07:00:00Z
 140:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
 141:     48             # [3]. issuerCertHash=byte[8]
@@ -3063,8 +3121,10 @@ Annotated hex
 152:       54             # [0]. serialNumberHash=byte[20]
 153:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
 173:       02             # [1]. certStatus=unknown (2)
-174:       39 707F        # [2]. thisUpdate=-28800
-177:       19 6270        # [3]. nextUpdate=25200
+174:       39 707F        # [2]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+177:       19 6270        # [3]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
 180:       80             # [4]. extensions=array[0]
 181:   F6             # [8]. responderCerts=<null>
 182:   58 40          # [9]. signature value=byte[64]
@@ -3166,16 +3226,16 @@ C509BasicOCSPResponse
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
               5a:6f:0d:8d
             Cert Status: good
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
           SingleCertResponse
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
               8b:9d:17:6d
             Cert Status: not-issued
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
           SingleCertResponse
             SerialNumberHash:
@@ -3183,8 +3243,8 @@ C509BasicOCSPResponse
               5b:67:84:00
             Cert Status: revoked (superseded)
               Revoked at 2025-03-01T16:00:00Z
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
       OcspPerIssuerResponse
         IssuerCertHash
@@ -3196,8 +3256,8 @@ C509BasicOCSPResponse
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
               ce:41:7e:3b
             Cert Status: unknown
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
     Responder Certs
       C509Certificate
@@ -3247,15 +3307,19 @@ Annotated hex
  48:       54             # [0]. serialNumberHash=byte[20]
  49:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
  69:       00             # [1]. certStatus=good (0)
- 70:       39 707F        # [2]. thisUpdate=-28800
- 73:       19 6270        # [3]. nextUpdate=25200
+ 70:       39 707F        # [2]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+ 73:       19 6270        # [3]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
  76:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
  77:       54             # [5]. serialNumberHash=byte[20]
  78:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
  98:       01             # [6]. certStatus=not-issued (1)
- 99:       39 707F        # [7]. thisUpdate=-28800
-102:       19 6270        # [8]. nextUpdate=25200
+ 99:       39 707F        # [7]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+102:       19 6270        # [8]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
 105:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
 106:       54             # [10]. serialNumberHash=byte[20]
@@ -3264,8 +3328,10 @@ Annotated hex
 128:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
 133:         04             # [1]. revocationReason=superseded (4)
-134:       39 707F        # [12]. thisUpdate=-28800
-137:       19 6270        # [13]. nextUpdate=25200
+134:       39 707F        # [12]. thisUpdate=-28800:
+                          #       2025-03-02T16:00:00Z
+137:       19 6270        # [13]. nextUpdate=25200:
+                          #       2025-03-03T07:00:00Z
 140:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
 141:     48             # [3]. issuerCertHash=byte[8]
@@ -3276,8 +3342,10 @@ Annotated hex
 152:       54             # [0]. serialNumberHash=byte[20]
 153:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
 173:       02             # [1]. certStatus=unknown (2)
-174:       39 707F        # [2]. thisUpdate=-28800
-177:       19 6270        # [3]. nextUpdate=25200
+174:       39 707F        # [2]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+177:       19 6270        # [3]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
 180:       80             # [4]. extensions=array[0]
 181:   58 C5          # [8]. responderCerts(COSE_C509)=byte[197]
 183:     8B024212350C6F746573742063726C6F6373702D63611A6775D7001A69
@@ -3399,16 +3467,16 @@ C509BasicOCSPResponse
               10:65:27:87:fa:05:27:bc:24:49:a1:bf:c5:ab:31:aa:
               5a:6f:0d:8d
             Cert Status: good
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
           SingleCertResponse
             SerialNumberHash:
               75:d8:bc:4f:ba:fc:66:94:46:76:41:e7:48:df:d5:3a:
               8b:9d:17:6d
             Cert Status: not-issued
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
           SingleCertResponse
             SerialNumberHash:
@@ -3416,8 +3484,8 @@ C509BasicOCSPResponse
               5b:67:84:00
             Cert Status: revoked (superseded)
               Revoked at 2025-03-01T16:00:00Z
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
       OcspPerIssuerResponse
         IssuerCertHash
@@ -3429,8 +3497,8 @@ C509BasicOCSPResponse
               d3:a0:c1:e3:db:92:e8:f6:81:05:37:d4:5c:fa:ec:f6:
               ce:41:7e:3b
             Cert Status: unknown
-            This Update: -28800 seconds
-            Next Update: 25200 seconds
+            This Update: -28800, 2025-03-02T16:00:00Z
+            Next Update: 25200, 2025-03-03T07:00:00Z
             Extensions: <empty>
     Responder Certs
       C509Certificate
@@ -3494,15 +3562,19 @@ Annotated hex
  48:       54             # [0]. serialNumberHash=byte[20]
  49:         10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D
  69:       00             # [1]. certStatus=good (0)
- 70:       39 707F        # [2]. thisUpdate=-28800
- 73:       19 6270        # [3]. nextUpdate=25200
+ 70:       39 707F        # [2]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+ 73:       19 6270        # [3]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
  76:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
  77:       54             # [5]. serialNumberHash=byte[20]
  78:         75D8BC4FBAFC6694467641E748DFD53A8B9D176D
  98:       01             # [6]. certStatus=not-issued (1)
- 99:       39 707F        # [7]. thisUpdate=-28800
-102:       19 6270        # [8]. nextUpdate=25200
+ 99:       39 707F        # [7]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+102:       19 6270        # [8]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
 105:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
 106:       54             # [10]. serialNumberHash=byte[20]
@@ -3511,8 +3583,10 @@ Annotated hex
 128:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
 133:         04             # [1]. revocationReason=superseded (4)
-134:       39 707F        # [12]. thisUpdate=-28800
-137:       19 6270        # [13]. nextUpdate=25200
+134:       39 707F        # [12]. thisUpdate=-28800:
+                          #       2025-03-02T16:00:00Z
+137:       19 6270        # [13]. nextUpdate=25200:
+                          #       2025-03-03T07:00:00Z
 140:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
 141:     48             # [3]. issuerCertHash=byte[8]
@@ -3523,8 +3597,10 @@ Annotated hex
 152:       54             # [0]. serialNumberHash=byte[20]
 153:         D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B
 173:       02             # [1]. certStatus=unknown (2)
-174:       39 707F        # [2]. thisUpdate=-28800
-177:       19 6270        # [3]. nextUpdate=25200
+174:       39 707F        # [2]. thisUpdate=-28800:
+                          #      2025-03-02T16:00:00Z
+177:       19 6270        # [3]. nextUpdate=25200:
+                          #      2025-03-03T07:00:00Z
 180:       80             # [4]. extensions=array[0]
 181:   82             # [8]. responderCerts(COSE_C509)=array[2]
 182:     58 C5          # [0]. C509CertData=byte[197]
