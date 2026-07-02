@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-06-30T11:27:01.527618+00:00",
+  "timestamp": "2026-07-02T10:19:28.830116+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -297,7 +297,7 @@
       "labels": [],
       "body": "@rikard-sics @marco-tiloca-sics @highlunder I do not have and plan known changes. Please review the latest I.D.\n\nAfter that, @rikard-sics please upload the I.D. and reserve a presentation time slot in the COSE-WG.",
       "createdAt": "2026-06-26T09:40:06Z",
-      "updatedAt": "2026-06-26T19:56:55Z",
+      "updatedAt": "2026-07-02T07:31:21Z",
       "closedAt": null,
       "comments": [
         {
@@ -320,6 +320,27 @@
           "body": "Before the commit https://github.com/lijun-nio/idc509rev/commit/3f3bcf94797ea5da6eaff07a8f765c813010149f  :\n\n* Figure 2 was still using \"bytes\" as CBOR type for \"serialNumberHash\", instead of the new \"HashId20\" (2 instances).\n\n* Figure 3 was missing the definition of \"HashId8\" and \"HashId20\".\n\nThe commit fixes that.",
           "createdAt": "2026-06-26T19:56:55Z",
           "updatedAt": "2026-06-26T19:56:55Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "I submitted the last changes before the IETF meeting.\n\n @rikard-sics please upload the I.D. and reserve a presentation time slot in the COSE-WG.",
+          "createdAt": "2026-07-01T16:42:52Z",
+          "updatedAt": "2026-07-01T16:42:52Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> @rikard-sics please upload the I.D. and reserve a presentation time slot in the COSE-WG.\n\nThanks! Yeah I had a look at the draft also and it looks good to me\n\nI will go ahead and upload it before the cutoff and reserve a slot in COSE.",
+          "createdAt": "2026-07-02T06:56:45Z",
+          "updatedAt": "2026-07-02T06:56:45Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I will also create slides and send out to you all for review.",
+          "createdAt": "2026-07-02T07:31:21Z",
+          "updatedAt": "2026-07-02T07:31:21Z"
         }
       ]
     }
