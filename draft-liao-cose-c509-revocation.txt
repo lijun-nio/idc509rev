@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                       NIO
 Intended status: Standards Track                               M. Tiloca
-Expires: 2 January 2027                                       J. Höglund
+Expires: 7 January 2027                                       J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                             1 July 2026
+                                                             6 July 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -67,7 +67,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 January 2027.
+   This Internet-Draft will expire on 7 January 2027.
 
 Copyright Notice
 
@@ -1811,7 +1811,7 @@ Table of Contents
       values use different registration policies [RFC8126].  Integer
       values from -24 to 23 are designated as "IETF Review with Expert
       Review".  Integer values greater than 32767 are marked as "Private
-      Use", All other integer values are designated as "Expert Review".
+      Use".  All other integer values are designated as "Expert Review".
       This field MUST NOT be empty.
 
    *  Name: This field contains the name of the C509 hash algorithm.
@@ -2994,7 +2994,7 @@ A.4.1.  Simple OCSP Request Example
 
    *  Size reduction: 66%
 
-   *  Simpe OCSP Request (C509SimpleOCSPRequest)
+   *  Simple OCSP Request (C509SimpleOCSPRequest)
 
    *  Note that the X.509 OCSP Request and the C509 OCSP Request are not
       convertible.
