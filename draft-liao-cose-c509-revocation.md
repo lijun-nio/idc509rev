@@ -945,7 +945,7 @@ All assignments according to "IETF Review with Expert Review" are made on an "IE
 
 The columns of this registry are:
 
-* Value: This field contains the value used to identify the C509 hash algorithm. These values MUST be unique. The value can be a positive integer or a negative integer. Different ranges of values use different registration policies {{RFC8126}}. Integer values from -24 to 23 are designated as "IETF Review with Expert Review". Integer values greater than 32767 are marked as "Private Use", All other integer values are designated as "Expert Review". This field MUST NOT be empty.
+* Value: This field contains the value used to identify the C509 hash algorithm. These values MUST be unique. The value can be a positive integer or a negative integer. Different ranges of values use different registration policies {{RFC8126}}. Integer values from -24 to 23 are designated as "IETF Review with Expert Review". Integer values greater than 32767 are marked as "Private Use". All other integer values are designated as "Expert Review". This field MUST NOT be empty.
 
 * Name: This field contains the name of the C509 hash algorithm. This field MUST NOT be empty.
 * Identifiers: This field contains additional identifiers of the C509 hash algorithm, if any is available.
@@ -1983,7 +1983,7 @@ Annotated hex
 
 [comment]: <> (replace-reduction:ocspreq/simple-ocspreq/ocspreq.hex % ocspreq/simple-ocspreq/x509ocspreq.pem)
 - Size reduction: 66%
-- Simpe OCSP Request (`C509SimpleOCSPRequest`)
+- Simple OCSP Request (`C509SimpleOCSPRequest`)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
 #### X.509 OCSP Request
