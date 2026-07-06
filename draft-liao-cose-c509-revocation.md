@@ -31,18 +31,23 @@ author:
   - name: Lijun Liao
     org: NIO
     email: lijun.liao@nio.io
+    country: China
   - name: Marco Tiloca
     org: RISE AB
     email: marco.tiloca@ri.se
+    country: Sweden
   - name: Joel Höglund
     org: RISE AB
     email: joel.hoglund@ri.se
+    country: Sweden
   - name: Rikard Höglund
     org: RISE AB
     email: rikard.hoglund@ri.se
+    country: Sweden
   - name: Shahid Raza
     org: University of Glasgow
     email: shahid.raza@glasgow.ac.uk
+    country: United Kingdom
 
 normative:
   RFC5280:
