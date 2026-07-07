@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-05T09:46:37.037719+00:00",
+  "timestamp": "2026-07-07T11:21:01.989656+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -297,7 +297,7 @@
       "labels": [],
       "body": "@rikard-sics @marco-tiloca-sics @highlunder I do not have and plan known changes. Please review the latest I.D.\n\nAfter that, @rikard-sics please upload the I.D. and reserve a presentation time slot in the COSE-WG.",
       "createdAt": "2026-06-26T09:40:06Z",
-      "updatedAt": "2026-07-02T07:31:21Z",
+      "updatedAt": "2026-07-06T07:03:41Z",
       "closedAt": null,
       "comments": [
         {
@@ -341,6 +341,20 @@
           "body": "I will also create slides and send out to you all for review.",
           "createdAt": "2026-07-02T07:31:21Z",
           "updatedAt": "2026-07-02T07:31:21Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Just reminder, today is the deadline.",
+          "createdAt": "2026-07-06T07:01:26Z",
+          "updatedAt": "2026-07-06T07:01:26Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Just reminder, today is the deadline.\n\nYes, I will submit. Usually I submit all on the day of the deadline",
+          "createdAt": "2026-07-06T07:03:41Z",
+          "updatedAt": "2026-07-06T07:03:41Z"
         }
       ]
     }
