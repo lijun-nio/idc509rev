@@ -331,10 +331,11 @@ MC4CAQAwBQYDK2VwBCIEIDP+AdMbqXudBAN3YNAwoR0i3nl4IuoSSA6Hazy2oAKc\n\
         0x4a, 0x19, 0xbc, 0xe2, 0xd6, 0x60, 0x88, 0x47, 0x22, 0xb6,
     ];
 
-    const CRL_DELTA: &str = "8b000c6f746573742063726c6f6373702d6361542f45e78d2caedf36\
-8cdf53c39005d492450e1056031a677dc2f21a0002a300028085f6840302021a677d1a32804f3412000001785\
-6a84800bc9aa7d0004c112200003344000055660000584051bda2027ca7ab1a3606ba1091e77200cec9cd7a3c\
-2acd29e1868648d8b19cf9d14a0e268ad67ff4a697fc0b684809dfc92d0b6882e5b06b1d49a1659291ce07";
+    /* Updated to draft commit ab1a214 ("add text of absolute date"): the
+     * removedFromCRLCerts dates were corrected from all-zero to staggered
+     * offsets (0e10/1c20/2a30 = +1h/+2h/+3h from baseDate), which changes the
+     * TBS and the signature. */
+    const CRL_DELTA: &str = "8b000c6f746573742063726c6f6373702d6361542f45e78d2caedf368cdf53c39005d492450e1056031a677dc2f21a0002a300028085f6840302021a677d1a32804f34120000017856a84800bc9aa7d0004c11220e1033441c2055662a305840369c3e6412e9d0537cd39ea1da40c68c32b4ec0e5678650d6af73677a5a0cf37f1cde75d663de3749101f4354ccd6d8d05773887650046932b583c5365d7eb0b";
 
     const CRL_INDIRECT: &str = "8b000c6a63726c2d7369676e65725409e433582556550a27db4a19\
 bce2d660884722b6041a677c71721a00093a80f6808a6f746573742063726c6f6373702d6361840302031a677\
@@ -361,7 +362,7 @@ a1592ce4a64bffd621f30e2ab93766b4f8818116ab7da7bedf7c3ebcbdeac6d0455f5f5669712006
             }),
             extensions: vec![],
             revoked: vec![rc(0x3412, 0x0000, 1), rc(0x7856, 0xa848, 0), rc(0xbc9a, 0xa7d0, 0)],
-            removed: vec![rm(0x1122, 0x0000), rm(0x3344, 0x0000), rm(0x5566, 0x0000)],
+            removed: vec![rm(0x1122, 0x0e10), rm(0x3344, 0x1c20), rm(0x5566, 0x2a30)],
         };
         let mut info = base_info(3, 1736295154, 1736467954);
         info.base_crl_number = Some(2);
