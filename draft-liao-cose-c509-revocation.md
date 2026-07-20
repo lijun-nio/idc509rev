@@ -1189,7 +1189,7 @@ TODO
 
 ## Overview
 
-| Section       | Description           | size(C509) | size(X509) | Size Reduction |
+| Section       | Description           | size(X509) | size(C509) | Size Reduction |
 |:--------------|:----------------------|:-----------|:-----------|:----------------------|
 | {{exam-crl-no-revoked}} | CRL Example Without Revoked Certificates | 147 | 120 | 18% |
 | {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 335 | 177 |47% |
