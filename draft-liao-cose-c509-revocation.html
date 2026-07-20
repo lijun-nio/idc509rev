@@ -25,7 +25,7 @@
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.10.0
+    platformdirs 4.10.1
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
@@ -1052,7 +1052,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Liao, et al.</td>
-<td class="center">Expires 7 January 2027</td>
+<td class="center">Expires 21 January 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1065,12 +1065,12 @@ svg {
 <dd class="internet-draft">draft-liao-cose-c509-revocation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-07-06" class="published">6 July 2026</time>
+<time datetime="2026-07-20" class="published">20 July 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-01-07">7 January 2027</time></dd>
+<dd class="expires"><time datetime="2027-01-21">21 January 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1135,7 +1135,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 7 January 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 21 January 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1645,7 +1645,29 @@ svg {
 <p id="section-1-4">This document specifies:<a href="#section-1-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1-5.1">
-          <p id="section-1-5.1.1"><strong>C509 CRL</strong> -- a natively signed CBOR <span>[<a href="#RFC8949" class="cite xref">RFC8949</a>]</span> encoding of X.509 CRLs (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-5" class="relref">Section 5</a></span>).  The signature is computed over the CBOR Sequence <span>[<a href="#RFC8742" class="cite xref">RFC8742</a>]</span> <code>TBSCertList</code>; no ASN.1 encoding is involved.<a href="#section-1-5.1.1" class="pilcrow">¶</a></p>
+          <p id="section-1-5.1.1"><strong>C509 CRL</strong> -- a natively signed CBOR <span>[<a href="#RFC8949" class="cite xref">RFC8949</a>]</span> encoding of X.509 CRLs (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-5" class="relref">Section 5</a></span>).  The signature is computed over the CBOR Sequence <span>[<a href="#RFC8742" class="cite xref">RFC8742</a>]</span> <code>TBSCertList</code>; no ASN.1 encoding is involved. Two key improvements are made over <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>:<a href="#section-1-5.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-5.1.2.1">
+              <p id="section-1-5.1.2.1.1">Reduce the search complexity for a given certificate serial number from O(n) to O(log(n)):<a href="#section-1-5.1.2.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-5.1.2.1.2.1">
+                  <p id="section-1-5.1.2.1.2.1.1">Replace implicit <code>certificateIssuer</code> mechanism by explicit per-issuer grouping.<a href="#section-1-5.1.2.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-1-5.1.2.1.2.2">
+                  <p id="section-1-5.1.2.1.2.2.1">Use dedicated list for the <code>removeFromCRL</code> revocation entries.<a href="#section-1-5.1.2.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-1-5.1.2.1.2.3">
+                  <p id="section-1-5.1.2.1.2.3.1">Use fixed-length entry encoding.<a href="#section-1-5.1.2.1.2.3.1" class="pilcrow">¶</a></p>
+</li>
+              </ul>
+</li>
+            <li class="normal" id="section-1-5.1.2.2">
+              <p id="section-1-5.1.2.2.1">Define a new standalone <code>C509CRLInfo</code> structure to carry CRL information without the (large) revocation list itself.<a href="#section-1-5.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-1-5.1.2.3">
+              <p id="section-1-5.1.2.3.1">Define dedicated fields for the common extensions to simplify the encoding: <code>crlNumber</code>, <code>authorityKeyIdentifier</code>, <code>deltaCRLIndicator</code>.<a href="#section-1-5.1.2.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
 </li>
         <li class="normal" id="section-1-5.2">
           <p id="section-1-5.2.1"><strong>C509 OCSP</strong> -- a CBOR encoding of OCSP requests and responses (<span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>).  The encoding compresses common fields while preserving semantic equivalence.  Four key improvements are made over <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>:<a href="#section-1-5.2.1" class="pilcrow">¶</a></p>
@@ -1660,18 +1682,15 @@ svg {
               <p id="section-1-5.2.2.3.1">The issuer is identified by a single hash over the issuer certificate (<code>issuerCertHash</code>) rather than by the two-hash <code>CertID</code>, reducing per-issuer overhead.<a href="#section-1-5.2.2.3.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-1-5.2.2.4">
-              <p id="section-1-5.2.2.4.1">All participants -- requestor, responder, and issuer -- are identified by a hash over their certificate (<code>requestorCertHash</code>, <code>responderCertHash</code>, <code>issuerCertHash</code>) rather than by a plaintext Subject distinguished name or SubjectKeyIdentifier, avoiding structural <code>CHOICE</code> types such as the X.509 <code>ResponderID</code> (<code>byName</code> or <code>byKey</code>) and simplifying support for different certificate types (e.g., C509, X.509, or future types) because the same hash applies regardless of the certificate encoding.<a href="#section-1-5.2.2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-1-5.2.2.4.1">All participants (requestor, responder, issuer) are identified by a hash over their certificate (<code>requestorCertHash</code>, <code>responderCertHash</code>, <code>issuerCertHash</code>) rather than by a plaintext Subject distinguished name or SubjectKeyIdentifier, avoiding structural <code>CHOICE</code> types such as the X.509 <code>ResponderID</code> (<code>byName</code> or <code>byKey</code>) and simplifying support for different certificate types (e.g., C509, X.509, or future types) because the same hash applies regardless of the certificate encoding.<a href="#section-1-5.2.2.4.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-1-5.2.3">
-See the field encoding sections of this document for details.<a href="#section-1-5.2.3" class="pilcrow">¶</a></p>
-<p id="section-1-5.2.4">
-The request and response structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification; see <a href="#cert-type-interop" class="auto internal xref">Section 6.5</a>.<a href="#section-1-5.2.4" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-1-6">C509 CRL and C509 OCSP apply the same compression techniques as C509 certificates: static fields are elided, OIDs are replaced with short integers, time values are compressed to POSIX timestamps, and redundant encoding is removed.  Implementers may use the CBOR playground <span>[<a href="#CborMe" class="cite xref">CborMe</a>]</span> to inspect encoded examples.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<p id="section-1-7">C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded counterparts defined in <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span> and <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>.  Systems that use C509 CRL or C509 OCSP must explicitly support these CBOR-encoded formats; they cannot be transparently substituted for or derived from the corresponding DER-encoded structures.<a href="#section-1-7" class="pilcrow">¶</a></p>
-<p id="section-1-8">C509 CRL and C509 OCSP are designed to be compatible with certificate profiles for constrained deployments, such as <span>[<a href="#RFC7925" class="cite xref">RFC7925</a>]</span>.<a href="#section-1-8" class="pilcrow">¶</a></p>
+<p id="section-1-6">The CRL and OCSP structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification; see <a href="#cert-type-interop" class="auto internal xref">Section 6.5</a>.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">C509 CRL and C509 OCSP apply the same compression techniques as C509 certificates: static fields are elided, OIDs are replaced with short integers, time values are compressed to POSIX timestamps, and redundant encoding is removed.  Implementers may use the CBOR playground <span>[<a href="#CborMe" class="cite xref">CborMe</a>]</span> to inspect encoded examples.<a href="#section-1-7" class="pilcrow">¶</a></p>
+<p id="section-1-8">C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded counterparts defined in <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span> and <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>.  Systems that use C509 CRL or C509 OCSP must explicitly support these CBOR-encoded formats; they cannot be transparently substituted for or derived from the corresponding DER-encoded structures.<a href="#section-1-8" class="pilcrow">¶</a></p>
+<p id="section-1-9">C509 CRL and C509 OCSP are designed to be compatible with certificate profiles for constrained deployments, such as <span>[<a href="#RFC7925" class="cite xref">RFC7925</a>]</span>.<a href="#section-1-9" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="terminology">
@@ -1691,34 +1710,20 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-imported-definitions">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-imported-definitions" class="section-name selfRef">Imported Definitions</a>
       </h2>
-<p id="section-3-1">The following types are imported from <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>:<a href="#section-3-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-3-2.1">
-          <p id="section-3-2.1.1"><code>Name</code>: no limitation.<a href="#section-3-2.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-3-2.2">
-          <p id="section-3-2.2.1"><code>Extensions</code>: only the <code>( extensionID: int, extensionValue: Defined )</code> choice of Extension is permitted.<a href="#section-3-2.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-3-2.3">
-          <p id="section-3-2.3.1"><code>COSE_C509</code>: no limitation.<a href="#section-3-2.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-3-2.4">
-          <p id="section-3-2.4.1"><code>AlgorithmIdentifier</code>: no limitation.<a href="#section-3-2.4.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<p id="section-3-3">The following type is imported from <span>[<a href="#RFC9360" class="cite xref">RFC9360</a>]</span>:<a href="#section-3-3" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-3-4.1">
-          <p id="section-3-4.1.1"><code>COSE_X509</code>: no limitation.<a href="#section-3-4.1.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<p id="section-3-5">This document further defines the following constrained alias for use in all CDDL definitions:<a href="#section-3-5" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-3-6">
+<p id="section-3-1">The following types are imported from <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>: <code>Name</code>, <code>Extension</code>, <code>Extensions</code>, <code>COSE_C509</code>, and  <code>AlgorithmIdentifier</code>. And the following type is imported from <span>[<a href="#RFC9360" class="cite xref">RFC9360</a>]</span>: <code>COSE_X509</code>.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">This document further defines the following constrained aliases for use in all CDDL definitions:<a href="#section-3-2" class="pilcrow">¶</a></p>
+<div class="lang-cddl sourcecode" id="section-3-3">
 <pre>
 IntAlgorithmIdentifier = int
-</pre><a href="#section-3-6" class="pilcrow">¶</a>
+
+IntExtension = ( extensionID: int, extensionValue: Defined )
+
+IntExtensions = [ * IntExtension ]
+</pre><a href="#section-3-3" class="pilcrow">¶</a>
 </div>
-<p id="section-3-7"><code>IntAlgorithmIdentifier</code> is the <code>int</code>-only instantiation of <code>AlgorithmIdentifier</code> from <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.  It is used throughout this document wherever an algorithm identifier appears in the wire encoding.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-4"><code>IntAlgorithmIdentifier</code> is the <code>int</code>-only instantiation of <code>AlgorithmIdentifier</code> from <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.  It is used throughout this document wherever an algorithm identifier appears in the wire encoding.<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5"><code>IntExtension</code> is the instantiation of <code>Extension</code> from <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span> with extensionID of type int.  It is used throughout this document wherever a single extension appears in the wire encoding.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6"><code>IntExtensions</code> is the instantiation of <code>Extensions</code> from <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span> where all embedded <code>Extension</code> entries have only int-only <code>extensionID</code>.<a href="#section-3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="time-encoding">
@@ -1774,13 +1779,13 @@ CRLInfoData = (
   thisUpdate             : ~time,
   nextUpdate             : uint / null,
   baseCrlNumber          : uint / null,
-  crlExtensions          : Extensions,
+  crlExtensions          : IntExtensions,
 )
 
 PerIssuerRevokedCerts = (
   issuer                 : Name / #6.121(bytes) / null,
   revokedCertsControl    : RevokedCertsControl / null,
-  extensions             : Extensions,
+  extensions             : IntExtensions,
   revokedCerts           : bytes / null,
   removedFromCRLCerts    : bytes / null,
 )
@@ -1809,7 +1814,7 @@ RevokedCertsControl = [
           <h4 id="name-crlinfodata-and-c509crlinfo">
 <a href="#section-5.3.1" class="section-number selfRef">5.3.1. </a><a href="#name-crlinfodata-and-c509crlinfo" class="section-name selfRef">CRLInfoData and C509CRLInfo</a>
           </h4>
-<p id="section-5.3.1-1"><code>CRLInfoData</code> is a CDDL group that carries all CRL fields except <code>revokedCertsList</code>.  <code>C509CRLInfo</code> is the standalone CBOR array form of <code>CRLInfoData</code>; it can be used to convey CRL freshness information (crlType, signature algorithm, issuer identity, CRL number, validity window, extensions) without the potentially large revocation list.  <code>TBSCertList</code> embeds <code>CRLInfoData</code> and adds <code>revokedCertsList</code>.<a href="#section-5.3.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.1-1"><code>CRLInfoData</code> is a CDDL group that carries all CRL fields except <code>revokedCertsList</code>.  <code>C509CRLInfo</code> is the standalone CBOR array form of <code>CRLInfoData</code>; it can be used to convey CRL information (crlType, signature algorithm, issuer identity, CRL number, validity window, extensions) without the potentially large revocation list.  <code>TBSCertList</code> embeds <code>CRLInfoData</code> and adds <code>revokedCertsList</code>.<a href="#section-5.3.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="crltype">
@@ -1835,7 +1840,7 @@ RevokedCertsControl = [
 <a href="#section-5.3.4" class="section-number selfRef">5.3.4. </a><a href="#name-authoritysubject-and-author" class="section-name selfRef">authoritySubject and authorityKeyIdentifier</a>
           </h4>
 <p id="section-5.3.4-1">The <code>authoritySubject</code> and <code>authorityKeyIdentifier</code> fields identify the CRL authority.<a href="#section-5.3.4-1" class="pilcrow">¶</a></p>
-<p id="section-5.3.4-2">The <code>authoritySubject</code> field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, <code>authoritySubject</code> is a <code>Name</code> value identical to the <code>subject</code> field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), <code>authoritySubject</code> is encoded as <code>#6.121(bytes)</code>, where the byte string contains the DER-encoded <code>Name</code> from the <code>subject</code> field of the issuing X.509 CA certificate (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>).<a href="#section-5.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2">The <code>authoritySubject</code> field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, <code>authoritySubject</code> is a <code>Name</code> value identical to the <code>subject</code> field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), <code>authoritySubject</code> is encoded as <code>#6.121(bytes)</code> (#6.121: alternative 0), where the byte string contains the DER-encoded <code>Name</code> from the <code>subject</code> field of the issuing X.509 CA certificate (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>). Since the <code>Name</code> structure may also be <code>bytes</code>, the DER-encoded subject is wrapped in a 121-tagged structure.<a href="#section-5.3.4-2" class="pilcrow">¶</a></p>
 <p id="section-5.3.4-3">The <code>authorityKeyIdentifier</code> field is identical to the value of the authority's <code>subjectKeyIdentifier</code> extension.  This field corresponds to the X.509 CRL extension <code>authorityKeyIdentifier</code> (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-5.2.1" class="relref">Section 5.2.1</a></span>).  It is promoted to a dedicated field because it <span class="bcp14">MUST</span> be present in conforming X.509 CRLs and because making it explicit simplifies the structure and reduces encoded size compared to representing it as a generic extension.<a href="#section-5.3.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1860,7 +1865,7 @@ RevokedCertsControl = [
           <h4 id="name-basecrlnumber">
 <a href="#section-5.3.7" class="section-number selfRef">5.3.7. </a><a href="#name-basecrlnumber" class="section-name selfRef">baseCrlNumber</a>
           </h4>
-<p id="section-5.3.7-1">The <code>baseCrlNumber</code> field is encoded as <code>null</code> for a full CRL.  For a delta CRL, it contains the CRL number of the corresponding base full CRL.<a href="#section-5.3.7-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.7-1">The <code>baseCrlNumber</code> field is encoded as <code>null</code> for a full CRL.  For a delta CRL, it contains the CRL number of the corresponding base full CRL.  It corresponds to the <code>deltaCRLIndicator</code> extension in <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-5.2.4" class="relref">Section 5.2.4</a></span>, which this document replaces with a dedicated field.<a href="#section-5.3.7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="reasoncode-encoding">
@@ -1938,9 +1943,30 @@ RevokedCertsControl = [
             <h5 id="name-design-considerations">
 <a href="#section-5.3.9.1" class="section-number selfRef">5.3.9.1. </a><a href="#name-design-considerations" class="section-name selfRef">Design Considerations</a>
             </h5>
-<p id="section-5.3.9.1-1">In X.509 CRLs (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-5.3.3" class="relref">Section 5.3.3</a></span>), an indirect CRL uses the <code>certificateIssuer</code> CRL entry extension to indicate that a revocation entry — and all subsequent entries — belong to a different issuer.  This mechanism has two significant drawbacks: (1) it is implicit and positional, making it difficult to parse correctly and error-prone to implement; and (2) it is impossible to represent an issuer that has no currently revoked certificates (e.g., to carry per-issuer extensions or to explicitly indicate that the issuer is known but has an empty revocation list), because there is no entry to attach the <code>certificateIssuer</code> extension to.<a href="#section-5.3.9.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.3.9.1-2"><code>PerIssuerRevokedCerts</code> solves both problems by introducing an explicit intermediate structure that groups all revocation information for one issuer.  The issuer is identified directly in the <code>issuer</code> field of the structure rather than being inferred from the position of a CRL entry extension.  This makes the grouping unambiguous and easy to parse, and it allows an issuer to appear in the list even when it has no revoked certificates.<a href="#section-5.3.9.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.3.9.1-3">A second design problem in X.509 CRLs is that each revocation entry has variable length: the serial number length differs between certificates, the revocation date uses different encodings depending on whether the date falls before or after 2050, and optional per-entry extensions (e.g., reason code) may or may not be present.  This variable-length layout makes it impossible to determine whether a given serial number is present in the list without scanning every entry sequentially, resulting in O(n) lookup time.  In this document, the <code>revokedCertsControl</code> structure introduces fixed parameters (<code>serialNumberLength</code>, <code>dateLength</code>) that make every entry within <code>revokedCerts</code> exactly of the same size.  The <code>flags</code> field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL <code>removeFromCRL</code> entries in X.509) are kept in a dedicated <code>removedFromCRLCerts</code> field rather than mixed into <code>revokedCerts</code>.  This keeps <code>revokedCerts</code> free of removal noise, reducing its size and allowing implementations to process currently-revoked and removed entries independently.<a href="#section-5.3.9.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.3.9.1-1">In X.509 CRLs (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-5.3.3" class="relref">Section 5.3.3</a></span>), an indirect CRL uses the <code>certificateIssuer</code> CRL entry extension to indicate that a revocation entry — and all subsequent entries — belong to a different issuer.  This mechanism has two significant drawbacks:<a href="#section-5.3.9.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.3.9.1-2.1">
+                <p id="section-5.3.9.1-2.1.1">It is implicit and positional, making it difficult to parse correctly and error-prone to implement.<a href="#section-5.3.9.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.3.9.1-2.2">
+                <p id="section-5.3.9.1-2.2.1">It is impossible to represent an issuer that has no currently revoked certificates (e.g., to carry per-issuer extensions or to explicitly indicate that the issuer is known but has an empty revocation list), because there is no entry to attach the <code>certificateIssuer</code> extension to.<a href="#section-5.3.9.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-5.3.9.1-3"><code>PerIssuerRevokedCerts</code> solves both problems by introducing an explicit intermediate structure that groups all revocation information for one issuer.  The issuer is identified directly in the <code>issuer</code> field of the structure rather than being inferred from the position of a CRL entry extension.  This makes the grouping unambiguous and easy to parse, and it allows an issuer to appear in the list even when it has no revoked certificates.<a href="#section-5.3.9.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.3.9.1-4">A second design problem in X.509 CRLs is that each revocation entry has variable length due to<a href="#section-5.3.9.1-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.3.9.1-5.1">
+                <p id="section-5.3.9.1-5.1.1">the serial number length differs between certificates,<a href="#section-5.3.9.1-5.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.3.9.1-5.2">
+                <p id="section-5.3.9.1-5.2.1">the revocation date uses different encodings depending on whether the date falls before or after 2050,<a href="#section-5.3.9.1-5.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.3.9.1-5.3">
+                <p id="section-5.3.9.1-5.3.1">optional per-entry extensions (e.g., reason code) may or may not be present.<a href="#section-5.3.9.1-5.3.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-5.3.9.1-6">This variable-length layout makes it impossible to determine whether a given serial number is present in the list without scanning every entry sequentially, resulting in O(n) lookup time.<a href="#section-5.3.9.1-6" class="pilcrow">¶</a></p>
+<p id="section-5.3.9.1-7">In this document, the <code>revokedCertsControl</code> structure introduces fixed parameters (<code>serialNumberLength</code>, <code>dateLength</code>) that make every entry within <code>revokedCerts</code> exactly of the same size.  The <code>flags</code> field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL <code>removeFromCRL</code> entries in X.509) are kept in a dedicated <code>removedFromCRLCerts</code> field rather than mixed into <code>revokedCerts</code>.  This keeps <code>revokedCerts</code> free of removal noise, reducing its size and allowing implementations to process currently-revoked and removed entries independently.<a href="#section-5.3.9.1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="fields">
@@ -1958,10 +1984,10 @@ RevokedCertsControl = [
                 <p id="section-5.3.9.2-3.2.1">The <code>revokedCertsControl</code> field defines the controls for interpreting <code>removedFromCRLCerts</code> and <code>revokedCerts</code>.  If either <code>removedFromCRLCerts</code> or <code>revokedCerts</code> is non-<code>null</code>, <code>revokedCertsControl</code> <span class="bcp14">MUST NOT</span> be <code>null</code>.  If both <code>removedFromCRLCerts</code> and <code>revokedCerts</code> are <code>null</code>, <code>revokedCertsControl</code> <span class="bcp14">MUST</span> be <code>null</code> to reduce CRL size.<a href="#section-5.3.9.2-3.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.3.9.2-3.2.2.1">
-                    <p id="section-5.3.9.2-3.2.2.1.1">The <code>flags</code> field is an unsigned integer encoding boolean control bits for <code>crlType = 0</code>: bit 0 (value 0x01) indicates whether entries in <code>revokedCerts</code> are sorted in ascending order by the integer value of the certificate serial number; bit 1 (value 0x02) indicates whether each entry contains a reason code.  Bits greater than 1 are reserved for <code>crlType = 0</code> and <span class="bcp14">MUST</span> be zero and <span class="bcp14">MUST</span> be ignored by receivers.  Future <code>crlType</code> values defined in successor documents may assign additional bit meanings.<a href="#section-5.3.9.2-3.2.2.1.1" class="pilcrow">¶</a></p>
+                    <p id="section-5.3.9.2-3.2.2.1.1">The <code>flags</code> field is an unsigned integer encoding boolean control bits for <code>crlType</code>: bit 0 indicates whether entries in <code>revokedCerts</code> are sorted in ascending order by the integer value of the certificate serial number; bit 1 indicates whether each entry contains a reason code.  Bits greater than 1 are reserved for <code>crlType = 0</code> and <span class="bcp14">MUST</span> be zero and <span class="bcp14">MUST</span> be ignored by receivers.  Future <code>crlType</code> values defined in successor documents may assign additional bit meanings.<a href="#section-5.3.9.2-3.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
                   <li class="normal" id="section-5.3.9.2-3.2.2.2">
-                    <p id="section-5.3.9.2-3.2.2.2.1">The <code>serialNumberLength</code> field defines the length, in bytes, of a certificate serial number.  It <span class="bcp14">MUST</span> be greater than 0.  It <span class="bcp14">SHOULD</span> be the smallest value that can encode all certificate serial numbers without leading zeros.<a href="#section-5.3.9.2-3.2.2.2.1" class="pilcrow">¶</a></p>
+                    <p id="section-5.3.9.2-3.2.2.2.1">The <code>serialNumberLength</code> field defines the length, in bytes, of a certificate serial number.  It <span class="bcp14">MUST</span> be greater than 0.  It is the smallest value that can encode all certificate serial numbers without leading zeros.<a href="#section-5.3.9.2-3.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
                 </ul>
 <p id="section-5.3.9.2-3.2.3">
@@ -1971,12 +1997,12 @@ Each certificate serial number is encoded as a fixed-length big-endian integer o
                     <p id="section-5.3.9.2-3.2.4.1.1">The <code>dateLength</code> field defines the length, in bytes, of the big-endian encoded revocation-date offset relative to <code>baseDate</code>.  A value of 0 means that no revocation date is included in <code>revokedCerts</code> entries.  This is permitted in C509-native deployments where the revocation date is not required -- for example, when minimizing revocation data is more important than recording the revocation time.  Implementations that need to convert a C509 CRL to an RFC 5280 DER-encoded CRL <span class="bcp14">MUST</span> set <code>dateLength</code> to a non-zero value, since <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-5.1" class="relref">Section 5.1</a></span> requires a <code>revocationDate</code> in every CRL entry.  When <code>dateLength</code> is non-zero, the offset <span class="bcp14">MUST</span> fit within the specified byte length without leading zero bytes.<a href="#section-5.3.9.2-3.2.4.1.1" class="pilcrow">¶</a></p>
 </li>
                   <li class="normal" id="section-5.3.9.2-3.2.4.2">
-                    <p id="section-5.3.9.2-3.2.4.2.1">The <code>baseDate</code> field is a reference time used to compute revocation and removal dates, encoded as described in <a href="#time-encoding" class="auto internal xref">Section 4</a>.  It <span class="bcp14">MUST</span> be greater than or equal to the issuer certificate's <code>notBefore</code>, which ensures that all stored offsets are non-negative.  It is <span class="bcp14">RECOMMENDED</span> to set <code>baseDate</code> to the earliest revocation date or removal-from-CRL date among all entries in this CRL, as this minimizes the magnitude of stored offsets and reduces encoding size.  Any time between the issuer certificate's <code>notBefore</code> (inclusive) and that earliest date (inclusive) is a conformant value.  Revocation dates in <code>revokedCerts</code> and removal dates in <code>removedFromCRLCerts</code> are stored as non-negative offsets, in seconds, from <code>baseDate</code>.<a href="#section-5.3.9.2-3.2.4.2.1" class="pilcrow">¶</a></p>
+                    <p id="section-5.3.9.2-3.2.4.2.1">The <code>baseDate</code> field is a reference time used to compute revocation and removal dates, encoded as described in <a href="#time-encoding" class="auto internal xref">Section 4</a>.  It <span class="bcp14">MUST</span> be greater than or equal to the issuer certificate's <code>notBefore</code>, which ensures that all stored offsets are non-negative.  It is <span class="bcp14">RECOMMENDED</span> to set <code>baseDate</code> to the earliest revocation date and removal-from-CRL date among all entries in this CRL, as this minimizes the magnitude of stored offsets and reduces encoding size.  Any time between the issuer certificate's <code>notBefore</code> (inclusive) and that earliest date (inclusive) is a conformant value.  Revocation dates in <code>revokedCerts</code> and removal dates in <code>removedFromCRLCerts</code> are stored as non-negative offsets, in seconds, from <code>baseDate</code>.<a href="#section-5.3.9.2-3.2.4.2.1" class="pilcrow">¶</a></p>
 </li>
                 </ul>
 </li>
               <li class="normal" id="section-5.3.9.2-3.3">
-                <p id="section-5.3.9.2-3.3.1">The <code>extensions</code> field contains per-issuer extensions.  Only the <code>(extensionID: int, extensionValue: Defined)</code> choice is permitted.  If no per-issuer extensions are present, this field <span class="bcp14">MUST</span> be encoded as an empty CBOR array.<a href="#section-5.3.9.2-3.3.1" class="pilcrow">¶</a></p>
+                <p id="section-5.3.9.2-3.3.1">The <code>extensions</code> field contains per-issuer extensions.  If no per-issuer extensions are present, this field <span class="bcp14">MUST</span> be encoded as an empty CBOR array.<a href="#section-5.3.9.2-3.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-5.3.9.2-3.4">
                 <p id="section-5.3.9.2-3.4.1">The <code>revokedCerts</code> field is a CBOR byte string containing the concatenated byte sequence of revoked-certificate entries.  Each entry is the concatenation of:<a href="#section-5.3.9.2-3.4.1" class="pilcrow">¶</a></p>
@@ -2025,7 +2051,7 @@ Removed-certificate entries have fixed length.  If bit 0 of <code>flags</code> i
           <h4 id="name-crl-extensions">
 <a href="#section-5.3.10" class="section-number selfRef">5.3.10. </a><a href="#name-crl-extensions" class="section-name selfRef">CRL Extensions</a>
           </h4>
-<p id="section-5.3.10-1">The <code>crlExtensions</code> field contains extensions for the CRL.  Only the <code>(extensionID: int, extensionValue: Defined)</code> choice is permitted.  This document does not define any new CRL-level extensions.<a href="#section-5.3.10-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.10-1">The <code>crlExtensions</code> field contains extensions for the CRL.  This document does not define any new CRL-level extensions.<a href="#section-5.3.10-1" class="pilcrow">¶</a></p>
 <p id="section-5.3.10-2"><a href="#tab-crlExt" class="auto internal xref">Table 2</a> lists X.509 CRL extensions and their equivalents.<a href="#section-5.3.10-2" class="pilcrow">¶</a></p>
 <span id="name-crl-extensions-and-their-eq"></span><div id="tab-crlExt">
 <table class="center" id="table-2">
@@ -2129,7 +2155,7 @@ Removed-certificate entries have fixed length.  If bit 0 of <code>flags</code> i
           <h4 id="name-per-issuer-extensions">
 <a href="#section-5.3.11" class="section-number selfRef">5.3.11. </a><a href="#name-per-issuer-extensions" class="section-name selfRef">Per-Issuer Extensions</a>
           </h4>
-<p id="section-5.3.11-1">The <code>extensions</code> field of <code>PerIssuerRevokedCerts</code> contains per-issuer extensions.  Only the <code>(extensionID: int, extensionValue: Defined)</code> choice is permitted.  This document defines one per-issuer extension (<code>expiredCertsOnCRL</code>, see <a href="#ext-expired-certs" class="auto internal xref">Section 5.3.11.1</a>).<a href="#section-5.3.11-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.11-1">The <code>extensions</code> field of <code>PerIssuerRevokedCerts</code> contains per-issuer extensions. This document defines one per-issuer extension (<code>expiredCertsOnCRL</code>, see <a href="#ext-expired-certs" class="auto internal xref">Section 5.3.11.1</a>).<a href="#section-5.3.11-1" class="pilcrow">¶</a></p>
 <p id="section-5.3.11-2"><a href="#tab-perIssuerExt" class="auto internal xref">Table 3</a> lists per-issuer extensions defined in this document.<a href="#section-5.3.11-2" class="pilcrow">¶</a></p>
 <span id="name-per-issuer-extensions-and-t"></span><div id="tab-perIssuerExt">
 <table class="center" id="table-3">
@@ -2160,7 +2186,7 @@ Removed-certificate entries have fixed length.  If bit 0 of <code>flags</code> i
             <h5 id="name-expiredcertsoncrl">
 <a href="#section-5.3.11.1" class="section-number selfRef">5.3.11.1. </a><a href="#name-expiredcertsoncrl" class="section-name selfRef">expiredCertsOnCRL</a>
             </h5>
-<p id="section-5.3.11.1-1">The <code>expiredCertsOnCRL</code> extension indicates that this CRL includes revocation information for certificates that have already expired.  The extension value is a time value indicating the earliest expiration date of certificates included on the CRL; certificates that expired on or after this date are listed even if they are now expired.<a href="#section-5.3.11.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.11.1-1">The <code>expiredCertsOnCRL</code> extension indicates that this CRL includes revocation information for certificates that have already expired.  The extension value is a time value indicating the earliest expiration date of certificates included on the CRL; certificates that expired on or after this date are listed even if they are expired when the CRL is generated.<a href="#section-5.3.11.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.3.11.1-2">The extension value <span class="bcp14">MUST</span> be encoded as follows.<a href="#section-5.3.11.1-2" class="pilcrow">¶</a></p>
 <div class="lang-cddl sourcecode" id="section-5.3.11.1-3">
 <pre>
@@ -2252,7 +2278,7 @@ ExpiredCertsOnCRL = ~time
         </h3>
 <p id="section-6.1-1">C509 OCSP defines CBOR encodings for OCSP requests and OCSP responses as defined in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>.  The encoding follows the same compression principles as C509 CRL and C509 certificates.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 <p id="section-6.1-2">C509 OCSP requests and responses are not wire-format-compatible with DER-encoded OCSP messages as defined in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>.  The two formats cannot be mechanically converted to or from each other without semantic interpretation of the contained data.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
-<p id="section-6.1-3"><code>C509OCSPRequest</code> and <code>C509OCSPResponse</code> are designed to be extensible.  The first field of every message is <code>ocspRequestType</code> or <code>ocspResponseType</code>, an unsigned integer that identifies the structure type.  This document defines types 0, 1, and 2.  Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+<p id="section-6.1-3"><code>C509OCSPRequest</code> and <code>C509OCSPResponse</code> are designed to be extensible.  The first field of every message is <code>ocspRequestType</code> or <code>ocspResponseType</code>, an unsigned integer that identifies the structure type. Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cert-identification">
@@ -2275,6 +2301,8 @@ HashId8   = bytes .size 8
 HashId20  = bytes .size 20
 </pre><a href="#section-6.2-3" class="pilcrow">¶</a>
 </div>
+<p id="section-6.2-4"><code>HashId20</code> is used to carry the hash of the certificate serial number of the target certificate, computed using the <code>hashAlgorithm</code> of the enclosing structure.  The serial number is encoded in big-endian byte order without a leading zero byte (as in C509 certificates) before hashing.  In X.509, a <code>CertificateSerialNumber</code> INTEGER is DER-encoded with a leading zero byte when the most-significant bit is set; that leading zero <span class="bcp14">MUST</span> be stripped before computing the hash.<a href="#section-6.2-4" class="pilcrow">¶</a></p>
+<p id="section-6.2-5">Using a hash rather than the plain serial number preserves the privacy of the requestor: an observer cannot determine which certificate is being queried without already knowing the serial number.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ocsp-request">
@@ -2299,7 +2327,7 @@ C509UnsignedOCSPRequest = [
   ocspRequestType    : 0,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
-  extensions         : Extensions,
+  extensions         : IntExtensions,
   requests           : PerIssuerOCSPRequests
 ]
 
@@ -2309,7 +2337,7 @@ TBSOCSPRequest = (
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   requestorCertHash  : HashId8,
-  extensions         : Extensions,
+  extensions         : IntExtensions,
   requests           : PerIssuerOCSPRequests,
   requestorCerts     : COSE_C509 / #6.121(COSE_X509) / null,
 )
@@ -2325,14 +2353,14 @@ C509SimpleOCSPRequest = [
   nonce              : bytes / null,
   issuerCertHash     : HashId8,
   serialNumberHash   : HashId20,
-  extensions         : Extensions
+  extensions         : IntExtensions
 ]
 
 PerIssuerOCSPRequests = [ + PerIssuerOCSPRequest ]
 
 PerIssuerOCSPRequest = (
   issuerCertHash   : HashId8,
-  extensions       : Extensions,
+  extensions       : IntExtensions,
   singleRequests   : SingleCertRequests,
 )
 
@@ -2340,7 +2368,7 @@ SingleCertRequests  = [ + SingleCertRequest ]
 
 SingleCertRequest = (
   serialNumberHash : HashId20,
-  extensions       : Extensions,
+  extensions       : IntExtensions,
 )
 </pre>
 </div>
@@ -2361,8 +2389,12 @@ SingleCertRequest = (
 <a href="#section-6.3.2.1" class="section-number selfRef">6.3.2.1. </a><a href="#name-ocsprequesttype" class="section-name selfRef">ocspRequestType</a>
             </h5>
 <p id="section-6.3.2.1-1">The <code>ocspRequestType</code> field serves as the discriminator for <code>C509OCSPRequest</code>:<a href="#section-6.3.2.1-1" class="pilcrow">¶</a></p>
+<span id="name-ocsp-request-types"></span><div id="tab-ocspreq-types">
 <table class="center" id="table-5">
-              <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
+              <caption>
+<a href="#table-5" class="selfRef">Table 5</a>:
+<a href="#name-ocsp-request-types" class="selfRef">OCSP request types</a>
+              </caption>
 <thead>
                 <tr>
                   <th class="text-center" rowspan="1" colspan="1">Value</th>
@@ -2390,6 +2422,7 @@ SingleCertRequest = (
                 </tr>
               </tbody>
             </table>
+</div>
 </section>
 </div>
 <div id="issuer-hash-id">
@@ -2400,7 +2433,7 @@ SingleCertRequest = (
 <p id="section-6.3.2.2-1">The <code>issuerCertHash</code> field appears in <code>PerIssuerOCSPRequest</code>, <code>PerIssuerOCSPResponse</code>, <code>C509SimpleOCSPRequest</code>, and <code>TBSSimpleOCSPResponse</code>.  It contains a hash of the issuer certificate:<a href="#section-6.3.2.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-6.3.2.2-2.1">
-                <p id="section-6.3.2.2-2.1.1"><code>issuerCertHash</code>: hash computed over the CBOR-encoded issuer C509 certificate, or over the DER-encoded issuer X.509 certificate (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>).  The hash algorithm is specified by the <code>hashAlgorithm</code> field of the enclosing request or response structure.<a href="#section-6.3.2.2-2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-6.3.2.2-2.1.1"><code>issuerCertHash</code>: hash computed over the deterministic encoded certificate. It is the CBOR-encoed C509Certificate or DER-encoded (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>) X.509 certificate.  The hash algorithm is specified by the <code>hashAlgorithm</code> field of the enclosing request or response structure.<a href="#section-6.3.2.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 <p id="section-6.3.2.2-3">In X.509 OCSP (<span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.1.1" class="relref">Section 4.1.1</a></span>), the <code>CertID</code> structure identifies the issuer using two separate hashes: <code>issuerNameHash</code> (a hash of the DER-encoded issuer name) and <code>issuerKeyHash</code> (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (<code>issuerCertHash</code>), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 <code>issuerCertHash</code> with an RFC 6960 DER-encoded <code>CertID</code> must recompute the respective hash inputs; the values are not directly comparable.<a href="#section-6.3.2.2-3" class="pilcrow">¶</a></p>
@@ -2438,7 +2471,7 @@ SingleCertRequest = (
             </h5>
 <ul class="normal">
 <li class="normal" id="section-6.3.2.4-1.1">
-                <p id="section-6.3.2.4-1.1.1">The <code>ocspRequestType</code> field <span class="bcp14">MUST</span> be 0, which discriminates <code>C509UnsignedOCSPRequest</code> from <code>C509SignedOCSPRequest</code>.<a href="#section-6.3.2.4-1.1.1" class="pilcrow">¶</a></p>
+                <p id="section-6.3.2.4-1.1.1">The <code>ocspRequestType</code> field <span class="bcp14">MUST</span> be 0.<a href="#section-6.3.2.4-1.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.3.2.4-1.2">
                 <p id="section-6.3.2.4-1.2.1">The <code>hashAlgorithm</code> field specifies the hash algorithm used to compute <code>issuerCertHash</code> and <code>serialNumberHash</code>.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in <a href="#hashalg" class="auto internal xref">Section 7</a>.<a href="#section-6.3.2.4-1.2.1" class="pilcrow">¶</a></p>
@@ -2462,7 +2495,7 @@ SingleCertRequest = (
             </h5>
 <ul class="normal">
 <li class="normal" id="section-6.3.2.5-1.1">
-                <p id="section-6.3.2.5-1.1.1">The <code>ocspRequestType</code> field <span class="bcp14">MUST</span> be 1, which discriminates <code>C509SignedOCSPRequest</code> from <code>C509UnsignedOCSPRequest</code>.<a href="#section-6.3.2.5-1.1.1" class="pilcrow">¶</a></p>
+                <p id="section-6.3.2.5-1.1.1">The <code>ocspRequestType</code> field <span class="bcp14">MUST</span> be 1.<a href="#section-6.3.2.5-1.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.3.2.5-1.2">
                 <p id="section-6.3.2.5-1.2.1">The <code>signatureAlgorithm</code> field specifies the signature algorithm, as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-20#section-3.1.11" class="relref">Section 3.1.11</a></span>.<a href="#section-6.3.2.5-1.2.1" class="pilcrow">¶</a></p>
@@ -2499,7 +2532,7 @@ SingleCertRequest = (
 <p id="section-6.3.2.6-1"><code>C509SimpleOCSPRequest</code> is a compact request format for querying the status of a single certificate.  Unlike <code>C509UnsignedOCSPRequest</code>, which uses a two-level <code>PerIssuerOCSPRequests</code> / <code>SingleCertRequest</code> grouping to batch multiple serial numbers across one or more issuers, <code>C509SimpleOCSPRequest</code> flattens the structure into a single CBOR array for the common case of a one-certificate query.<a href="#section-6.3.2.6-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-6.3.2.6-2.1">
-                <p id="section-6.3.2.6-2.1.1">The <code>ocspRequestType</code> field <span class="bcp14">MUST</span> be 2, which discriminates <code>C509SimpleOCSPRequest</code> from <code>C509UnsignedOCSPRequest</code> and <code>C509SignedOCSPRequest</code>.<a href="#section-6.3.2.6-2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-6.3.2.6-2.1.1">The <code>ocspRequestType</code> field <span class="bcp14">MUST</span> be 2.<a href="#section-6.3.2.6-2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.3.2.6-2.2">
                 <p id="section-6.3.2.6-2.2.1">The <code>nonce</code> field contains the request nonce, or <span class="bcp14">MUST</span> be <code>null</code> when no nonce is present.<a href="#section-6.3.2.6-2.2.1" class="pilcrow">¶</a></p>
@@ -2508,7 +2541,7 @@ SingleCertRequest = (
                 <p id="section-6.3.2.6-2.3.1">The <code>issuerCertHash</code> field identifies the issuer of the target certificate; see <a href="#issuer-hash-id" class="auto internal xref">Section 6.3.2.2</a>.<a href="#section-6.3.2.6-2.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.3.2.6-2.4">
-                <p id="section-6.3.2.6-2.4.1">The <code>serialNumberHash</code> field is the hash of the certificate serial number of the target certificate, computed using the <code>hashAlgorithm</code> from <code>C509SimpleOCSPRequest</code>.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing.  Using a hash rather than the plain serial number preserves the privacy of the requestor: an observer cannot determine which certificate is being queried without already knowing the serial number.<a href="#section-6.3.2.6-2.4.1" class="pilcrow">¶</a></p>
+                <p id="section-6.3.2.6-2.4.1">The <code>serialNumberHash</code> field is the hash of the certificate serial number of the target certificate, computed as in <a href="#cert-identification" class="auto internal xref">Section 6.2</a>.<a href="#section-6.3.2.6-2.4.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.3.2.6-2.5">
                 <p id="section-6.3.2.6-2.5.1">The <code>extensions</code> field contains request-level extensions; see <a href="#ocsp-extensions" class="auto internal xref">Section 6.4.2.13</a>.  If no extensions are present, this field <span class="bcp14">MUST</span> be encoded as an empty CBOR array.<a href="#section-6.3.2.6-2.5.1" class="pilcrow">¶</a></p>
@@ -2550,7 +2583,7 @@ TBSBasicOCSPResponse = (
   nonce              : bytes / null,
   responderCertHash  : HashId8,
   producedAt         : ~time,
-  extensions         : Extensions,
+  extensions         : IntExtensions,
   responses          : PerIssuerOCSPResponses,
   responderCerts     : COSE_C509 / #6.121(COSE_X509) / null,
 )
@@ -2572,7 +2605,7 @@ TBSSimpleOCSPResponse = (
   producedAt         : ~time,
   thisUpdate         : nint / 0,
   nextUpdate         : uint / null,
-  extensions         : Extensions,
+  extensions         : IntExtensions,
   responderCerts     : COSE_C509 / #6.121(COSE_X509) / null,
 )
 
@@ -2585,7 +2618,7 @@ PerIssuerOCSPResponses = [ + PerIssuerOCSPResponse ]
 
 PerIssuerOCSPResponse = (
   issuerCertHash   : HashId8,
-  extensions       : Extensions,
+  extensions       : IntExtensions,
   singleResponses  : SingleCertResponses,
 )
 
@@ -2596,7 +2629,7 @@ SingleCertResponse = (
   certStatus       : CertStatus,
   thisUpdate       : nint / 0,
   nextUpdate       : uint / null,
-  extensions       : Extensions,
+  extensions       : IntExtensions,
 )
 
 CertStatus = 0        ; good
@@ -2627,7 +2660,7 @@ RevokedInfo = [
             <h5 id="name-c509errorocspresponse">
 <a href="#section-6.4.2.1" class="section-number selfRef">6.4.2.1. </a><a href="#name-c509errorocspresponse" class="section-name selfRef">C509ErrorOCSPResponse</a>
             </h5>
-<p id="section-6.4.2.1-1">If the OCSP server cannot process the OCSP query, it returns a <code>C509ErrorOCSPResponse</code>.  The <code>ocspResponseType</code> value <span class="bcp14">MUST</span> be 0, and <code>responseStatus</code> has the following enumerated values:<a href="#section-6.4.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.4.2.1-1">If the OCSP server cannot process the OCSP query, it returns a <code>C509ErrorOCSPResponse</code>.  The <code>ocspResponseType</code> value <span class="bcp14">MUST</span> be 0, and <code>responseStatus</code> has the following enumerated values, as in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.2.1" class="relref">Section 4.2.1</a></span>:<a href="#section-6.4.2.1-1" class="pilcrow">¶</a></p>
 <span id="name-responsestatus-values"></span><div id="tab-respstatus">
 <table class="center" id="table-6">
               <caption>
@@ -2706,7 +2739,7 @@ RevokedInfo = [
                 <p id="section-6.4.2.3-3.6.1">The <code>issuerCertHash</code> field identifies the issuer of the queried certificate; see <a href="#issuer-hash-id" class="auto internal xref">Section 6.3.2.2</a>.<a href="#section-6.4.2.3-3.6.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.4.2.3-3.7">
-                <p id="section-6.4.2.3-3.7.1">The <code>serialNumberHash</code> field is the hash of the certificate serial number of the queried certificate, computed using <code>hashAlgorithm</code>.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing; see <a href="#serialNumberHash-section" class="auto internal xref">Section 6.4.2.11.1</a>.<a href="#section-6.4.2.3-3.7.1" class="pilcrow">¶</a></p>
+                <p id="section-6.4.2.3-3.7.1">The <code>serialNumberHash</code> field is the hash of the certificate serial number of the target certificate, computed as in <a href="#cert-identification" class="auto internal xref">Section 6.2</a>.<a href="#section-6.4.2.3-3.7.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.4.2.3-3.8">
                 <p id="section-6.4.2.3-3.8.1">The <code>producedAt</code> field is the time at which this response was produced, encoded as described in <a href="#time-encoding" class="auto internal xref">Section 4</a>.<a href="#section-6.4.2.3-3.8.1" class="pilcrow">¶</a></p>
@@ -2813,7 +2846,7 @@ RevokedInfo = [
               <h6 id="name-serialnumberhash">
 <a href="#section-6.4.2.11.1" class="section-number selfRef">6.4.2.11.1. </a><a href="#name-serialnumberhash" class="section-name selfRef">serialNumberHash</a>
               </h6>
-<p id="section-6.4.2.11.1-1">This field contains the truncated hash of the serial number of the certificate being queried.  It is computed using the <code>hashAlgorithm</code> from the enclosing <code>TBSBasicOCSPResponse</code> and contains the first 20 bytes.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing.  In X.509, a <code>CertificateSerialNumber</code> INTEGER is DER-encoded with a leading zero byte when the most-significant bit is set; that leading zero <span class="bcp14">MUST</span> be stripped before computing the hash.  In X.509 OCSP (<span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.1.1" class="relref">Section 4.1.1</a></span>), the <code>CertID</code> structure carries the plain <code>serialNumber</code> directly.  C509 OCSP replaces this with a hash to preserve privacy: an observer cannot determine which certificate was queried without already knowing the serial number.<a href="#section-6.4.2.11.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.4.2.11.1-1">This field contains the truncated hash of the serial number of the certificate being queried, computed as in <a href="#cert-identification" class="auto internal xref">Section 6.2</a>.<a href="#section-6.4.2.11.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="extensions-1">
@@ -2841,10 +2874,10 @@ RevokedInfo = [
                   <p id="section-6.4.2.11.3-2.3.1">2: <code>unknown</code> -- the responder does not recognize the issuer identified by <code>issuerCertHash</code>.<a href="#section-6.4.2.11.3-2.3.1" class="pilcrow">¶</a></p>
 </li>
                 <li class="normal" id="section-6.4.2.11.3-2.4">
-                  <p id="section-6.4.2.11.3-2.4.1"><code>RevokedInfo</code>: <code>revoked</code> -- a fixed-length 2-element array carrying <code>revocationTime</code> and <code>revocationReason</code>.  The <code>revocationReason</code> field is encoded as specified in <a href="#reasoncode-encoding" class="auto internal xref">Section 5.3.8</a>.  When the revocation reason is not known, <code>revocationReason</code> <span class="bcp14">MUST</span> be set to 0 (unspecified).<a href="#section-6.4.2.11.3-2.4.1" class="pilcrow">¶</a></p>
+                  <p id="section-6.4.2.11.3-2.4.1"><code>RevokedInfo</code>: <code>revoked</code> -- an array carrying <code>revocationTime</code> and <code>revocationReason</code>.  The <code>revocationReason</code> field is encoded as specified in <a href="#reasoncode-encoding" class="auto internal xref">Section 5.3.8</a>.  When the revocation reason is not known, <code>revocationReason</code> <span class="bcp14">MUST</span> be set to 0 (unspecified).<a href="#section-6.4.2.11.3-2.4.1" class="pilcrow">¶</a></p>
 </li>
               </ul>
-<p id="section-6.4.2.11.3-3">The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of <code>CertStatus</code> in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>: <code>good</code> uses [0] (value 0) and <code>unknown</code> uses [2] (value 2).  The ASN.1 <code>revoked</code> alternative uses [1]; since C509 represents the revoked status as the explicit <code>RevokedInfo</code> array, the integer value 1 becomes available.  It is assigned to the <code>not-issued</code> status, which was introduced in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.4.8" class="relref">Section 4.4.8</a></span> to distinguish unrecognized serial numbers from unrecognized issuers, thereby maintaining a contiguous integer range for the non-revoked statuses.<a href="#section-6.4.2.11.3-3" class="pilcrow">¶</a></p>
+<p id="section-6.4.2.11.3-3">The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of <code>CertStatus</code> in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>: <code>good</code> uses ASN.1 tag 0 and <code>unknown</code> uses ASN.1 tag 2.  The ASN.1 <code>revoked</code> alternative uses ASN.1 tag 1; since C509 represents the revoked status as the explicit <code>RevokedInfo</code> array, the integer value 1 becomes available.  It is assigned to the <code>not-issued</code> status, which was introduced in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.4.8" class="relref">Section 4.4.8</a></span> to distinguish unrecognized serial numbers from unrecognized issuers, thereby maintaining a contiguous integer range for the non-revoked statuses.<a href="#section-6.4.2.11.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2854,7 +2887,7 @@ RevokedInfo = [
             <h5 id="name-per-issuer-ocsp-extensions">
 <a href="#section-6.4.2.12" class="section-number selfRef">6.4.2.12. </a><a href="#name-per-issuer-ocsp-extensions" class="section-name selfRef">Per-Issuer OCSP Extensions</a>
             </h5>
-<p id="section-6.4.2.12-1"><code>PerIssuerOCSPRequest.extensions</code> and <code>PerIssuerOCSPResponse.extensions</code> carry per-issuer extensions.  Only the <code>(extensionID: int, extensionValue: Defined)</code> choice of <code>Extensions</code> is permitted.  If no per-issuer extensions are present, the field <span class="bcp14">MUST</span> be encoded as an empty CBOR array <code>[]</code>.<a href="#section-6.4.2.12-1" class="pilcrow">¶</a></p>
+<p id="section-6.4.2.12-1"><code>PerIssuerOCSPRequest.extensions</code> and <code>PerIssuerOCSPResponse.extensions</code> carry per-issuer extensions.  If no per-issuer extensions are present, the field <span class="bcp14">MUST</span> be encoded as an empty CBOR array.<a href="#section-6.4.2.12-1" class="pilcrow">¶</a></p>
 <p id="section-6.4.2.12-2"><a href="#tab-perIssuerOCSPExt" class="auto internal xref">Table 7</a> lists the per-issuer extensions defined in this document.<a href="#section-6.4.2.12-2" class="pilcrow">¶</a></p>
 <span id="name-per-issuer-ocsp-extensions-2"></span><div id="tab-perIssuerOCSPExt">
 <table class="center" id="table-7">
@@ -3006,8 +3039,6 @@ PreferredSignatureAlgorithm = (
                          / null,
 )
 
-IntAlgorithmIdentifier = int
-
 PreferredSignatureAlgorithms = [ + PreferredSignatureAlgorithm ]
 </pre><a href="#section-6.4.2.13-8" class="pilcrow">¶</a>
 </div>
@@ -3035,7 +3066,7 @@ TNQuery = text .size (1..15)
 </pre><a href="#section-6.4.2.13-13" class="pilcrow">¶</a>
 </div>
 <p id="section-6.4.2.13-14">The <code>TNQuery</code> extension carries a telephone number string conforming to the TelephoneNumber ASN.1 type (<span>[<a href="#RFC8226" class="cite xref">RFC8226</a>], <a href="https://rfc-editor.org/rfc/rfc8226#section-3" class="relref">Section 3</a></span>).  When included in single request extensions, it specifies the telephone number for which the OCSP query is being performed (typically the number from the "orig" field of a PASSporT being validated).<a href="#section-6.4.2.13-14" class="pilcrow">¶</a></p>
-<p id="section-6.4.2.13-15">Clients <span class="bcp14">MUST</span> include this extension in the single-request extensions per <span>[<a href="#I-D.ietf-stir-certificates-ocsp" class="cite xref">I-D.ietf-stir-certificates-ocsp</a>]</span>.<a href="#section-6.4.2.13-15" class="pilcrow">¶</a></p>
+<p id="section-6.4.2.13-15">This extension is allowed only in the single-request extensions per <span>[<a href="#I-D.ietf-stir-certificates-ocsp" class="cite xref">I-D.ietf-stir-certificates-ocsp</a>]</span>.<a href="#section-6.4.2.13-15" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -3047,7 +3078,7 @@ TNQuery = text .size (1..15)
         <h3 id="name-certificate-type-interopera">
 <a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-certificate-type-interopera" class="section-name selfRef">Certificate Type Interoperability</a>
         </h3>
-<p id="section-6.5-1">C509 OCSP uses a single set of request and response structures that handles both C509 and X.509 certificates without modification.  All participants -- requestor, responder, and issuer -- are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 <code>ResponderID</code> CHOICE (<code>byName</code> or <code>byKey</code>).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), and any future certificate types.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
+<p id="section-6.5-1">C509 OCSP uses a single set of request and response structures that handles both C509 and X.509 certificates without modification.  All participants (requestor, responder, issuer) are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 <code>ResponderID</code> CHOICE (<code>byName</code> or <code>byKey</code>).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), and any future certificate types.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
 <p id="section-6.5-2">The only per-type differences are in how identity hashes are computed and how certificate chains are carried:<a href="#section-6.5-2" class="pilcrow">¶</a></p>
 <span id="name-per-type-differences-in-c50"></span><div id="tab-certtypeinterop">
 <table class="center" id="table-9">
@@ -3598,10 +3629,6 @@ TNQuery = text .size (1..15)
         <dd>
 <span class="refAuthor">Cotton, M.</span>, <span class="refTitle">"Early IANA Allocation of Standards Track Code Points"</span>, <span class="seriesInfo">BCP 100</span>, <span class="seriesInfo">RFC 7120</span>, <span class="seriesInfo">DOI 10.17487/RFC7120</span>, <time datetime="2014-01" class="refDate">January 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7120">https://www.rfc-editor.org/rfc/rfc7120</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC7925">[RFC7925]</dt>
-        <dd>
-<span class="refAuthor">Tschofenig, H., Ed.</span> and <span class="refAuthor">T. Fossati</span>, <span class="refTitle">"Transport Layer Security (TLS) / Datagram Transport Layer Security (DTLS) Profiles for the Internet of Things"</span>, <span class="seriesInfo">RFC 7925</span>, <span class="seriesInfo">DOI 10.17487/RFC7925</span>, <time datetime="2016-07" class="refDate">July 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7925">https://www.rfc-editor.org/rfc/rfc7925</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC8126">[RFC8126]</dt>
         <dd>
 <span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Leiba, B.</span>, and <span class="refAuthor">T. Narten</span>, <span class="refTitle">"Guidelines for Writing an IANA Considerations Section in RFCs"</span>, <span class="seriesInfo">BCP 26</span>, <span class="seriesInfo">RFC 8126</span>, <span class="seriesInfo">DOI 10.17487/RFC8126</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8126">https://www.rfc-editor.org/rfc/rfc8126</a>&gt;</span>. </dd>
@@ -3662,6 +3689,10 @@ TNQuery = text .size (1..15)
 <dt id="RFC7228">[RFC7228]</dt>
         <dd>
 <span class="refAuthor">Bormann, C.</span>, <span class="refAuthor">Ersue, M.</span>, and <span class="refAuthor">A. Keranen</span>, <span class="refTitle">"Terminology for Constrained-Node Networks"</span>, <span class="seriesInfo">RFC 7228</span>, <span class="seriesInfo">DOI 10.17487/RFC7228</span>, <time datetime="2014-05" class="refDate">May 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7228">https://www.rfc-editor.org/rfc/rfc7228</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7925">[RFC7925]</dt>
+        <dd>
+<span class="refAuthor">Tschofenig, H., Ed.</span> and <span class="refAuthor">T. Fossati</span>, <span class="refTitle">"Transport Layer Security (TLS) / Datagram Transport Layer Security (DTLS) Profiles for the Internet of Things"</span>, <span class="seriesInfo">RFC 7925</span>, <span class="seriesInfo">DOI 10.17487/RFC7925</span>, <time datetime="2016-07" class="refDate">July 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7925">https://www.rfc-editor.org/rfc/rfc7925</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="X.690">[X.690]</dt>
       <dd>
