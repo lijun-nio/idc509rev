@@ -2195,7 +2195,7 @@ Appendix A.  Examples
 A.1.  Overview
 
    +==========+==================+============+============+===========+
-   | Section  | Description      | size(C509) | size(X509) | Size      |
+   | Section  | Description      | size(X509) | size(C509) | Size      |
    |          |                  |            |            | Reduction |
    +==========+==================+============+============+===========+
    | Appendix | CRL Example      | 147        | 120        | 18%       |
