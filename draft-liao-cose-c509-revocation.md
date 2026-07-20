@@ -54,7 +54,6 @@ normative:
   RFC6066:
   RFC6960:
   RFC7120:
-  RFC7925:
   RFC8126:
   RFC8226:
   RFC8446:
@@ -69,6 +68,7 @@ normative:
 
 informative:
   RFC7228:
+  RFC7925:
   POSIX:
     title: IEEE Standard for Information Technology--Portable Operating System Interface (POSIX(TM)) Base Specifications, Issue 7
     target: https://pubs.opengroup.org/onlinepubs/9699919799/
@@ -102,18 +102,31 @@ Note on terminology: The label "C509" is used for consistency with the C509 cert
 
 This document specifies:
 
-- **C509 CRL** -- a natively signed CBOR {{RFC8949}} encoding of X.509 CRLs ({{RFC5280, Section 5}}).  The signature is computed over the CBOR Sequence {{RFC8742}} `TBSCertList`; no ASN.1 encoding is involved.
+- **C509 CRL** -- a natively signed CBOR {{RFC8949}} encoding of X.509 CRLs ({{RFC5280, Section 5}}).  The signature is computed over the CBOR Sequence {{RFC8742}} `TBSCertList`; no ASN.1 encoding is involved. Two key improvements are made over {{RFC5280}}:
+
+   - Reduce the search complexity for a given certificate serial number from O(n) to O(log(n)):
+
+     - Replace implicit `certificateIssuer` mechanism by explicit per-issuer grouping.
+
+     - Use dedicated list for the `removeFromCRL` revocation entries.
+
+     - Use fixed-length entry encoding.
+
+   - Define a new standalone `C509CRLInfo` structure to carry CRL information without the (large) revocation list itself.
+
+   - Define dedicated fields for the common extensions to simplify the encoding: `crlNumber`, `authorityKeyIdentifier`, `deltaCRLIndicator`.
 
 - **C509 OCSP** -- a CBOR encoding of OCSP requests and responses ({{RFC6960}}).  The encoding compresses common fields while preserving semantic equivalence.  Four key improvements are made over {{RFC6960}}:
 
    - The signature in signed requests and responses is computed over a wider set of fields than in {{RFC6960}}, including the signature algorithm and the certificate chain, preventing algorithm-substitution and certificate-chain substitution attacks.
+
    - Certificate serial numbers in requests and responses are replaced by hashes (`serialNumberHash`), providing privacy against passive observers who do not already know the queried serial numbers.
+
    - The issuer is identified by a single hash over the issuer certificate (`issuerCertHash`) rather than by the two-hash `CertID`, reducing per-issuer overhead.
-   - All participants -- requestor, responder, and issuer -- are identified by a hash over their certificate (`requestorCertHash`, `responderCertHash`, `issuerCertHash`) rather than by a plaintext Subject distinguished name or SubjectKeyIdentifier, avoiding structural `CHOICE` types such as the X.509 `ResponderID` (`byName` or `byKey`) and simplifying support for different certificate types (e.g., C509, X.509, or future types) because the same hash applies regardless of the certificate encoding.
 
-   See the field encoding sections of this document for details.
+   - All participants (requestor, responder, issuer) are identified by a hash over their certificate (`requestorCertHash`, `responderCertHash`, `issuerCertHash`) rather than by a plaintext Subject distinguished name or SubjectKeyIdentifier, avoiding structural `CHOICE` types such as the X.509 `ResponderID` (`byName` or `byKey`) and simplifying support for different certificate types (e.g., C509, X.509, or future types) because the same hash applies regardless of the certificate encoding.
 
-   The request and response structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification; see {{cert-type-interop}}.
+The CRL and OCSP structures defined in this document are certificate-type agnostic: they can be used with C509 certificates, X.509 certificates, or any future certificate type without modification; see {{cert-type-interop}}.
 
 C509 CRL and C509 OCSP apply the same compression techniques as C509 certificates: static fields are elided, OIDs are replaced with short integers, time values are compressed to POSIX timestamps, and redundant encoding is removed.  Implementers may use the CBOR playground {{CborMe}} to inspect encoded examples.
 
@@ -129,25 +142,24 @@ This document uses the terminology from {{RFC5280}}, {{RFC6960}}, {{RFC7228}}, {
 
 # Imported Definitions {#imports}
 
-The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}:
+The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and  `AlgorithmIdentifier`. And the following type is imported from {{RFC9360}}: `COSE_X509`.
 
-- `Name`: no limitation.
-- `Extensions`: only the `( extensionID: int, extensionValue: Defined )` choice of Extension is permitted.
-- `COSE_C509`: no limitation.
-- `AlgorithmIdentifier`: no limitation.
-
-The following type is imported from {{RFC9360}}:
-
-- `COSE_X509`: no limitation.
-
-This document further defines the following constrained alias for use in all CDDL definitions:
+This document further defines the following constrained aliases for use in all CDDL definitions:
 
 ~~~~~~~~~~~ cddl
 IntAlgorithmIdentifier = int
+
+IntExtension = ( extensionID: int, extensionValue: Defined )
+
+IntExtensions = [ * IntExtension ]
 ~~~~~~~~~~~
 {: sourcecode-name="c509crl.cddl"}
 
 `IntAlgorithmIdentifier` is the `int`-only instantiation of `AlgorithmIdentifier` from {{I-D.ietf-cose-cbor-encoded-cert}}.  It is used throughout this document wherever an algorithm identifier appears in the wire encoding.
+
+`IntExtension` is the instantiation of `Extension` from {{I-D.ietf-cose-cbor-encoded-cert}} with extensionID of type int.  It is used throughout this document wherever a single extension appears in the wire encoding.
+
+`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries have only int-only `extensionID`.
 
 # Encoding of Time Fields {#time-encoding}
 
@@ -187,13 +199,13 @@ CRLInfoData = (
   thisUpdate             : ~time,
   nextUpdate             : uint / null,
   baseCrlNumber          : uint / null,
-  crlExtensions          : Extensions,
+  crlExtensions          : IntExtensions,
 )
 
 PerIssuerRevokedCerts = (
   issuer                 : Name / #6.121(bytes) / null,
   revokedCertsControl    : RevokedCertsControl / null,
-  extensions             : Extensions,
+  extensions             : IntExtensions,
   revokedCerts           : bytes / null,
   removedFromCRLCerts    : bytes / null,
 )
@@ -212,7 +224,7 @@ RevokedCertsControl = [
 
 ### CRLInfoData and C509CRLInfo
 
-`CRLInfoData` is a CDDL group that carries all CRL fields except `revokedCertsList`.  `C509CRLInfo` is the standalone CBOR array form of `CRLInfoData`; it can be used to convey CRL freshness information (crlType, signature algorithm, issuer identity, CRL number, validity window, extensions) without the potentially large revocation list.  `TBSCertList` embeds `CRLInfoData` and adds `revokedCertsList`.
+`CRLInfoData` is a CDDL group that carries all CRL fields except `revokedCertsList`.  `C509CRLInfo` is the standalone CBOR array form of `CRLInfoData`; it can be used to convey CRL information (crlType, signature algorithm, issuer identity, CRL number, validity window, extensions) without the potentially large revocation list.  `TBSCertList` embeds `CRLInfoData` and adds `revokedCertsList`.
 
 ### crlType
 
@@ -228,7 +240,7 @@ Unlike in {{RFC5280}}, where the signature algorithm appears outside the `TBSCer
 
 The `authoritySubject` and `authorityKeyIdentifier` fields identify the CRL authority.
 
-The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)`, where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}).
+The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)` (#6.121: alternative 0), where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}). Since the `Name` structure may also be `bytes`, the DER-encoded subject is wrapped in a 121-tagged structure.
 
 The `authorityKeyIdentifier` field is identical to the value of the authority's `subjectKeyIdentifier` extension.  This field corresponds to the X.509 CRL extension `authorityKeyIdentifier` ({{RFC5280, Section 5.2.1}}).  It is promoted to a dedicated field because it MUST be present in conforming X.509 CRLs and because making it explicit simplifies the structure and reduces encoded size compared to representing it as a generic extension.
 
@@ -242,7 +254,7 @@ The `thisUpdate` field is encoded as described in {{time-encoding}}.  The `nextU
 
 ### baseCrlNumber
 
-The `baseCrlNumber` field is encoded as `null` for a full CRL.  For a delta CRL, it contains the CRL number of the corresponding base full CRL.
+The `baseCrlNumber` field is encoded as `null` for a full CRL.  For a delta CRL, it contains the CRL number of the corresponding base full CRL.  It corresponds to the `deltaCRLIndicator` extension in {{RFC5280, Section 5.2.4}}, which this document replaces with a dedicated field.
 
 ### reasonCode Encoding {#reasoncode-encoding}
 
@@ -268,11 +280,24 @@ The `reasonCode` ENUMERATED value is encoded as one unsigned byte.  The byte val
 
 #### Design Considerations
 
-In X.509 CRLs ({{RFC5280, Section 5.3.3}}), an indirect CRL uses the `certificateIssuer` CRL entry extension to indicate that a revocation entry — and all subsequent entries — belong to a different issuer.  This mechanism has two significant drawbacks: (1) it is implicit and positional, making it difficult to parse correctly and error-prone to implement; and (2) it is impossible to represent an issuer that has no currently revoked certificates (e.g., to carry per-issuer extensions or to explicitly indicate that the issuer is known but has an empty revocation list), because there is no entry to attach the `certificateIssuer` extension to.
+In X.509 CRLs ({{RFC5280, Section 5.3.3}}), an indirect CRL uses the `certificateIssuer` CRL entry extension to indicate that a revocation entry — and all subsequent entries — belong to a different issuer.  This mechanism has two significant drawbacks:
+
+- It is implicit and positional, making it difficult to parse correctly and error-prone to implement.
+- It is impossible to represent an issuer that has no currently revoked certificates (e.g., to carry per-issuer extensions or to explicitly indicate that the issuer is known but has an empty revocation list), because there is no entry to attach the `certificateIssuer` extension to.
 
 `PerIssuerRevokedCerts` solves both problems by introducing an explicit intermediate structure that groups all revocation information for one issuer.  The issuer is identified directly in the `issuer` field of the structure rather than being inferred from the position of a CRL entry extension.  This makes the grouping unambiguous and easy to parse, and it allows an issuer to appear in the list even when it has no revoked certificates.
 
-A second design problem in X.509 CRLs is that each revocation entry has variable length: the serial number length differs between certificates, the revocation date uses different encodings depending on whether the date falls before or after 2050, and optional per-entry extensions (e.g., reason code) may or may not be present.  This variable-length layout makes it impossible to determine whether a given serial number is present in the list without scanning every entry sequentially, resulting in O(n) lookup time.  In this document, the `revokedCertsControl` structure introduces fixed parameters (`serialNumberLength`, `dateLength`) that make every entry within `revokedCerts` exactly of the same size.  The `flags` field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL `removeFromCRL` entries in X.509) are kept in a dedicated `removedFromCRLCerts` field rather than mixed into `revokedCerts`.  This keeps `revokedCerts` free of removal noise, reducing its size and allowing implementations to process currently-revoked and removed entries independently.
+A second design problem in X.509 CRLs is that each revocation entry has variable length due to
+
+- the serial number length differs between certificates,
+
+- the revocation date uses different encodings depending on whether the date falls before or after 2050,
+
+- optional per-entry extensions (e.g., reason code) may or may not be present.
+
+This variable-length layout makes it impossible to determine whether a given serial number is present in the list without scanning every entry sequentially, resulting in O(n) lookup time.
+
+In this document, the `revokedCertsControl` structure introduces fixed parameters (`serialNumberLength`, `dateLength`) that make every entry within `revokedCerts` exactly of the same size.  The `flags` field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL `removeFromCRL` entries in X.509) are kept in a dedicated `removedFromCRLCerts` field rather than mixed into `revokedCerts`.  This keeps `revokedCerts` free of removal noise, reducing its size and allowing implementations to process currently-revoked and removed entries independently.
 
 #### Fields
 
@@ -284,17 +309,17 @@ Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer
 
 - The `revokedCertsControl` field defines the controls for interpreting `removedFromCRLCerts` and `revokedCerts`.  If either `removedFromCRLCerts` or `revokedCerts` is non-`null`, `revokedCertsControl` MUST NOT be `null`.  If both `removedFromCRLCerts` and `revokedCerts` are `null`, `revokedCertsControl` MUST be `null` to reduce CRL size.
 
-  - The `flags` field is an unsigned integer encoding boolean control bits for `crlType = 0`: bit 0 (value 0x01) indicates whether entries in `revokedCerts` are sorted in ascending order by the integer value of the certificate serial number; bit 1 (value 0x02) indicates whether each entry contains a reason code.  Bits greater than 1 are reserved for `crlType = 0` and MUST be zero and MUST be ignored by receivers.  Future `crlType` values defined in successor documents may assign additional bit meanings.
+  - The `flags` field is an unsigned integer encoding boolean control bits for `crlType`: bit 0 indicates whether entries in `revokedCerts` are sorted in ascending order by the integer value of the certificate serial number; bit 1 indicates whether each entry contains a reason code.  Bits greater than 1 are reserved for `crlType = 0` and MUST be zero and MUST be ignored by receivers.  Future `crlType` values defined in successor documents may assign additional bit meanings.
 
-  - The `serialNumberLength` field defines the length, in bytes, of a certificate serial number.  It MUST be greater than 0.  It SHOULD be the smallest value that can encode all certificate serial numbers without leading zeros.
+  - The `serialNumberLength` field defines the length, in bytes, of a certificate serial number.  It MUST be greater than 0.  It is the smallest value that can encode all certificate serial numbers without leading zeros.
 
    Each certificate serial number is encoded as a fixed-length big-endian integer of length `serialNumberLength`.  If the encoded value is shorter than `serialNumberLength`, it is left-padded with zeros.
 
   - The `dateLength` field defines the length, in bytes, of the big-endian encoded revocation-date offset relative to `baseDate`.  A value of 0 means that no revocation date is included in `revokedCerts` entries.  This is permitted in C509-native deployments where the revocation date is not required -- for example, when minimizing revocation data is more important than recording the revocation time.  Implementations that need to convert a C509 CRL to an RFC 5280 DER-encoded CRL MUST set `dateLength` to a non-zero value, since {{RFC5280, Section 5.1}} requires a `revocationDate` in every CRL entry.  When `dateLength` is non-zero, the offset MUST fit within the specified byte length without leading zero bytes.
 
-  - The `baseDate` field is a reference time used to compute revocation and removal dates, encoded as described in {{time-encoding}}.  It MUST be greater than or equal to the issuer certificate's `notBefore`, which ensures that all stored offsets are non-negative.  It is RECOMMENDED to set `baseDate` to the earliest revocation date or removal-from-CRL date among all entries in this CRL, as this minimizes the magnitude of stored offsets and reduces encoding size.  Any time between the issuer certificate's `notBefore` (inclusive) and that earliest date (inclusive) is a conformant value.  Revocation dates in `revokedCerts` and removal dates in `removedFromCRLCerts` are stored as non-negative offsets, in seconds, from `baseDate`.
+  - The `baseDate` field is a reference time used to compute revocation and removal dates, encoded as described in {{time-encoding}}.  It MUST be greater than or equal to the issuer certificate's `notBefore`, which ensures that all stored offsets are non-negative.  It is RECOMMENDED to set `baseDate` to the earliest revocation date and removal-from-CRL date among all entries in this CRL, as this minimizes the magnitude of stored offsets and reduces encoding size.  Any time between the issuer certificate's `notBefore` (inclusive) and that earliest date (inclusive) is a conformant value.  Revocation dates in `revokedCerts` and removal dates in `removedFromCRLCerts` are stored as non-negative offsets, in seconds, from `baseDate`.
 
-- The `extensions` field contains per-issuer extensions.  Only the `(extensionID: int, extensionValue: Defined)` choice is permitted.  If no per-issuer extensions are present, this field MUST be encoded as an empty CBOR array.
+- The `extensions` field contains per-issuer extensions.  If no per-issuer extensions are present, this field MUST be encoded as an empty CBOR array.
 
 - The `revokedCerts` field is a CBOR byte string containing the concatenated byte sequence of revoked-certificate entries.  Each entry is the concatenation of:
   - a big-endian encoded certificate serial number of length `serialNumberLength`;
@@ -319,7 +344,7 @@ Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer
 
 ### CRL Extensions
 
-The `crlExtensions` field contains extensions for the CRL.  Only the `(extensionID: int, extensionValue: Defined)` choice is permitted.  This document does not define any new CRL-level extensions.
+The `crlExtensions` field contains extensions for the CRL.  This document does not define any new CRL-level extensions.
 
 {{tab-crlExt}} lists X.509 CRL extensions and their equivalents.
 
@@ -339,7 +364,7 @@ The `crlExtensions` field contains extensions for the CRL.  Only the `(extension
 
 ### Per-Issuer Extensions
 
-The `extensions` field of `PerIssuerRevokedCerts` contains per-issuer extensions.  Only the `(extensionID: int, extensionValue: Defined)` choice is permitted.  This document defines one per-issuer extension (`expiredCertsOnCRL`, see {{ext-expired-certs}}).
+The `extensions` field of `PerIssuerRevokedCerts` contains per-issuer extensions. This document defines one per-issuer extension (`expiredCertsOnCRL`, see {{ext-expired-certs}}).
 
 {{tab-perIssuerExt}} lists per-issuer extensions defined in this document.
 
@@ -350,7 +375,7 @@ The `extensions` field of `PerIssuerRevokedCerts` contains per-issuer extensions
 
 #### expiredCertsOnCRL {#ext-expired-certs}
 
-The `expiredCertsOnCRL` extension indicates that this CRL includes revocation information for certificates that have already expired.  The extension value is a time value indicating the earliest expiration date of certificates included on the CRL; certificates that expired on or after this date are listed even if they are now expired.
+The `expiredCertsOnCRL` extension indicates that this CRL includes revocation information for certificates that have already expired.  The extension value is a time value indicating the earliest expiration date of certificates included on the CRL; certificates that expired on or after this date are listed even if they are expired when the CRL is generated.
 
 The extension value MUST be encoded as follows.
 
@@ -385,7 +410,7 @@ C509 OCSP defines CBOR encodings for OCSP requests and OCSP responses as defined
 
 C509 OCSP requests and responses are not wire-format-compatible with DER-encoded OCSP messages as defined in {{RFC6960}}.  The two formats cannot be mechanically converted to or from each other without semantic interpretation of the contained data.
 
-`C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an unsigned integer that identifies the structure type.  This document defines types 0, 1, and 2.  Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
+`C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an unsigned integer that identifies the structure type. Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
 
 ## Identification of Certificates {#cert-identification}
 
@@ -401,6 +426,10 @@ HashId20  = bytes .size 20
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 
+`HashId20` is used to carry the hash of the certificate serial number of the target certificate, computed using the `hashAlgorithm` of the enclosing structure.  The serial number is encoded in big-endian byte order without a leading zero byte (as in C509 certificates) before hashing.  In X.509, a `CertificateSerialNumber` INTEGER is DER-encoded with a leading zero byte when the most-significant bit is set; that leading zero MUST be stripped before computing the hash.
+
+Using a hash rather than the plain serial number preserves the privacy of the requestor: an observer cannot determine which certificate is being queried without already knowing the serial number.
+
 ## C509 OCSP Request {#ocsp-request}
 
 ### CDDL {#ocsp-req-cddl}
@@ -414,7 +443,7 @@ C509UnsignedOCSPRequest = [
   ocspRequestType    : 0,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
-  extensions         : Extensions,
+  extensions         : IntExtensions,
   requests           : PerIssuerOCSPRequests
 ]
 
@@ -424,7 +453,7 @@ TBSOCSPRequest = (
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   requestorCertHash  : HashId8,
-  extensions         : Extensions,
+  extensions         : IntExtensions,
   requests           : PerIssuerOCSPRequests,
   requestorCerts     : COSE_C509 / #6.121(COSE_X509) / null,
 )
@@ -440,14 +469,14 @@ C509SimpleOCSPRequest = [
   nonce              : bytes / null,
   issuerCertHash     : HashId8,
   serialNumberHash   : HashId20,
-  extensions         : Extensions
+  extensions         : IntExtensions
 ]
 
 PerIssuerOCSPRequests = [ + PerIssuerOCSPRequest ]
 
 PerIssuerOCSPRequest = (
   issuerCertHash   : HashId8,
-  extensions       : Extensions,
+  extensions       : IntExtensions,
   singleRequests   : SingleCertRequests,
 )
 
@@ -455,7 +484,7 @@ SingleCertRequests  = [ + SingleCertRequest ]
 
 SingleCertRequest = (
   serialNumberHash : HashId20,
-  extensions       : Extensions,
+  extensions       : IntExtensions,
 )
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
@@ -472,12 +501,13 @@ The `ocspRequestType` field serves as the discriminator for `C509OCSPRequest`:
 | 0 | `C509UnsignedOCSPRequest` |
 | 1 | `C509SignedOCSPRequest`   |
 | 2 | `C509SimpleOCSPRequest`   |
+{: #tab-ocspreq-types title="OCSP request types"}
 
 #### issuerCertHash {#issuer-hash-id}
 
 The `issuerCertHash` field appears in `PerIssuerOCSPRequest`, `PerIssuerOCSPResponse`, `C509SimpleOCSPRequest`, and `TBSSimpleOCSPResponse`.  It contains a hash of the issuer certificate:
 
-- `issuerCertHash`: hash computed over the CBOR-encoded issuer C509 certificate, or over the DER-encoded issuer X.509 certificate ({{X.690}}).  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
+- `issuerCertHash`: hash computed over the deterministic encoded certificate. It is the CBOR-encoed C509Certificate or DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
 
 In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies the issuer using two separate hashes: `issuerNameHash` (a hash of the DER-encoded issuer name) and `issuerKeyHash` (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (`issuerCertHash`), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 `issuerCertHash` with an RFC 6960 DER-encoded `CertID` must recompute the respective hash inputs; the values are not directly comparable.
 
@@ -495,7 +525,7 @@ Each `SingleCertRequest` contains:
 
 #### C509UnsignedOCSPRequest {#C509UnsignedOCSPRequest}
 
-- The `ocspRequestType` field MUST be 0, which discriminates `C509UnsignedOCSPRequest` from `C509SignedOCSPRequest`.
+- The `ocspRequestType` field MUST be 0.
 - The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
@@ -503,7 +533,7 @@ Each `SingleCertRequest` contains:
 
 #### C509SignedOCSPRequest
 
-- The `ocspRequestType` field MUST be 1, which discriminates `C509SignedOCSPRequest` from `C509UnsignedOCSPRequest`.
+- The `ocspRequestType` field MUST be 1.
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.
 - The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
@@ -517,10 +547,10 @@ Each `SingleCertRequest` contains:
 
 `C509SimpleOCSPRequest` is a compact request format for querying the status of a single certificate.  Unlike `C509UnsignedOCSPRequest`, which uses a two-level `PerIssuerOCSPRequests` / `SingleCertRequest` grouping to batch multiple serial numbers across one or more issuers, `C509SimpleOCSPRequest` flattens the structure into a single CBOR array for the common case of a one-certificate query.
 
-- The `ocspRequestType` field MUST be 2, which discriminates `C509SimpleOCSPRequest` from `C509UnsignedOCSPRequest` and `C509SignedOCSPRequest`.
+- The `ocspRequestType` field MUST be 2.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.
 - The `issuerCertHash` field identifies the issuer of the target certificate; see {{issuer-hash-id}}.
-- The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed using the `hashAlgorithm` from `C509SimpleOCSPRequest`.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing.  Using a hash rather than the plain serial number preserves the privacy of the requestor: an observer cannot determine which certificate is being queried without already knowing the serial number.
+- The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.  If no extensions are present, this field MUST be encoded as an empty CBOR array.
 
 ## C509 OCSP Response {#ocsp-response}
@@ -544,7 +574,7 @@ TBSBasicOCSPResponse = (
   nonce              : bytes / null,
   responderCertHash  : HashId8,
   producedAt         : ~time,
-  extensions         : Extensions,
+  extensions         : IntExtensions,
   responses          : PerIssuerOCSPResponses,
   responderCerts     : COSE_C509 / #6.121(COSE_X509) / null,
 )
@@ -566,7 +596,7 @@ TBSSimpleOCSPResponse = (
   producedAt         : ~time,
   thisUpdate         : nint / 0,
   nextUpdate         : uint / null,
-  extensions         : Extensions,
+  extensions         : IntExtensions,
   responderCerts     : COSE_C509 / #6.121(COSE_X509) / null,
 )
 
@@ -579,7 +609,7 @@ PerIssuerOCSPResponses = [ + PerIssuerOCSPResponse ]
 
 PerIssuerOCSPResponse = (
   issuerCertHash   : HashId8,
-  extensions       : Extensions,
+  extensions       : IntExtensions,
   singleResponses  : SingleCertResponses,
 )
 
@@ -590,7 +620,7 @@ SingleCertResponse = (
   certStatus       : CertStatus,
   thisUpdate       : nint / 0,
   nextUpdate       : uint / null,
-  extensions       : Extensions,
+  extensions       : IntExtensions,
 )
 
 CertStatus = 0        ; good
@@ -611,7 +641,7 @@ RevokedInfo = [
 
 #### C509ErrorOCSPResponse
 
-If the OCSP server cannot process the OCSP query, it returns a `C509ErrorOCSPResponse`.  The `ocspResponseType` value MUST be 0, and `responseStatus` has the following enumerated values:
+If the OCSP server cannot process the OCSP query, it returns a `C509ErrorOCSPResponse`.  The `ocspResponseType` value MUST be 0, and `responseStatus` has the following enumerated values, as in {{RFC6960, Section 4.2.1}}:
 
 | int | responseStatus     |
 |:---:|:-------------------|
@@ -641,7 +671,7 @@ The `ocspResponseType` field of `C509BasicOCSPResponse` is 1, distinguishing it 
 - The `responderCertHash` field identifies the OCSP responder; see {{responderCertHash}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  If present, it MUST have the same value as the `nonce` in the corresponding `C509SimpleOCSPRequest`.
 - The `issuerCertHash` field identifies the issuer of the queried certificate; see {{issuer-hash-id}}.
-- The `serialNumberHash` field is the hash of the certificate serial number of the queried certificate, computed using `hashAlgorithm`.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing; see {{serialNumberHash-section}}.
+- The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
 - The `producedAt` field is the time at which this response was produced, encoded as described in {{time-encoding}}.
 - The `thisUpdate` field is encoded as a non-positive integer (`nint / 0`) representing the number of seconds from `producedAt` at which the indicated status is known to be correct.  It MUST be 0 or negative, since the status cannot be known at a time in the future relative to the time the response was produced.
 - The `nextUpdate` field is encoded as a `uint` representing the number of seconds from `producedAt` until the next response update is expected, or `null` if the update time is unknown.
@@ -686,7 +716,7 @@ See {{ocsp-extensions}}.
 
 ##### serialNumberHash {#serialNumberHash-section}
 
-This field contains the truncated hash of the serial number of the certificate being queried.  It is computed using the `hashAlgorithm` from the enclosing `TBSBasicOCSPResponse` and contains the first 20 bytes.  The serial number is encoded in big-endian byte order without a leading zero byte before hashing.  In X.509, a `CertificateSerialNumber` INTEGER is DER-encoded with a leading zero byte when the most-significant bit is set; that leading zero MUST be stripped before computing the hash.  In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure carries the plain `serialNumber` directly.  C509 OCSP replaces this with a hash to preserve privacy: an observer cannot determine which certificate was queried without already knowing the serial number.
+This field contains the truncated hash of the serial number of the certificate being queried, computed as in {{cert-identification}}.
 
 ##### extensions
 
@@ -699,13 +729,13 @@ See {{ocsp-extensions}}.
 - 0: `good` -- the certificate is not revoked.
 - 1: `not-issued` -- the issuer is recognized but the serial number is unknown.
 - 2: `unknown` -- the responder does not recognize the issuer identified by `issuerCertHash`.
-- `RevokedInfo`: `revoked` -- a fixed-length 2-element array carrying `revocationTime` and `revocationReason`.  The `revocationReason` field is encoded as specified in {{reasoncode-encoding}}.  When the revocation reason is not known, `revocationReason` MUST be set to 0 (unspecified).
+- `RevokedInfo`: `revoked` -- an array carrying `revocationTime` and `revocationReason`.  The `revocationReason` field is encoded as specified in {{reasoncode-encoding}}.  When the revocation reason is not known, `revocationReason` MUST be set to 0 (unspecified).
 
-The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `CertStatus` in {{RFC6960}}: `good` uses \[0\] (value 0) and `unknown` uses \[2\] (value 2).  The ASN.1 `revoked` alternative uses \[1\]; since C509 represents the revoked status as the explicit `RevokedInfo` array, the integer value 1 becomes available.  It is assigned to the `not-issued` status, which was introduced in {{RFC6960, Section 4.4.8}} to distinguish unrecognized serial numbers from unrecognized issuers, thereby maintaining a contiguous integer range for the non-revoked statuses.
+The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `CertStatus` in {{RFC6960}}: `good` uses ASN.1 tag 0 and `unknown` uses ASN.1 tag 2.  The ASN.1 `revoked` alternative uses ASN.1 tag 1; since C509 represents the revoked status as the explicit `RevokedInfo` array, the integer value 1 becomes available.  It is assigned to the `not-issued` status, which was introduced in {{RFC6960, Section 4.4.8}} to distinguish unrecognized serial numbers from unrecognized issuers, thereby maintaining a contiguous integer range for the non-revoked statuses.
 
 #### Per-Issuer OCSP Extensions {#ocsp-per-issuer-extensions}
 
-`PerIssuerOCSPRequest.extensions` and `PerIssuerOCSPResponse.extensions` carry per-issuer extensions.  Only the `(extensionID: int, extensionValue: Defined)` choice of `Extensions` is permitted.  If no per-issuer extensions are present, the field MUST be encoded as an empty CBOR array `[]`.
+`PerIssuerOCSPRequest.extensions` and `PerIssuerOCSPResponse.extensions` carry per-issuer extensions.  If no per-issuer extensions are present, the field MUST be encoded as an empty CBOR array.
 
 {{tab-perIssuerOCSPExt}} lists the per-issuer extensions defined in this document.
 
@@ -751,8 +781,6 @@ PreferredSignatureAlgorithm = (
                          / null,
 )
 
-IntAlgorithmIdentifier = int
-
 PreferredSignatureAlgorithms = [ + PreferredSignatureAlgorithm ]
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
@@ -774,11 +802,11 @@ TNQuery = text .size (1..15)
 
 The `TNQuery` extension carries a telephone number string conforming to the TelephoneNumber ASN.1 type ({{RFC8226, Section 3}}).  When included in single request extensions, it specifies the telephone number for which the OCSP query is being performed (typically the number from the "orig" field of a PASSporT being validated).
 
-Clients MUST include this extension in the single-request extensions per {{I-D.ietf-stir-certificates-ocsp}}.
+This extension is allowed only in the single-request extensions per {{I-D.ietf-stir-certificates-ocsp}}.
 
 ## Certificate Type Interoperability {#cert-type-interop}
 
-C509 OCSP uses a single set of request and response structures that handles both C509 and X.509 certificates without modification.  All participants -- requestor, responder, and issuer -- are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 `ResponderID` CHOICE (`byName` or `byKey`).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), and any future certificate types.
+C509 OCSP uses a single set of request and response structures that handles both C509 and X.509 certificates without modification.  All participants (requestor, responder, issuer) are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 `ResponderID` CHOICE (`byName` or `byKey`).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), and any future certificate types.
 
 The only per-type differences are in how identity hashes are computed and how certificate chains are carried:
 
