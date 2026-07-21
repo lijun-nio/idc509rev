@@ -1,8 +1,8 @@
 <!-- regenerate: on (set to off if you edit this file) -->
 
-# C509 Certificate Revocation Management
+# CBOR Encoded Certificate Revocation Management
 
-This is the working area for the individual Internet-Draft, "C509 Certificate Revocation Management".
+This is the working area for the individual Internet-Draft, "CBOR Encoded Certificate Revocation Management".
 
 * [Editor's Copy](https://lijun-nio.github.io/idc509rev/#go.draft-liao-cose-c509-revocation.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-liao-cose-c509-revocation)
