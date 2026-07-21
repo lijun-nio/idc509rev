@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-19T07:49:45.641995+00:00",
+  "timestamp": "2026-07-21T09:17:59.868629+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -297,7 +297,7 @@
       "labels": [],
       "body": "@rikard-sics @marco-tiloca-sics @highlunder I do not have and plan known changes. Please review the latest I.D.\n\nAfter that, @rikard-sics please upload the I.D. and reserve a presentation time slot in the COSE-WG.",
       "createdAt": "2026-06-26T09:40:06Z",
-      "updatedAt": "2026-07-06T07:03:41Z",
+      "updatedAt": "2026-07-20T20:32:04Z",
       "closedAt": null,
       "comments": [
         {
@@ -355,6 +355,13 @@
           "body": "> Just reminder, today is the deadline.\n\nYes, I will submit. Usually I submit all on the day of the deadline",
           "createdAt": "2026-07-06T07:03:41Z",
           "updatedAt": "2026-07-06T07:03:41Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "@rikard-sics I just updated the draft (see the last commits), if possible, upload the updated I-D.",
+          "createdAt": "2026-07-20T20:32:04Z",
+          "updatedAt": "2026-07-20T20:32:04Z"
         }
       ]
     }
