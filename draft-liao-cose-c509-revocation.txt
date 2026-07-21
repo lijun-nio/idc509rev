@@ -2665,7 +2665,7 @@ A.3.2.2.  C509 CRL
     51:   F6             # [7]. baseCrlNumber=<null>
     52:   80             # [8]. crlExtensions=array[0]
     53:   85             # [9]. revokedCertsList=array[5]
-                           #---PerIssuedRevokedCerts[0]---
+                           #---PerIssuerRevokedCerts[0]---
     54:     F6             # [0]. issuer=<null>
     55:     84             # [1]. revokedCertsControl=array[4]
     56:       03             # [0]. flags: sorted, with reason (0x3)
@@ -2803,7 +2803,7 @@ A.3.3.2.  C509 CRL
     51:   02             # [7]. baseCrlNumber=2
     52:   80             # [8]. crlExtensions=array[0]
     53:   85             # [9]. revokedCertsList=array[5]
-                           #---PerIssuedRevokedCerts[0]---
+                           #---PerIssuerRevokedCerts[0]---
     54:     F6             # [0]. issuer=<null>
     55:     84             # [1]. revokedCertsControl=array[4]
     56:       03             # [0]. flags: sorted, with reason (0x3)
@@ -2948,7 +2948,7 @@ A.3.4.2.  C509 CRL
     46:   F6             # [7]. baseCrlNumber=<null>
     47:   80             # [8]. crlExtensions=array[0]
     48:   8A             # [9]. revokedCertsList=array[10]
-                           #---PerIssuedRevokedCerts[0]---
+                           #---PerIssuerRevokedCerts[0]---
     49:     6F             # [0]. issuer=char[15]
     50:       746573742063726C6F6373702D6361 # "test crlocsp-ca"
     65:     84             # [1]. revokedCertsControl=array[4]
@@ -2972,7 +2972,7 @@ A.3.4.2.  C509 CRL
     90:       02A300         # date=02A300: 2025-01-03T00:12:34Z
     93:       00             # reason=0: unspecified
     94:     F6             # [4]. removedFromCRLCerts=<null>
-                           #---PerIssuedRevokedCerts[1]---
+                           #---PerIssuerRevokedCerts[1]---
     95:     6A             # [5]. issuer=char[10]
     96:       6578616D706C65204341 # "example CA"
    106:     84             # [6]. revokedCertsControl=array[4]
