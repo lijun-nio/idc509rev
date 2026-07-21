@@ -102,7 +102,7 @@ Note on terminology: The label "C509" is used for consistency with the C509 cert
 
 This document specifies:
 
-- **C509 CRL** -- a natively signed CBOR {{RFC8949}} encoding of X.509 CRLs ({{RFC5280, Section 5}}).  The signature is computed over the CBOR Sequence {{RFC8742}} `TBSCertList`; no ASN.1 encoding is involved. Two key improvements are made over {{RFC5280}}:
+- **C509 CRL** -- a natively signed CBOR {{RFC8949}} encoding of X.509 CRLs ({{RFC5280, Section 5}}).  The signature is computed over the CBOR Sequence {{RFC8742}} `TBSCertList`; no ASN.1 encoding is involved. Three key improvements are made over {{RFC5280}}:
 
    - Reduce the search complexity for a given certificate serial number from O(n) to O(log(n)):
 
