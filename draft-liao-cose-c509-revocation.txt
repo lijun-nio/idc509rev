@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                       NIO
 Intended status: Standards Track                               M. Tiloca
-Expires: 21 January 2027                                      J. Höglund
+Expires: 22 January 2027                                      J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                            20 July 2026
+                                                            21 July 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -67,7 +67,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 21 January 2027.
+   This Internet-Draft will expire on 22 January 2027.
 
 Copyright Notice
 
@@ -637,7 +637,7 @@ Table of Contents
       reduce CRL size.
 
       -  The flags field is an unsigned integer encoding boolean control
-         bits for crlType: bit 0 indicates whether entries in
+         bits for crlType = 0: bit 0 indicates whether entries in
          revokedCerts are sorted in ascending order by the integer value
          of the certificate serial number; bit 1 indicates whether each
          entry contains a reason code.  Bits greater than 1 are reserved
