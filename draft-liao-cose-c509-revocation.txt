@@ -1022,10 +1022,10 @@ Table of Contents
    TBSSimpleOCSPResponse.  It contains a hash of the issuer certificate:
 
    *  issuerCertHash: hash computed over the deterministic encoded
-      certificate.  It is the CBOR-encoed C509Certificate or DER-encoded
-      ([X.690]) X.509 certificate.  The hash algorithm is specified by
-      the hashAlgorithm field of the enclosing request or response
-      structure.
+      certificate.  It is the CBOR-encoded C509Certificate or DER-
+      encoded ([X.690]) X.509 certificate.  The hash algorithm is
+      specified by the hashAlgorithm field of the enclosing request or
+      response structure.
 
    In X.509 OCSP ([RFC6960], Section 4.1.1), the CertID structure
    identifies the issuer using two separate hashes: issuerNameHash (a
