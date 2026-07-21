@@ -507,7 +507,7 @@ The `ocspRequestType` field serves as the discriminator for `C509OCSPRequest`:
 
 The `issuerCertHash` field appears in `PerIssuerOCSPRequest`, `PerIssuerOCSPResponse`, `C509SimpleOCSPRequest`, and `TBSSimpleOCSPResponse`.  It contains a hash of the issuer certificate:
 
-- `issuerCertHash`: hash computed over the deterministic encoded certificate. It is the CBOR-encoed C509Certificate or DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
+- `issuerCertHash`: hash computed over the deterministic encoded certificate. It is the CBOR-encoded C509Certificate or DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
 
 In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies the issuer using two separate hashes: `issuerNameHash` (a hash of the DER-encoded issuer name) and `issuerKeyHash` (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (`issuerCertHash`), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 `issuerCertHash` with an RFC 6960 DER-encoded `CertID` must recompute the respective hash inputs; the values are not directly comparable.
 
