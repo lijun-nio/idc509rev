@@ -29,7 +29,7 @@ venue:
 
 author:
   - name: Lijun Liao
-    org: NIO
+    org: NIO Inc.
     email: lijun.liao@nio.io
     country: China
   - name: Marco Tiloca
