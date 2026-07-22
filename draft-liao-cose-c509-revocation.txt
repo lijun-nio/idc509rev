@@ -3,14 +3,14 @@
 
 
 COSE Working Group                                               L. Liao
-Internet-Draft                                                       NIO
+Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 22 January 2027                                      J. Höglund
+Expires: 23 January 2027                                      J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                            21 July 2026
+                                                            22 July 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -67,7 +67,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 22 January 2027.
+   This Internet-Draft will expire on 23 January 2027.
 
 Copyright Notice
 
@@ -4550,7 +4550,7 @@ Acknowledgments
 Authors' Addresses
 
    Lijun Liao
-   NIO
+   NIO Inc.
    China
    Email: lijun.liao@nio.io
 
