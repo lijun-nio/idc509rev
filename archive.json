@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-21T09:17:59.868629+00:00",
+  "timestamp": "2026-07-23T09:14:20.288103+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -214,15 +214,15 @@
       "id": "I_kwDOTDu4zs8AAAABGlrHLA",
       "title": "Enable building and deployment of the HTML Editor's Copy",
       "url": "https://github.com/lijun-nio/idc509rev/issues/5",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "marco-tiloca-sics",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "@lijun-nio , on the GitHub web interface for this repository, please:\n\n* Go on \"Settings\" (on the top), then \"Pages\" on the left.\n\n* In the main frame, under \"Build and deployment\":\n\n  * Under \"Source\", select \"Deploy from a branch\"\n\n  * Under \"Branch\", select the \"gh-pages\" branch and the \"/ (root)\" folder, then hit \"Save\".",
       "createdAt": "2026-06-24T17:44:31Z",
-      "updatedAt": "2026-06-24T21:26:35Z",
-      "closedAt": null,
+      "updatedAt": "2026-07-21T10:09:47Z",
+      "closedAt": "2026-07-21T10:09:47Z",
       "comments": [
         {
           "author": "lijun-nio",
@@ -237,6 +237,34 @@
           "body": "Not surprising.\n\nWe can keep the issue open as a reminder. After we submit, we can make the repository public and this fix should become possible.",
           "createdAt": "2026-06-24T21:26:35Z",
           "updatedAt": "2026-06-24T21:26:35Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Let's make this repo public now @lijun-nio \n\nThen we can adopt this fix",
+          "createdAt": "2026-07-21T09:42:55Z",
+          "updatedAt": "2026-07-21T09:43:09Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Now the repo is public. And gh-pages is active. ",
+          "createdAt": "2026-07-21T10:00:28Z",
+          "updatedAt": "2026-07-21T10:00:28Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Now the repo is public. And gh-pages is active.\n\nGreat, thanks!",
+          "createdAt": "2026-07-21T10:07:14Z",
+          "updatedAt": "2026-07-21T10:07:14Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I will close this issue as it is resolved and the Editor's copy build is working",
+          "createdAt": "2026-07-21T10:09:47Z",
+          "updatedAt": "2026-07-21T10:09:47Z"
         }
       ]
     },
@@ -297,7 +325,7 @@
       "labels": [],
       "body": "@rikard-sics @marco-tiloca-sics @highlunder I do not have and plan known changes. Please review the latest I.D.\n\nAfter that, @rikard-sics please upload the I.D. and reserve a presentation time slot in the COSE-WG.",
       "createdAt": "2026-06-26T09:40:06Z",
-      "updatedAt": "2026-07-20T20:32:04Z",
+      "updatedAt": "2026-07-21T09:35:22Z",
       "closedAt": null,
       "comments": [
         {
@@ -362,8 +390,94 @@
           "body": "@rikard-sics I just updated the draft (see the last commits), if possible, upload the updated I-D.",
           "createdAt": "2026-07-20T20:32:04Z",
           "updatedAt": "2026-07-20T20:32:04Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> [@rikard-sics](https://github.com/rikard-sics) I just updated the draft (see the last commits), if possible, upload the updated I-D.\n\nThanks, good fix!",
+          "createdAt": "2026-07-21T09:19:54Z",
+          "updatedAt": "2026-07-21T09:19:54Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> [@rikard-sics](https://github.com/rikard-sics) I just updated the draft (see the last commits), if possible, upload the updated I-D.\n\nI think that it is better to wait with submitting a new version. We don't want to confuse people and it's more straight-forward if the first presentation is about version -00. Of course I will use the correct table values in the presentation.\n\nLet's wait a bit to submit version -01 until we have more substantial updates. That is my opinion",
+          "createdAt": "2026-07-21T09:35:22Z",
+          "updatedAt": "2026-07-21T09:35:22Z"
         }
       ]
+    },
+    {
+      "number": 8,
+      "id": "I_kwDOTDu4zs8AAAABJkrtbg",
+      "title": "Enable Github pages",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/8",
+      "state": "CLOSED",
+      "author": "rikard-sics",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "@lijun-nio  Can you try the following?\n\nRepository \u2192 Settings \u2192 Pages \u2192 Build and deployment\nSet:\nSource: Deploy from a branch\nBranch: gh-pages\nFolder: /(root)\n\nThe link to the build version of the draft in the README ([Editor's Copy](https://lijun-nio.github.io/idc509rev/#go.draft-liao-cose-c509-revocation.html)) is not working currently",
+      "createdAt": "2026-07-21T09:31:53Z",
+      "updatedAt": "2026-07-21T09:33:15Z",
+      "closedAt": "2026-07-21T09:33:15Z",
+      "comments": [
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Saw that this is a duplicate",
+          "createdAt": "2026-07-21T09:33:15Z",
+          "updatedAt": "2026-07-21T09:33:15Z"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "id": "I_kwDOTDu4zs8AAAABJk7RBA",
+      "title": "Double check DER encoding for one hash algo",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/9",
+      "state": "CLOSED",
+      "author": "rikard-sics",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Let us double-check this hash algo:\n\n_|   4   | Name:        SM3                                         |\n|       | Identifiers: id-sm3                                      |\n|       | OID:         1.2.156.10197.1.401                         |\n|       | Parameters:  absent                                      |\n|       | DER:         06 08 2A 81 1C 84 8E 35 01 04 01            |\n|       | Comments:                                                |_\n\nhttps://misc.daniel-marschall.de/asn.1/oid-converter/online.php",
+      "createdAt": "2026-07-21T10:04:59Z",
+      "updatedAt": "2026-07-21T11:03:35Z",
+      "closedAt": "2026-07-21T11:03:35Z",
+      "comments": []
+    },
+    {
+      "number": 10,
+      "id": "I_kwDOTDu4zs8AAAABJlCS7w",
+      "title": "Add repo as draft metadata upon next submission",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/10",
+      "state": "OPEN",
+      "author": "rikard-sics",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Let's add a link to this repo as draft metadata (Additional resources) next time we submit\n`\ngithub_repo https://github.com/lijun-nio/idc509rev (GitHub Repository)`",
+      "createdAt": "2026-07-21T10:19:09Z",
+      "updatedAt": "2026-07-21T10:19:32Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 11,
+      "id": "I_kwDOTDu4zs8AAAABJn2YaA",
+      "title": "Add the transport methods",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/11",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Specify the transport methods to download the CRLs, transmit OCSP requests (to get OCSP responses):\n- HTTP\n- CoAP\n- OSCORE",
+      "createdAt": "2026-07-21T15:58:22Z",
+      "updatedAt": "2026-07-21T16:20:02Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": []
