@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-23T09:14:20.288103+00:00",
+  "timestamp": "2026-07-26T07:59:13.069620+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -318,15 +318,15 @@
       "id": "I_kwDOTDu4zs8AAAABGy3R9w",
       "title": "Prepare for IETF 126 Vienna",
       "url": "https://github.com/lijun-nio/idc509rev/issues/7",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "lijun-nio",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "@rikard-sics @marco-tiloca-sics @highlunder I do not have and plan known changes. Please review the latest I.D.\n\nAfter that, @rikard-sics please upload the I.D. and reserve a presentation time slot in the COSE-WG.",
       "createdAt": "2026-06-26T09:40:06Z",
-      "updatedAt": "2026-07-21T09:35:22Z",
-      "closedAt": null,
+      "updatedAt": "2026-07-23T16:16:21Z",
+      "closedAt": "2026-07-23T16:16:21Z",
       "comments": [
         {
           "author": "marco-tiloca-sics",
@@ -404,6 +404,13 @@
           "body": "> [@rikard-sics](https://github.com/rikard-sics) I just updated the draft (see the last commits), if possible, upload the updated I-D.\n\nI think that it is better to wait with submitting a new version. We don't want to confuse people and it's more straight-forward if the first presentation is about version -00. Of course I will use the correct table values in the presentation.\n\nLet's wait a bit to submit version -01 until we have more substantial updates. That is my opinion",
           "createdAt": "2026-07-21T09:35:22Z",
           "updatedAt": "2026-07-21T09:35:22Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Presentation in COSE at Vienna 126 is done. Closing this. Let's submit version -01 at a suitable time.",
+          "createdAt": "2026-07-23T16:16:21Z",
+          "updatedAt": "2026-07-23T16:16:21Z"
         }
       ]
     },
@@ -452,16 +459,24 @@
       "id": "I_kwDOTDu4zs8AAAABJlCS7w",
       "title": "Add repo as draft metadata upon next submission",
       "url": "https://github.com/lijun-nio/idc509rev/issues/10",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "rikard-sics",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Let's add a link to this repo as draft metadata (Additional resources) next time we submit\n`\ngithub_repo https://github.com/lijun-nio/idc509rev (GitHub Repository)`",
       "createdAt": "2026-07-21T10:19:09Z",
-      "updatedAt": "2026-07-21T10:19:32Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-07-24T10:26:19Z",
+      "closedAt": "2026-07-24T10:26:19Z",
+      "comments": [
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Actually I could edit and add this right now. No need to wait for new submission",
+          "createdAt": "2026-07-24T10:26:19Z",
+          "updatedAt": "2026-07-24T10:26:19Z"
+        }
+      ]
     },
     {
       "number": 11,
@@ -475,9 +490,100 @@
       "labels": [],
       "body": "Specify the transport methods to download the CRLs, transmit OCSP requests (to get OCSP responses):\n- HTTP\n- CoAP\n- OSCORE",
       "createdAt": "2026-07-21T15:58:22Z",
-      "updatedAt": "2026-07-21T16:20:02Z",
+      "updatedAt": "2026-07-24T10:13:31Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Do we need to define this? I am thinking that we're defining payload, and that it's protocol agnostic.",
+          "createdAt": "2026-07-24T10:04:36Z",
+          "updatedAt": "2026-07-24T10:04:36Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Not sure. The initial idea is to have something like this:\n\nhttps://datatracker.ietf.org/doc/html/rfc6960#appendix-A",
+          "createdAt": "2026-07-24T10:12:04Z",
+          "updatedAt": "2026-07-24T10:12:04Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Not sure. The initial idea is to have something like this:\n> \n> https://datatracker.ietf.org/doc/html/rfc6960#appendix-A\n\nI see. Yeah let us discuss with all co-authors at some point\n",
+          "createdAt": "2026-07-24T10:13:31Z",
+          "updatedAt": "2026-07-24T10:13:31Z"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "id": "I_kwDOTDu4zs8AAAABJ66s8w",
+      "title": "Check existing alternatives and motivate",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/12",
+      "state": "OPEN",
+      "author": "rikard-sics",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Mentioned during IETF 126 in Vienna:\nhttps://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/21/\n(Not directly an alternative)",
+      "createdAt": "2026-07-23T16:11:24Z",
+      "updatedAt": "2026-07-24T10:27:59Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "- oauth is not an alternative, different areas\n- for closed enterprise environments, vendor mechanisms may be used. But it is preferred to have standard methods, since it common to re-use existing software modules, especially open source modules.\n- even for closed eco system, it is common to use standard methods (CRL, OCSP) since there are multiple players\n- for public eco system, we need standard methods (CRL, OCSP)",
+          "createdAt": "2026-07-24T09:33:25Z",
+          "updatedAt": "2026-07-24T09:35:12Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Yep, sounds good to me. But we may need to present this motivation more strongly in the draft\n\nCheck the recording from the COSE session when available. Only comments were about \"industry need\" and comparison with other alternatives",
+          "createdAt": "2026-07-24T10:02:06Z",
+          "updatedAt": "2026-07-24T10:02:06Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> oauth is not an alternative, different areas\n\nIt's more about the approach, not it being a direct alternative",
+          "createdAt": "2026-07-24T10:27:59Z",
+          "updatedAt": "2026-07-24T10:27:59Z"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "id": "I_kwDOTDu4zs8AAAABJ67QTg",
+      "title": "Alignment with COSE charter",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/13",
+      "state": "OPEN",
+      "author": "rikard-sics",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Need to make sure the work fits.\n\nhttps://datatracker.ietf.org/wg/cose/about/\n\nIt may fit based on this:\n_The COSE WG will also work on a CBOR encoding of the certificate profile\ndefined in [RFC 5280](https://datatracker.ietf.org/doc/rfc5280/)._\nAs RFC5280 also covers CRLs.\n\nOn the other hand the charter says:\n_Key management and binding of keys to identities are out of scope for\nthe working group._",
+      "createdAt": "2026-07-23T16:12:36Z",
+      "updatedAt": "2026-07-24T10:03:56Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "What are the potential issues in our I-D related to the \"binding of keys to identities\"?",
+          "createdAt": "2026-07-24T09:27:15Z",
+          "updatedAt": "2026-07-24T09:27:15Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> What are the potential issues in our I-D related to the \"binding of keys to identities\"?\n\nNothing necessarily. We just need to make sure this work fits in the charter in general",
+          "createdAt": "2026-07-24T10:03:56Z",
+          "updatedAt": "2026-07-24T10:03:56Z"
+        }
+      ]
     }
   ],
   "pulls": []
