@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 23 January 2027                                      J. Höglund
+Expires: 28 January 2027                                      J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                            22 July 2026
+                                                            27 July 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -67,7 +67,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 January 2027.
+   This Internet-Draft will expire on 28 January 2027.
 
 Copyright Notice
 
@@ -86,76 +86,77 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-   2.  Terminology
-   3.  Imported Definitions
-   4.  Encoding of Time Fields
-   5.  C509 CRL
-     5.1.  Overview
-     5.2.  C509 CRL CDDL
-     5.3.  Field Encodings
-       5.3.1.  CRLInfoData and C509CRLInfo
-       5.3.2.  crlType
-       5.3.3.  signatureAlgorithm
-       5.3.4.  authoritySubject and authorityKeyIdentifier
-       5.3.5.  crlNumber
-       5.3.6.  thisUpdate and nextUpdate
-       5.3.7.  baseCrlNumber
-       5.3.8.  reasonCode Encoding
-       5.3.9.  revokedCertsList and PerIssuerRevokedCerts
-         5.3.9.1.  Design Considerations
-         5.3.9.2.  Fields
-       5.3.10. CRL Extensions
-       5.3.11. Per-Issuer Extensions
-         5.3.11.1.  expiredCertsOnCRL
-       5.3.12. CRL Entry Extensions
-       5.3.13. signatureValue
-   6.  C509 OCSP
+   2.  Alternative Certificate Status Checking Mechanisms
+   3.  Terminology
+   4.  Imported Definitions
+   5.  Encoding of Time Fields
+   6.  C509 CRL
      6.1.  Overview
-     6.2.  Identification of Certificates
-     6.3.  C509 OCSP Request
-       6.3.1.  CDDL
-       6.3.2.  Field Encodings
-         6.3.2.1.  ocspRequestType
-         6.3.2.2.  issuerCertHash
-         6.3.2.3.  PerIssuerOCSPRequests, PerIssuerOCSPRequest,
+     6.2.  C509 CRL CDDL
+     6.3.  Field Encodings
+       6.3.1.  CRLInfoData and C509CRLInfo
+       6.3.2.  crlType
+       6.3.3.  signatureAlgorithm
+       6.3.4.  authoritySubject and authorityKeyIdentifier
+       6.3.5.  crlNumber
+       6.3.6.  thisUpdate and nextUpdate
+       6.3.7.  baseCrlNumber
+       6.3.8.  reasonCode Encoding
+       6.3.9.  revokedCertsList and PerIssuerRevokedCerts
+         6.3.9.1.  Design Considerations
+         6.3.9.2.  Fields
+       6.3.10. CRL Extensions
+       6.3.11. Per-Issuer Extensions
+         6.3.11.1.  expiredCertsOnCRL
+       6.3.12. CRL Entry Extensions
+       6.3.13. signatureValue
+   7.  C509 OCSP
+     7.1.  Overview
+     7.2.  Identification of Certificates
+     7.3.  C509 OCSP Request
+       7.3.1.  CDDL
+       7.3.2.  Field Encodings
+         7.3.2.1.  ocspRequestType
+         7.3.2.2.  issuerCertHash
+         7.3.2.3.  PerIssuerOCSPRequests, PerIssuerOCSPRequest,
                  SingleCertRequests and SingleCertRequest
-         6.3.2.4.  C509UnsignedOCSPRequest
-         6.3.2.5.  C509SignedOCSPRequest
-         6.3.2.6.  C509SimpleOCSPRequest
-     6.4.  C509 OCSP Response
-       6.4.1.  CDDL
-       6.4.2.  Field Encodings
-         6.4.2.1.  C509ErrorOCSPResponse
-         6.4.2.2.  C509BasicOCSPResponse
-         6.4.2.3.  C509SimpleOCSPResponse
-         6.4.2.4.  nonce
-         6.4.2.5.  responderCertHash
-         6.4.2.6.  responderCerts
-         6.4.2.7.  signatureAlgorithm and signatureValue
-         6.4.2.8.  producedAt, thisUpdate, nextUpdate
-         6.4.2.9.  extensions
-         6.4.2.10. PerIssuerOCSPResponses and PerIssuerOCSPResponse
-         6.4.2.11. SingleCertResponse
-         6.4.2.12. Per-Issuer OCSP Extensions
-         6.4.2.13. OCSP Extensions
-     6.5.  Certificate Type Interoperability
-     6.6.  OCSP Stapling in TLS
-   7.  C509 Hash Algorithms
-   8.  Security Considerations
-   9.  IANA Considerations
-     9.1.  Extension Identifiers Registry
-     9.2.  C509 Hash Algorithms Registry
-     9.3.  TLS CertificateStatusType Registry
-     9.4.  Media Type Application Registry
-       9.4.1.  Media Type application/c509-crl+cbor
-       9.4.2.  Media Type application/c509-crlinfo+cbor
-       9.4.3.  Media Type application/c509-ocspreq+cbor
-       9.4.4.  Media Type application/c509-ocspresp+cbor
-     9.5.  CoAP Content-Formats Registry
-     9.6.  Expert Review Guidelines
-   10. References
-     10.1.  Normative References
-     10.2.  Informative References
+         7.3.2.4.  C509UnsignedOCSPRequest
+         7.3.2.5.  C509SignedOCSPRequest
+         7.3.2.6.  C509SimpleOCSPRequest
+     7.4.  C509 OCSP Response
+       7.4.1.  CDDL
+       7.4.2.  Field Encodings
+         7.4.2.1.  C509ErrorOCSPResponse
+         7.4.2.2.  C509BasicOCSPResponse
+         7.4.2.3.  C509SimpleOCSPResponse
+         7.4.2.4.  nonce
+         7.4.2.5.  responderCertHash
+         7.4.2.6.  responderCerts
+         7.4.2.7.  signatureAlgorithm and signatureValue
+         7.4.2.8.  producedAt, thisUpdate, nextUpdate
+         7.4.2.9.  extensions
+         7.4.2.10. PerIssuerOCSPResponses and PerIssuerOCSPResponse
+         7.4.2.11. SingleCertResponse
+         7.4.2.12. Per-Issuer OCSP Extensions
+         7.4.2.13. OCSP Extensions
+     7.5.  Certificate Type Interoperability
+     7.6.  OCSP Stapling in TLS
+   8.  C509 Hash Algorithms
+   9.  Security Considerations
+   10. IANA Considerations
+     10.1.  Extension Identifiers Registry
+     10.2.  C509 Hash Algorithms Registry
+     10.3.  TLS CertificateStatusType Registry
+     10.4.  Media Type Application Registry
+       10.4.1.  Media Type application/c509-crl+cbor
+       10.4.2.  Media Type application/c509-crlinfo+cbor
+       10.4.3.  Media Type application/c509-ocspreq+cbor
+       10.4.4.  Media Type application/c509-ocspresp+cbor
+     10.5.  CoAP Content-Formats Registry
+     10.6.  Expert Review Guidelines
+   11. References
+     11.1.  Normative References
+     11.2.  Informative References
    Appendix A.  Examples
      A.1.  Overview
      A.2.  Helper Keys and Certificates
@@ -232,16 +233,16 @@ Table of Contents
    revocation information.  [I-D.ietf-cose-cbor-encoded-cert] defines
    C509 certificates, a CBOR encoding of X.509 certificates [RFC5280]
    that reduces certificate size by over 50% for typical constrained-
-   device profiles.  However, revocation mechanisms -- Certificate
+   device profiles However, revocation mechanisms -- Certificate
    Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP)
    messages -- have not yet received the same treatment.
 
    CRLs as defined in [RFC5280] can be large, especially when many
    certificates have been revoked or when CRL extensions add overhead.
-   OCSP responses as defined in [RFC6960] carry per-certificate status
-   information and may be exchanged during TLS [RFC8446] and DTLS
-   [RFC9147] handshakes via OCSP stapling [RFC6066], directly affecting
-   handshake latency.
+   In the complementary OCSP mechanism defined in [RFC6960], OCSP
+   responses carry per-certificate status information and may be
+   exchanged during TLS [RFC9846] and DTLS [RFC9147] handshakes via OCSP
+   stapling [RFC6066], directly affecting handshake latency.
 
    Note on terminology: The label "C509" is used for consistency with
    the C509 certificate encoding and to promote a cohesive C509 PKI
@@ -249,7 +250,7 @@ Table of Contents
    Although this document uses "C509" in its names, the encodings and
    protocols defined here are certificate-type agnostic and apply
    equally to X.509 certificates and other certificate types; see
-   Section 6.5.
+   Section 7.5.
 
    This document specifies:
 
@@ -307,7 +308,7 @@ Table of Contents
    The CRL and OCSP structures defined in this document are certificate-
    type agnostic: they can be used with C509 certificates, X.509
    certificates, or any future certificate type without modification;
-   see Section 6.5.
+   see Section 7.5.
 
    C509 CRL and C509 OCSP apply the same compression techniques as C509
    certificates: static fields are elided, OIDs are replaced with short
@@ -324,7 +325,51 @@ Table of Contents
    C509 CRL and C509 OCSP are designed to be compatible with certificate
    profiles for constrained deployments, such as [RFC7925].
 
-2.  Terminology
+2.  Alternative Certificate Status Checking Mechanisms
+
+   Only widely deployed mechanisms are considered here.  Several such
+   mechanisms can be used to check certificate status, but none of them
+   replaces the work in this document.
+
+   *  *X.509 CRLs and OCSP* ([RFC5280], [RFC6960]) provide the baseline
+      revocation mechanisms, but their DER encodings are not compact
+      enough for constrained deployments and are not certificate-type
+      agnostic.  This document keeps their semantics while defining CBOR
+      encodings that are smaller and easier to process.
+
+   *  *OCSP stapling* ([RFC6066], [RFC9846]) reduces client latency by
+      having the server provide a fresh OCSP response, but it does not
+      define a revocation status format of its own.  It still depends on
+      the underlying OCSP message structure, so it cannot replace a
+      compact, stand-alone status representation.
+
+   *  *Short-lived certificates* reduce reliance on revocation, but they
+      do not provide revocation status when certificates must remain
+      valid for longer periods or must be withdrawn immediately after
+      compromise.  They also shift the problem to more frequent issuance
+      and renewal rather than eliminating status checking.
+
+   *  *CRLSets* [CRLSets] are a browser-distributed revocation blocklist
+      rather than a general-purpose revocation protocol.  They cover
+      only a limited subset of certificates and are tied to a specific
+      browser ecosystem, so they cannot provide complete, interoperable
+      status checking for arbitrary C509, X.509, or future certificate
+      types.
+
+   *  *CRLite* [CRLite] compresses revocation information into a
+      browser-oriented filter-based representation, which is useful for
+      client-side deployment at scale.  However, it is not a wire-format
+      replacement for CRLs or OCSP, does not preserve the full per-
+      certificate status structures defined here, and is not a
+      certificate-type-agnostic status format that other implementations
+      can exchange directly.
+
+   These alternatives are useful in specific deployments, but they do
+   not provide the CBOR-based, certificate-type-agnostic revocation
+   structures defined here for C509, X.509, and future certificate
+   types.
+
+3.  Terminology
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
@@ -337,7 +382,7 @@ Table of Contents
    otherwise stated, "CBOR" refers to deterministically encoded CBOR as
    specified in Sections 4.2.1 and 4.2.2 of [RFC8949].
 
-3.  Imported Definitions
+4.  Imported Definitions
 
    The following types are imported from
    [I-D.ietf-cose-cbor-encoded-cert]: Name, Extension, Extensions,
@@ -367,16 +412,16 @@ Table of Contents
    [I-D.ietf-cose-cbor-encoded-cert] where all embedded Extension
    entries have only int-only extensionID.
 
-4.  Encoding of Time Fields
+5.  Encoding of Time Fields
 
    Time fields are encoded as unwrapped CBOR epoch-based date/time
    (~time).  The tag content MUST be a non-negative integer.  In POSIX
    time [POSIX], leap seconds are ignored; a leap second has the same
    POSIX time as the second before it.
 
-5.  C509 CRL
+6.  C509 CRL
 
-5.1.  Overview
+6.1.  Overview
 
    A C509 CRL is a natively signed CBOR [RFC8949] encoding of an X.509
    v2 CRL as defined in [RFC5280], Section 5.  The signature is computed
@@ -389,7 +434,7 @@ Table of Contents
    CRL.  The two formats cannot be mechanically converted to or from
    each other without semantic interpretation of the contained data.
 
-5.2.  C509 CRL CDDL
+6.2.  C509 CRL CDDL
 
    The following CDDL defines the top-level C509CRL structure and the
    TBSCertList sequence:
@@ -435,9 +480,9 @@ Table of Contents
 
                          Figure 1: CDDL for C509CRL
 
-5.3.  Field Encodings
+6.3.  Field Encodings
 
-5.3.1.  CRLInfoData and C509CRLInfo
+6.3.1.  CRLInfoData and C509CRLInfo
 
    CRLInfoData is a CDDL group that carries all CRL fields except
    revokedCertsList.  C509CRLInfo is the standalone CBOR array form of
@@ -446,7 +491,7 @@ Table of Contents
    extensions) without the potentially large revocation list.
    TBSCertList embeds CRLInfoData and adds revokedCertsList.
 
-5.3.2.  crlType
+6.3.2.  crlType
 
    The crlType field serves as the type discriminator for C509CRL,
    following the same extensibility pattern as ocspRequestType and
@@ -454,7 +499,7 @@ Table of Contents
    to the C509CRL structure.  Future specifications may define
    additional types by assigning new integer values.
 
-5.3.3.  signatureAlgorithm
+6.3.3.  signatureAlgorithm
 
    Encoded identically to the int choice of issuerSignatureAlgorithm in
    C509 certificates (see [I-D.ietf-cose-cbor-encoded-cert],
@@ -467,7 +512,7 @@ Table of Contents
    therefore covered by the signature.  This prevents algorithm-
    substitution attacks on the CRL.
 
-5.3.4.  authoritySubject and authorityKeyIdentifier
+6.3.4.  authoritySubject and authorityKeyIdentifier
 
    The authoritySubject and authorityKeyIdentifier fields identify the
    CRL authority.
@@ -491,28 +536,28 @@ Table of Contents
    simplifies the structure and reduces encoded size compared to
    representing it as a generic extension.
 
-5.3.5.  crlNumber
+6.3.5.  crlNumber
 
    The crlNumber field is encoded as an unsigned integer (uint).  It
    corresponds to the cRLNumber extension in [RFC5280], Section 5.2.3,
    which this document replaces with a dedicated field.  The value is
    monotonically increasing for both full and delta CRLs.
 
-5.3.6.  thisUpdate and nextUpdate
+6.3.6.  thisUpdate and nextUpdate
 
-   The thisUpdate field is encoded as described in Section 4.  The
+   The thisUpdate field is encoded as described in Section 5.  The
    nextUpdate field is encoded as a uint representing the number of
    seconds from thisUpdate until the next CRL is expected to be issued.
    It is encoded as null when no next update time is known.
 
-5.3.7.  baseCrlNumber
+6.3.7.  baseCrlNumber
 
    The baseCrlNumber field is encoded as null for a full CRL.  For a
    delta CRL, it contains the CRL number of the corresponding base full
    CRL.  It corresponds to the deltaCRLIndicator extension in [RFC5280],
    Section 5.2.4, which this document replaces with a dedicated field.
 
-5.3.8.  reasonCode Encoding
+6.3.8.  reasonCode Encoding
 
    The reasonCode ENUMERATED value is encoded as one unsigned byte.  The
    byte values are aligned with the ENUMERATED values of the CRLReason
@@ -550,9 +595,9 @@ Table of Contents
    revokedCerts.  Certificates removed from the CRL are instead
    indicated in the removedFromCRLCerts field of PerIssuerRevokedCerts.
 
-5.3.9.  revokedCertsList and PerIssuerRevokedCerts
+6.3.9.  revokedCertsList and PerIssuerRevokedCerts
 
-5.3.9.1.  Design Considerations
+6.3.9.1.  Design Considerations
 
    In X.509 CRLs ([RFC5280], Section 5.3.3), an indirect CRL uses the
    certificateIssuer CRL entry extension to indicate that a revocation
@@ -605,7 +650,7 @@ Table of Contents
    allowing implementations to process currently-revoked and removed
    entries independently.
 
-5.3.9.2.  Fields
+6.3.9.2.  Fields
 
    The revokedCertsList field is either a CBOR array of one or more
    PerIssuerRevokedCerts entries, each describing the revocation state
@@ -669,7 +714,7 @@ Table of Contents
 
       -  The baseDate field is a reference time used to compute
          revocation and removal dates, encoded as described in
-         Section 4.  It MUST be greater than or equal to the issuer
+         Section 5.  It MUST be greater than or equal to the issuer
          certificate's notBefore, which ensures that all stored offsets
          are non-negative.  It is RECOMMENDED to set baseDate to the
          earliest revocation date and removal-from-CRL date among all
@@ -731,7 +776,7 @@ Table of Contents
       is set, entries are sorted in ascending order, enabling binary
       search for a given serial number in O(log(n)) time.
 
-5.3.10.  CRL Extensions
+6.3.10.  CRL Extensions
 
    The crlExtensions field contains extensions for the CRL.  This
    document does not define any new CRL-level extensions.
@@ -793,11 +838,11 @@ Table of Contents
 
                Table 2: CRL extensions and their equivalents
 
-5.3.11.  Per-Issuer Extensions
+6.3.11.  Per-Issuer Extensions
 
    The extensions field of PerIssuerRevokedCerts contains per-issuer
    extensions.  This document defines one per-issuer extension
-   (expiredCertsOnCRL, see Section 5.3.11.1).
+   (expiredCertsOnCRL, see Section 6.3.11.1).
 
    Table 3 lists per-issuer extensions defined in this document.
 
@@ -810,7 +855,7 @@ Table of Contents
 
             Table 3: Per-issuer extensions and their equivalents
 
-5.3.11.1.  expiredCertsOnCRL
+6.3.11.1.  expiredCertsOnCRL
 
    The expiredCertsOnCRL extension indicates that this CRL includes
    revocation information for certificates that have already expired.
@@ -823,12 +868,12 @@ Table of Contents
 
    ExpiredCertsOnCRL = ~time
 
-   The value is encoded as described in Section 4.  When this extension
+   The value is encoded as described in Section 5.  When this extension
    is present, a relying party processing expired certificates (for
    example, for audit or archiving purposes) SHOULD use the indicated
    date to determine the extent of historical revocation coverage.
 
-5.3.12.  CRL Entry Extensions
+6.3.12.  CRL Entry Extensions
 
    Table 4 lists X.509 CRL entry extensions.  No corresponding extension
    is defined in this document.
@@ -871,14 +916,14 @@ Table of Contents
 
             Table 4: CRL entry extensions defined for X.509 CRLs
 
-5.3.13.  signatureValue
+6.3.13.  signatureValue
 
    Encoded identically to signatureValue in C509 certificates (see
    [I-D.ietf-cose-cbor-encoded-cert], Section 3.1.12).
 
-6.  C509 OCSP
+7.  C509 OCSP
 
-6.1.  Overview
+7.1.  Overview
 
    C509 OCSP defines CBOR encodings for OCSP requests and OCSP responses
    as defined in [RFC6960].  The encoding follows the same compression
@@ -896,7 +941,7 @@ Table of Contents
    new integer values, enabling new request or response structures to be
    introduced without modifying the existing types.
 
-6.2.  Identification of Certificates
+7.2.  Identification of Certificates
 
    To reduce OCSP message size, this document defines two truncated-hash
    identifier types used to refer to certificates compactly:
@@ -938,9 +983,9 @@ Table of Contents
    certificate is being queried without already knowing the serial
    number.
 
-6.3.  C509 OCSP Request
+7.3.  C509 OCSP Request
 
-6.3.1.  CDDL
+7.3.1.  CDDL
 
    C509OCSPRequest = C509UnsignedOCSPRequest /
                      C509SignedOCSPRequest /
@@ -996,9 +1041,9 @@ Table of Contents
 
                      Figure 2: CDDL for C509OCSPRequest
 
-6.3.2.  Field Encodings
+7.3.2.  Field Encodings
 
-6.3.2.1.  ocspRequestType
+7.3.2.1.  ocspRequestType
 
    The ocspRequestType field serves as the discriminator for
    C509OCSPRequest:
@@ -1015,7 +1060,7 @@ Table of Contents
 
                         Table 5: OCSP request types
 
-6.3.2.2.  issuerCertHash
+7.3.2.2.  issuerCertHash
 
    The issuerCertHash field appears in PerIssuerOCSPRequest,
    PerIssuerOCSPResponse, C509SimpleOCSPRequest, and
@@ -1039,7 +1084,7 @@ Table of Contents
    with an RFC 6960 DER-encoded CertID must recompute the respective
    hash inputs; the values are not directly comparable.
 
-6.3.2.3.  PerIssuerOCSPRequests, PerIssuerOCSPRequest,
+7.3.2.3.  PerIssuerOCSPRequests, PerIssuerOCSPRequest,
           SingleCertRequests and SingleCertRequest
 
    PerIssuerOCSPRequests is a list of PerIssuerOCSPRequest entries.  In
@@ -1056,7 +1101,7 @@ Table of Contents
 
    *  The extensions field contains per-issuer extensions that apply to
       all single-certificate requests in this PerIssuerOCSPRequest
-      entry; see Section 6.4.2.12.  If no per-issuer extensions are
+      entry; see Section 7.4.2.12.  If no per-issuer extensions are
       present, this field MUST be encoded as an empty CBOR array.
 
    *  The singleRequests field is a list of SingleCertRequest entries
@@ -1074,27 +1119,27 @@ Table of Contents
       is being queried without already knowing the serial number.
 
    *  The extensions field contains extensions for the single request;
-      see Section 6.4.2.13.
+      see Section 7.4.2.13.
 
-6.3.2.4.  C509UnsignedOCSPRequest
+7.3.2.4.  C509UnsignedOCSPRequest
 
    *  The ocspRequestType field MUST be 0.
 
    *  The hashAlgorithm field specifies the hash algorithm used to
       compute issuerCertHash and serialNumberHash.  The algorithm is
       encoded as an integer from the "C509 Hash Algorithms" registry
-      defined in Section 7.
+      defined in Section 8.
 
    *  The nonce field contains the request nonce, or MUST be null when
       no nonce is present.
 
    *  The extensions field contains request-level extensions; see
-      Section 6.4.2.13.
+      Section 7.4.2.13.
 
    *  The requests field is a list of PerIssuerOCSPRequest entries, each
-      grouping target certificates by issuer; see Section 6.3.2.3.
+      grouping target certificates by issuer; see Section 7.3.2.3.
 
-6.3.2.5.  C509SignedOCSPRequest
+7.3.2.5.  C509SignedOCSPRequest
 
    *  The ocspRequestType field MUST be 1.
 
@@ -1104,10 +1149,10 @@ Table of Contents
    *  The hashAlgorithm field specifies the hash algorithm used to
       compute requestorCertHash, issuerCertHash, and serialNumberHash.
       The algorithm is encoded as an integer from the "C509 Hash
-      Algorithms" registry defined in Section 7.
+      Algorithms" registry defined in Section 8.
 
    *  The nonce field is as defined for C509UnsignedOCSPRequest
-      (Section 6.3.2.4).
+      (Section 7.3.2.4).
 
    *  The requestorCertHash field is a hash of the signer's certificate,
       computed using hashAlgorithm. requestorCerts MUST carry the
@@ -1115,10 +1160,10 @@ Table of Contents
       the identity of the requestor.
 
    *  The extensions field contains request-level extensions; see
-      Section 6.4.2.13.
+      Section 7.4.2.13.
 
    *  The requests field is as defined for C509UnsignedOCSPRequest
-      (Section 6.3.2.4).
+      (Section 7.3.2.4).
 
    *  The requestorCerts field contains a sorted certificate chain
       starting with the signer's certificate, or MUST be null if no
@@ -1130,7 +1175,7 @@ Table of Contents
    *  The signatureValue field is the signature computed over the CBOR
       Sequence of the TBSOCSPRequest group.
 
-6.3.2.6.  C509SimpleOCSPRequest
+7.3.2.6.  C509SimpleOCSPRequest
 
    C509SimpleOCSPRequest is a compact request format for querying the
    status of a single certificate.  Unlike C509UnsignedOCSPRequest,
@@ -1145,18 +1190,18 @@ Table of Contents
       no nonce is present.
 
    *  The issuerCertHash field identifies the issuer of the target
-      certificate; see Section 6.3.2.2.
+      certificate; see Section 7.3.2.2.
 
    *  The serialNumberHash field is the hash of the certificate serial
-      number of the target certificate, computed as in Section 6.2.
+      number of the target certificate, computed as in Section 7.2.
 
    *  The extensions field contains request-level extensions; see
-      Section 6.4.2.13.  If no extensions are present, this field MUST
+      Section 7.4.2.13.  If no extensions are present, this field MUST
       be encoded as an empty CBOR array.
 
-6.4.  C509 OCSP Response
+7.4.  C509 OCSP Response
 
-6.4.1.  CDDL
+7.4.1.  CDDL
 
    C509OCSPResponse = C509ErrorOCSPResponse /
                       C509BasicOCSPResponse /
@@ -1236,9 +1281,9 @@ Table of Contents
 
                     Figure 3: CDDL for C509OCSPResponse
 
-6.4.2.  Field Encodings
+7.4.2.  Field Encodings
 
-6.4.2.1.  C509ErrorOCSPResponse
+7.4.2.1.  C509ErrorOCSPResponse
 
    If the OCSP server cannot process the OCSP query, it returns a
    C509ErrorOCSPResponse.  The ocspResponseType value MUST be 0, and
@@ -1264,7 +1309,7 @@ Table of Contents
                                  Table 6:
                           responseStatus values
 
-6.4.2.2.  C509BasicOCSPResponse
+7.4.2.2.  C509BasicOCSPResponse
 
    The ocspResponseType field of C509BasicOCSPResponse is 1,
    distinguishing it from C509ErrorOCSPResponse.  It corresponds to
@@ -1277,11 +1322,11 @@ Table of Contents
    substitution attacks; this design goes beyond the protections offered
    by the DER-encoded BasicOCSPResponse defined in [RFC6960].
 
-6.4.2.3.  C509SimpleOCSPResponse
+7.4.2.3.  C509SimpleOCSPResponse
 
    C509SimpleOCSPResponse is a compact signed response for a single-
    certificate status query.  It is the response counterpart to
-   C509SimpleOCSPRequest (see Section 6.3.2.6).  Unlike
+   C509SimpleOCSPRequest (see Section 7.3.2.6).  Unlike
    C509BasicOCSPResponse, which uses a two-level PerIssuerOCSPResponses
    / SingleCertResponse grouping to carry status for multiple
    certificates across one or more issuers, C509SimpleOCSPResponse
@@ -1306,23 +1351,23 @@ Table of Contents
    *  The hashAlgorithm field specifies the hash algorithm used to
       compute responderCertHash, issuerCertHash, and serialNumberHash.
       The algorithm is encoded as an integer from the "C509 Hash
-      Algorithms" registry defined in Section 7.
+      Algorithms" registry defined in Section 8.
 
    *  The responderCertHash field identifies the OCSP responder; see
-      Section 6.4.2.5.
+      Section 7.4.2.5.
 
    *  The nonce field contains the request nonce, or MUST be null when
       no nonce is present.  If present, it MUST have the same value as
       the nonce in the corresponding C509SimpleOCSPRequest.
 
    *  The issuerCertHash field identifies the issuer of the queried
-      certificate; see Section 6.3.2.2.
+      certificate; see Section 7.3.2.2.
 
    *  The serialNumberHash field is the hash of the certificate serial
-      number of the target certificate, computed as in Section 6.2.
+      number of the target certificate, computed as in Section 7.2.
 
    *  The producedAt field is the time at which this response was
-      produced, encoded as described in Section 4.
+      produced, encoded as described in Section 5.
 
    *  The thisUpdate field is encoded as a non-positive integer (nint /
       0) representing the number of seconds from producedAt at which the
@@ -1335,25 +1380,25 @@ Table of Contents
       expected, or null if the update time is unknown.
 
    *  The certStatus field encodes the revocation status; see
-      Section 6.4.2.11.
+      Section 7.4.2.11.
 
    *  The extensions field contains response-level extensions; see
-      Section 6.4.2.13.  If no extensions are present, this field MUST
+      Section 7.4.2.13.  If no extensions are present, this field MUST
       be encoded as an empty CBOR array.
 
    *  The responderCerts field carries the certificate chain starting
       with the responder certificate identified by responderCertHash;
-      see Section 6.4.2.6.
+      see Section 7.4.2.6.
 
    *  The signatureValue field is the signature computed over the CBOR
       Sequence of the TBSSimpleOCSPResponse group.
 
-6.4.2.4.  nonce
+7.4.2.4.  nonce
 
    If present, this field MUST have the same value as the nonce in the
    corresponding request.
 
-6.4.2.5.  responderCertHash
+7.4.2.5.  responderCertHash
 
    responderCertHash is a truncated hash over the responder's
    certificate, computed using the same hashAlgorithm as issuerCertHash.
@@ -1363,7 +1408,7 @@ Table of Contents
    entire responder certificate, which is consistent with the
    issuerCertHash design for issuer identification.
 
-6.4.2.6.  responderCerts
+7.4.2.6.  responderCerts
 
    When present, the responderCerts field carries the certificate chain
    starting with the responder certificate identified by
@@ -1374,7 +1419,7 @@ Table of Contents
    of TBSBasicOCSPResponse and is therefore covered by the signature,
    which prevents certificate-chain substitution attacks.
 
-6.4.2.7.  signatureAlgorithm and signatureValue
+7.4.2.7.  signatureAlgorithm and signatureValue
 
    *  signatureAlgorithm: the signature algorithm used to compute
       signatureValue, as defined in [I-D.ietf-cose-cbor-encoded-cert],
@@ -1384,9 +1429,9 @@ Table of Contents
    *  signatureValue: the signature computed over the CBOR Sequence of
       the TBSBasicOCSPResponse group.
 
-6.4.2.8.  producedAt, thisUpdate, nextUpdate
+7.4.2.8.  producedAt, thisUpdate, nextUpdate
 
-   The producedAt field is encoded as described in Section 4.  The
+   The producedAt field is encoded as described in Section 5.  The
    thisUpdate field is encoded as a non-positive integer (nint / 0)
    representing the number of seconds from producedAt at which the
    indicated status is known to be correct; it MUST be 0 or negative,
@@ -1396,41 +1441,41 @@ Table of Contents
    next update is expected to be available.  nextUpdate may be null,
    which indicates an unknown update time.
 
-6.4.2.9.  extensions
+7.4.2.9.  extensions
 
-   See Section 6.4.2.13.
+   See Section 7.4.2.13.
 
-6.4.2.10.  PerIssuerOCSPResponses and PerIssuerOCSPResponse
+7.4.2.10.  PerIssuerOCSPResponses and PerIssuerOCSPResponse
 
    PerIssuerOCSPResponses is a list of PerIssuerOCSPResponse entries.
-   For the same reason as on the request side (see Section 6.3.2.3), the
+   For the same reason as on the request side (see Section 7.3.2.3), the
    issuerCertHash field is encoded once per issuer and shared across all
    SingleCertResponse entries in the singleResponses list, avoiding the
    per-entry repetition that would occur if the issuer identity were
    embedded in every individual response entry.  PerIssuerOCSPResponse
    groups single responses for certificates issued by the same issuer;
-   the issuer is identified by issuerCertHash (see Section 6.3.2.2).
+   the issuer is identified by issuerCertHash (see Section 7.3.2.2).
 
    *  The extensions field contains per-issuer extensions that apply to
       all single-certificate responses in this PerIssuerOCSPResponse
-      entry; see Section 6.4.2.12.  If no per-issuer extensions are
+      entry; see Section 7.4.2.12.  If no per-issuer extensions are
       present, this field MUST be encoded as an empty CBOR array.
 
    *  The singleResponses field contains one SingleCertResponse for each
       queried certificate issued by that issuer.
 
-6.4.2.11.  SingleCertResponse
+7.4.2.11.  SingleCertResponse
 
-6.4.2.11.1.  serialNumberHash
+7.4.2.11.1.  serialNumberHash
 
    This field contains the truncated hash of the serial number of the
-   certificate being queried, computed as in Section 6.2.
+   certificate being queried, computed as in Section 7.2.
 
-6.4.2.11.2.  extensions
+7.4.2.11.2.  extensions
 
-   See Section 6.4.2.13.
+   See Section 7.4.2.13.
 
-6.4.2.11.3.  certStatus
+7.4.2.11.3.  certStatus
 
    CertStatus is encoded either as an integer (for good, not-issued, and
    unknown) or as a RevokedInfo array:
@@ -1445,7 +1490,7 @@ Table of Contents
 
    *  RevokedInfo: revoked -- an array carrying revocationTime and
       revocationReason.  The revocationReason field is encoded as
-      specified in Section 5.3.8.  When the revocation reason is not
+      specified in Section 6.3.8.  When the revocation reason is not
       known, revocationReason MUST be set to 0 (unspecified).
 
    The integer values are chosen to align with the ASN.1 IMPLICIT tag
@@ -1458,7 +1503,7 @@ Table of Contents
    thereby maintaining a contiguous integer range for the non-revoked
    statuses.
 
-6.4.2.12.  Per-Issuer OCSP Extensions
+7.4.2.12.  Per-Issuer OCSP Extensions
 
    PerIssuerOCSPRequest.extensions and PerIssuerOCSPResponse.extensions
    carry per-issuer extensions.  If no per-issuer extensions are
@@ -1474,7 +1519,7 @@ Table of Contents
 
                    Table 7: Per-issuer OCSP extensions
 
-6.4.2.13.  OCSP Extensions
+7.4.2.13.  OCSP Extensions
 
    Table 8 describes the OCSP extensions defined in [RFC6960] and their
    mapping in this document.
@@ -1595,7 +1640,7 @@ Table of Contents
    This extension is allowed only in the single-request extensions per
    [I-D.ietf-stir-certificates-ocsp].
 
-6.5.  Certificate Type Interoperability
+7.5.  Certificate Type Interoperability
 
    C509 OCSP uses a single set of request and response structures that
    handles both C509 and X.509 certificates without modification.  All
@@ -1637,13 +1682,12 @@ Table of Contents
    at the top level of each request or response structure governs all
    hashes within that structure.
 
-6.6.  OCSP Stapling in TLS
+7.6.  OCSP Stapling in TLS
 
    In standard TLS certificate status stapling (see the status_request
-   extension, [RFC8446], Section 4.4.2.1), the stapled OCSP response is
-   a DER-encoded OCSPResponse.  To allow C509 OCSP stapling, this
-   document defines a new TLS CertificateStatusType value [RFC6066],
-   Section 8:
+   extension, [RFC9846]), the stapled OCSP response is a DER-encoded
+   OCSPResponse.  To allow C509 OCSP stapling, this document defines a
+   new TLS CertificateStatusType value [RFC6066], Section 8:
 
                    +=======+===========+===============+
                    | Value | Name      | Reference     |
@@ -1658,7 +1702,7 @@ Table of Contents
    When CertificateStatusType is c509_ocsp, the status field contains a
    CBOR-encoded C509OCSPResponse instead of a DER-encoded OCSPResponse.
 
-7.  C509 Hash Algorithms
+8.  C509 Hash Algorithms
 
    This document defines the following hash algorithms.
 
@@ -1745,18 +1789,18 @@ Table of Contents
 
                        Figure 4: C509 Hash Algorithms
 
-8.  Security Considerations
+9.  Security Considerations
 
    TODO
 
-9.  IANA Considerations
+10.  IANA Considerations
 
    This document has the following actions for IANA.
 
    Note to RFC Editor: Please replace all occurrences of "[RFC-XXXX]"
    with the RFC number of this specification and delete this paragraph.
 
-9.1.  Extension Identifiers Registry
+10.1.  Extension Identifiers Registry
 
    IANA is requested to assign the new values shown in Figure 5 in the
    "C509 Extensions" registry under the new registry group "CBOR Encoded
@@ -1796,7 +1840,7 @@ Table of Contents
 
           Figure 5: C509 extension identifier allocation requests
 
-9.2.  C509 Hash Algorithms Registry
+10.2.  C509 Hash Algorithms Registry
 
    IANA is requested to create a new registry "C509 Hash Algorithms"
    under the registry group "CBOR Encoded X.509 (C509)" defined in
@@ -1804,7 +1848,7 @@ Table of Contents
 
    The registration policy is either "Private Use", "IETF Review with
    Expert Review", or "Expert Review" per [RFC8126], Section 4.5.
-   "Expert Review" guidelines are provided in Section 9.6.
+   "Expert Review" guidelines are provided in Section 10.6.
 
    All assignments according to "IETF Review with Expert Review" are
    made on an "IETF Review" basis per [RFC8126], Section 4.8, with
@@ -1852,9 +1896,9 @@ Table of Contents
       specification for the C509 hash algorithm, if one is available.
 
    This registry has been initially populated with the entries defined
-   in Section 7.
+   in Section 8.
 
-9.3.  TLS CertificateStatusType Registry
+10.3.  TLS CertificateStatusType Registry
 
    IANA is requested to assign the value shown in Table 11 in the "TLS
    Certificate Status Types" registry under "Transport Layer Security
@@ -1869,13 +1913,13 @@ Table of Contents
                     Table 11: TLS CertificateStatusType
                              allocation request
 
-9.4.  Media Type Application Registry
+10.4.  Media Type Application Registry
 
    IANA is requested to assign the following entries into the
    "application" registry in the registry group "Media Types" with this
    document as reference.
 
-9.4.1.  Media Type application/c509-crl+cbor
+10.4.1.  Media Type application/c509-crl+cbor
 
    When the application/c509-crl+cbor media type is used, the data is a
    C509CRL structure.
@@ -1886,7 +1930,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See Section 8 of [RFC-XXXX].
+   Security considerations: See Section 9 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -1917,7 +1961,7 @@ Table of Contents
 
    Change controller: IETF
 
-9.4.2.  Media Type application/c509-crlinfo+cbor
+10.4.2.  Media Type application/c509-crlinfo+cbor
 
    When the application/c509-crlinfo+cbor media type is used, the data
    is a C509CRLInfo structure.
@@ -1928,7 +1972,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See Section 8 of [RFC-XXXX].
+   Security considerations: See Section 9 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -1959,7 +2003,7 @@ Table of Contents
 
    Change controller: IETF
 
-9.4.3.  Media Type application/c509-ocspreq+cbor
+10.4.3.  Media Type application/c509-ocspreq+cbor
 
    When the application/c509-ocspreq+cbor media type is used, the data
    is a C509OCSPRequest structure.
@@ -1970,7 +2014,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See Section 8 of [RFC-XXXX].
+   Security considerations: See Section 9 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -2001,7 +2045,7 @@ Table of Contents
 
    Change controller: IETF
 
-9.4.4.  Media Type application/c509-ocspresp+cbor
+10.4.4.  Media Type application/c509-ocspresp+cbor
 
    When the application/c509-ocspresp+cbor media type is used, the data
    is a C509OCSPResponse structure.
@@ -2012,7 +2056,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See Section 8 of [RFC-XXXX].
+   Security considerations: See Section 9 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -2043,7 +2087,7 @@ Table of Contents
 
    Change controller: IETF
 
-9.5.  CoAP Content-Formats Registry
+10.5.  CoAP Content-Formats Registry
 
    IANA is requested to add entries for "application/c509-crl+cbor",
    "application/c509-crlinfo+cbor", "application/c509-ocspreq+cbor" and
@@ -2068,13 +2112,13 @@ Table of Contents
    | c509-ocspresp+cbor      |         |       | document]] |
    +-------------------------+---------+-------+------------+
 
-9.6.  Expert Review Guidelines
+10.6.  Expert Review Guidelines
 
    TODO
 
-10.  References
+11.  References
 
-10.1.  Normative References
+11.1.  Normative References
 
    [I-D.ietf-cose-cbor-encoded-cert]
               Mattsson, J. P., Selander, G., Raza, S., Höglund, J.,
@@ -2131,10 +2175,6 @@ Table of Contents
               DOI 10.17487/RFC8226, February 2018,
               <https://www.rfc-editor.org/rfc/rfc8226>.
 
-   [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
-              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
-              <https://www.rfc-editor.org/rfc/rfc8446>.
-
    [RFC8610]  Birkholz, H., Vigano, C., and C. Bormann, "Concise Data
               Definition Language (CDDL): A Notational Convention to
               Express Concise Binary Object Representation (CBOR) and
@@ -2164,10 +2204,21 @@ Table of Contents
               Language (CDDL) Grammar", RFC 9682, DOI 10.17487/RFC9682,
               November 2024, <https://www.rfc-editor.org/rfc/rfc9682>.
 
-10.2.  Informative References
+   [RFC9846]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
+              Version 1.3", RFC 9846, DOI 10.17487/RFC9846, July 2026,
+              <https://www.rfc-editor.org/rfc/rfc9846>.
+
+11.2.  Informative References
 
    [CborMe]   Bormann, C., "CBOR Playground", May 2018,
               <https://cbor.me/>.
+
+   [CRLite]   "mozilla/crlite", n.d.,
+              <https://github.com/mozilla/crlite>.
+
+   [CRLSets]  "CRLSets - The Chromium Projects", n.d.,
+              <https://www.chromium.org/Home/chromium-security/
+              crlsets/>.
 
    [POSIX]    "IEEE Standard for Information Technology--Portable
               Operating System Interface (POSIX(TM)) Base
