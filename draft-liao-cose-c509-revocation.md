@@ -56,13 +56,13 @@ normative:
   RFC7120:
   RFC8126:
   RFC8226:
-  RFC8446:
   RFC8610:
   RFC8742:
   RFC8949:
   RFC9147:
   RFC9360:
   RFC9682:
+  RFC9846:
   I-D.ietf-cose-cbor-encoded-cert:
   I-D.ietf-stir-certificates-ocsp:
 
@@ -79,6 +79,12 @@ informative:
     author:
       - ins: C. Bormann
     date: May 2018
+  CRLSets:
+    title: CRLSets - The Chromium Projects
+    target: https://www.chromium.org/Home/chromium-security/crlsets/
+  CRLite:
+    title: mozilla/crlite
+    target: https://github.com/mozilla/crlite
   X.690:
     title: "ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)"
     target: https://www.itu.int/rec/T-REC-X.690
@@ -94,9 +100,9 @@ This document specifies CBOR-encoded PKI structures for use with C509 certificat
 
 # Introduction {#intro}
 
-Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} requires compact certificate representations and compact revocation information.  {{I-D.ietf-cose-cbor-encoded-cert}} defines C509 certificates, a CBOR encoding of X.509 certificates {{RFC5280}} that reduces certificate size by over 50% for typical constrained-device profiles.  However, revocation mechanisms -- Certificate Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP) messages -- have not yet received the same treatment.
+Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} requires compact certificate representations and compact revocation information.  {{I-D.ietf-cose-cbor-encoded-cert}} defines C509 certificates, a CBOR encoding of X.509 certificates {{RFC5280}} that reduces certificate size by over 50% for typical constrained-device profiles  However, revocation mechanisms -- Certificate Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP) messages -- have not yet received the same treatment.
 
-CRLs as defined in {{RFC5280}} can be large, especially when many certificates have been revoked or when CRL extensions add overhead.  OCSP responses as defined in {{RFC6960}} carry per-certificate status information and may be exchanged during TLS {{RFC8446}} and DTLS {{RFC9147}} handshakes via OCSP stapling {{RFC6066}}, directly affecting handshake latency.
+CRLs as defined in {{RFC5280}} can be large, especially when many certificates have been revoked or when CRL extensions add overhead.  In the complementary OCSP mechanism defined in {{RFC6960}}, OCSP responses carry per-certificate status information and may be exchanged during TLS {{RFC9846}} and DTLS {{RFC9147}} handshakes via OCSP stapling {{RFC6066}}, directly affecting handshake latency.
 
 Note on terminology: The label "C509" is used for consistency with the C509 certificate encoding and to promote a cohesive C509 PKI ecosystem (C509 certificates, CRLs, OCSP, and related tooling). Although this document uses "C509" in its names, the encodings and protocols defined here are certificate-type agnostic and apply equally to X.509 certificates and other certificate types; see {{cert-type-interop}}.
 
@@ -133,6 +139,22 @@ C509 CRL and C509 OCSP apply the same compression techniques as C509 certificate
 C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded counterparts defined in {{RFC5280}} and {{RFC6960}}.  Systems that use C509 CRL or C509 OCSP must explicitly support these CBOR-encoded formats; they cannot be transparently substituted for or derived from the corresponding DER-encoded structures.
 
 C509 CRL and C509 OCSP are designed to be compatible with certificate profiles for constrained deployments, such as {{RFC7925}}.
+
+# Alternative Certificate Status Checking Mechanisms {#status-alternatives}
+
+Only widely deployed mechanisms are considered here.  Several such mechanisms can be used to check certificate status, but none of them replaces the work in this document.
+
+- **X.509 CRLs and OCSP** ({{RFC5280}}, {{RFC6960}}) provide the baseline revocation mechanisms, but their DER encodings are not compact enough for constrained deployments and are not certificate-type agnostic.  This document keeps their semantics while defining CBOR encodings that are smaller and easier to process.
+
+- **OCSP stapling** ({{RFC6066}}, {{RFC9846}}) reduces client latency by having the server provide a fresh OCSP response, but it does not define a revocation status format of its own.  It still depends on the underlying OCSP message structure, so it cannot replace a compact, stand-alone status representation.
+
+- **Short-lived certificates** reduce reliance on revocation, but they do not provide revocation status when certificates must remain valid for longer periods or must be withdrawn immediately after compromise.  They also shift the problem to more frequent issuance and renewal rather than eliminating status checking.
+
+- **CRLSets** {{CRLSets}} are a browser-distributed revocation blocklist rather than a general-purpose revocation protocol.  They cover only a limited subset of certificates and are tied to a specific browser ecosystem, so they cannot provide complete, interoperable status checking for arbitrary C509, X.509, or future certificate types.
+
+- **CRLite** {{CRLite}} compresses revocation information into a browser-oriented filter-based representation, which is useful for client-side deployment at scale.  However, it is not a wire-format replacement for CRLs or OCSP, does not preserve the full per-certificate status structures defined here, and is not a certificate-type-agnostic status format that other implementations can exchange directly.
+
+These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.
 
 # Terminology {#terminology}
 
@@ -822,7 +844,7 @@ In a hybrid deployment where the responder holds an X.509 certificate, `responde
 
 ## OCSP Stapling in TLS
 
-In standard TLS certificate status stapling (see the `status_request` extension, {{RFC8446, Section 4.4.2.1}}), the stapled OCSP response is a DER-encoded `OCSPResponse`.  To allow C509 OCSP stapling, this document defines a new TLS `CertificateStatusType` value {{RFC6066, Section 8}}:
+In standard TLS certificate status stapling (see the `status_request` extension, {{RFC9846}}), the stapled OCSP response is a DER-encoded `OCSPResponse`.  To allow C509 OCSP stapling, this document defines a new TLS `CertificateStatusType` value {{RFC6066, Section 8}}:
 
 | Value | Name              | Reference     |
 |:-----:|:------------------|:--------------|
