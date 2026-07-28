@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-26T07:59:13.069620+00:00",
+  "timestamp": "2026-07-28T01:26:21.146578+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -528,7 +528,7 @@
       "labels": [],
       "body": "Mentioned during IETF 126 in Vienna:\nhttps://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/21/\n(Not directly an alternative)",
       "createdAt": "2026-07-23T16:11:24Z",
-      "updatedAt": "2026-07-24T10:27:59Z",
+      "updatedAt": "2026-07-27T12:19:52Z",
       "closedAt": null,
       "comments": [
         {
@@ -551,6 +551,20 @@
           "body": "> oauth is not an alternative, different areas\n\nIt's more about the approach, not it being a direct alternative",
           "createdAt": "2026-07-24T10:27:59Z",
           "updatedAt": "2026-07-24T10:27:59Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "@highlunder Hi Joel, can you provide some inputs? ",
+          "createdAt": "2026-07-27T10:27:22Z",
+          "updatedAt": "2026-07-27T10:27:22Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Added alternatives. See 4e4ad10.",
+          "createdAt": "2026-07-27T12:19:52Z",
+          "updatedAt": "2026-07-27T12:19:52Z"
         }
       ]
     },
@@ -566,7 +580,7 @@
       "labels": [],
       "body": "Need to make sure the work fits.\n\nhttps://datatracker.ietf.org/wg/cose/about/\n\nIt may fit based on this:\n_The COSE WG will also work on a CBOR encoding of the certificate profile\ndefined in [RFC 5280](https://datatracker.ietf.org/doc/rfc5280/)._\nAs RFC5280 also covers CRLs.\n\nOn the other hand the charter says:\n_Key management and binding of keys to identities are out of scope for\nthe working group._",
       "createdAt": "2026-07-23T16:12:36Z",
-      "updatedAt": "2026-07-24T10:03:56Z",
+      "updatedAt": "2026-07-27T12:19:28Z",
       "closedAt": null,
       "comments": [
         {
@@ -582,6 +596,13 @@
           "body": "> What are the potential issues in our I-D related to the \"binding of keys to identities\"?\n\nNothing necessarily. We just need to make sure this work fits in the charter in general",
           "createdAt": "2026-07-24T10:03:56Z",
           "updatedAt": "2026-07-24T10:03:56Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "High the relationship with RFC5280. See commit 4e4ad10\n",
+          "createdAt": "2026-07-27T12:19:27Z",
+          "updatedAt": "2026-07-27T12:19:27Z"
         }
       ]
     }
