@@ -162,16 +162,26 @@ These alternatives are useful in specific deployments, but they do not provide t
 
 This document uses the terminology from {{RFC5280}}, {{RFC6960}}, {{RFC7228}}, {{RFC8610}}, {{RFC8742}}, {{RFC8949}}, and {{RFC9682}}.  Unless otherwise stated, "CBOR" refers to deterministically encoded CBOR as specified in {{RFC8949, Sections 4.2.1 and 4.2.2}}.
 
-# Imported Definitions {#imports}
+# Common Types {#common-types}
 
 The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and  `AlgorithmIdentifier`. And the following type is imported from {{RFC9360}}: `COSE_X509`.
 
 This document further defines the following constrained aliases for use in all CDDL definitions:
 
 ~~~~~~~~~~~ cddl
-IntAlgorithmIdentifier = int
+uint8 = uint .le 255
 
-IntExtension = ( extensionID: int, extensionValue: Defined )
+uint15 = uint .le 32767
+
+uint32 = uint .le 2^32 - 1
+
+uint63 = uint .le 2^63 - 1
+
+int64 = int .ge -2^63 .le 2^63 - 1
+
+IntAlgorithmIdentifier = int64
+
+IntExtension = ( extensionID: int64, extensionValue: Defined )
 
 IntExtensions = [ * IntExtension ]
 ~~~~~~~~~~~
@@ -213,16 +223,18 @@ TBSCertList = (
 C509CRLInfo = [ CRLInfoData ]
 
 CRLInfoData = (
-  crlType                : uint,   ; 0 = C509CRL
+  crlType                : uint15 ; 0 = C509CRL
   signatureAlgorithm     : IntAlgorithmIdentifier,
   authoritySubject       : Name / #6.121(bytes),
   authorityKeyIdentifier : bytes / null,
-  crlNumber              : uint,
+  crlNumber              : CRLNumber,
   thisUpdate             : ~time,
-  nextUpdate             : uint / null,
-  baseCrlNumber          : uint / null,
+  nextUpdate             : uint63 / null,
+  baseCrlNumber          : CRLNumber / null,
   crlExtensions          : IntExtensions,
 )
+
+CRLNumber = uint63 .ge 1
 
 PerIssuerRevokedCerts = (
   issuer                 : Name / #6.121(bytes) / null,
@@ -233,9 +245,9 @@ PerIssuerRevokedCerts = (
 )
 
 RevokedCertsControl = [
-  flags               : uint,
-  serialNumberLength  : uint,
-  dateLength          : uint,
+  flags               : uint32,
+  serialNumberLength  : uint .le 20,
+  dateLength          : uint .le 8,
   baseDate            : ~time,
 ]
 ~~~~~~~~~~~
@@ -462,7 +474,7 @@ C509OCSPRequest = C509UnsignedOCSPRequest /
                   C509SimpleOCSPRequest
 
 C509UnsignedOCSPRequest = [
-  ocspRequestType    : 0,
+  ocspRequestType    : 0, ; uint15
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   extensions         : IntExtensions,
@@ -470,7 +482,7 @@ C509UnsignedOCSPRequest = [
 ]
 
 TBSOCSPRequest = (
-  ocspRequestType    : 1,
+  ocspRequestType    : 1, ; uint15
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -486,7 +498,7 @@ C509SignedOCSPRequest = [
 ]
 
 C509SimpleOCSPRequest = [
-  ocspRequestType    : 2,
+  ocspRequestType    : 2, ; uint15
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   issuerCertHash     : HashId8,
@@ -585,12 +597,12 @@ C509OCSPResponse = C509ErrorOCSPResponse /
                    C509SimpleOCSPResponse
 
 C509ErrorOCSPResponse = [
-  ocspResponseType  : 0,
-  responseStatus    : int
+  ocspResponseType  : 0,  ; uint15
+  responseStatus    : int .ge -256 .le 255
 ]
 
 TBSBasicOCSPResponse = (
-  ocspResponseType   : 1,
+  ocspResponseType   : 1, ; uint15
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -607,7 +619,7 @@ C509BasicOCSPResponse = [
 ]
 
 TBSSimpleOCSPResponse = (
-  ocspResponseType   : 2,
+  ocspResponseType   : 2, ; uint15
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -640,8 +652,8 @@ SingleCertResponses = [ + SingleCertResponse ]
 SingleCertResponse = (
   serialNumberHash : HashId20,
   certStatus       : CertStatus,
-  thisUpdate       : nint / 0,
-  nextUpdate       : uint / null,
+  thisUpdate       : int .le 0 .ge -2,147,483,648,
+  nextUpdate       : uint63 / null,
   extensions       : IntExtensions,
 )
 
@@ -653,7 +665,7 @@ CertStatus = 0        ; good
 
 RevokedInfo = [
   revocationTime   : ~time,
-  revocationReason : int,
+  revocationReason : uint8,
 ]
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
