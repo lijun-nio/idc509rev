@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-06T01:24:37.944381+00:00",
+  "timestamp": "2026-08-09T00:51:22.566864+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -528,7 +528,7 @@
       "labels": [],
       "body": "Mentioned during IETF 126 in Vienna:\nhttps://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/21/\n(Not directly an alternative)",
       "createdAt": "2026-07-23T16:11:24Z",
-      "updatedAt": "2026-07-27T12:19:52Z",
+      "updatedAt": "2026-08-07T13:27:02Z",
       "closedAt": null,
       "comments": [
         {
@@ -565,6 +565,20 @@
           "body": "Added alternatives. See 4e4ad10.",
           "createdAt": "2026-07-27T12:19:52Z",
           "updatedAt": "2026-07-27T12:19:52Z"
+        },
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thank you Lijun & Rikard! A few inputs from the constrained-IoT side, now that I'm (partially) back from summer vacation :)\n\nAbout the motivation / \"industry need\" / \"comparison with alternatives\":\n \nI think we can state the gap (more) concretely, to make it clear that for constrained devices over 6LoWPAN/LPWAN, the practical alternative today is often no revocation at all. DER X.509 CRL and HTTP-based OCSP are too large and too many round-trips for the link budget. Framing the contribution as ~\"enables [standard based] revocation where it was previously impractical\" is a stronger claim, but justified, in addition to \"smaller and easier to process\" alone.\n\nAbout CRLite, and possibly as a broader conclusion for the alternative section: The section already notes CRLite as a compressed, browser-oriented filter, which functions as client-side, non-interoperable local structures. And this is why a standard, certificate-type-agnostic wire format for full per-certificate status structures is a missing piece, which doesn't compete with CRLite but rather complements it. \n\nMulti-vendor point, agreeing with your comment Lijun: Even single-operator constrained deployments are in need of mixing silicon and/or stacks, so reusing standard, open-source-friendly modules (one C509 parser, COSE signatures, OSCORE) should be the way forward also there. Maybe also worth a sentence in the motivation.\n\nOn OAuth/token status lists: agree they target a different problem (issuer-assigned index over a bounded population) and aren't a like-for-like alternative, so I wouldn't expand the section for them. \n\nRelated / FYI: I'm looking into a first implementations, let's soon discuss what we want a reference implementation to demonstrate!\n",
+          "createdAt": "2026-08-07T12:46:02Z",
+          "updatedAt": "2026-08-07T12:46:02Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Relevant part of the IETF 126 COSE session in Vienna for your reference:\nhttps://youtu.be/vFvw9gl8Zno?si=Pi1c3fEOAfyRxF82&t=3445",
+          "createdAt": "2026-08-07T13:27:02Z",
+          "updatedAt": "2026-08-07T13:27:02Z"
         }
       ]
     },
@@ -605,6 +619,22 @@
           "updatedAt": "2026-07-27T12:19:27Z"
         }
       ]
+    },
+    {
+      "number": 14,
+      "id": "I_kwDOTDu4zs8AAAABLrWN-w",
+      "title": "Prepare for CfA",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/14",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "In the meantime I submitted some changes to cover #13 and #12, and also other enhancement.\n\n@rikard-sics @comsats @highlunder @marco-tiloca-sics Please share your commits, comments, etc. to make our draft mature for a CfA.\n\n\n\n",
+      "createdAt": "2026-08-06T07:12:04Z",
+      "updatedAt": "2026-08-06T07:12:04Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": []
