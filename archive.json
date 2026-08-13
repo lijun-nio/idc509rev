@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-11T00:52:20.462399+00:00",
+  "timestamp": "2026-08-13T01:00:46.452530+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -632,9 +632,24 @@
       "labels": [],
       "body": "In the meantime I submitted some changes to cover #13 and #12, and also other enhancement.\n\n@rikard-sics @comsats @highlunder @marco-tiloca-sics Please share your commits, comments, etc. to make our draft mature for a CfA.\n\n\n\n",
       "createdAt": "2026-08-06T07:12:04Z",
-      "updatedAt": "2026-08-06T07:12:04Z",
+      "updatedAt": "2026-08-11T14:45:40Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thank you Lijun! From my side I\u2019ve been working on a first Rust implementation (and started looking into what could be done also in Coniki-NG).\n\nThe Rust implementation can encode/decode/sign/verify C509 CRL and C509 OCSP (request + response), with byte-exact known-answer tests against the example in the draft, which covers Ed25519 and ECDSA-P256. \n\nThis means that with just a little more testing/evaluation, we could add measured C509-vs-X.509(DER) sizes for CRL and OCSP structures. If the Contiki-NG work isn\u2019t blocked, I could also get (simulated, hopefully emulated) feasibility test results for multi-hop delivery over constrained links. \n\nShould I look into preparing the Rust implementation as a PR to this repo? Or do we want to keep it separate?\n",
+          "createdAt": "2026-08-11T14:39:41Z",
+          "updatedAt": "2026-08-11T14:39:41Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Joel, this would help the community. My Reference Code is due to company policy not publicly present.\n\nIf you are able to sync the RUST code with the latest spec (also in the future), I think a PR to this repo is the best option.",
+          "createdAt": "2026-08-11T14:45:40Z",
+          "updatedAt": "2026-08-11T14:45:40Z"
+        }
+      ]
     }
   ],
   "pulls": []
