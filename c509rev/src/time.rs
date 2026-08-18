@@ -18,7 +18,7 @@
 //! delta conversion is localised to [`crl_next_update`] on encode and to the
 //! decoder on the way back.
 
-use c509::lcbor;
+use crate::lcbor;
 
 /// Encode an absolute `~time` (POSIX seconds) as an unwrapped CBOR uint.
 pub fn encode_abs(unix: u64) -> Vec<u8> {

@@ -14,7 +14,7 @@
 //!
 //! v1: encode only (sizing); decode/sign mirror the CRL module.
 
-use c509::lcbor;
+use crate::lcbor;
 
 use crate::common::{encode_extensions, Extension, Name, CBOR_NULL};
 use crate::time;
@@ -113,7 +113,7 @@ mod tests {
     fn sample(n_issued: usize, revoked: &[usize]) -> C509StatusList {
         C509StatusList {
             status_list_type: STATUS_TYPE_REVOCATION_BITMAP,
-            signature_algorithm: c509::registry::SIG_ED25519,
+            signature_algorithm: crate::registry::SIG_ED25519,
             authority_subject: Name::Text("test crlocsp-ca".into()),
             authority_key_identifier: Some(vec![0u8; 20]),
             status_list_number: 1,

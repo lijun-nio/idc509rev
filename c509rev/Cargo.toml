@@ -6,17 +6,18 @@ authors = ["Joel Höglund <joel.hoglund@ri.se>"]
 description = "Reference implementation of C509 Certificate Revocation Management (C509 CRL + C509 OCSP), draft-liao-cose-c509-revocation."
 
 [dependencies]
-# Reuse the C509 certificate codec: deterministic CBOR primitives (lcbor), the
-# algorithm registry, key handling, and TBS signing (type2::sign_tbs). Separate
-# crate, depended on by path — see REFERENCE-IMPL-PLAN.md.
-c509 = { path = "../../CBOR-certificates/c509_demo_impl" }
-
+# Self-contained: the small set of primitives previously reused from the `c509`
+# certificate crate — deterministic CBOR (`src/lcbor.rs`), the two signature
+# algorithm ids (`src/registry.rs`), and Ed25519/ECDSA-P256 TBS signing
+# (`sign_tbs` in `src/sign.rs`) — are vendored here so `c509rev` builds without
+# the sibling cert-implementation checkout. See REFERENCE-IMPL-PLAN.md.
 serde_cbor = { version = "0.11", features = ["tags"] }
 sha2 = "0.10"
 hex = "0.4"
-# Signature verification (same versions as the c509 crate, so no extra build).
-ed25519-dalek = { version = "2", features = ["pkcs8"] }
-p256 = { version = "0.13", features = ["ecdsa"] }
+# Ed25519 + ECDSA-P256 signing and verification. `pkcs8`/`pem` decode the
+# PKCS#8 PEM test keys (previously enabled transitively via the `c509` crate).
+ed25519-dalek = { version = "2", features = ["pkcs8", "pem"] }
+p256 = { version = "0.13", features = ["ecdsa", "pkcs8", "pem"] }
 
 [[bin]]
 name = "c509rev"

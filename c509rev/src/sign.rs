@@ -4,21 +4,28 @@
 //! response) compute the signature over the **CBOR Sequence** of their TBS
 //! group (`encode_tbs()`); `signatureValue` is the raw signature.
 //!
-//! Signing reuses the canonical [`c509::type2::sign_tbs`] (Ed25519, ECDSA
-//! P-256/384/521, …), which signs the raw TBS and returns the signature wrapped
-//! as a CBOR byte string — we unwrap it to the raw bytes the structs store.
-//! Verification is implemented here for the v1 crypto profile (Ed25519 +
-//! ECDSA-secp256r1-SHA256).
+//! Signing ([`sign_tbs`]) covers the draft's v1 crypto profile (Ed25519 +
+//! ECDSA-secp256r1-SHA256): it signs the raw TBS and returns the signature
+//! wrapped as a CBOR byte string — we unwrap it to the raw bytes the structs
+//! store. Verification is implemented here for the same profile. (This mirrors
+//! the upstream `c509::type2::sign_tbs` for the two profile algorithms; see the
+//! standalone-build note in `Cargo.toml`.)
 
 use serde_cbor::Value;
 
 use crate::hashalg;
+use crate::lcbor::lcbor_bytes;
+use crate::registry;
 
 /// Signing error.
 #[derive(Clone, Debug)]
 pub enum SignError {
-    /// `c509::type2::sign_tbs` returned something other than a CBOR byte string.
+    /// The signer produced something other than a CBOR byte string.
     BadSignerOutput,
+    /// No signer is implemented for this signature-algorithm id.
+    UnsupportedAlg(i64),
+    /// The PKCS#8 PEM private key did not parse for the selected algorithm.
+    BadKey,
 }
 
 /// Verification error.
@@ -37,12 +44,40 @@ pub enum VerifyError {
 /// Sign a TBS sequence, returning the **raw** signature bytes.
 ///
 /// `privkey_pem` is a PKCS#8 PEM private key; `sig_alg` is a C509 signature
-/// algorithm id (e.g. [`c509::registry::SIG_ED25519`]).
+/// algorithm id (e.g. [`registry::SIG_ED25519`]).
 pub fn sign(tbs: &[u8], privkey_pem: &str, sig_alg: i64) -> Result<Vec<u8>, SignError> {
-    let wrapped = c509::type2::sign_tbs(tbs, privkey_pem, sig_alg);
+    let wrapped = sign_tbs(tbs, privkey_pem, sig_alg)?;
     match serde_cbor::from_slice::<Value>(&wrapped) {
         Ok(Value::Bytes(b)) => Ok(b),
         _ => Err(SignError::BadSignerOutput),
+    }
+}
+
+/// Sign `tbs` with the PKCS#8 PEM key, returning the raw signature wrapped as a
+/// CBOR byte string (major type 2) — the same representation the upstream
+/// `c509::type2::sign_tbs` produces, for the two v1-profile algorithms.
+///
+/// - `SIG_ECDSA_SHA256`: secp256r1, deterministic-length `r||s` (64 bytes),
+///   over SHA-256(`tbs`).
+/// - `SIG_ED25519`: PureEdDSA over `tbs` (64-byte signature).
+fn sign_tbs(tbs: &[u8], privkey_pem: &str, sig_alg: i64) -> Result<Vec<u8>, SignError> {
+    match sig_alg {
+        registry::SIG_ECDSA_SHA256 => {
+            use p256::pkcs8::DecodePrivateKey;
+            use p256::ecdsa::signature::Signer;
+            let sk = p256::ecdsa::SigningKey::from_pkcs8_pem(privkey_pem)
+                .map_err(|_| SignError::BadKey)?;
+            let sig: p256::ecdsa::Signature = sk.sign(tbs);
+            Ok(lcbor_bytes(&sig.to_bytes()))
+        }
+        registry::SIG_ED25519 => {
+            use ed25519_dalek::pkcs8::DecodePrivateKey;
+            use ed25519_dalek::Signer;
+            let sk = ed25519_dalek::SigningKey::from_pkcs8_pem(privkey_pem)
+                .map_err(|_| SignError::BadKey)?;
+            Ok(lcbor_bytes(&sk.sign(tbs).to_bytes()))
+        }
+        other => Err(SignError::UnsupportedAlg(other)),
     }
 }
 
@@ -55,8 +90,8 @@ pub fn verify(tbs: &[u8], sig: &[u8], pubkey: &[u8], sig_alg: i64)
     -> Result<(), VerifyError>
 {
     match sig_alg {
-        c509::registry::SIG_ED25519 => verify_ed25519(tbs, sig, pubkey),
-        c509::registry::SIG_ECDSA_SHA256 => verify_p256(tbs, sig, pubkey),
+        registry::SIG_ED25519 => verify_ed25519(tbs, sig, pubkey),
+        registry::SIG_ECDSA_SHA256 => verify_p256(tbs, sig, pubkey),
         other => Err(VerifyError::UnsupportedAlg(other)),
     }
 }
@@ -192,7 +227,7 @@ LDeB+bVSvgJWg4BROG/yPW9ChJPA4Fsv6/Y+FYkJtaehDVTfkr5w1t/D\n\
 
     #[test]
     fn crl_sign_verify_round_trip_ed25519() {
-        let mut crl = sample_crl(c509::registry::SIG_ED25519);
+        let mut crl = sample_crl(registry::SIG_ED25519);
         crl.sign(ED_PEM).unwrap();
         assert_eq!(crl.signature_value.len(), 64);
         let pk = ed_pubkey();
@@ -211,7 +246,7 @@ LDeB+bVSvgJWg4BROG/yPW9ChJPA4Fsv6/Y+FYkJtaehDVTfkr5w1t/D\n\
 
     #[test]
     fn crl_sign_verify_round_trip_p256() {
-        let mut crl = sample_crl(c509::registry::SIG_ECDSA_SHA256);
+        let mut crl = sample_crl(registry::SIG_ECDSA_SHA256);
         crl.sign(P256_PEM).unwrap();
         assert_eq!(crl.signature_value.len(), 64);
         let pk = p256_pubkey();

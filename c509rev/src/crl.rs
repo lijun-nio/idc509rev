@@ -18,7 +18,7 @@
 //! all CRL examples (full `Name` / `#6.121(bytes)` is a TODO). Decode + sign +
 //! verify land next.
 
-use c509::lcbor;
+use crate::lcbor;
 
 use crate::common::{encode_extensions, Extension, Name, CBOR_NULL};
 use crate::time;
@@ -255,7 +255,7 @@ mod tests {
     fn base_info(crl_number: u64, this_update: u64, next_update: u64) -> CrlInfo {
         CrlInfo {
             crl_type: 0,
-            signature_algorithm: c509::registry::SIG_ED25519,
+            signature_algorithm: crate::registry::SIG_ED25519,
             authority_subject: Name::Text("test crlocsp-ca".to_string()),
             authority_key_identifier: Some(AKI.to_vec()),
             crl_number,
@@ -393,7 +393,7 @@ a1592ce4a64bffd621f30e2ab93766b4f8818116ab7da7bedf7c3ebcbdeac6d0455f5f5669712006
 
         let info = CrlInfo {
             crl_type: 0,
-            signature_algorithm: c509::registry::SIG_ED25519,
+            signature_algorithm: crate::registry::SIG_ED25519,
             authority_subject: Name::Text("crl-signer".to_string()),
             authority_key_identifier: Some(AKI_SIGNER.to_vec()),
             crl_number: 4,

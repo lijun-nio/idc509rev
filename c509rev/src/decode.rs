@@ -2,10 +2,21 @@
 //!
 //! Decoding uses `serde_cbor::Value` to parse, then maps to the crate's structs.
 //! Because the draft mandates deterministic CBOR and both `serde_cbor` and the
-//! `c509::lcbor` encoder emit canonical/minimal encodings, a decode→re-encode
+//! `crate::lcbor` encoder emit canonical/minimal encodings, a decode→re-encode
 //! round-trip reproduces the original bytes — the validation used in the tests.
 //!
 //! v1 implements CRL decode; OCSP decode follows the same pattern.
+//!
+//! SECURITY: the length fields that size fixed-width entries
+//! (`serialNumberLength`, `dateLength`) ARE range-checked on decode (see
+//! `decode_control`), and `baseDate + offset` uses `checked_add`, so malformed
+//! input yields `DecodeError::Malformed` rather than a panic. NOTE (conformance,
+//! TODO): the remaining draft CDDL value ranges — `crlType`/`ocsp*Type`
+//! (`uint15`), `crlNumber`/`baseCrlNumber` (`uint63 .ge 1`), `nextUpdate`/
+//! `baseDate` (`uint63`), `revocationReason` (`uint8`) — are parsed but not yet
+//! range-enforced. These are stored, not used to size memory, so this is a
+//! spec-conformance gap, not a memory-safety issue. See README
+//! "Security considerations & known limitations".
 
 use serde_cbor::Value;
 
@@ -129,6 +140,8 @@ fn decode_revoked(
     c: &RevokedCertsControl,
 ) -> Result<Vec<RevokedCert>, DecodeError> {
     let with_reason = c.flags & 0x02 != 0;
+    // stride <= 20 + 8 + 1 = 29 (decode_control bounds serial/date lengths), so
+    // this sum cannot overflow and every sub-slice below stays within `e`.
     let stride = c.serial_number_length + c.date_length + usize::from(with_reason);
     if stride == 0 || body.len() % stride != 0 {
         return Err(DecodeError::Malformed("revokedCerts not a multiple of entry width"));
@@ -140,11 +153,12 @@ fn decode_revoked(
         let offset = be_to_u64(&e[p..p + c.date_length]);
         p += c.date_length;
         let reason = if with_reason { Some(e[p]) } else { None };
-        out.push(RevokedCert {
-            serial,
-            revocation_date: c.base_date + offset,
-            reason,
-        });
+        // SECURITY: baseDate + offset are attacker-controlled u64s; a checked add
+        // turns a degenerate overflowing offset into Malformed instead of a
+        // debug-build overflow panic / release-build wraparound.
+        let revocation_date = c.base_date.checked_add(offset)
+            .ok_or(DecodeError::Malformed("revocationDate offset overflows baseDate"))?;
+        out.push(RevokedCert { serial, revocation_date, reason });
     }
     Ok(out)
 }
@@ -162,7 +176,10 @@ fn decode_removed(
     for e in body.chunks(stride) {
         let serial = e[..c.serial_number_length].to_vec();
         let offset = be_to_u64(&e[c.serial_number_length..]);
-        out.push(RemovedCert { serial, removal_date: c.base_date + offset });
+        // SECURITY: checked add (see decode_revoked) — attacker-controlled offset.
+        let removal_date = c.base_date.checked_add(offset)
+            .ok_or(DecodeError::Malformed("removalDate offset overflows baseDate"))?;
+        out.push(RemovedCert { serial, removal_date });
     }
     Ok(out)
 }
@@ -172,10 +189,27 @@ fn decode_control(v: &Value) -> Result<RevokedCertsControl, DecodeError> {
     if a.len() != 4 {
         return Err(DecodeError::Malformed("revokedCertsControl must be array[4]"));
     }
+    // SECURITY (hardening): `serialNumberLength` and `dateLength` are
+    // attacker-controlled and are used to size the fixed-width entry `stride`
+    // and the per-entry sub-slices in decode_revoked/decode_removed. Enforce the
+    // draft CDDL bounds (serialNumberLength: uint .le 20 and "MUST be > 0"
+    // §"revokedCertsControl"; dateLength: uint .le 8) BEFORE the `as usize`
+    // cast, so `stride <= 20 + 8 + 1 = 29` cannot overflow `usize` and no
+    // sub-slice can run past its chunk. Without this an oversized length turns a
+    // malformed CRL into an out-of-bounds / overflow panic (a DoS). Range-check
+    // the u64 (a real CBOR uint is <= 2^64-1, so `as u64` is exact).
+    let serial_number_length = as_u64(&a[1], "serialNumberLength")?;
+    if !(1..=20).contains(&serial_number_length) {
+        return Err(DecodeError::Malformed("serialNumberLength out of range (1..=20)"));
+    }
+    let date_length = as_u64(&a[2], "dateLength")?;
+    if date_length > 8 {
+        return Err(DecodeError::Malformed("dateLength out of range (0..=8)"));
+    }
     Ok(RevokedCertsControl {
         flags: as_u64(&a[0], "flags")?,
-        serial_number_length: as_u64(&a[1], "serialNumberLength")? as usize,
-        date_length: as_u64(&a[2], "dateLength")? as usize,
+        serial_number_length: serial_number_length as usize,
+        date_length: date_length as usize,
         base_date: as_u64(&a[3], "baseDate")?,
     })
 }
@@ -494,6 +528,35 @@ mod tests {
         round_trip(REVOKED);
         round_trip(DELTA);
         round_trip(INDIRECT);
+    }
+
+    // --- security hardening regression tests (decode-bounds) --------------
+    // These inputs would panic (index-out-of-bounds / arithmetic overflow)
+    // before the decode_control bounds + checked date arithmetic were added.
+    fn ctrl_value(flags: i128, snl: i128, dl: i128, base: i128) -> serde_cbor::Value {
+        use serde_cbor::Value::{Array, Integer};
+        Array(vec![Integer(flags), Integer(snl), Integer(dl), Integer(base)])
+    }
+
+    #[test]
+    fn control_rejects_out_of_range_lengths() {
+        use super::{decode_control, DecodeError};
+        // serialNumberLength must be 1..=20, dateLength 0..=8 (draft CDDL) —
+        // unbounded values would overflow the entry stride / index past a chunk.
+        assert!(matches!(decode_control(&ctrl_value(0, 0, 4, 0)), Err(DecodeError::Malformed(_)))); // snl==0
+        assert!(matches!(decode_control(&ctrl_value(0, 21, 4, 0)), Err(DecodeError::Malformed(_)))); // snl>20
+        assert!(matches!(decode_control(&ctrl_value(0, 1i128 << 40, 4, 0)), Err(DecodeError::Malformed(_)))); // huge
+        assert!(matches!(decode_control(&ctrl_value(0, 8, 9, 0)), Err(DecodeError::Malformed(_)))); // dl>8
+        assert!(decode_control(&ctrl_value(0, 20, 8, 0)).is_ok()); // in range
+    }
+
+    #[test]
+    fn revoked_rejects_date_overflow() {
+        use super::{decode_control, decode_revoked, DecodeError};
+        // baseDate = u64::MAX + an 8-byte offset of 1 overflows -> Malformed, not panic.
+        let c = decode_control(&ctrl_value(0, 2, 8, u64::MAX as i128)).unwrap();
+        let body = [0x00u8, 0x01, 0, 0, 0, 0, 0, 0, 0, 0x01]; // 2B serial + 8B offset=1
+        assert!(matches!(decode_revoked(&body, &c), Err(DecodeError::Malformed(_))));
     }
 
     // OCSP request examples.

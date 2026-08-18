@@ -3,15 +3,19 @@
 //! encodings of X.509 CRLs (RFC 5280 §5) and OCSP messages (RFC 6960).
 //!
 //! This crate is **separate from** the C509 *certificate* codec
-//! (`CBOR-certificates/c509_demo_impl`, crate `c509`) but **reuses** it for the
-//! pieces it already implements well — the deterministic CBOR primitives
-//! ([`c509::lcbor`]), the algorithm registry ([`c509::registry`]), and TBS
-//! signing ([`c509::type2::sign_tbs`]). See `REFERENCE-IMPL-PLAN.md`.
+//! (`CBOR-certificates/c509_demo_impl`, crate `c509`). It is **standalone**: the
+//! few primitives it originally reused from `c509` — the deterministic CBOR
+//! encoder ([`crate::lcbor`], vendored verbatim), the two v1-profile signature
+//! algorithm ids ([`crate::registry`]), and Ed25519/ECDSA-P256 TBS signing
+//! ([`crate::sign`]) — are carried here so the crate builds without the sibling
+//! cert-implementation checkout. See `REFERENCE-IMPL-PLAN.md`.
 //!
 //! Scope (v1): native C509 CRL/OCSP encode, decode, sign, verify, validated
 //! byte-for-byte against the draft's worked examples (KAT). X.509-DER ↔ C509
 //! *semantic* interop is a later phase.
 
+pub mod lcbor;
+pub mod registry;
 pub mod common;
 pub mod certhash;
 pub mod hashalg;
@@ -45,9 +49,9 @@ pub mod discriminator {
 
 #[cfg(test)]
 mod reuse_smoke {
-    //! Proves the `c509` path dependency links and its deterministic CBOR
-    //! primitives are usable — the foundation every module builds on.
-    use c509::lcbor;
+    //! Proves the vendored deterministic CBOR primitives are usable — the
+    //! foundation every module builds on.
+    use crate::lcbor;
 
     #[test]
     fn lcbor_encodes_known_bytes() {
@@ -67,7 +71,7 @@ mod reuse_smoke {
     #[test]
     fn registry_values_match_draft_examples() {
         // The draft's signed examples use Ed25519 (12) and ECDSA-SHA256 (0).
-        assert_eq!(c509::registry::SIG_ED25519, 12);
-        assert_eq!(c509::registry::SIG_ECDSA_SHA256, 0);
+        assert_eq!(crate::registry::SIG_ED25519, 12);
+        assert_eq!(crate::registry::SIG_ECDSA_SHA256, 0);
     }
 }

@@ -3,7 +3,7 @@
 //! requestor/responder cert hashes.
 //!
 //! This is a **new** registry introduced by the revocation draft, distinct from
-//! the C509 *signature*/PK algorithm registry reused from [`c509::registry`].
+//! the C509 *signature*/PK algorithm registry ([`crate::registry`]).
 //!
 //! ## Truncated identifiers (draft §"Truncated Hash Identifiers")
 //! The draft defines two truncated-hash identifier types, and the field decides

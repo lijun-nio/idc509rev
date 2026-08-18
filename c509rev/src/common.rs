@@ -1,6 +1,6 @@
 //! Types shared across the CRL and OCSP structures.
 
-use c509::lcbor;
+use crate::lcbor;
 
 /// CBOR `null` (the simple value `0xf6`), used for the many optional fields.
 pub const CBOR_NULL: [u8; 1] = [0xf6];

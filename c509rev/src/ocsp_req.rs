@@ -18,7 +18,7 @@
 //! `serialNumberHash` `HashId20` = 20 bytes), their *computation* is validated in
 //! `certhash`. v1 implements Simple + Unsigned; Signed lands with signing.
 
-use c509::lcbor;
+use crate::lcbor;
 
 use crate::common::{encode_extensions, encode_opt_bytes, Extension};
 use crate::discriminator;
@@ -254,7 +254,7 @@ ab8d970b";
             extensions: vec![],
         };
         let req = C509OcspRequest::Signed {
-            signature_algorithm: c509::registry::SIG_ED25519,
+            signature_algorithm: crate::registry::SIG_ED25519,
             hash_algorithm: hashalg::SHA_256,
             nonce: Some(full[5..21].to_vec()),
             requestor_cert_hash: cert8(&full, 22),
