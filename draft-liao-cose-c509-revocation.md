@@ -223,7 +223,7 @@ TBSCertList = (
 C509CRLInfo = [ CRLInfoData ]
 
 CRLInfoData = (
-  crlType                : uint15 ; 0 = C509CRL
+  crlType                : uint15, ; 0 = C509CRL
   signatureAlgorithm     : IntAlgorithmIdentifier,
   authoritySubject       : Name / #6.121(bytes),
   authorityKeyIdentifier : bytes / null,
