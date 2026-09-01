@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 5 February 2027                                      J. Höglund
+Expires: 5 March 2027                                         J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                           4 August 2026
+                                                        1 September 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -67,7 +67,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 February 2027.
+   This Internet-Draft will expire on 5 March 2027.
 
 Copyright Notice
 
@@ -462,7 +462,7 @@ Table of Contents
    C509CRLInfo = [ CRLInfoData ]
 
    CRLInfoData = (
-     crlType                : uint15 ; 0 = C509CRL
+     crlType                : uint15, ; 0 = C509CRL
      signatureAlgorithm     : IntAlgorithmIdentifier,
      authoritySubject       : Name / #6.121(bytes),
      authorityKeyIdentifier : bytes / null,
