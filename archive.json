@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-01T02:28:54.551811+00:00",
+  "timestamp": "2026-09-03T01:55:53.561470+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -490,7 +490,7 @@
       "labels": [],
       "body": "Specify the transport methods to download the CRLs, transmit OCSP requests (to get OCSP responses):\n- HTTP\n- CoAP\n- OSCORE",
       "createdAt": "2026-07-21T15:58:22Z",
-      "updatedAt": "2026-07-24T10:13:31Z",
+      "updatedAt": "2026-09-01T19:50:02Z",
       "closedAt": null,
       "comments": [
         {
@@ -513,6 +513,13 @@
           "body": "> Not sure. The initial idea is to have something like this:\n> \n> https://datatracker.ietf.org/doc/html/rfc6960#appendix-A\n\nI see. Yeah let us discuss with all co-authors at some point\n",
           "createdAt": "2026-07-24T10:13:31Z",
           "updatedAt": "2026-07-24T10:13:31Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Analogous content about CRL and the CRL Distribution Points is at https://www.rfc-editor.org/info/rfc5280/#section-4.2.1.13\n\nIf only HTTP is used, the same things as in RFC 6960 and RFC 5280 can be said for messages that transfer C509-related information (e.g., about the request method that can be used).\n\nAt the same time, when querying an OCSP server, it should be the case that a caching-oriented, idempotent, and safe request is actually desired (in contrast with a POST request), while also not resorting to encoding the request content in the query component of the target URI of a GET request. So, if CoAP is used at all, the following can be considered:\n\n* If both the server and the client use CoAP, requests can then use the FETCH request method (RFC 8132), with all its advantages compared to the stretched use of POST (or of GET with query parameters).\n\n* If not both the server and client use CoAP (likely, the server is the one that uses HTTP) and a cross-proxy is deployed in between, we need the requests to be GET or POST (with the resulting downsides discussed in RFC 8132), since there is no defined translation between FETCH and a corresponding HTTP method (one day, the recent QUERY could be considered, see RFC 10008).\n\nRegarding security and the current era, it's probably about strongly discouraging unsecure communication, whatever the transfer protocol used.\n\nA few things to consider if cacheability of responses is desired:\n\n* For OCSP requests, they should practically need to converge on nonce=null in order to set the ground for producing a cache hit.\n\n* If OSCORE-based security is used, cacheability of responses is possible by using the variant of Group OSCORE defined in https://datatracker.ietf.org/doc/draft-ietf-core-cacheable-oscore/",
+          "createdAt": "2026-09-01T19:50:02Z",
+          "updatedAt": "2026-09-01T19:50:02Z"
         }
       ]
     },
@@ -632,7 +639,7 @@
       "labels": [],
       "body": "In the meantime I submitted some changes to cover #13 and #12, and also other enhancement.\n\n@rikard-sics @comsats @highlunder @marco-tiloca-sics Please share your commits, comments, etc. to make our draft mature for a CfA.\n\n\n\n",
       "createdAt": "2026-08-06T07:12:04Z",
-      "updatedAt": "2026-08-11T14:45:40Z",
+      "updatedAt": "2026-09-01T21:09:03Z",
       "closedAt": null,
       "comments": [
         {
@@ -648,6 +655,13 @@
           "body": "Joel, this would help the community. My Reference Code is due to company policy not publicly present.\n\nIf you are able to sync the RUST code with the latest spec (also in the future), I think a PR to this repo is the best option.",
           "createdAt": "2026-08-11T14:45:40Z",
           "updatedAt": "2026-08-11T14:45:40Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thanks, Lijun!\n\nI have reviewed the issues (leaving a comment on #11) and the latest commits (restoring a dropped comma in a CDDL notation).\n\nRegarding the two implementations: as per RFC 7942, the draft can at some point also include a section \"Implementation Status\" before the section \"Security Considerations\", with one entry for each implementation.\n\nThis should be ok even for implementations that are not open source. From Section 4 of RFC 7942:\n\n> - In the case of open source, ...\n\nFor an example, see https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-groupcomm-28#name-implementation-status\n",
+          "createdAt": "2026-09-01T21:09:03Z",
+          "updatedAt": "2026-09-01T21:09:03Z"
         }
       ]
     }
