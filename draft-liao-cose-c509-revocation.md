@@ -54,6 +54,7 @@ normative:
   RFC6066:
   RFC6960:
   RFC7120:
+  RFC7468:
   RFC8126:
   RFC8226:
   RFC8610:
@@ -94,7 +95,8 @@ entity:
 
 --- abstract
 
-This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation.
+This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additonally this document specifies the textual representation of the C509 structures following the framework of {{RFC7468}}
+
 
 --- middle
 
@@ -436,6 +438,17 @@ The value is encoded as described in {{time-encoding}}.  When this extension is 
 
 Encoded identically to `signatureValue` in C509 certificates (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.12}}).
 
+## Textual Representation
+
+The CBOR-encoded C509CRL is first BASE64-encoded, and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of {{RFC7468}}.
+
+~~~
+-----BEGIN C509 CRL-----
+(base64-encoded CBOR C509CRL)
+-----END C509 CRL-----
+~~~
+{: #fig-pem-c509-crl title="C509 CRL PEM Encoding"}
+
 # C509 OCSP {#c509ocsp}
 
 ## Overview
@@ -586,6 +599,18 @@ Each `SingleCertRequest` contains:
 - The `issuerCertHash` field identifies the issuer of the target certificate; see {{issuer-hash-id}}.
 - The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.  If no extensions are present, this field MUST be encoded as an empty CBOR array.
+
+### Textual Representation
+
+The CBOR-encoded C509 OCSP request is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP REQUEST-----" and "-----END C509 OCSP REQUEST-----", following the framework of {{RFC7468}}.
+
+~~~
+-----BEGIN C509 OCSP REQUEST-----
+(base64-encoded CBOR C509 OCSP Request)
+-----END C509 OCSP REQUEST-----
+~~~
+{: #fig-pem-c509-ocsp-req title="C509 OCSP Request PEM Encoding"}
+
 
 ## C509 OCSP Response {#ocsp-response}
 
@@ -864,6 +889,18 @@ In standard TLS certificate status stapling (see the `status_request` extension,
 {: #tab-tlsstaple title="TLS CertificateStatusType for C509 OCSP"}
 
 When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509OCSPResponse` instead of a DER-encoded `OCSPResponse`.
+
+### Textual Representation
+
+The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP RESPONSE-----" and "-----END C509 OCSP RESPONSE-----", following the framework of {{RFC7468}}.
+
+~~~
+-----BEGIN C509 OCSP RESPONSE-----
+(base64-encoded CBOR C509 OCSP Response)
+-----END C509 OCSP RESPONSE-----
+~~~
+{: #fig-pem-c509-ocsp-resp title="C509 OCSP Response PEM Encoding"}
+
 
 # C509 Hash Algorithms {#hashalg}
 
