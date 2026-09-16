@@ -11,7 +11,7 @@
 <meta content="Rikard Höglund" name="author">
 <meta content="Shahid Raza" name="author">
 <meta content="
-       This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. 
+       This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additonally this document specifies the textual representation of the C509 structures following the framework of  
     " name="description">
 <meta content="xml2rfc 3.34.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
@@ -25,11 +25,11 @@
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.11.5
+    platformdirs 4.11.7
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.8.2
+    wcwidth 0.8.3
 -->
 <link href="draft-liao-cose-c509-revocation.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1049,7 +1049,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Liao, et al.</td>
-<td class="center">Expires 5 March 2027</td>
+<td class="center">Expires 20 March 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1062,12 +1062,12 @@ svg {
 <dd class="internet-draft">draft-liao-cose-c509-revocation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-09-01" class="published">1 September 2026</time>
+<time datetime="2026-09-16" class="published">16 September 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-03-05">5 March 2027</time></dd>
+<dd class="expires"><time datetime="2027-03-20">20 March 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1096,7 +1096,7 @@ svg {
 <h1 id="title">CBOR Encoded Certificate Revocation Management</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additonally this document specifies the textual representation of the C509 structures following the framework of <span>[<a href="#RFC7468" class="cite xref">RFC7468</a>]</span><a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1132,7 +1132,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 5 March 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 20 March 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1242,6 +1242,9 @@ svg {
 </li>
                 </ul>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-textual-representation" class="internal xref">Textual Representation</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
@@ -1281,6 +1284,9 @@ svg {
                         <p id="section-toc.1-1.7.2.3.2.2.2.6.1"><a href="#section-7.3.2.6" class="auto internal xref">7.3.2.6</a>.  <a href="#name-c509simpleocsprequest" class="internal xref">C509SimpleOCSPRequest</a></p>
 </li>
                     </ul>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3.2.3">
+                    <p id="section-toc.1-1.7.2.3.2.3.1"><a href="#section-7.3.3" class="auto internal xref">7.3.3</a>.  <a href="#name-textual-representation-2" class="internal xref">Textual Representation</a></p>
 </li>
                 </ul>
 </li>
@@ -1341,6 +1347,11 @@ svg {
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.6">
                 <p id="section-toc.1-1.7.2.6.1"><a href="#section-7.6" class="auto internal xref">7.6</a>.  <a href="#name-ocsp-stapling-in-tls" class="internal xref">OCSP Stapling in TLS</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.6.2.1">
+                    <p id="section-toc.1-1.7.2.6.2.1.1"><a href="#section-7.6.1" class="auto internal xref">7.6.1</a>.  <a href="#name-textual-representation-3" class="internal xref">Textual Representation</a></p>
+</li>
+                </ul>
 </li>
             </ul>
 </li>
@@ -2302,6 +2313,27 @@ ExpiredCertsOnCRL = ~time
 </div>
 </section>
 </div>
+<div id="textual-representation">
+<section id="section-6.4">
+        <h3 id="name-textual-representation">
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-textual-representation" class="section-name selfRef">Textual Representation</a>
+        </h3>
+<p id="section-6.4-1">The CBOR-encoded C509CRL is first BASE64-encoded, and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of <span>[<a href="#RFC7468" class="cite xref">RFC7468</a>]</span>.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
+<span id="name-c509-crl-pem-encoding"></span><div id="fig-pem-c509-crl">
+<figure id="figure-2">
+          <div class="alignLeft art-text artwork" id="section-6.4-2.1">
+<pre>
+-----BEGIN C509 CRL-----
+(base64-encoded CBOR C509CRL)
+-----END C509 CRL-----
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-c509-crl-pem-encoding" class="selfRef">C509 CRL PEM Encoding</a>
+          </figcaption></figure>
+</div>
+</section>
+</div>
 </section>
 </div>
 <div id="c509ocsp">
@@ -2354,7 +2386,7 @@ HashId20  = bytes .size 20
 <a href="#section-7.3.1" class="section-number selfRef">7.3.1. </a><a href="#name-cddl" class="section-name selfRef">CDDL</a>
           </h4>
 <span id="name-cddl-for-c509ocsprequest"></span><div id="fig-OCSPReqCDDL">
-<figure id="figure-2">
+<figure id="figure-3">
             <div class="breakable lang-cddl sourcecode" id="section-7.3.1-1.1">
 <pre>
 C509OCSPRequest = C509UnsignedOCSPRequest /
@@ -2410,7 +2442,7 @@ SingleCertRequest = (
 )
 </pre>
 </div>
-<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
 <a href="#name-cddl-for-c509ocsprequest" class="selfRef">CDDL for C509OCSPRequest</a>
             </figcaption></figure>
 </div>
@@ -2589,6 +2621,27 @@ SingleCertRequest = (
 </div>
 </section>
 </div>
+<div id="textual-representation-1">
+<section id="section-7.3.3">
+          <h4 id="name-textual-representation-2">
+<a href="#section-7.3.3" class="section-number selfRef">7.3.3. </a><a href="#name-textual-representation-2" class="section-name selfRef">Textual Representation</a>
+          </h4>
+<p id="section-7.3.3-1">The CBOR-encoded C509 OCSP request is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP REQUEST-----" and "-----END C509 OCSP REQUEST-----", following the framework of <span>[<a href="#RFC7468" class="cite xref">RFC7468</a>]</span>.<a href="#section-7.3.3-1" class="pilcrow">¶</a></p>
+<span id="name-c509-ocsp-request-pem-encod"></span><div id="fig-pem-c509-ocsp-req">
+<figure id="figure-4">
+            <div class="alignLeft art-text artwork" id="section-7.3.3-2.1">
+<pre>
+-----BEGIN C509 OCSP REQUEST-----
+(base64-encoded CBOR C509 OCSP Request)
+-----END C509 OCSP REQUEST-----
+</pre>
+</div>
+<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
+<a href="#name-c509-ocsp-request-pem-encod" class="selfRef">C509 OCSP Request PEM Encoding</a>
+            </figcaption></figure>
+</div>
+</section>
+</div>
 </section>
 </div>
 <div id="ocsp-response">
@@ -2602,7 +2655,7 @@ SingleCertRequest = (
 <a href="#section-7.4.1" class="section-number selfRef">7.4.1. </a><a href="#name-cddl-2" class="section-name selfRef">CDDL</a>
           </h4>
 <span id="name-cddl-for-c509ocspresponse"></span><div id="fig-OCSPRespCDDL">
-<figure id="figure-3">
+<figure id="figure-5">
             <div class="breakable lang-cddl sourcecode" id="section-7.4.1-1.1">
 <pre>
 C509OCSPResponse = C509ErrorOCSPResponse /
@@ -2682,7 +2735,7 @@ RevokedInfo = [
 ]
 </pre>
 </div>
-<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<figcaption><a href="#figure-5" class="selfRef">Figure 5</a>:
 <a href="#name-cddl-for-c509ocspresponse" class="selfRef">CDDL for C509OCSPResponse</a>
             </figcaption></figure>
 </div>
@@ -3202,6 +3255,27 @@ TNQuery = text .size (1..15)
         </table>
 </div>
 <p id="section-7.6-3">When <code>CertificateStatusType</code> is <code>c509_ocsp</code>, the <code>status</code> field contains a CBOR-encoded <code>C509OCSPResponse</code> instead of a DER-encoded <code>OCSPResponse</code>.<a href="#section-7.6-3" class="pilcrow">¶</a></p>
+<div id="textual-representation-2">
+<section id="section-7.6.1">
+          <h4 id="name-textual-representation-3">
+<a href="#section-7.6.1" class="section-number selfRef">7.6.1. </a><a href="#name-textual-representation-3" class="section-name selfRef">Textual Representation</a>
+          </h4>
+<p id="section-7.6.1-1">The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP RESPONSE-----" and "-----END C509 OCSP RESPONSE-----", following the framework of <span>[<a href="#RFC7468" class="cite xref">RFC7468</a>]</span>.<a href="#section-7.6.1-1" class="pilcrow">¶</a></p>
+<span id="name-c509-ocsp-response-pem-enco"></span><div id="fig-pem-c509-ocsp-resp">
+<figure id="figure-6">
+            <div class="alignLeft art-text artwork" id="section-7.6.1-2.1">
+<pre>
+-----BEGIN C509 OCSP RESPONSE-----
+(base64-encoded CBOR C509 OCSP Response)
+-----END C509 OCSP RESPONSE-----
+</pre>
+</div>
+<figcaption><a href="#figure-6" class="selfRef">Figure 6</a>:
+<a href="#name-c509-ocsp-response-pem-enco" class="selfRef">C509 OCSP Response PEM Encoding</a>
+            </figcaption></figure>
+</div>
+</section>
+</div>
 </section>
 </div>
 </section>
@@ -3213,7 +3287,7 @@ TNQuery = text .size (1..15)
       </h2>
 <p id="section-8-1">This document defines the following hash algorithms.<a href="#section-8-1" class="pilcrow">¶</a></p>
 <span id="name-c509-hash-algorithms-2"></span><div id="tab-hash-alg">
-<figure id="figure-4">
+<figure id="figure-7">
         <div class="alignLeft art-text artwork" id="section-8-2.1">
 <pre>
 +-------+----------------------------------------------------------+
@@ -3298,7 +3372,7 @@ TNQuery = text .size (1..15)
 +-------+----------------------------------------------------------+
 </pre>
 </div>
-<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
+<figcaption><a href="#figure-7" class="selfRef">Figure 7</a>:
 <a href="#name-c509-hash-algorithms-2" class="selfRef">C509 Hash Algorithms</a>
         </figcaption></figure>
 </div>
@@ -3324,9 +3398,9 @@ TNQuery = text .size (1..15)
         <h3 id="name-extension-identifiers-regis">
 <a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-extension-identifiers-regis" class="section-name selfRef">Extension Identifiers Registry</a>
         </h3>
-<p id="section-10.1-1">IANA is requested to assign the new values shown in <a href="#tab-extensions-iana" class="auto internal xref">Figure 5</a> in the "C509 Extensions" registry under the new registry group "CBOR Encoded X.509 (C509)" defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-1">IANA is requested to assign the new values shown in <a href="#tab-extensions-iana" class="auto internal xref">Figure 8</a> in the "C509 Extensions" registry under the new registry group "CBOR Encoded X.509 (C509)" defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
 <span id="name-c509-extension-identifier-a"></span><div id="tab-extensions-iana">
-<figure id="figure-5">
+<figure id="figure-8">
           <div class="alignLeft art-text artwork" id="section-10.1-2.1">
 <pre>
 +-------+----------------------------------------------------------+
@@ -3362,7 +3436,7 @@ TNQuery = text .size (1..15)
 +-------+----------------------------------------------------------+
 </pre>
 </div>
-<figcaption><a href="#figure-5" class="selfRef">Figure 5</a>:
+<figcaption><a href="#figure-8" class="selfRef">Figure 8</a>:
 <a href="#name-c509-extension-identifier-a" class="selfRef">C509 extension identifier allocation requests</a>
           </figcaption></figure>
 </div>
@@ -3667,6 +3741,10 @@ TNQuery = text .size (1..15)
         <dd>
 <span class="refAuthor">Cotton, M.</span>, <span class="refTitle">"Early IANA Allocation of Standards Track Code Points"</span>, <span class="seriesInfo">BCP 100</span>, <span class="seriesInfo">RFC 7120</span>, <span class="seriesInfo">DOI 10.17487/RFC7120</span>, <time datetime="2014-01" class="refDate">January 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7120">https://www.rfc-editor.org/rfc/rfc7120</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC7468">[RFC7468]</dt>
+        <dd>
+<span class="refAuthor">Josefsson, S.</span> and <span class="refAuthor">S. Leonard</span>, <span class="refTitle">"Textual Encodings of PKIX, PKCS, and CMS Structures"</span>, <span class="seriesInfo">RFC 7468</span>, <span class="seriesInfo">DOI 10.17487/RFC7468</span>, <time datetime="2015-04" class="refDate">April 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7468">https://www.rfc-editor.org/rfc/rfc7468</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8126">[RFC8126]</dt>
         <dd>
 <span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Leiba, B.</span>, and <span class="refAuthor">T. Narten</span>, <span class="refTitle">"Guidelines for Writing an IANA Considerations Section in RFCs"</span>, <span class="seriesInfo">BCP 26</span>, <span class="seriesInfo">RFC 8126</span>, <span class="seriesInfo">DOI 10.17487/RFC8126</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8126">https://www.rfc-editor.org/rfc/rfc8126</a>&gt;</span>. </dd>
@@ -3952,10 +4030,10 @@ MC4CAQAwBQYDK2VwBCIEIDP+AdMbqXudBAN3YNAwoR0i3nl4IuoSSA6Hazy2oAKc
 </div>
 </section>
 </div>
-<div id="textual-representation">
+<div id="textual-representation-3">
 <section id="appendix-A.2.1.2.2">
-              <h6 id="name-textual-representation">
-<a href="#appendix-A.2.1.2.2" class="section-number selfRef">A.2.1.2.2. </a><a href="#name-textual-representation" class="section-name selfRef">Textual Representation</a>
+              <h6 id="name-textual-representation-4">
+<a href="#appendix-A.2.1.2.2" class="section-number selfRef">A.2.1.2.2. </a><a href="#name-textual-representation-4" class="section-name selfRef">Textual Representation</a>
               </h6>
 <div class="alignLeft art-text artwork" id="appendix-A.2.1.2.2-1">
 <pre>
@@ -4041,10 +4119,10 @@ F36DFE56CBB8CACE0FC3E59ACBE72CD9916B3E4C5022D06D16CC9BF9AC54394037C9
 </div>
 </section>
 </div>
-<div id="textual-representation-1">
+<div id="textual-representation-4">
 <section id="appendix-A.2.2.2.2">
-              <h6 id="name-textual-representation-2">
-<a href="#appendix-A.2.2.2.2" class="section-number selfRef">A.2.2.2.2. </a><a href="#name-textual-representation-2" class="section-name selfRef">Textual Representation</a>
+              <h6 id="name-textual-representation-5">
+<a href="#appendix-A.2.2.2.2" class="section-number selfRef">A.2.2.2.2. </a><a href="#name-textual-representation-5" class="section-name selfRef">Textual Representation</a>
               </h6>
 <div class="alignLeft art-text artwork" id="appendix-A.2.2.2.2-1">
 <pre>
@@ -4128,10 +4206,10 @@ MC4CAQAwBQYDK2VwBCIEIDoXZF67Rh+ENmXzefN4vLk/o2fK5q/otI2G1xQYtThH
 </div>
 </section>
 </div>
-<div id="textual-representation-2">
+<div id="textual-representation-5">
 <section id="appendix-A.2.3.2.2">
-              <h6 id="name-textual-representation-3">
-<a href="#appendix-A.2.3.2.2" class="section-number selfRef">A.2.3.2.2. </a><a href="#name-textual-representation-3" class="section-name selfRef">Textual Representation</a>
+              <h6 id="name-textual-representation-6">
+<a href="#appendix-A.2.3.2.2" class="section-number selfRef">A.2.3.2.2. </a><a href="#name-textual-representation-6" class="section-name selfRef">Textual Representation</a>
               </h6>
 <div class="alignLeft art-text artwork" id="appendix-A.2.3.2.2-1">
 <pre>
@@ -4215,10 +4293,10 @@ BF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F3753
 </div>
 </section>
 </div>
-<div id="textual-representation-3">
+<div id="textual-representation-6">
 <section id="appendix-A.2.4.2.2">
-              <h6 id="name-textual-representation-4">
-<a href="#appendix-A.2.4.2.2" class="section-number selfRef">A.2.4.2.2. </a><a href="#name-textual-representation-4" class="section-name selfRef">Textual Representation</a>
+              <h6 id="name-textual-representation-7">
+<a href="#appendix-A.2.4.2.2" class="section-number selfRef">A.2.4.2.2. </a><a href="#name-textual-representation-7" class="section-name selfRef">Textual Representation</a>
               </h6>
 <div class="alignLeft art-text artwork" id="appendix-A.2.4.2.2-1">
 <pre>

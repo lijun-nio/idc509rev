@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 5 March 2027                                         J. Höglund
+Expires: 20 March 2027                                        J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                        1 September 2026
+                                                       16 September 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -34,7 +34,9 @@ Abstract
    by a uniform certificate hash rather than type-specific fields.  C509
    CRL and C509 OCSP are not wire-format-compatible with their DER-
    encoded X.509 counterparts and cannot be converted to or from them
-   without semantic interpretation.
+   without semantic interpretation.  Additonally this document specifies
+   the textual representation of the C509 structures following the
+   framework of [RFC7468]
 
 About This Document
 
@@ -67,7 +69,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 March 2027.
+   This Internet-Draft will expire on 20 March 2027.
 
 Copyright Notice
 
@@ -110,6 +112,7 @@ Table of Contents
          6.3.11.1.  expiredCertsOnCRL
        6.3.12. CRL Entry Extensions
        6.3.13. signatureValue
+     6.4.  Textual Representation
    7.  C509 OCSP
      7.1.  Overview
      7.2.  Identification of Certificates
@@ -123,6 +126,7 @@ Table of Contents
          7.3.2.4.  C509UnsignedOCSPRequest
          7.3.2.5.  C509SignedOCSPRequest
          7.3.2.6.  C509SimpleOCSPRequest
+       7.3.3.  Textual Representation
      7.4.  C509 OCSP Response
        7.4.1.  CDDL
        7.4.2.  Field Encodings
@@ -141,6 +145,7 @@ Table of Contents
          7.4.2.13. OCSP Extensions
      7.5.  Certificate Type Interoperability
      7.6.  OCSP Stapling in TLS
+       7.6.1.  Textual Representation
    8.  C509 Hash Algorithms
    9.  Security Considerations
    10. IANA Considerations
@@ -933,6 +938,18 @@ Table of Contents
    Encoded identically to signatureValue in C509 certificates (see
    [I-D.ietf-cose-cbor-encoded-cert], Section 3.1.12).
 
+6.4.  Textual Representation
+
+   The CBOR-encoded C509CRL is first BASE64-encoded, and then wrapped
+   between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----",
+   following the framework of [RFC7468].
+
+   -----BEGIN C509 CRL-----
+   (base64-encoded CBOR C509CRL)
+   -----END C509 CRL-----
+
+                      Figure 2: C509 CRL PEM Encoding
+
 7.  C509 OCSP
 
 7.1.  Overview
@@ -1051,7 +1068,7 @@ Table of Contents
      extensions       : IntExtensions,
    )
 
-                     Figure 2: CDDL for C509OCSPRequest
+                     Figure 3: CDDL for C509OCSPRequest
 
 7.3.2.  Field Encodings
 
@@ -1211,6 +1228,18 @@ Table of Contents
       Section 7.4.2.13.  If no extensions are present, this field MUST
       be encoded as an empty CBOR array.
 
+7.3.3.  Textual Representation
+
+   The CBOR-encoded C509 OCSP request is first BASE64-encoded, and then
+   wrapped between "-----BEGIN C509 OCSP REQUEST-----" and "-----END
+   C509 OCSP REQUEST-----", following the framework of [RFC7468].
+
+   -----BEGIN C509 OCSP REQUEST-----
+   (base64-encoded CBOR C509 OCSP Request)
+   -----END C509 OCSP REQUEST-----
+
+                  Figure 4: C509 OCSP Request PEM Encoding
+
 7.4.  C509 OCSP Response
 
 7.4.1.  CDDL
@@ -1291,7 +1320,7 @@ Table of Contents
      revocationReason : uint8,
    ]
 
-                    Figure 3: CDDL for C509OCSPResponse
+                    Figure 5: CDDL for C509OCSPResponse
 
 7.4.2.  Field Encodings
 
@@ -1714,6 +1743,18 @@ Table of Contents
    When CertificateStatusType is c509_ocsp, the status field contains a
    CBOR-encoded C509OCSPResponse instead of a DER-encoded OCSPResponse.
 
+7.6.1.  Textual Representation
+
+   The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then
+   wrapped between "-----BEGIN C509 OCSP RESPONSE-----" and "-----END
+   C509 OCSP RESPONSE-----", following the framework of [RFC7468].
+
+   -----BEGIN C509 OCSP RESPONSE-----
+   (base64-encoded CBOR C509 OCSP Response)
+   -----END C509 OCSP RESPONSE-----
+
+                 Figure 6: C509 OCSP Response PEM Encoding
+
 8.  C509 Hash Algorithms
 
    This document defines the following hash algorithms.
@@ -1799,7 +1840,7 @@ Table of Contents
    |       | Comments:                                                |
    +-------+----------------------------------------------------------+
 
-                       Figure 4: C509 Hash Algorithms
+                       Figure 7: C509 Hash Algorithms
 
 9.  Security Considerations
 
@@ -1814,7 +1855,7 @@ Table of Contents
 
 10.1.  Extension Identifiers Registry
 
-   IANA is requested to assign the new values shown in Figure 5 in the
+   IANA is requested to assign the new values shown in Figure 8 in the
    "C509 Extensions" registry under the new registry group "CBOR Encoded
    X.509 (C509)" defined in [I-D.ietf-cose-cbor-encoded-cert].
 
@@ -1850,7 +1891,7 @@ Table of Contents
    |       | extensionValue:  TNQuery                                 |
    +-------+----------------------------------------------------------+
 
-          Figure 5: C509 extension identifier allocation requests
+          Figure 8: C509 extension identifier allocation requests
 
 10.2.  C509 Hash Algorithms Registry
 
@@ -2172,6 +2213,10 @@ Table of Contents
    [RFC7120]  Cotton, M., "Early IANA Allocation of Standards Track Code
               Points", BCP 100, RFC 7120, DOI 10.17487/RFC7120, January
               2014, <https://www.rfc-editor.org/rfc/rfc7120>.
+
+   [RFC7468]  Josefsson, S. and S. Leonard, "Textual Encodings of PKIX,
+              PKCS, and CMS Structures", RFC 7468, DOI 10.17487/RFC7468,
+              April 2015, <https://www.rfc-editor.org/rfc/rfc7468>.
 
    [RFC8126]  Cotton, M., Leiba, B., and T. Narten, "Guidelines for
               Writing an IANA Considerations Section in RFCs", BCP 26,
