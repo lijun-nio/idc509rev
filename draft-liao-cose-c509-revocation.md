@@ -95,7 +95,7 @@ entity:
 
 --- abstract
 
-This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additonally this document specifies the textual representation of the C509 structures following the framework of {{RFC7468}}
+This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additonally this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}
 
 
 --- middle
@@ -438,7 +438,7 @@ The value is encoded as described in {{time-encoding}}.  When this extension is 
 
 Encoded identically to `signatureValue` in C509 certificates (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.12}}).
 
-## Textual Representation
+## PEM Representation
 
 The CBOR-encoded C509CRL is first BASE64-encoded, and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of {{RFC7468}}.
 
@@ -600,7 +600,7 @@ Each `SingleCertRequest` contains:
 - The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.  If no extensions are present, this field MUST be encoded as an empty CBOR array.
 
-### Textual Representation
+### PEM Representation
 
 The CBOR-encoded C509 OCSP request is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP REQUEST-----" and "-----END C509 OCSP REQUEST-----", following the framework of {{RFC7468}}.
 
@@ -890,7 +890,7 @@ In standard TLS certificate status stapling (see the `status_request` extension,
 
 When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509OCSPResponse` instead of a DER-encoded `OCSPResponse`.
 
-### Textual Representation
+### PEM Representation
 
 The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP RESPONSE-----" and "-----END C509 OCSP RESPONSE-----", following the framework of {{RFC7468}}.
 
@@ -1305,7 +1305,7 @@ MC4CAQAwBQYDK2VwBCIEIDP+AdMbqXudBAN3YNAwoR0i3nl4IuoSSA6Hazy2oAKc
 259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F
 ~~~~~
 
-##### Textual Representation
+##### Textual (PEM) Representation
 
 [comment]: <> (replace-data:cert/crlocsp-ca/c509cert-t2.txt)
 ~~~~~
