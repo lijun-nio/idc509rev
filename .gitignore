@@ -22,3 +22,6 @@ report.xml
 /versioned/
 /.vscode/
 !requirements.txt
+
+# fetched GitHub issue cache (regenerate with sync-issues.sh)
+github-issues/
