@@ -38,8 +38,10 @@ The quickest way to see the codec produce real bytes:
 
 ### Command-line tool
 
-`c509rev <object> <action> <hexfile> [pubkey-hex]`, where `object` is
-`crl` | `ocsp-req` | `ocsp-resp`. The hex file may contain whitespace.
+`c509rev <object> <action> <infile> [pubkey-hex]`, where `object` is
+`crl` | `ocsp-req` | `ocsp-resp` and `action` is `decode` | `verify` | `pem`.
+The input file may be either hex (whitespace ignored) or a PEM textual
+representation (`-----BEGIN C509 …-----`); the format is auto-detected.
 
 ```sh
 # decode: pretty-print the parsed structure
@@ -50,6 +52,10 @@ cargo run -- ocsp-resp decode path/to/resp.hex
 # verify: check the signature over the TBS
 #   pubkey-hex = Ed25519 32-byte, or secp256r1 SEC1 (uncompressed 04|x|y)
 cargo run -- crl verify path/to/crl.hex <pubkey-hex>
+
+# pem: re-emit the object as its PEM textual representation (RFC 7468)
+cargo run -- crl pem path/to/crl.hex          # -> -----BEGIN C509 CRL----- …
+cargo run -- crl decode path/to/crl.pem       # PEM input is auto-detected
 ```
 
 Full round-trip using the example vector — mint a signed CRL, then verify it:
@@ -110,7 +116,8 @@ byte-for-byte against the draft's worked examples (KAT).
 | Cert/serial identity hashes | `certhash` | functions done (see Findings) |
 | Decode (CRL + OCSP) | `decode` | done — all 9 examples round-trip |
 | Sign + verify (Ed25519, ECDSA-secp256r1) | `sign` | done — sign↔verify round-trip |
-| CLI (`decode` / `verify`) | `bin/c509rev` | done |
+| PEM textual representation (RFC 7468) | `pem` | done — round-trips + RFC 4648 base64 vectors |
+| CLI (`decode` / `verify` / `pem`) | `bin/c509rev` | done |
 
 For signed objects (CRL, signed OCSP request/response) the encode KAT is a **TBS
 byte-match**, because the draft ships no example signing keys, so the
@@ -207,7 +214,8 @@ src/
   ocsp_req.rs   C509 OCSP request (Simple / Unsigned / Signed)
   ocsp_resp.rs  C509 OCSP response (Error / Basic / Simple)
   certhash.rs   issuer/serial/responder/requestor identity hashes
-  bin/c509rev.rs  CLI (decode / verify)
+  pem.rs        PEM textual representation (RFC 7468) + RFC 4648 base64
+  bin/c509rev.rs  CLI (decode / verify / pem)
 examples/
   sizes.rs           size CSV (LRev Tier-0)
   ecdsa_crl_vector.rs deterministic P-256 signed CRL test vector
