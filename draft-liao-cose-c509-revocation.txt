@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 20 March 2027                                        J. Höglund
+Expires: 22 March 2027                                        J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                       16 September 2026
+                                                       18 September 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -69,7 +69,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 March 2027.
+   This Internet-Draft will expire on 22 March 2027.
 
 Copyright Notice
 
@@ -146,22 +146,25 @@ Table of Contents
      7.5.  Certificate Type Interoperability
      7.6.  OCSP Stapling in TLS
        7.6.1.  PEM Representation
-   8.  C509 Hash Algorithms
-   9.  Security Considerations
-   10. IANA Considerations
-     10.1.  Extension Identifiers Registry
-     10.2.  C509 Hash Algorithms Registry
-     10.3.  TLS CertificateStatusType Registry
-     10.4.  Media Type Application Registry
-       10.4.1.  Media Type application/c509-crl+cbor
-       10.4.2.  Media Type application/c509-crlinfo+cbor
-       10.4.3.  Media Type application/c509-ocspreq+cbor
-       10.4.4.  Media Type application/c509-ocspresp+cbor
-     10.5.  CoAP Content-Formats Registry
-     10.6.  Expert Review Guidelines
-   11. References
-     11.1.  Normative References
-     11.2.  Informative References
+   8.  Security Considerations
+   9.  IANA Considerations
+     9.1.  C509 CRL Types Registry
+     9.2.  C509 OCSP Request Types Registry
+     9.3.  C509 OCSP Response Types Registry
+     9.4.  C509 Hash Algorithms Registry
+     9.5.  Extension Identifiers Registry
+     9.6.  TLS CertificateStatusType Registry
+     9.7.  PEM Label Registry
+     9.8.  Media Type Application Registry
+       9.8.1.  Media Type application/c509-crl+cbor
+       9.8.2.  Media Type application/c509-crlinfo+cbor
+       9.8.3.  Media Type application/c509-ocspreq+cbor
+       9.8.4.  Media Type application/c509-ocspresp+cbor
+     9.9.  CoAP Content-Formats Registry
+     9.10. Expert Review Guidelines
+   10. References
+     10.1.  Normative References
+     10.2.  Informative References
    Appendix A.  Examples
      A.1.  Overview
      A.2.  Helper Keys and Certificates
@@ -1157,7 +1160,7 @@ Table of Contents
    *  The hashAlgorithm field specifies the hash algorithm used to
       compute issuerCertHash and serialNumberHash.  The algorithm is
       encoded as an integer from the "C509 Hash Algorithms" registry
-      defined in Section 8.
+      defined in Section 9.4.
 
    *  The nonce field contains the request nonce, or MUST be null when
       no nonce is present.
@@ -1178,7 +1181,7 @@ Table of Contents
    *  The hashAlgorithm field specifies the hash algorithm used to
       compute requestorCertHash, issuerCertHash, and serialNumberHash.
       The algorithm is encoded as an integer from the "C509 Hash
-      Algorithms" registry defined in Section 8.
+      Algorithms" registry defined in Section 9.4.
 
    *  The nonce field is as defined for C509UnsignedOCSPRequest
       (Section 7.3.2.4).
@@ -1392,7 +1395,7 @@ Table of Contents
    *  The hashAlgorithm field specifies the hash algorithm used to
       compute responderCertHash, issuerCertHash, and serialNumberHash.
       The algorithm is encoded as an integer from the "C509 Hash
-      Algorithms" registry defined in Section 8.
+      Algorithms" registry defined in Section 9.4.
 
    *  The responderCertHash field identifies the OCSP responder; see
       Section 7.4.2.5.
@@ -1755,9 +1758,99 @@ Table of Contents
 
                  Figure 6: C509 OCSP Response PEM Encoding
 
-8.  C509 Hash Algorithms
+8.  Security Considerations
 
-   This document defines the following hash algorithms.
+   TODO
+
+9.  IANA Considerations
+
+   This document has the following actions for IANA.
+
+   Note to RFC Editor: Please replace all occurrences of "[RFC-XXXX]"
+   with the RFC number of this specification and delete this paragraph.
+
+9.1.  C509 CRL Types Registry
+
+   IANA has created a new registry titled "C509 CRL Types" under the
+   registry group "CBOR Encoded X.509 (C509)".  The fields of the
+   registry are Value, Description, and Reference, where Value is an
+   integer in the interval [-32768, 32767], and the other columns are
+   text strings.  It is mandatory to specify content in all columns.
+   For values in the interval [-24, 23], the registration procedure is
+   "IETF Review with Expert Review", and for all other values, the
+   registration procedure is "Expert Review".  The initial contents of
+   the registry are:
+
+       +-------+-------------------------------+-------------------+
+       | Value | Description                   | Reference         |
+       +=======+===============================+===================+
+       |     0 | C509CRL                       | [[this document]] |
+       +-------+-------------------------------+-------------------+
+
+                          Figure 7: C509 CRL Types
+
+9.2.  C509 OCSP Request Types Registry
+
+   IANA has created a new registry titled "C509 OCSP Request Types"
+   under the registry group "CBOR Encoded X.509 (C509)".  The fields of
+   the registry are Value, Description, and Reference, where Value is an
+   integer in the interval [-32768, 32767], and the other columns are
+   text strings.  It is mandatory to specify content in all columns.
+   For values in the interval [-24, 23], the registration procedure is
+   "IETF Review with Expert Review", and for all other values, the
+   registration procedure is "Expert Review".  The initial contents of
+   the registry are:
+
+       +-------+-------------------------------+-------------------+
+       | Value | Description                   | Reference         |
+       +=======+===============================+===================+
+       |     0 | C509 Unsigned OCSP Request    | [[this document]] |
+       +-------+-------------------------------+-------------------+
+       |     1 | C509 Signed OCSP Request      | [[this document]] |
+       +-------+-------------------------------+-------------------+
+       |     2 | C509 Simple OCSP Request      | [[this document]] |
+       +-------+-------------------------------+-------------------+
+
+                     Figure 8: C509 OCSP Request Types
+
+9.3.  C509 OCSP Response Types Registry
+
+   IANA has created a new registry titled "C509 OCSP Response Types"
+   under the registry group "CBOR Encoded X.509 (C509)".  The fields of
+   the registry are Value, Description, and Reference, where Value is an
+   integer in the interval [-32768, 32767], and the other columns are
+   text strings.  It is mandatory to specify content in all columns.
+   For values in the interval [-24, 23], the registration procedure is
+   "IETF Review with Expert Review", and for all other values, the
+   registration procedure is "Expert Review".  The initial contents of
+   the registry are:
+
+       +-------+-------------------------------+-------------------+
+       | Value | Description                   | Reference         |
+       +=======+===============================+===================+
+       |     0 | C509 Error OCSP Response      | [[this document]] |
+       +-------+-------------------------------+-------------------+
+       |     1 | C509 Basic OCSP Response      | [[this document]] |
+       +-------+-------------------------------+-------------------+
+       |     2 | C509 Simple OCSP Response     | [[this document]] |
+       +-------+-------------------------------+-------------------+
+
+                     Figure 9: C509 OCSP Response Types
+
+9.4.  C509 Hash Algorithms Registry
+
+   IANA has created a new registry titled "C509 Hash Algorithms" under
+   the registry group "CBOR Encoded X.509 (C509)".  The fields of the
+   registry are Value, Name, Identifiers, OID, Parameters, DER,
+   Comments, and Reference, where Value is an integer in the interval
+   [-32768, 32767], and the other columns are text strings.  The fields
+   Name, OID, Parameters, and DER are mandatory.  If it is not expected
+   to be understood from the other information (e.g. the OID), then the
+   Comments field must contain a reference to where the Hash Algorithm
+   is described.  For values in the interval [-24, 23] the registration
+   procedure is "IETF Review with Expert Review", and for all other
+   values the registration procedure is "Expert Review".  The initial
+   contents of the registry are:
 
    +-------+----------------------------------------------------------+
    | Value | Hash Algorithm                                           |
@@ -1767,95 +1860,95 @@ Table of Contents
    |       | OID:         2.16.840.1.101.3.4.2.1                      |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 01      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 5754                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   1   | Name:        SHA-384                                     |
    |       | Identifiers: id-sha384                                   |
    |       | OID:         2.16.840.1.101.3.4.2.2                      |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 02      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 5754                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   2   | Name:        SHA-512                                     |
    |       | Identifiers: id-sha512                                   |
    |       | OID:         2.16.840.1.101.3.4.2.3                      |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 03      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 5754                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   3   | Name:        SHA-224                                     |
    |       | Identifiers: id-sha224                                   |
    |       | OID:         2.16.840.1.101.3.4.2.4                      |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 04      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 5754                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   4   | Name:        SM3                                         |
    |       | Identifiers: id-sm3                                      |
    |       | OID:         1.2.156.10197.1.401                         |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0A 06 08 2A 81 1C CF 55 01 83 11         |
-   |       | Comments:                                                |
+   |       | Comments:    GM/T 0006-2023                              |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   5   | Name:        SHA3-256                                    |
    |       | Identifiers: id-sha3-256                                 |
    |       | OID:         2.16.840.1.101.3.4.2.8                      |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 08      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 9688                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   6   | Name:        SHA3-384                                    |
    |       | Identifiers: id-sha3-384                                 |
    |       | OID:         2.16.840.1.101.3.4.2.9                      |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 09      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 9688                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   7   | Name:        SHA3-512                                    |
    |       | Identifiers: id-sha3-512                                 |
    |       | OID:         2.16.840.1.101.3.4.2.10                     |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0A      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 9688                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   8   | Name:        SHA3-224                                    |
    |       | Identifiers: id-sha3-224                                 |
    |       | OID:         2.16.840.1.101.3.4.2.7                      |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 07      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 9688                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   9   | Name:        SHAKE128                                    |
    |       | Identifiers: id-shake128                                 |
    |       | OID:         2.16.840.1.101.3.4.2.11                     |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0B      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 8702                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
    |   10  | Name:        SHAKE256                                    |
    |       | Identifiers: id-shake256                                 |
    |       | OID:         2.16.840.1.101.3.4.2.12                     |
    |       | Parameters:  absent                                      |
    |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0C      |
-   |       | Comments:                                                |
+   |       | Comments:    RFC 8702                                    |
+   |       | Reference:   [[this document]]                           |
    +-------+----------------------------------------------------------+
 
-                       Figure 7: C509 Hash Algorithms
+                      Figure 10: C509 Hash Algorithms
 
-9.  Security Considerations
+9.5.  Extension Identifiers Registry
 
-   TODO
-
-10.  IANA Considerations
-
-   This document has the following actions for IANA.
-
-   Note to RFC Editor: Please replace all occurrences of "[RFC-XXXX]"
-   with the RFC number of this specification and delete this paragraph.
-
-10.1.  Extension Identifiers Registry
-
-   IANA is requested to assign the new values shown in Figure 8 in the
+   IANA is requested to assign the new values shown in Figure 11 in the
    "C509 Extensions" registry under the new registry group "CBOR Encoded
    X.509 (C509)" defined in [I-D.ietf-cose-cbor-encoded-cert].
 
@@ -1868,6 +1961,7 @@ Table of Contents
    |       | DER:             06 09 2B 06 01 05 05 07 30 01 04        |
    |       | Comments:        RFC 6960                                |
    |       | extensionValue:  AcceptableResponseTypes                 |
+   |       | Reference:       [[this document]]                       |
    +-------+----------------------------------------------------------+
    | TBD3  | Name:            Preferred Signature Algorithms          |
    |       | Identifiers:     id-pkix-ocsp-pref-sig-algs              |
@@ -1875,6 +1969,7 @@ Table of Contents
    |       | DER:             06 09 2B 06 01 05 05 07 30 01 08        |
    |       | Comments:        RFC 6960                                |
    |       | extensionValue:  PreferredSignatureAlgorithms            |
+   |       | Reference:       [[this document]]                       |
    +-------+----------------------------------------------------------+
    | TBD4  | Name:            Expired Certificates on CRL             |
    |       | Identifiers:     id-ce-expiredCertsOnCRL                 |
@@ -1882,6 +1977,7 @@ Table of Contents
    |       | DER:             06 03 55 1D 3C                          |
    |       | Comments:        ITU-T X.509, Section 9.5.2.8            |
    |       | extensionValue:  ExpiredCertsOnCRL                       |
+   |       | Reference:       [[this document]]                       |
    +-------+----------------------------------------------------------+
    | TBD6  | Name:            TN Query                                |
    |       | Identifiers:     id-pkix-ocsp-stir-tn                    |
@@ -1889,90 +1985,51 @@ Table of Contents
    |       | DER:             06 09 2B 06 01 05 05 07 30 01 0A        |
    |       | Comments:        draft-ietf-stir-certificates-ocsp       |
    |       | extensionValue:  TNQuery                                 |
+   |       | Reference:       [[this document]]                       |
    +-------+----------------------------------------------------------+
 
-          Figure 8: C509 extension identifier allocation requests
+          Figure 11: C509 extension identifier allocation requests
 
-10.2.  C509 Hash Algorithms Registry
-
-   IANA is requested to create a new registry "C509 Hash Algorithms"
-   under the registry group "CBOR Encoded X.509 (C509)" defined in
-   [I-D.ietf-cose-cbor-encoded-cert].
-
-   The registration policy is either "Private Use", "IETF Review with
-   Expert Review", or "Expert Review" per [RFC8126], Section 4.5.
-   "Expert Review" guidelines are provided in Section 10.6.
-
-   All assignments according to "IETF Review with Expert Review" are
-   made on an "IETF Review" basis per [RFC8126], Section 4.8, with
-   Expert Review additionally required per [RFC8126], Section 4.5.  The
-   procedure for early IANA allocation of Standards Track code points
-   defined in [RFC7120] also applies.  When such a procedure is used,
-   IANA will ask the designated expert(s) to approve the early
-   allocation before registration.  In addition, WG chairs are
-   encouraged to consult the expert(s) early during the process outlined
-   in [RFC7120], Section 3.1.
-
-   The columns of this registry are:
-
-   *  Value: This field contains the value used to identify the C509
-      hash algorithm.  These values MUST be unique.  The value can be a
-      positive integer or a negative integer.  Different ranges of
-      values use different registration policies [RFC8126].  Integer
-      values from -24 to 23 are designated as "IETF Review with Expert
-      Review".  Integer values greater than 32767 are marked as "Private
-      Use".  All other integer values are designated as "Expert Review".
-      This field MUST NOT be empty.
-
-   *  Name: This field contains the name of the C509 hash algorithm.
-      This field MUST NOT be empty.
-
-   *  Identifiers: This field contains additional identifiers of the
-      C509 hash algorithm, if any is available.
-
-   *  OID: This field contains the OID corresponding to the C509 hash
-      algorithm.  This field MUST NOT be empty.
-
-   *  Parameters: This field contains the parameters of the C509 hash
-      algorithm.  This field MUST NOT be empty.  If the C509 hash
-      algorithm has no parameters, this field contains the string
-      "absent".
-
-   *  DER: This field contains the DER encoding of the ASN.1 value of
-      type DigestInfo for the C509 hash algorithm.  This field MUST NOT
-      be empty.
-
-   *  Comments: This field contains any optional comment about the C509
-      hash algorithm.
-
-   *  Reference: This field contains a pointer to the public
-      specification for the C509 hash algorithm, if one is available.
-
-   This registry has been initially populated with the entries defined
-   in Section 8.
-
-10.3.  TLS CertificateStatusType Registry
+9.6.  TLS CertificateStatusType Registry
 
    IANA is requested to assign the value shown in Table 11 in the "TLS
    Certificate Status Types" registry under "Transport Layer Security
    (TLS) Extensions":
 
-             +=======+=============+===============+=========+
-             | Value | Description | Reference     | Comment |
-             +=======+=============+===============+=========+
-             |  TBD1 | c509_ocsp   | This document | N/A     |
-             +-------+-------------+---------------+---------+
+              +=======+=============+============+=========+
+              | Value | Description | Reference  | Comment |
+              +=======+=============+============+=========+
+              |  TBD1 | c509_ocsp   | [RFC-XXXX] | N/A     |
+              +-------+-------------+------------+---------+
 
-                    Table 11: TLS CertificateStatusType
-                             allocation request
+                   Table 11: TLS CertificateStatusType
+                            allocation request
 
-10.4.  Media Type Application Registry
+9.7.  PEM Label Registry
+
+   IANA is requested to register the following entries in the "Textual
+   Encoding Label" registry under the registry group "PKIX Parameters"
+   [RFC7468]:
+
+                    +====================+============+
+                    | Label              | Reference  |
+                    +====================+============+
+                    | C509 CRL           | [RFC-XXXX] |
+                    +--------------------+------------+
+                    | C509 OCSP REQUEST  | [RFC-XXXX] |
+                    +--------------------+------------+
+                    | C509 OCSP RESPONSE | [RFC-XXXX] |
+                    +--------------------+------------+
+
+                     Table 12: PEM Label Registrations
+
+9.8.  Media Type Application Registry
 
    IANA is requested to assign the following entries into the
    "application" registry in the registry group "Media Types" with this
    document as reference.
 
-10.4.1.  Media Type application/c509-crl+cbor
+9.8.1.  Media Type application/c509-crl+cbor
 
    When the application/c509-crl+cbor media type is used, the data is a
    C509CRL structure.
@@ -1983,7 +2040,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See Section 9 of [RFC-XXXX].
+   Security considerations: See Section 8 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -2014,7 +2071,7 @@ Table of Contents
 
    Change controller: IETF
 
-10.4.2.  Media Type application/c509-crlinfo+cbor
+9.8.2.  Media Type application/c509-crlinfo+cbor
 
    When the application/c509-crlinfo+cbor media type is used, the data
    is a C509CRLInfo structure.
@@ -2025,7 +2082,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See Section 9 of [RFC-XXXX].
+   Security considerations: See Section 8 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -2056,7 +2113,7 @@ Table of Contents
 
    Change controller: IETF
 
-10.4.3.  Media Type application/c509-ocspreq+cbor
+9.8.3.  Media Type application/c509-ocspreq+cbor
 
    When the application/c509-ocspreq+cbor media type is used, the data
    is a C509OCSPRequest structure.
@@ -2067,7 +2124,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See Section 9 of [RFC-XXXX].
+   Security considerations: See Section 8 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -2098,7 +2155,7 @@ Table of Contents
 
    Change controller: IETF
 
-10.4.4.  Media Type application/c509-ocspresp+cbor
+9.8.4.  Media Type application/c509-ocspresp+cbor
 
    When the application/c509-ocspresp+cbor media type is used, the data
    is a C509OCSPResponse structure.
@@ -2109,7 +2166,7 @@ Table of Contents
 
    Encoding considerations: binary
 
-   Security considerations: See Section 9 of [RFC-XXXX].
+   Security considerations: See Section 8 of [RFC-XXXX].
 
    Interoperability considerations: N/A
 
@@ -2140,7 +2197,7 @@ Table of Contents
 
    Change controller: IETF
 
-10.5.  CoAP Content-Formats Registry
+9.9.  CoAP Content-Formats Registry
 
    IANA is requested to add entries for "application/c509-crl+cbor",
    "application/c509-crlinfo+cbor", "application/c509-ocspreq+cbor" and
@@ -2165,13 +2222,17 @@ Table of Contents
    | c509-ocspresp+cbor      |         |       | document]] |
    +-------------------------+---------+-------+------------+
 
-10.6.  Expert Review Guidelines
+9.10.  Expert Review Guidelines
 
    TODO
 
-11.  References
+10.  References
 
-11.1.  Normative References
+10.1.  Normative References
+
+   [GMT.0006-2023]
+              "GM/T 0006-2023, Cryptographic Application Identifier
+              Specification", 2023.
 
    [I-D.ietf-cose-cbor-encoded-cert]
               Mattsson, J. P., Selander, G., Raza, S., Höglund, J.,
@@ -2198,6 +2259,10 @@ Table of Contents
               Infrastructure Certificate and Certificate Revocation List
               (CRL) Profile", RFC 5280, DOI 10.17487/RFC5280, May 2008,
               <https://www.rfc-editor.org/rfc/rfc5280>.
+
+   [RFC5754]  Turner, S., "Using SHA2 Algorithms with Cryptographic
+              Message Syntax", RFC 5754, DOI 10.17487/RFC5754, January
+              2010, <https://www.rfc-editor.org/rfc/rfc5754>.
 
    [RFC6066]  Eastlake 3rd, D., "Transport Layer Security (TLS)
               Extensions: Extension Definitions", RFC 6066,
@@ -2238,6 +2303,11 @@ Table of Contents
               JSON Data Structures", RFC 8610, DOI 10.17487/RFC8610,
               June 2019, <https://www.rfc-editor.org/rfc/rfc8610>.
 
+   [RFC8702]  Kampanakis, P. and Q. Dang, "Use of the SHAKE One-Way Hash
+              Functions in the Cryptographic Message Syntax (CMS)",
+              RFC 8702, DOI 10.17487/RFC8702, January 2020,
+              <https://www.rfc-editor.org/rfc/rfc8702>.
+
    [RFC8742]  Bormann, C., "Concise Binary Object Representation (CBOR)
               Sequences", RFC 8742, DOI 10.17487/RFC8742, February 2020,
               <https://www.rfc-editor.org/rfc/rfc8742>.
@@ -2261,11 +2331,16 @@ Table of Contents
               Language (CDDL) Grammar", RFC 9682, DOI 10.17487/RFC9682,
               November 2024, <https://www.rfc-editor.org/rfc/rfc9682>.
 
+   [RFC9688]  Housley, R., "Use of the SHA3 One-Way Hash Functions in
+              the Cryptographic Message Syntax (CMS)", RFC 9688,
+              DOI 10.17487/RFC9688, November 2024,
+              <https://www.rfc-editor.org/rfc/rfc9688>.
+
    [RFC9846]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 9846, DOI 10.17487/RFC9846, July 2026,
               <https://www.rfc-editor.org/rfc/rfc9846>.
 
-11.2.  Informative References
+10.2.  Informative References
 
    [CborMe]   Bormann, C., "CBOR Playground", May 2018,
               <https://cbor.me/>.
@@ -2377,7 +2452,7 @@ A.1.  Overview
    |          | Chain            |            |            |           |
    +----------+------------------+------------+------------+-----------+
 
-   Table 12: Size comparison in examples (TODO: update the percent data)
+   Table 13: Size comparison in examples (TODO: update the percent data)
 
 A.2.  Helper Keys and Certificates
 
