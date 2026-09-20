@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-17T02:14:59.756427+00:00",
+  "timestamp": "2026-09-20T02:11:14.770829+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -690,5 +690,32 @@
       ]
     }
   ],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 16,
+      "id": "PR_kwDOTDu4zs8AAAABEFgNIg",
+      "title": "Initial reference implementation for CBOR Encoded Certificate Revocation Management",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/16",
+      "state": "OPEN",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "## Summary\r\n\r\nThis PR contributes **`c509rev`**, an open-source Rust reference implementation of the **C509 CRL** and **C509 OCSP** structures defined in this document: encode, decode, sign, verify, and the PEM textual representation. Correctness is checked by byte-exact known-answer tests against the draft's worked examples. The crate is self-contained and lives as the `c509rev/` subdirectory. This setup is mirroring the format `c509_demo_impl/` used for `cose-wg/CBOR-certificates`.\r\n\r\n## Coverage\r\n\r\n- **C509 CRL** \u2014 `CRLInfo` plus per-issuer revoked/removed entries with fixed-width, binary-searchable entry packing; delta and indirect CRLs; forward-delta `nextUpdate`.\r\n- **C509 OCSP request** \u2014 Simple, Unsigned, and Signed.\r\n- **C509 OCSP response** \u2014 Error, Basic, and Simple.\r\n- **Signing / verification** \u2014 Ed25519 and ECDSA with NIST P-256, over the CBOR TBS.\r\n- **PEM textual representation** \u2014 RFC 7468 `-----BEGIN C509 CRL / OCSP REQUEST / OCSP RESPONSE-----` for all three object types (RFC 4648 base64, no extra dependency).\r\n- **Experimental** \u2014 a C509 Status List primitive, as a compact complement to the CRL.\r\n\r\n## Validation\r\n\r\n- Every draft worked example **decodes and re-encodes byte-for-byte**, including the original signature bytes (deterministic-CBOR round-trip).\r\n- For signed objects, the encode KAT is a **TBS byte-match**, because the draft ships no example signing keys. In addition, the published `crlocsp-ca` Ed25519 key reproduces the exact `signatureValue` of the no-revoked CRL example \u2014 a full cross-implementation check \u2014 and is verified against the published CA public key.\r\n- Ed25519 and ECDSA-P256 sign\u2194verify round-trips, with tamper and TBS-change rejected.\r\n\r\n## Dependencies, layout, and licensing\r\n\r\n- **Self-contained.** Depends only on `serde_cbor`, `sha2`, `hex`, `ed25519-dalek`, and `p256`, with **no dependency on the C509 certificate crate**. The few primitives it reuses \u2014 a deterministic CBOR encoder, the two v1-profile signature-algorithm ids, and Ed25519/ECDSA-P256 TBS signing \u2014 are carried locally (`src/lcbor.rs`, vendored verbatim under BSD-3-Clause with attribution; `src/registry.rs`; `src/sign.rs`), so it builds in a fresh clone with no sibling checkout.\r\n- **Layout.** The crate lives as the `c509rev/` subdirectory, mirroring `c509_demo_impl/` in `cose-wg/CBOR-certificates`.\r\n- **Licensing.** BSD-3-Clause.\r\n\r\n## Robustness and security\r\n\r\n- The decoder is hardened against malformed input: `revokedCertsControl.serialNumberLength` (`1..=20`) and `dateLength` (`0..=8`) are range-checked per the draft CDDL **before** they size entry strides and per-entry sub-slices (an oversized value could otherwise panic \u2014 a DoS), and `baseDate + offset` uses checked arithmetic.\r\n- A **\"Security considerations & known limitations\"** section in the README records what was reviewed sound (no `unsafe`; CBOR parsing returns errors rather than panicking; sound signature verification) and the remaining items: residual CDDL value-range checks are a tracked conformance TODO; `serde_cbor` is unmaintained (RUSTSEC-2021-0127); and the 8-byte identity-hash truncation is a draft-level size/security trade-off.\r\n\r\n## Testing\r\n\r\n- `cargo test` \u2014 **45 passed, 0 failed, 0 warnings** (known-answer tests, decoder-hardening regression tests, and PEM tests including the RFC 4648 base64 vectors and PEM round-trips over the draft's worked CRL/OCSP examples).\r\n- `cargo build --all-targets` \u2014 clean, 0 warnings.\r\n- `cargo audit` \u2014 0 vulnerabilities; the only advisory is the documented `serde_cbor` unmaintained notice.\r\n- CLI (`bin/c509rev`) \u2014 `decode` / `verify` / `pem`, with hex- or PEM-encoded input auto-detected.\r\n\r\n## Status\r\n\r\nReference and test tooling \u2014 not for production use. The implementation tracks the current draft revision and is intended to stay in sync as the specification evolves.\r\n",
+      "createdAt": "2026-09-18T13:24:40Z",
+      "updatedAt": "2026-09-18T13:24:40Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "937e67b08603d487aff0c5ab16e930feb7e0fad2",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "c509rev-impl",
+      "headRefOid": "69e5a5b7652cf38bf84b9a80296ce95a8ed890e5",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    }
+  ]
 }
