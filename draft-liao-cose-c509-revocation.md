@@ -268,7 +268,7 @@ The `crlType` field serves as the type discriminator for `C509CRL`, following th
 
 ### signatureAlgorithm
 
-Encoded identically to the `int` choice of `issuerSignatureAlgorithm` in C509 certificates (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}).  Algorithm integer values are from the same registry used for C509 certificates.
+Encoded identically to the `int` choice of `issuerSignatureAlgorithm` in C509 certificates (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}).  Algorithm integer values are from the same registry used for C509 certificates.
 
 Unlike in {{RFC5280}}, where the signature algorithm appears outside the `TBSCertList` and is therefore not covered by the CRL signature, `signatureAlgorithm` is part of `CRLInfoData` within `TBSCertList` and is therefore covered by the signature.  This prevents algorithm-substitution attacks on the CRL.
 
@@ -581,7 +581,7 @@ Each `SingleCertRequest` contains:
 #### C509SignedOCSPRequest
 
 - The `ocspRequestType` field MUST be 1.
-- The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.
+- The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.
 - The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
 - The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. `requestorCerts` MUST carry the corresponding certificate chain so that the receiver can verify the identity of the requestor.
@@ -725,7 +725,7 @@ The `ocspResponseType` field of `C509BasicOCSPResponse` is 1, distinguishing it 
 `TBSSimpleOCSPResponse` is the group of fields to be signed.  The `signatureValue` field is the only field outside the signed group.  Covering `signatureAlgorithm`, `responderCertHash`, and `responderCerts` within the signed content prevents algorithm-substitution and certificate-chain substitution attacks.
 
 - The `ocspResponseType` field MUST be 2, which discriminates `C509SimpleOCSPResponse` from `C509ErrorOCSPResponse` and `C509BasicOCSPResponse`.
-- The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.  It is part of `TBSSimpleOCSPResponse` and is therefore covered by the signature.
+- The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of `TBSSimpleOCSPResponse` and is therefore covered by the signature.
 - The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
 - The `responderCertHash` field identifies the OCSP responder; see {{responderCertHash}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  If present, it MUST have the same value as the `nonce` in the corresponding `C509SimpleOCSPRequest`.
@@ -753,7 +753,7 @@ When present, the `responderCerts` field carries the certificate chain starting 
 
 #### signatureAlgorithm and signatureValue
 
-- `signatureAlgorithm`: the signature algorithm used to compute `signatureValue`, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.  It is part of the `TBSBasicOCSPResponse` group and is therefore covered by the signature.
+- `signatureAlgorithm`: the signature algorithm used to compute `signatureValue`, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of the `TBSBasicOCSPResponse` group and is therefore covered by the signature.
 - `signatureValue`: the signature computed over the CBOR Sequence of the `TBSBasicOCSPResponse` group.
 
 #### producedAt, thisUpdate, nextUpdate
