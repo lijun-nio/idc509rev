@@ -51,6 +51,7 @@ author:
 
 normative:
   RFC5280:
+  RFC5754:
   RFC6066:
   RFC6960:
   RFC7120:
@@ -58,14 +59,19 @@ normative:
   RFC8126:
   RFC8226:
   RFC8610:
+  RFC8702:
   RFC8742:
   RFC8949:
   RFC9147:
   RFC9360:
   RFC9682:
+  RFC9688:
   RFC9846:
   I-D.ietf-cose-cbor-encoded-cert:
   I-D.ietf-stir-certificates-ocsp:
+  GMT.0006-2023:
+    title: GM/T 0006-2023, Cryptographic Application Identifier Specification
+    date: 2023
 
 informative:
   RFC7228:
@@ -901,10 +907,70 @@ The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then wrapped be
 ~~~
 {: #fig-pem-c509-ocsp-resp title="C509 OCSP Response PEM Encoding"}
 
+# Security Considerations {#security}
 
-# C509 Hash Algorithms {#hashalg}
+TODO
 
-This document defines the following hash algorithms.
+# IANA Considerations {#iana}
+
+This document has the following actions for IANA.
+
+Note to RFC Editor: Please replace all occurrences of "{{&SELF}}" with the RFC number of this specification and delete this paragraph.
+
+## C509 CRL Types Registry {#crltypes}
+
+IANA has created a new registry titled "C509 CRL Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+
+~~~~~~~~~~~
++-------+-------------------------------+-------------------+
+| Value | Description                   | Reference         |
++=======+===============================+===================+
+|     0 | C509CRL                       | [[this document]] |
++-------+-------------------------------+-------------------+
+~~~~~~~~~~~
+{: #fig-crltypes title="C509 CRL Types"}
+{: artwork-align="center"}
+
+## C509 OCSP Request Types Registry {#ocspreqtypes}
+
+IANA has created a new registry titled "C509 OCSP Request Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+
+~~~~~~~~~~~
++-------+-------------------------------+-------------------+
+| Value | Description                   | Reference         |
++=======+===============================+===================+
+|     0 | C509 Unsigned OCSP Request    | [[this document]] |
++-------+-------------------------------+-------------------+
+|     1 | C509 Signed OCSP Request      | [[this document]] |
++-------+-------------------------------+-------------------+
+|     2 | C509 Simple OCSP Request      | [[this document]] |
++-------+-------------------------------+-------------------+
+~~~~~~~~~~~
+{: #fig-ocspreqtypes title="C509 OCSP Request Types"}
+{: artwork-align="center"}
+
+
+## C509 OCSP Response Types Registry {#ocspresptypes}
+
+IANA has created a new registry titled "C509 OCSP Response Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+
+~~~~~~~~~~~
++-------+-------------------------------+-------------------+
+| Value | Description                   | Reference         |
++=======+===============================+===================+
+|     0 | C509 Error OCSP Response      | [[this document]] |
++-------+-------------------------------+-------------------+
+|     1 | C509 Basic OCSP Response      | [[this document]] |
++-------+-------------------------------+-------------------+
+|     2 | C509 Simple OCSP Response     | [[this document]] |
++-------+-------------------------------+-------------------+
+~~~~~~~~~~~
+{: #fig-ocspresptypes title="C509 OCSP Response Types"}
+{: artwork-align="center"}
+
+## C509 Hash Algorithms Registry {#hashalg}
+
+IANA has created a new registry titled "C509 Hash Algorithms" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Name, Identifiers, OID, Parameters, DER, Comments, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. The fields Name, OID, Parameters, and DER are mandatory. If it is not expected to be understood from the other information (e.g. the OID), then the Comments field must contain a reference to where the Hash Algorithm is described. For values in the interval \[-24, 23\] the registration procedure is "IETF Review with Expert Review", and for all other values the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+----------------------------------------------------------+
@@ -915,90 +981,92 @@ This document defines the following hash algorithms.
 |       | OID:         2.16.840.1.101.3.4.2.1                      |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 01      |
-|       | Comments:                                                |
+|       | Comments:    RFC 5754                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   1   | Name:        SHA-384                                     |
 |       | Identifiers: id-sha384                                   |
 |       | OID:         2.16.840.1.101.3.4.2.2                      |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 02      |
-|       | Comments:                                                |
+|       | Comments:    RFC 5754                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   2   | Name:        SHA-512                                     |
 |       | Identifiers: id-sha512                                   |
 |       | OID:         2.16.840.1.101.3.4.2.3                      |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 03      |
-|       | Comments:                                                |
+|       | Comments:    RFC 5754                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   3   | Name:        SHA-224                                     |
 |       | Identifiers: id-sha224                                   |
 |       | OID:         2.16.840.1.101.3.4.2.4                      |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 04      |
-|       | Comments:                                                |
+|       | Comments:    RFC 5754                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   4   | Name:        SM3                                         |
 |       | Identifiers: id-sm3                                      |
 |       | OID:         1.2.156.10197.1.401                         |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0A 06 08 2A 81 1C CF 55 01 83 11         |
-|       | Comments:                                                |
+|       | Comments:    GM/T 0006-2023                              |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   5   | Name:        SHA3-256                                    |
 |       | Identifiers: id-sha3-256                                 |
 |       | OID:         2.16.840.1.101.3.4.2.8                      |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 08      |
-|       | Comments:                                                |
+|       | Comments:    RFC 9688                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   6   | Name:        SHA3-384                                    |
 |       | Identifiers: id-sha3-384                                 |
 |       | OID:         2.16.840.1.101.3.4.2.9                      |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 09      |
-|       | Comments:                                                |
+|       | Comments:    RFC 9688                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   7   | Name:        SHA3-512                                    |
 |       | Identifiers: id-sha3-512                                 |
 |       | OID:         2.16.840.1.101.3.4.2.10                     |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0A      |
-|       | Comments:                                                |
+|       | Comments:    RFC 9688                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   8   | Name:        SHA3-224                                    |
 |       | Identifiers: id-sha3-224                                 |
 |       | OID:         2.16.840.1.101.3.4.2.7                      |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 07      |
-|       | Comments:                                                |
+|       | Comments:    RFC 9688                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   9   | Name:        SHAKE128                                    |
 |       | Identifiers: id-shake128                                 |
 |       | OID:         2.16.840.1.101.3.4.2.11                     |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0B      |
-|       | Comments:                                                |
+|       | Comments:    RFC 8702                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 |   10  | Name:        SHAKE256                                    |
 |       | Identifiers: id-shake256                                 |
 |       | OID:         2.16.840.1.101.3.4.2.12                     |
 |       | Parameters:  absent                                      |
 |       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0C      |
-|       | Comments:                                                |
+|       | Comments:    RFC 8702                                    |
+|       | Reference:   [[this document]]                           |
 +-------+----------------------------------------------------------+
 ~~~~~~~~~~~
-{: #tab-hash-alg title="C509 Hash Algorithms"}
-
-# Security Considerations {#security}
-
-TODO
-
-# IANA Considerations {#iana}
-
-This document has the following actions for IANA.
-
-Note to RFC Editor: Please replace all occurrences of "{{&SELF}}" with the RFC number of this specification and delete this paragraph.
+{: #fig-hashalgs title="C509 Hash Algorithms"}
+{: artwork-align="center"}
 
 ## Extension Identifiers Registry
 
@@ -1014,6 +1082,7 @@ IANA is requested to assign the new values shown in {{tab-extensions-iana}} in t
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 04        |
 |       | Comments:        RFC 6960                                |
 |       | extensionValue:  AcceptableResponseTypes                 |
+|       | Reference:       [[this document]]                       |
 +-------+----------------------------------------------------------+
 | TBD3  | Name:            Preferred Signature Algorithms          |
 |       | Identifiers:     id-pkix-ocsp-pref-sig-algs              |
@@ -1021,6 +1090,7 @@ IANA is requested to assign the new values shown in {{tab-extensions-iana}} in t
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 08        |
 |       | Comments:        RFC 6960                                |
 |       | extensionValue:  PreferredSignatureAlgorithms            |
+|       | Reference:       [[this document]]                       |
 +-------+----------------------------------------------------------+
 | TBD4  | Name:            Expired Certificates on CRL             |
 |       | Identifiers:     id-ce-expiredCertsOnCRL                 |
@@ -1028,6 +1098,7 @@ IANA is requested to assign the new values shown in {{tab-extensions-iana}} in t
 |       | DER:             06 03 55 1D 3C                          |
 |       | Comments:        ITU-T X.509, Section 9.5.2.8            |
 |       | extensionValue:  ExpiredCertsOnCRL                       |
+|       | Reference:       [[this document]]                       |
 +-------+----------------------------------------------------------+
 | TBD6  | Name:            TN Query                                |
 |       | Identifiers:     id-pkix-ocsp-stir-tn                    |
@@ -1035,31 +1106,10 @@ IANA is requested to assign the new values shown in {{tab-extensions-iana}} in t
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 0A        |
 |       | Comments:        draft-ietf-stir-certificates-ocsp       |
 |       | extensionValue:  TNQuery                                 |
+|       | Reference:       [[this document]]                       |
 +-------+----------------------------------------------------------+
 ~~~
 {: #tab-extensions-iana title="C509 extension identifier allocation requests"}
-
-## C509 Hash Algorithms Registry {#iana-hash-alg}
-
-IANA is requested to create a new registry "C509 Hash Algorithms" under the registry group "CBOR Encoded X.509 (C509)" defined in {{I-D.ietf-cose-cbor-encoded-cert}}.
-
-The registration policy is either "Private Use", "IETF Review with Expert Review", or "Expert Review" per {{RFC8126, Section 4.5}}. "Expert Review" guidelines are provided in {{expert-review-guidelines}}.
-
-All assignments according to "IETF Review with Expert Review" are made on an "IETF Review" basis per {{RFC8126, Section 4.8}}, with Expert Review additionally required per {{RFC8126, Section 4.5}}. The procedure for early IANA allocation of Standards Track code points defined in {{RFC7120}} also applies. When such a procedure is used, IANA will ask the designated expert(s) to approve the early allocation before registration. In addition, WG chairs are encouraged to consult the expert(s) early during the process outlined in {{RFC7120, Section 3.1}}.
-
-The columns of this registry are:
-
-* Value: This field contains the value used to identify the C509 hash algorithm. These values MUST be unique. The value can be a positive integer or a negative integer. Different ranges of values use different registration policies {{RFC8126}}. Integer values from -24 to 23 are designated as "IETF Review with Expert Review". Integer values greater than 32767 are marked as "Private Use". All other integer values are designated as "Expert Review". This field MUST NOT be empty.
-
-* Name: This field contains the name of the C509 hash algorithm. This field MUST NOT be empty.
-* Identifiers: This field contains additional identifiers of the C509 hash algorithm, if any is available.
-* OID: This field contains the OID corresponding to the C509 hash algorithm. This field MUST NOT be empty.
-* Parameters: This field contains the parameters of the C509 hash algorithm. This field MUST NOT be empty. If the C509 hash algorithm has no parameters, this field contains the string "absent".
-* DER: This field contains the DER encoding of the ASN.1 value of type DigestInfo for the C509 hash algorithm. This field MUST NOT be empty.
-* Comments: This field contains any optional comment about the C509 hash algorithm.
-* Reference: This field contains a pointer to the public specification for the C509 hash algorithm, if one is available.
-
-This registry has been initially populated with the entries defined in {{hashalg}}.
 
 ## TLS CertificateStatusType Registry
 
@@ -1067,8 +1117,19 @@ IANA is requested to assign the value shown in {{tab-tls-certstatus-iana}} in th
 
 | Value | Description | Reference     | Comment |
 |:-----:|:------------|:--------------|:--------------|
-| TBD1  | c509_ocsp   | This document | N/A |
+| TBD1  | c509_ocsp   | {{&SELF}}     | N/A |
 {: #tab-tls-certstatus-iana title="TLS CertificateStatusType allocation request"}
+
+## PEM Label Registry {#iana-pem}
+
+IANA is requested to register the following entries in the "Textual Encoding Label" registry under the registry group "PKIX Parameters" {{RFC7468}}:
+
+| Label | Reference |
+|:---|:---|
+| `C509 CRL` | {{&SELF}} |
+| `C509 OCSP REQUEST` | {{&SELF}} |
+| `C509 OCSP RESPONSE` | {{&SELF}} |
+{: #tab-iana-pem title="PEM Label Registrations"}
 
 ## Media Type Application Registry
 
