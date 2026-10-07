@@ -162,6 +162,8 @@ Only widely deployed mechanisms are considered here.  Several such mechanisms ca
 
 - **CRLite** {{CRLite}} compresses revocation information into a browser-oriented filter-based representation, which is useful for client-side deployment at scale.  However, it is not a wire-format replacement for CRLs or OCSP, does not preserve the full per-certificate status structures defined here, and is not a certificate-type-agnostic status format that other implementations can exchange directly.
 
+The compactness benefit over the DER-encoded baselines is concrete.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 152 to 51 bytes, and a Basic OCSP response without the responder's certificate from 845 to 248 bytes); see {{tab-examples-overview}}.
+
 These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.
 
 # Terminology {#terminology}
