@@ -95,6 +95,17 @@ informative:
   X.690:
     title: "ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)"
     target: https://www.itu.int/rec/T-REC-X.690
+  TinyOCSP:
+    title: "Lightweight certificate revocation for low-power IoT with end-to-end security"
+    author:
+      - ins: J. Höglund
+      - ins: M. Furuhed
+      - ins: S. Raza
+    date: 2023
+    seriesinfo:
+      "Journal of Information Security and Applications": "73:103424"
+      DOI: 10.1016/j.jisa.2023.103424
+    target: https://doi.org/10.1016/j.jisa.2023.103424
 
 entity:
   SELF: "[RFC-XXXX]"
@@ -150,7 +161,7 @@ C509 CRL and C509 OCSP are designed to be compatible with certificate profiles f
 
 # Alternative Certificate Status Checking Mechanisms {#status-alternatives}
 
-Only widely deployed mechanisms are considered here.  Several such mechanisms can be used to check certificate status, but none of them replaces the work in this document.
+This section considers both widely deployed certificate-status mechanisms and closely related prior work for constrained environments.  Several such mechanisms can be used to check certificate status, but none of them replaces the work in this document.
 
 - **X.509 CRLs and OCSP** ({{RFC5280}}, {{RFC6960}}) provide the baseline revocation mechanisms, but their DER encodings are not compact enough for constrained deployments and are not certificate-type agnostic.  This document keeps their semantics while defining CBOR encodings that are smaller and easier to process.
 
@@ -161,6 +172,8 @@ Only widely deployed mechanisms are considered here.  Several such mechanisms ca
 - **CRLSets** {{CRLSets}} are a browser-distributed revocation blocklist rather than a general-purpose revocation protocol.  They cover only a limited subset of certificates and are tied to a specific browser ecosystem, so they cannot provide complete, interoperable status checking for arbitrary C509, X.509, or future certificate types.
 
 - **CRLite** {{CRLite}} compresses revocation information into a browser-oriented filter-based representation, which is useful for client-side deployment at scale.  However, it is not a wire-format replacement for CRLs or OCSP, does not preserve the full per-certificate status structures defined here, and is not a certificate-type-agnostic status format that other implementations can exchange directly.
+
+- **Compact CBOR revocation for IoT (TinyOCSP and CCRL)** {{TinyOCSP}} are prior research mechanisms that reduce OCSP and CRL overhead for low-power IoT, confirming the feasibility and benefits of CBOR-based revocation on constrained hardware.  They are a direct precursor to this work.  However, they were specified as point solutions rather than as interoperable, certificate-type-agnostic wire formats aligned with the C509 certificate encoding {{I-D.ietf-cose-cbor-encoded-cert}}; this document generalizes that direction into complete C509 CRL and C509 OCSP structures usable with C509, X.509, and future certificate types.
 
 These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.
 
