@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 11 April 2027                                        J. Höglund
+Expires: 15 April 2027                                        J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                          8 October 2026
+                                                         12 October 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -69,7 +69,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 April 2027.
+   This Internet-Draft will expire on 15 April 2027.
 
 Copyright Notice
 
@@ -377,7 +377,7 @@ Table of Contents
    *  *Compact CBOR revocation for IoT (TinyOCSP and CCRL)* [TinyOCSP]
       are prior research mechanisms that reduce OCSP and CRL overhead
       for low-power IoT, confirming the feasibility and benefits of
-      CBOR-based revocation on constrained hardware.  They are a direct
+      CBOR-based revocation on constrained hardware.  They are a
       precursor to this work.  However, they were specified as point
       solutions rather than as interoperable, certificate-type-agnostic
       wire formats aligned with the C509 certificate encoding
