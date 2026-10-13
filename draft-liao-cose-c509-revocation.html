@@ -18,18 +18,18 @@
 <meta content="draft-liao-cose-c509-revocation-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.34.1
-    Python 3.14.7
-    ConfigArgParse 1.7.7
+    Python 3.14.8
+    ConfigArgParse 1.8.0
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.11.10
+    platformdirs 4.12.2
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.8.4
+    wcwidth 0.9.1
 -->
 <link href="draft-liao-cose-c509-revocation.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1045,11 +1045,11 @@ svg {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">C509 Revocation</td>
-<td class="right">September 2026</td>
+<td class="right">October 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Liao, et al.</td>
-<td class="center">Expires 22 March 2027</td>
+<td class="center">Expires 16 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1062,12 +1062,12 @@ svg {
 <dd class="internet-draft">draft-liao-cose-c509-revocation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-09-18" class="published">18 September 2026</time>
+<time datetime="2026-10-13" class="published">13 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-03-22">22 March 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-16">16 April 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1132,7 +1132,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 22 March 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 16 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1736,7 +1736,8 @@ svg {
           <p id="section-2-2.5.1"><strong>CRLite</strong> <span>[<a href="#CRLite" class="cite xref">CRLite</a>]</span> compresses revocation information into a browser-oriented filter-based representation, which is useful for client-side deployment at scale.  However, it is not a wire-format replacement for CRLs or OCSP, does not preserve the full per-certificate status structures defined here, and is not a certificate-type-agnostic status format that other implementations can exchange directly.<a href="#section-2-2.5.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-2-3">These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-3">The compactness benefit over the DER-encoded baselines is concrete.  For the representative profiles in the worked examples (<a href="#examples" class="auto internal xref">Appendix A</a>), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 152 to 51 bytes, and a Basic OCSP response without the responder's certificate from 845 to 248 bytes); see <a href="#tab-examples-overview" class="auto internal xref">Table 13</a>.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4">These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.<a href="#section-2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="terminology">
@@ -1888,7 +1889,7 @@ RevokedCertsControl = [
           <h4 id="name-signaturealgorithm">
 <a href="#section-6.3.3" class="section-number selfRef">6.3.3. </a><a href="#name-signaturealgorithm" class="section-name selfRef">signatureAlgorithm</a>
           </h4>
-<p id="section-6.3.3-1">Encoded identically to the <code>int</code> choice of <code>issuerSignatureAlgorithm</code> in C509 certificates (see <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-20#section-3.1.11" class="relref">Section 3.1.11</a></span>).  Algorithm integer values are from the same registry used for C509 certificates.<a href="#section-6.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3.3-1">Encoded identically to the <code>int</code> choice of <code>issuerSignatureAlgorithm</code> in C509 certificates (see <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.1.11" class="relref">Section 3.1.11</a></span>).  Algorithm integer values are from the same registry used for C509 certificates.<a href="#section-6.3.3-1" class="pilcrow">¶</a></p>
 <p id="section-6.3.3-2">Unlike in <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>, where the signature algorithm appears outside the <code>TBSCertList</code> and is therefore not covered by the CRL signature, <code>signatureAlgorithm</code> is part of <code>CRLInfoData</code> within <code>TBSCertList</code> and is therefore covered by the signature.  This prevents algorithm-substitution attacks on the CRL.<a href="#section-6.3.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2317,7 +2318,7 @@ ExpiredCertsOnCRL = ~time
           <h4 id="name-signaturevalue">
 <a href="#section-6.3.13" class="section-number selfRef">6.3.13. </a><a href="#name-signaturevalue" class="section-name selfRef">signatureValue</a>
           </h4>
-<p id="section-6.3.13-1">Encoded identically to <code>signatureValue</code> in C509 certificates (see <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-20#section-3.1.12" class="relref">Section 3.1.12</a></span>).<a href="#section-6.3.13-1" class="pilcrow">¶</a></p>
+<p id="section-6.3.13-1">Encoded identically to <code>signatureValue</code> in C509 certificates (see <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.1.12" class="relref">Section 3.1.12</a></span>).<a href="#section-6.3.13-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2577,7 +2578,7 @@ SingleCertRequest = (
                 <p id="section-7.3.2.5-1.1.1">The <code>ocspRequestType</code> field <span class="bcp14">MUST</span> be 1.<a href="#section-7.3.2.5-1.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.3.2.5-1.2">
-                <p id="section-7.3.2.5-1.2.1">The <code>signatureAlgorithm</code> field specifies the signature algorithm, as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-20#section-3.1.11" class="relref">Section 3.1.11</a></span>.<a href="#section-7.3.2.5-1.2.1" class="pilcrow">¶</a></p>
+                <p id="section-7.3.2.5-1.2.1">The <code>signatureAlgorithm</code> field specifies the signature algorithm, as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.1.11" class="relref">Section 3.1.11</a></span>.<a href="#section-7.3.2.5-1.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.3.2.5-1.3">
                 <p id="section-7.3.2.5-1.3.1">The <code>hashAlgorithm</code> field specifies the hash algorithm used to compute <code>requestorCertHash</code>, <code>issuerCertHash</code>, and <code>serialNumberHash</code>.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in <a href="#hashalg" class="auto internal xref">Section 9.4</a>.<a href="#section-7.3.2.5-1.3.1" class="pilcrow">¶</a></p>
@@ -2824,7 +2825,7 @@ RevokedInfo = [
                 <p id="section-7.4.2.3-3.1.1">The <code>ocspResponseType</code> field <span class="bcp14">MUST</span> be 2, which discriminates <code>C509SimpleOCSPResponse</code> from <code>C509ErrorOCSPResponse</code> and <code>C509BasicOCSPResponse</code>.<a href="#section-7.4.2.3-3.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.4.2.3-3.2">
-                <p id="section-7.4.2.3-3.2.1">The <code>signatureAlgorithm</code> field specifies the signature algorithm, as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-20#section-3.1.11" class="relref">Section 3.1.11</a></span>.  It is part of <code>TBSSimpleOCSPResponse</code> and is therefore covered by the signature.<a href="#section-7.4.2.3-3.2.1" class="pilcrow">¶</a></p>
+                <p id="section-7.4.2.3-3.2.1">The <code>signatureAlgorithm</code> field specifies the signature algorithm, as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.1.11" class="relref">Section 3.1.11</a></span>.  It is part of <code>TBSSimpleOCSPResponse</code> and is therefore covered by the signature.<a href="#section-7.4.2.3-3.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.4.2.3-3.3">
                 <p id="section-7.4.2.3-3.3.1">The <code>hashAlgorithm</code> field specifies the hash algorithm used to compute <code>responderCertHash</code>, <code>issuerCertHash</code>, and <code>serialNumberHash</code>.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in <a href="#hashalg" class="auto internal xref">Section 9.4</a>.<a href="#section-7.4.2.3-3.3.1" class="pilcrow">¶</a></p>
@@ -2896,7 +2897,7 @@ RevokedInfo = [
             </h5>
 <ul class="normal">
 <li class="normal" id="section-7.4.2.7-1.1">
-                <p id="section-7.4.2.7-1.1.1"><code>signatureAlgorithm</code>: the signature algorithm used to compute <code>signatureValue</code>, as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-20#section-3.1.11" class="relref">Section 3.1.11</a></span>.  It is part of the <code>TBSBasicOCSPResponse</code> group and is therefore covered by the signature.<a href="#section-7.4.2.7-1.1.1" class="pilcrow">¶</a></p>
+                <p id="section-7.4.2.7-1.1.1"><code>signatureAlgorithm</code>: the signature algorithm used to compute <code>signatureValue</code>, as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.1.11" class="relref">Section 3.1.11</a></span>.  It is part of the <code>TBSBasicOCSPResponse</code> group and is therefore covered by the signature.<a href="#section-7.4.2.7-1.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.4.2.7-1.2">
                 <p id="section-7.4.2.7-1.2.1"><code>signatureValue</code>: the signature computed over the CBOR Sequence of the <code>TBSBasicOCSPResponse</code> group.<a href="#section-7.4.2.7-1.2.1" class="pilcrow">¶</a></p>
@@ -3824,7 +3825,7 @@ TNQuery = text .size (1..15)
 <dd class="break"></dd>
 <dt id="I-D.ietf-cose-cbor-encoded-cert">[I-D.ietf-cose-cbor-encoded-cert]</dt>
         <dd>
-<span class="refAuthor">Mattsson, J. P.</span>, <span class="refAuthor">Selander, G.</span>, <span class="refAuthor">Raza, S.</span>, <span class="refAuthor">Höglund, J.</span>, <span class="refAuthor">Furuhed, M.</span>, and <span class="refAuthor">L. Liao</span>, <span class="refTitle">"CBOR Encoded X.509 Certificates (C509 Certificates)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-cose-cbor-encoded-cert-20</span>, <time datetime="2026-06-30" class="refDate">30 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-20">https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-20</a>&gt;</span>. </dd>
+<span class="refAuthor">Mattsson, J. P.</span>, <span class="refAuthor">Selander, G.</span>, <span class="refAuthor">Raza, S.</span>, <span class="refAuthor">Höglund, J.</span>, <span class="refAuthor">Furuhed, M.</span>, and <span class="refAuthor">L. Liao</span>, <span class="refTitle">"CBOR Encoded X.509 Certificates (C509 Certificates)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-cose-cbor-encoded-cert-21</span>, <time datetime="2026-09-24" class="refDate">24 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21">https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-stir-certificates-ocsp">[I-D.ietf-stir-certificates-ocsp]</dt>
         <dd>

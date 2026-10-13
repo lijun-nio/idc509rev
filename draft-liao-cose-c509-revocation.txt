@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 22 March 2027                                        J. Höglund
+Expires: 16 April 2027                                        J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                       18 September 2026
+                                                         13 October 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -69,7 +69,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 22 March 2027.
+   This Internet-Draft will expire on 16 April 2027.
 
 Copyright Notice
 
@@ -371,6 +371,15 @@ Table of Contents
       certificate status structures defined here, and is not a
       certificate-type-agnostic status format that other implementations
       can exchange directly.
+
+   The compactness benefit over the DER-encoded baselines is concrete.
+   For the representative profiles in the worked examples (Appendix A),
+   C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for
+   example, a CRL carrying revoked certificates is reduced from 335 to
+   177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73%
+   smaller (for example, a Simple OCSP request from 152 to 51 bytes, and
+   a Basic OCSP response without the responder's certificate from 845 to
+   248 bytes); see Table 13.
 
    These alternatives are useful in specific deployments, but they do
    not provide the CBOR-based, certificate-type-agnostic revocation
@@ -2238,9 +2247,9 @@ Table of Contents
               Mattsson, J. P., Selander, G., Raza, S., Höglund, J.,
               Furuhed, M., and L. Liao, "CBOR Encoded X.509 Certificates
               (C509 Certificates)", Work in Progress, Internet-Draft,
-              draft-ietf-cose-cbor-encoded-cert-20, 30 June 2026,
+              draft-ietf-cose-cbor-encoded-cert-21, 24 September 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-cose-
-              cbor-encoded-cert-20>.
+              cbor-encoded-cert-21>.
 
    [I-D.ietf-stir-certificates-ocsp]
               Peterson, J. and S. Turner, "OCSP Usage for Secure
