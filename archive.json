@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-13T04:23:05.716640+00:00",
+  "timestamp": "2026-10-15T02:14:10.223058+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -696,24 +696,26 @@
       "id": "PR_kwDOTDu4zs8AAAABEFgNIg",
       "title": "Initial reference implementation for CBOR Encoded Certificate Revocation Management",
       "url": "https://github.com/lijun-nio/idc509rev/pull/16",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "highlunder",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "## Summary\r\n\r\nThis PR contributes **`c509rev`**, an open-source Rust reference implementation of the **C509 CRL** and **C509 OCSP** structures defined in this document: encode, decode, sign, verify, and the PEM textual representation. Correctness is checked by byte-exact known-answer tests against the draft's worked examples. The crate is self-contained and lives as the `c509rev/` subdirectory. This setup is mirroring the format `c509_demo_impl/` used for `cose-wg/CBOR-certificates`.\r\n\r\n## Coverage\r\n\r\n- **C509 CRL** \u2014 `CRLInfo` plus per-issuer revoked/removed entries with fixed-width, binary-searchable entry packing; delta and indirect CRLs; forward-delta `nextUpdate`.\r\n- **C509 OCSP request** \u2014 Simple, Unsigned, and Signed.\r\n- **C509 OCSP response** \u2014 Error, Basic, and Simple.\r\n- **Signing / verification** \u2014 Ed25519 and ECDSA with NIST P-256, over the CBOR TBS.\r\n- **PEM textual representation** \u2014 RFC 7468 `-----BEGIN C509 CRL / OCSP REQUEST / OCSP RESPONSE-----` for all three object types (RFC 4648 base64, no extra dependency).\r\n- **Experimental** \u2014 a C509 Status List primitive, as a compact complement to the CRL.\r\n\r\n## Validation\r\n\r\n- Every draft worked example **decodes and re-encodes byte-for-byte**, including the original signature bytes (deterministic-CBOR round-trip).\r\n- For signed objects, the encode KAT is a **TBS byte-match**, because the draft ships no example signing keys. In addition, the published `crlocsp-ca` Ed25519 key reproduces the exact `signatureValue` of the no-revoked CRL example \u2014 a full cross-implementation check \u2014 and is verified against the published CA public key.\r\n- Ed25519 and ECDSA-P256 sign\u2194verify round-trips, with tamper and TBS-change rejected.\r\n\r\n## Dependencies, layout, and licensing\r\n\r\n- **Self-contained.** Depends only on `serde_cbor`, `sha2`, `hex`, `ed25519-dalek`, and `p256`, with **no dependency on the C509 certificate crate**. The few primitives it reuses \u2014 a deterministic CBOR encoder, the two v1-profile signature-algorithm ids, and Ed25519/ECDSA-P256 TBS signing \u2014 are carried locally (`src/lcbor.rs`, vendored verbatim under BSD-3-Clause with attribution; `src/registry.rs`; `src/sign.rs`), so it builds in a fresh clone with no sibling checkout.\r\n- **Layout.** The crate lives as the `c509rev/` subdirectory, mirroring `c509_demo_impl/` in `cose-wg/CBOR-certificates`.\r\n- **Licensing.** BSD-3-Clause.\r\n\r\n## Robustness and security\r\n\r\n- The decoder is hardened against malformed input: `revokedCertsControl.serialNumberLength` (`1..=20`) and `dateLength` (`0..=8`) are range-checked per the draft CDDL **before** they size entry strides and per-entry sub-slices (an oversized value could otherwise panic \u2014 a DoS), and `baseDate + offset` uses checked arithmetic.\r\n- A **\"Security considerations & known limitations\"** section in the README records what was reviewed sound (no `unsafe`; CBOR parsing returns errors rather than panicking; sound signature verification) and the remaining items: residual CDDL value-range checks are a tracked conformance TODO; `serde_cbor` is unmaintained (RUSTSEC-2021-0127); and the 8-byte identity-hash truncation is a draft-level size/security trade-off.\r\n\r\n## Testing\r\n\r\n- `cargo test` \u2014 **45 passed, 0 failed, 0 warnings** (known-answer tests, decoder-hardening regression tests, and PEM tests including the RFC 4648 base64 vectors and PEM round-trips over the draft's worked CRL/OCSP examples).\r\n- `cargo build --all-targets` \u2014 clean, 0 warnings.\r\n- `cargo audit` \u2014 0 vulnerabilities; the only advisory is the documented `serde_cbor` unmaintained notice.\r\n- CLI (`bin/c509rev`) \u2014 `decode` / `verify` / `pem`, with hex- or PEM-encoded input auto-detected.\r\n\r\n## Status\r\n\r\nReference and test tooling \u2014 not for production use. The implementation tracks the current draft revision and is intended to stay in sync as the specification evolves.\r\n",
       "createdAt": "2026-09-18T13:24:40Z",
-      "updatedAt": "2026-09-18T13:24:40Z",
+      "updatedAt": "2026-10-13T05:37:55Z",
       "baseRepository": "lijun-nio/idc509rev",
       "baseRefName": "main",
       "baseRefOid": "937e67b08603d487aff0c5ab16e930feb7e0fad2",
       "headRepository": "lijun-nio/idc509rev",
       "headRefName": "c509rev-impl",
       "headRefOid": "69e5a5b7652cf38bf84b9a80296ce95a8ed890e5",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2026-10-13T05:37:55Z",
+      "mergedAt": "2026-10-13T05:37:55Z",
+      "mergedBy": "lijun-nio",
+      "mergeCommit": {
+        "oid": "c01d9e5226e52f97208d52f5bc0bd1382814fbb1"
+      },
       "comments": [],
       "reviews": []
     },
@@ -729,45 +731,142 @@
       "labels": [],
       "body": "Follows up on the WG request to compare with existing solutions, situating this\ndraft relative to prior constrained-IoT revocation research.\n\nThis adds a bullet for TinyOCSP and CCRL (H\u00f6glund, Furuhed, Raza, *JISA*\n2023) to the Alternatives section as an informative reference, framing this document \nas the standardization of that direction; and broadens the section's scope line from \n\"only widely deployed mechanisms\" to also \"closely related prior work.\"\n\nThis adds our prior research as a reference; if this is considered bad for the future of the \ndraft, we should not include it.\n\nRenders clean with kramdown-rfc + xml2rfc, reference + citation resolve. ",
       "createdAt": "2026-10-12T15:06:17Z",
-      "updatedAt": "2026-10-12T15:06:18Z",
+      "updatedAt": "2026-10-13T12:24:51Z",
       "baseRepository": "lijun-nio/idc509rev",
       "baseRefName": "main",
-      "baseRefOid": "937e67b08603d487aff0c5ab16e930feb7e0fad2",
+      "baseRefOid": "c01d9e5226e52f97208d52f5bc0bd1382814fbb1",
       "headRepository": "lijun-nio/idc509rev",
       "headRefName": "draft/compare-prior-work",
-      "headRefOid": "810a5495b3ef511941b20b555c7df6cb30633370",
+      "headRefOid": "55bcaaef0295d1fad3d85a31ce99328ffc118f14",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABR8hrRA",
+          "commit": {
+            "abbreviatedOid": "810a549"
+          },
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "Looks good. Please resolve merge conflict",
+          "createdAt": "2026-10-13T05:44:57Z",
+          "updatedAt": "2026-10-13T05:44:57Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABR9nqfw",
+          "commit": {
+            "abbreviatedOid": "810a549"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-13T07:55:24Z",
+          "updatedAt": "2026-10-13T07:55:27Z",
+          "comments": [
+            {
+              "originalPosition": 31,
+              "body": "> this document generalizes that direction into ...\n\nBefore this sentence, this paragraph refers to specific \"mechanisms\" as \"point solutions\".\n\nThis document indeed generalizes those, but a \"direction\" as a starting point sounds like something general already. Proposed alternative wording:\n\n> this document generalizes those mechanisms into ...",
+              "createdAt": "2026-10-13T07:55:24Z",
+              "updatedAt": "2026-10-13T07:55:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABSAcZfQ",
+          "commit": {
+            "abbreviatedOid": "810a549"
+          },
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-13T12:19:57Z",
+          "updatedAt": "2026-10-13T12:19:57Z",
+          "comments": [
+            {
+              "originalPosition": 31,
+              "body": "Good, thanks! Please check if the updated wording is ok with you.",
+              "createdAt": "2026-10-13T12:19:57Z",
+              "updatedAt": "2026-10-13T12:19:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABSAgAQA",
+          "commit": {
+            "abbreviatedOid": "810a549"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-13T12:24:51Z",
+          "updatedAt": "2026-10-13T12:24:51Z",
+          "comments": [
+            {
+              "originalPosition": 31,
+              "body": "Looks good. Thank you!",
+              "createdAt": "2026-10-13T12:24:51Z",
+              "updatedAt": "2026-10-13T12:24:51Z"
+            }
+          ]
+        }
+      ]
     },
     {
       "number": 18,
       "id": "PR_kwDOTDu4zs8AAAABH_lUNQ",
       "title": "Add quantitative size comparison to the Alternatives section",
       "url": "https://github.com/lijun-nio/idc509rev/pull/18",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "highlunder",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Follows up on the WG request (Ivo, COSE list) to compare this work with existing\nsolutions. The \"Alternative Certificate Status Checking Mechanisms\" section was\nqualitative only; this adds one paragraph with concrete size figures.\n\n**What:** C509 CRLs are 18\u201352% smaller than the equivalent X.509 CRLs, and C509\nOCSP messages 40\u201373% smaller, with representative per-message examples (e.g. a CRL\nwith revoked certs 335\u2192177 B; a Basic OCSP response without responder cert\n845\u2192248 B).\n\n**Traceability:** every number is taken from the draft's *own* worked-examples\ntable (`tab-examples-overview`), which is auto-generated from the example\n`.hex`/`.pem` artifacts. This means no external data and fully reproducible.\n\n**Build:** renders clean with kramdown-rfc + xml2rfc. Single-paragraph addition;\nindependent of the TinyOCSP/CCRL comparison PR.\n\nAdditionally, it should now be ok to remove the \"TODO: update the percent data\"\ncomment",
       "createdAt": "2026-10-12T15:16:30Z",
-      "updatedAt": "2026-10-12T15:16:31Z",
+      "updatedAt": "2026-10-13T07:48:02Z",
       "baseRepository": "lijun-nio/idc509rev",
       "baseRefName": "main",
       "baseRefOid": "937e67b08603d487aff0c5ab16e930feb7e0fad2",
       "headRepository": "lijun-nio/idc509rev",
       "headRefName": "draft/compare-size",
       "headRefOid": "3444642ecd4fa988c4e0dc2c5dcfb6b11ae2b5ff",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2026-10-13T05:36:51Z",
+      "mergedAt": "2026-10-13T05:36:51Z",
+      "mergedBy": "lijun-nio",
+      "mergeCommit": {
+        "oid": "bc7ee3fec3319b1336d61b7ac79daafad55dbf20"
+      },
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABR9iwbA",
+          "commit": {
+            "abbreviatedOid": "3444642"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-13T07:47:55Z",
+          "updatedAt": "2026-10-13T07:48:02Z",
+          "comments": [
+            {
+              "originalPosition": 4,
+              "body": "Instead of \"concrete\", consider \"concrete and substantial\".",
+              "createdAt": "2026-10-13T07:47:55Z",
+              "updatedAt": "2026-10-13T07:48:02Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
