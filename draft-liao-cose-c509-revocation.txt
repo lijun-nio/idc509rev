@@ -385,14 +385,14 @@ Table of Contents
       mechanisms into complete C509 CRL and C509 OCSP structures usable
       with C509, X.509, and future certificate types.
 
-   The compactness benefit over the DER-encoded baselines is concrete.
-   For the representative profiles in the worked examples (Appendix A),
-   C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for
-   example, a CRL carrying revoked certificates is reduced from 335 to
-   177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73%
-   smaller (for example, a Simple OCSP request from 152 to 51 bytes, and
-   a Basic OCSP response without the responder's certificate from 845 to
-   248 bytes); see Table 13.
+   The compactness benefit over the DER-encoded baselines is concrete
+   and substantial.  For the representative profiles in the worked
+   examples (Appendix A), C509 CRLs are 18% to 52% smaller than the
+   equivalent X.509 CRLs (for example, a CRL carrying revoked
+   certificates is reduced from 335 to 177 bytes, a 47% reduction), and
+   C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP
+   request from 152 to 51 bytes, and a Basic OCSP response without the
+   responder's certificate from 845 to 248 bytes); see Table 13.
 
    These alternatives are useful in specific deployments, but they do
    not provide the CBOR-based, certificate-type-agnostic revocation
