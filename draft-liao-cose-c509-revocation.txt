@@ -34,9 +34,9 @@ Abstract
    by a uniform certificate hash rather than type-specific fields.  C509
    CRL and C509 OCSP are not wire-format-compatible with their DER-
    encoded X.509 counterparts and cannot be converted to or from them
-   without semantic interpretation.  Additonally this document specifies
-   the PEM representation of the C509 structures following the framework
-   of [RFC7468]
+   without semantic interpretation.  Additionally this document
+   specifies the PEM representation of the C509 structures following the
+   framework of [RFC7468]
 
 About This Document
 
@@ -244,9 +244,9 @@ Table of Contents
    revocation information.  [I-D.ietf-cose-cbor-encoded-cert] defines
    C509 certificates, a CBOR encoding of X.509 certificates [RFC5280]
    that reduces certificate size by over 50% for typical constrained-
-   device profiles However, revocation mechanisms -- Certificate
+   device profiles.  However, revocation mechanisms such as Certificate
    Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP)
-   messages -- have not yet received the same treatment.
+   messages have not yet received the same treatment.
 
    CRLs as defined in [RFC5280] can be large, especially when many
    certificates have been revoked or when CRL extensions add overhead.
@@ -419,8 +419,8 @@ Table of Contents
 
    The following types are imported from
    [I-D.ietf-cose-cbor-encoded-cert]: Name, Extension, Extensions,
-   COSE_C509, and AlgorithmIdentifier.  And the following type is
-   imported from [RFC9360]: COSE_X509.
+   COSE_C509, and AlgorithmIdentifier.  Additionally, the following type
+   is imported from [RFC9360]: COSE_X509.
 
    This document further defines the following constrained aliases for
    use in all CDDL definitions:
@@ -453,7 +453,7 @@ Table of Contents
 
    IntExtensions is the instantiation of Extensions from
    [I-D.ietf-cose-cbor-encoded-cert] where all embedded Extension
-   entries have only int-only extensionID.
+   entries have int-only extensionID.
 
 5.  Encoding of Time Fields
 
@@ -646,7 +646,7 @@ Table of Contents
 
    In X.509 CRLs ([RFC5280], Section 5.3.3), an indirect CRL uses the
    certificateIssuer CRL entry extension to indicate that a revocation
-   entry — and all subsequent entries — belong to a different issuer.
+   entry -- and all subsequent entries -- belong to a different issuer.
    This mechanism has two significant drawbacks:
 
    *  It is implicit and positional, making it difficult to parse
@@ -683,7 +683,7 @@ Table of Contents
 
    In this document, the revokedCertsControl structure introduces fixed
    parameters (serialNumberLength, dateLength) that make every entry
-   within revokedCerts exactly of the same size.  The flags field can
+   within revokedCerts exactly the same size.  The flags field can
    additionally indicate that entries are sorted in ascending order by
    serial number, enabling binary search and reducing lookup time to
    O(log(n)).  Using a compact byte-string concatenation rather than a
@@ -1003,14 +1003,14 @@ Table of Contents
    To reduce OCSP message size, this document defines two truncated-hash
    identifier types used to refer to certificates compactly:
 
-   *  HashId8 — the leading 8 bytes of the hash value computed using the
+   *  HashId8: the leading 8 bytes of the hash value computed using the
       enclosing hashAlgorithm.  HashId8 is used to identify issuer
       certificates and the certificates of OCSP requestors and
       responders in request and response structures where a short
       identifier provides sufficient uniqueness in the deployment
       context.
 
-   *  HashId20 — the leading 20 bytes of the hash value computed using
+   *  HashId20: the leading 20 bytes of the hash value computed using
       the enclosing hashAlgorithm.  HashId20 is intended for identifying
       certificate serial numbers (the serialNumberHash field) when
       higher uniqueness is required to minimize collision risk.  When
@@ -1123,7 +1123,7 @@ Table of Contents
    PerIssuerOCSPResponse, C509SimpleOCSPRequest, and
    TBSSimpleOCSPResponse.  It contains a hash of the issuer certificate:
 
-   *  issuerCertHash: hash computed over the deterministic encoded
+   *  issuerCertHash: hash computed over the deterministically encoded
       certificate.  It is the CBOR-encoded C509Certificate or DER-
       encoded ([X.690]) X.509 certificate.  The hash algorithm is
       specified by the hashAlgorithm field of the enclosing request or
@@ -1907,7 +1907,7 @@ Table of Contents
    Comments, and Reference, where Value is an integer in the interval
    [-32768, 32767], and the other columns are text strings.  The fields
    Name, OID, Parameters, and DER are mandatory.  If it is not expected
-   to be understood from the other information (e.g. the OID), then the
+   to be understood from the other information (e.g., the OID), then the
    Comments field must contain a reference to where the Hash Algorithm
    is described.  For values in the interval [-24, 23] the registration
    procedure is "IETF Review with Expert Review", and for all other
