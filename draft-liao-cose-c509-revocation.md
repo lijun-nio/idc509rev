@@ -922,6 +922,21 @@ The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then wrapped be
 ~~~
 {: #fig-pem-c509-ocsp-resp title="C509 OCSP Response PEM Encoding"}
 
+# Implementation Status # {#sec-implementation-status}
+{:removeinrfc}
+
+Note to RFC Editor: when deleting this section, please also delete RFC 7942 from the references of this document.
+
+{::boilerplate rfc7942info}
+
+## Implementation \#1 # {#sec-implementation-1}
+
+TODO
+
+## Implementation \#2 # {#sec-implementation-2}
+
+TODO
+
 # Security Considerations {#security}
 
 TODO
