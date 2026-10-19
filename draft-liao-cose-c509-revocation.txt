@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 16 April 2027                                        J. Höglund
+Expires: 22 April 2027                                        J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                         13 October 2026
+                                                         19 October 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -69,7 +69,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 April 2027.
+   This Internet-Draft will expire on 22 April 2027.
 
 Copyright Notice
 
@@ -335,9 +335,11 @@ Table of Contents
 
 2.  Alternative Certificate Status Checking Mechanisms
 
-   Only widely deployed mechanisms are considered here.  Several such
-   mechanisms can be used to check certificate status, but none of them
-   replaces the work in this document.
+   This section considers both widely deployed certificate-status
+   mechanisms and closely related prior work for constrained
+   environments.  Several such mechanisms can be used to check
+   certificate status, but none of them replaces the work in this
+   document.
 
    *  *X.509 CRLs and OCSP* ([RFC5280], [RFC6960]) provide the baseline
       revocation mechanisms, but their DER encodings are not compact
@@ -371,6 +373,17 @@ Table of Contents
       certificate status structures defined here, and is not a
       certificate-type-agnostic status format that other implementations
       can exchange directly.
+
+   *  *Compact CBOR revocation for IoT (TinyOCSP and CCRL)* [TinyOCSP]
+      are prior research mechanisms that reduce OCSP and CRL overhead
+      for low-power IoT, confirming the feasibility and benefits of
+      CBOR-based revocation on constrained hardware.  They are a
+      precursor to this work.  However, they were specified as point
+      solutions rather than as interoperable, certificate-type-agnostic
+      wire formats aligned with the C509 certificate encoding
+      [I-D.ietf-cose-cbor-encoded-cert]; this document generalizes those
+      mechanisms into complete C509 CRL and C509 OCSP structures usable
+      with C509, X.509, and future certificate types.
 
    The compactness benefit over the DER-encoded baselines is concrete.
    For the representative profiles in the worked examples (Appendix A),
@@ -2376,6 +2389,12 @@ Table of Contents
               Profiles for the Internet of Things", RFC 7925,
               DOI 10.17487/RFC7925, July 2016,
               <https://www.rfc-editor.org/rfc/rfc7925>.
+
+   [TinyOCSP] Höglund, J., Furuhed, M., and S. Raza, "Lightweight
+              certificate revocation for low-power IoT with end-to-end
+              security", Journal of Information Security and
+              Applications 73:103424, DOI 10.1016/j.jisa.2023.103424,
+              2023, <https://doi.org/10.1016/j.jisa.2023.103424>.
 
    [X.690]    "ASN.1 encoding rules: Specification of Basic Encoding
               Rules (BER), Canonical Encoding Rules (CER) and

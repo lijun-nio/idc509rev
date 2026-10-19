@@ -25,11 +25,11 @@
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.12.2
+    platformdirs 4.13.4
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.9.1
+    wcwidth 0.9.2
 -->
 <link href="draft-liao-cose-c509-revocation.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1049,7 +1049,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Liao, et al.</td>
-<td class="center">Expires 16 April 2027</td>
+<td class="center">Expires 22 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1062,12 +1062,12 @@ svg {
 <dd class="internet-draft">draft-liao-cose-c509-revocation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-13" class="published">13 October 2026</time>
+<time datetime="2026-10-19" class="published">19 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-16">16 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-22">22 April 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1132,7 +1132,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 16 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 22 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1718,7 +1718,7 @@ svg {
       <h2 id="name-alternative-certificate-sta">
 <a href="#section-2" class="section-number selfRef">2. </a><a href="#name-alternative-certificate-sta" class="section-name selfRef">Alternative Certificate Status Checking Mechanisms</a>
       </h2>
-<p id="section-2-1">Only widely deployed mechanisms are considered here.  Several such mechanisms can be used to check certificate status, but none of them replaces the work in this document.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-1">This section considers both widely deployed certificate-status mechanisms and closely related prior work for constrained environments.  Several such mechanisms can be used to check certificate status, but none of them replaces the work in this document.<a href="#section-2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2-2.1">
           <p id="section-2-2.1.1"><strong>X.509 CRLs and OCSP</strong> (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>, <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>) provide the baseline revocation mechanisms, but their DER encodings are not compact enough for constrained deployments and are not certificate-type agnostic.  This document keeps their semantics while defining CBOR encodings that are smaller and easier to process.<a href="#section-2-2.1.1" class="pilcrow">¶</a></p>
@@ -1734,6 +1734,9 @@ svg {
 </li>
         <li class="normal" id="section-2-2.5">
           <p id="section-2-2.5.1"><strong>CRLite</strong> <span>[<a href="#CRLite" class="cite xref">CRLite</a>]</span> compresses revocation information into a browser-oriented filter-based representation, which is useful for client-side deployment at scale.  However, it is not a wire-format replacement for CRLs or OCSP, does not preserve the full per-certificate status structures defined here, and is not a certificate-type-agnostic status format that other implementations can exchange directly.<a href="#section-2-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-2-2.6">
+          <p id="section-2-2.6.1"><strong>Compact CBOR revocation for IoT (TinyOCSP and CCRL)</strong> <span>[<a href="#TinyOCSP" class="cite xref">TinyOCSP</a>]</span> are prior research mechanisms that reduce OCSP and CRL overhead for low-power IoT, confirming the feasibility and benefits of CBOR-based revocation on constrained hardware.  They are a precursor to this work.  However, they were specified as point solutions rather than as interoperable, certificate-type-agnostic wire formats aligned with the C509 certificate encoding <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>; this document generalizes those mechanisms into complete C509 CRL and C509 OCSP structures usable with C509, X.509, and future certificate types.<a href="#section-2-2.6.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="section-2-3">The compactness benefit over the DER-encoded baselines is concrete.  For the representative profiles in the worked examples (<a href="#examples" class="auto internal xref">Appendix A</a>), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 152 to 51 bytes, and a Basic OCSP response without the responder's certificate from 845 to 248 bytes); see <a href="#tab-examples-overview" class="auto internal xref">Table 13</a>.<a href="#section-2-3" class="pilcrow">¶</a></p>
@@ -3939,6 +3942,10 @@ TNQuery = text .size (1..15)
 <dt id="RFC7925">[RFC7925]</dt>
         <dd>
 <span class="refAuthor">Tschofenig, H., Ed.</span> and <span class="refAuthor">T. Fossati</span>, <span class="refTitle">"Transport Layer Security (TLS) / Datagram Transport Layer Security (DTLS) Profiles for the Internet of Things"</span>, <span class="seriesInfo">RFC 7925</span>, <span class="seriesInfo">DOI 10.17487/RFC7925</span>, <time datetime="2016-07" class="refDate">July 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7925">https://www.rfc-editor.org/rfc/rfc7925</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TinyOCSP">[TinyOCSP]</dt>
+        <dd>
+<span class="refAuthor">Höglund, J.</span>, <span class="refAuthor">Furuhed, M.</span>, and <span class="refAuthor">S. Raza</span>, <span class="refTitle">"Lightweight certificate revocation for low-power IoT with end-to-end security"</span>, <span class="seriesInfo">Journal of Information Security and Applications 73:103424</span>, <span class="seriesInfo">DOI 10.1016/j.jisa.2023.103424</span>, <time datetime="2023" class="refDate">2023</time>, <span>&lt;<a href="https://doi.org/10.1016/j.jisa.2023.103424">https://doi.org/10.1016/j.jisa.2023.103424</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="X.690">[X.690]</dt>
       <dd>
