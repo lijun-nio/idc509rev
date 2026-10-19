@@ -112,14 +112,14 @@ entity:
 
 --- abstract
 
-This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additonally this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}
+This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additionally this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}
 
 
 --- middle
 
 # Introduction {#intro}
 
-Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} requires compact certificate representations and compact revocation information.  {{I-D.ietf-cose-cbor-encoded-cert}} defines C509 certificates, a CBOR encoding of X.509 certificates {{RFC5280}} that reduces certificate size by over 50% for typical constrained-device profiles  However, revocation mechanisms -- Certificate Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP) messages -- have not yet received the same treatment.
+Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} requires compact certificate representations and compact revocation information.  {{I-D.ietf-cose-cbor-encoded-cert}} defines C509 certificates, a CBOR encoding of X.509 certificates {{RFC5280}} that reduces certificate size by over 50% for typical constrained-device profiles. However, revocation mechanisms such as Certificate Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP) messages have not yet received the same treatment.
 
 CRLs as defined in {{RFC5280}} can be large, especially when many certificates have been revoked or when CRL extensions add overhead.  In the complementary OCSP mechanism defined in {{RFC6960}}, OCSP responses carry per-certificate status information and may be exchanged during TLS {{RFC9846}} and DTLS {{RFC9147}} handshakes via OCSP stapling {{RFC6066}}, directly affecting handshake latency.
 
@@ -187,7 +187,7 @@ This document uses the terminology from {{RFC5280}}, {{RFC6960}}, {{RFC7228}}, {
 
 # Common Types {#common-types}
 
-The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and  `AlgorithmIdentifier`. And the following type is imported from {{RFC9360}}: `COSE_X509`.
+The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and  `AlgorithmIdentifier`. Additionally, the following type is imported from {{RFC9360}}: `COSE_X509`.
 
 This document further defines the following constrained aliases for use in all CDDL definitions:
 
@@ -214,7 +214,7 @@ IntExtensions = [ * IntExtension ]
 
 `IntExtension` is the instantiation of `Extension` from {{I-D.ietf-cose-cbor-encoded-cert}} with extensionID of type int.  It is used throughout this document wherever a single extension appears in the wire encoding.
 
-`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries have only int-only `extensionID`.
+`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries have int-only `extensionID`.
 
 # Encoding of Time Fields {#time-encoding}
 
@@ -337,7 +337,7 @@ The `reasonCode` ENUMERATED value is encoded as one unsigned byte.  The byte val
 
 #### Design Considerations
 
-In X.509 CRLs ({{RFC5280, Section 5.3.3}}), an indirect CRL uses the `certificateIssuer` CRL entry extension to indicate that a revocation entry — and all subsequent entries — belong to a different issuer.  This mechanism has two significant drawbacks:
+In X.509 CRLs ({{RFC5280, Section 5.3.3}}), an indirect CRL uses the `certificateIssuer` CRL entry extension to indicate that a revocation entry -- and all subsequent entries -- belong to a different issuer.  This mechanism has two significant drawbacks:
 
 - It is implicit and positional, making it difficult to parse correctly and error-prone to implement.
 - It is impossible to represent an issuer that has no currently revoked certificates (e.g., to carry per-issuer extensions or to explicitly indicate that the issuer is known but has an empty revocation list), because there is no entry to attach the `certificateIssuer` extension to.
@@ -354,7 +354,7 @@ A second design problem in X.509 CRLs is that each revocation entry has variable
 
 This variable-length layout makes it impossible to determine whether a given serial number is present in the list without scanning every entry sequentially, resulting in O(n) lookup time.
 
-In this document, the `revokedCertsControl` structure introduces fixed parameters (`serialNumberLength`, `dateLength`) that make every entry within `revokedCerts` exactly of the same size.  The `flags` field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL `removeFromCRL` entries in X.509) are kept in a dedicated `removedFromCRLCerts` field rather than mixed into `revokedCerts`.  This keeps `revokedCerts` free of removal noise, reducing its size and allowing implementations to process currently-revoked and removed entries independently.
+In this document, the `revokedCertsControl` structure introduces fixed parameters (`serialNumberLength`, `dateLength`) that make every entry within `revokedCerts` exactly the same size.  The `flags` field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL `removeFromCRL` entries in X.509) are kept in a dedicated `removedFromCRLCerts` field rather than mixed into `revokedCerts`.  This keeps `revokedCerts` free of removal noise, reducing its size and allowing implementations to process currently-revoked and removed entries independently.
 
 #### Fields
 
@@ -484,9 +484,9 @@ C509 OCSP requests and responses are not wire-format-compatible with DER-encoded
 
 To reduce OCSP message size, this document defines two truncated-hash identifier types used to refer to certificates compactly:
 
-- `HashId8` — the leading 8 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId8` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures where a short identifier provides sufficient uniqueness in the deployment context.
+- `HashId8`: the leading 8 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId8` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures where a short identifier provides sufficient uniqueness in the deployment context.
 
-- `HashId20` — the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA‑256 or SHA‑3‑256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversary needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
+- `HashId20`: the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA‑256 or SHA‑3‑256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversary needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
 
 ~~~~~~~~~~~ cddl
 HashId8   = bytes .size 8
@@ -575,7 +575,7 @@ The `ocspRequestType` field serves as the discriminator for `C509OCSPRequest`:
 
 The `issuerCertHash` field appears in `PerIssuerOCSPRequest`, `PerIssuerOCSPResponse`, `C509SimpleOCSPRequest`, and `TBSSimpleOCSPResponse`.  It contains a hash of the issuer certificate:
 
-- `issuerCertHash`: hash computed over the deterministic encoded certificate. It is the CBOR-encoded C509Certificate or DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
+- `issuerCertHash`: hash computed over the deterministically encoded certificate. It is the CBOR-encoded C509Certificate or DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
 
 In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies the issuer using two separate hashes: `issuerNameHash` (a hash of the DER-encoded issuer name) and `issuerKeyHash` (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (`issuerCertHash`), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 `issuerCertHash` with an RFC 6960 DER-encoded `CertID` must recompute the respective hash inputs; the values are not directly comparable.
 
@@ -1000,7 +1000,7 @@ IANA has created a new registry titled "C509 OCSP Response Types" under the regi
 
 ## C509 Hash Algorithms Registry {#hashalg}
 
-IANA has created a new registry titled "C509 Hash Algorithms" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Name, Identifiers, OID, Parameters, DER, Comments, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. The fields Name, OID, Parameters, and DER are mandatory. If it is not expected to be understood from the other information (e.g. the OID), then the Comments field must contain a reference to where the Hash Algorithm is described. For values in the interval \[-24, 23\] the registration procedure is "IETF Review with Expert Review", and for all other values the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA has created a new registry titled "C509 Hash Algorithms" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Name, Identifiers, OID, Parameters, DER, Comments, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. The fields Name, OID, Parameters, and DER are mandatory. If it is not expected to be understood from the other information (e.g., the OID), then the Comments field must contain a reference to where the Hash Algorithm is described. For values in the interval \[-24, 23\] the registration procedure is "IETF Review with Expert Review", and for all other values the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+----------------------------------------------------------+
