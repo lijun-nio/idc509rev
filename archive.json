@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-15T02:14:10.223058+00:00",
+  "timestamp": "2026-10-20T02:29:42.119651+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -159,7 +159,7 @@
       "labels": [],
       "body": "Pending other updates; after agreeing on the hash trunctation format, we need to update the size comparison",
       "createdAt": "2026-06-24T16:21:20Z",
-      "updatedAt": "2026-06-29T08:04:28Z",
+      "updatedAt": "2026-10-19T11:39:03Z",
       "closedAt": null,
       "comments": [
         {
@@ -175,6 +175,13 @@
           "body": "We need to keep this issue open, since due to the future change the size comparison will also change.",
           "createdAt": "2026-06-29T08:04:28Z",
           "updatedAt": "2026-06-29T08:04:28Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Keep open as reminder.",
+          "createdAt": "2026-10-19T11:39:03Z",
+          "updatedAt": "2026-10-19T11:39:03Z"
         }
       ]
     },
@@ -490,7 +497,7 @@
       "labels": [],
       "body": "Specify the transport methods to download the CRLs, transmit OCSP requests (to get OCSP responses):\n- HTTP\n- CoAP\n- OSCORE",
       "createdAt": "2026-07-21T15:58:22Z",
-      "updatedAt": "2026-09-01T19:50:02Z",
+      "updatedAt": "2026-10-19T11:37:36Z",
       "closedAt": null,
       "comments": [
         {
@@ -520,6 +527,13 @@
           "body": "Analogous content about CRL and the CRL Distribution Points is at https://www.rfc-editor.org/info/rfc5280/#section-4.2.1.13\n\nIf only HTTP is used, the same things as in RFC 6960 and RFC 5280 can be said for messages that transfer C509-related information (e.g., about the request method that can be used).\n\nAt the same time, when querying an OCSP server, it should be the case that a caching-oriented, idempotent, and safe request is actually desired (in contrast with a POST request), while also not resorting to encoding the request content in the query component of the target URI of a GET request. So, if CoAP is used at all, the following can be considered:\n\n* If both the server and the client use CoAP, requests can then use the FETCH request method (RFC 8132), with all its advantages compared to the stretched use of POST (or of GET with query parameters).\n\n* If not both the server and client use CoAP (likely, the server is the one that uses HTTP) and a cross-proxy is deployed in between, we need the requests to be GET or POST (with the resulting downsides discussed in RFC 8132), since there is no defined translation between FETCH and a corresponding HTTP method (one day, the recent QUERY could be considered, see RFC 10008).\n\nRegarding security and the current era, it's probably about strongly discouraging unsecure communication, whatever the transfer protocol used.\n\nA few things to consider if cacheability of responses is desired:\n\n* For OCSP requests, they should practically need to converge on nonce=null in order to set the ground for producing a cache hit.\n\n* If OSCORE-based security is used, cacheability of responses is possible by using the variant of Group OSCORE defined in https://datatracker.ietf.org/doc/draft-ietf-core-cacheable-oscore/",
           "createdAt": "2026-09-01T19:50:02Z",
           "updatedAt": "2026-09-01T19:50:02Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Let us do this, but not urgent",
+          "createdAt": "2026-10-19T11:37:36Z",
+          "updatedAt": "2026-10-19T11:37:36Z"
         }
       ]
     },
@@ -528,15 +542,15 @@
       "id": "I_kwDOTDu4zs8AAAABJ66s8w",
       "title": "Check existing alternatives and motivate",
       "url": "https://github.com/lijun-nio/idc509rev/issues/12",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "rikard-sics",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Mentioned during IETF 126 in Vienna:\nhttps://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/21/\n(Not directly an alternative)",
       "createdAt": "2026-07-23T16:11:24Z",
-      "updatedAt": "2026-08-07T13:27:02Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-19T11:36:16Z",
+      "closedAt": "2026-10-19T11:36:16Z",
       "comments": [
         {
           "author": "lijun-nio",
@@ -586,6 +600,13 @@
           "body": "Relevant part of the IETF 126 COSE session in Vienna for your reference:\nhttps://youtu.be/vFvw9gl8Zno?si=Pi1c3fEOAfyRxF82&t=3445",
           "createdAt": "2026-08-07T13:27:02Z",
           "updatedAt": "2026-08-07T13:27:02Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "All can review Joel's commit capturing the content in his comment above:\n55bcaaef0295d1fad3d85a31ce99328ffc118f14",
+          "createdAt": "2026-10-19T11:36:16Z",
+          "updatedAt": "2026-10-19T11:36:16Z"
         }
       ]
     },
@@ -594,15 +615,15 @@
       "id": "I_kwDOTDu4zs8AAAABJ67QTg",
       "title": "Alignment with COSE charter",
       "url": "https://github.com/lijun-nio/idc509rev/issues/13",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "rikard-sics",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Need to make sure the work fits.\n\nhttps://datatracker.ietf.org/wg/cose/about/\n\nIt may fit based on this:\n_The COSE WG will also work on a CBOR encoding of the certificate profile\ndefined in [RFC 5280](https://datatracker.ietf.org/doc/rfc5280/)._\nAs RFC5280 also covers CRLs.\n\nOn the other hand the charter says:\n_Key management and binding of keys to identities are out of scope for\nthe working group._",
       "createdAt": "2026-07-23T16:12:36Z",
-      "updatedAt": "2026-07-27T12:19:28Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-19T11:32:50Z",
+      "closedAt": "2026-10-19T11:32:50Z",
       "comments": [
         {
           "author": "lijun-nio",
@@ -624,6 +645,13 @@
           "body": "High the relationship with RFC5280. See commit 4e4ad10\n",
           "createdAt": "2026-07-27T12:19:27Z",
           "updatedAt": "2026-07-27T12:19:27Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Feedback from chairs: It is aligned, we are good.",
+          "createdAt": "2026-10-19T11:32:50Z",
+          "updatedAt": "2026-10-19T11:32:50Z"
         }
       ]
     },
@@ -639,7 +667,7 @@
       "labels": [],
       "body": "In the meantime I submitted some changes to cover #13 and #12, and also other enhancement.\n\n@rikard-sics @comsats @highlunder @marco-tiloca-sics Please share your commits, comments, etc. to make our draft mature for a CfA.\n\n\n\n",
       "createdAt": "2026-08-06T07:12:04Z",
-      "updatedAt": "2026-09-01T21:09:03Z",
+      "updatedAt": "2026-10-19T12:16:27Z",
       "closedAt": null,
       "comments": [
         {
@@ -662,6 +690,13 @@
           "body": "Thanks, Lijun!\n\nI have reviewed the issues (leaving a comment on #11) and the latest commits (restoring a dropped comma in a CDDL notation).\n\nRegarding the two implementations: as per RFC 7942, the draft can at some point also include a section \"Implementation Status\" before the section \"Security Considerations\", with one entry for each implementation.\n\nThis should be ok even for implementations that are not open source. From Section 4 of RFC 7942:\n\n> - In the case of open source, ...\n\nFor an example, see https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-groupcomm-28#name-implementation-status\n",
           "createdAt": "2026-09-01T21:09:03Z",
           "updatedAt": "2026-09-01T21:09:03Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Existing/ongoing implementations:\n- Joel's in Rust (https://github.com/lijun-nio/idc509rev/tree/main/c509rev)\n- Joel's implementation for Contiki-NG\n- Lijun's implementation (Java - internal)\n- Student from Shahid (WIP for Contiki-NG)\n\n**Action:** We should add an \"Implementation Status\" section (RFC 7942). Good to do before the submission of the next version. Joel + Lijun will do.\n\n**Action:** Add further test vectors (in appendix or separate files)\n\n**Action:** Move Joel's implementation to separate repo + add licensing info\n",
+          "createdAt": "2026-10-19T11:45:59Z",
+          "updatedAt": "2026-10-19T12:16:27Z"
         }
       ]
     },
@@ -686,6 +721,44 @@
           "body": "Fixed in https://github.com/lijun-nio/idc509rev/commit/c176d6f4d2f0d848f755c8a20d8d23b734b4b2ea",
           "createdAt": "2026-09-16T13:47:40Z",
           "updatedAt": "2026-09-16T13:47:40Z"
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "id": "I_kwDOTDu4zs8AAAABYQ9LOA",
+      "title": "Collect parties interested in this work",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/19",
+      "state": "OPEN",
+      "author": "rikard-sics",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Feedback from chairs: NIO are interested. Are there any other parties besides them interested in this work?",
+      "createdAt": "2026-10-19T11:54:52Z",
+      "updatedAt": "2026-10-19T13:18:52Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "One thing to point to: General interest of parties in C509 (including revocation).\n\nWho can we pose the question to: \"Are you interested?\"",
+          "createdAt": "2026-10-19T11:55:47Z",
+          "updatedAt": "2026-10-19T11:56:59Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Got confirmation from TrustAsia (https://www.trustasia.com/index-en) and Alibaba Cloud.",
+          "createdAt": "2026-10-19T12:54:38Z",
+          "updatedAt": "2026-10-19T12:54:38Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> 2\\. Got confirmation from TrustAsia (https://www.trustasia.com/index-en) and Alibaba Cloud.\n\nExcellent! Let us see how the other parties we reach out to reply",
+          "createdAt": "2026-10-19T13:18:52Z",
+          "updatedAt": "2026-10-19T13:18:52Z"
         }
       ]
     }
@@ -724,24 +797,26 @@
       "id": "PR_kwDOTDu4zs8AAAABH_dyJg",
       "title": "Compare with prior compact CBOR revocation (TinyOCSP and CCRL)",
       "url": "https://github.com/lijun-nio/idc509rev/pull/17",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "highlunder",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Follows up on the WG request to compare with existing solutions, situating this\ndraft relative to prior constrained-IoT revocation research.\n\nThis adds a bullet for TinyOCSP and CCRL (H\u00f6glund, Furuhed, Raza, *JISA*\n2023) to the Alternatives section as an informative reference, framing this document \nas the standardization of that direction; and broadens the section's scope line from \n\"only widely deployed mechanisms\" to also \"closely related prior work.\"\n\nThis adds our prior research as a reference; if this is considered bad for the future of the \ndraft, we should not include it.\n\nRenders clean with kramdown-rfc + xml2rfc, reference + citation resolve. ",
       "createdAt": "2026-10-12T15:06:17Z",
-      "updatedAt": "2026-10-13T12:24:51Z",
+      "updatedAt": "2026-10-19T11:24:43Z",
       "baseRepository": "lijun-nio/idc509rev",
       "baseRefName": "main",
       "baseRefOid": "c01d9e5226e52f97208d52f5bc0bd1382814fbb1",
       "headRepository": "lijun-nio/idc509rev",
       "headRefName": "draft/compare-prior-work",
       "headRefOid": "55bcaaef0295d1fad3d85a31ce99328ffc118f14",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2026-10-19T11:24:43Z",
+      "mergedAt": "2026-10-19T11:24:43Z",
+      "mergedBy": "lijun-nio",
+      "mergeCommit": {
+        "oid": "22ca0af9b14e941773250de36d532dfb78abd0fd"
+      },
       "comments": [],
       "reviews": [
         {
