@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-20T02:29:42.119651+00:00",
+  "timestamp": "2026-10-22T02:19:04.051495+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -667,7 +667,7 @@
       "labels": [],
       "body": "In the meantime I submitted some changes to cover #13 and #12, and also other enhancement.\n\n@rikard-sics @comsats @highlunder @marco-tiloca-sics Please share your commits, comments, etc. to make our draft mature for a CfA.\n\n\n\n",
       "createdAt": "2026-08-06T07:12:04Z",
-      "updatedAt": "2026-10-19T12:16:27Z",
+      "updatedAt": "2026-10-20T09:16:30Z",
       "closedAt": null,
       "comments": [
         {
@@ -694,9 +694,9 @@
         {
           "author": "rikard-sics",
           "authorAssociation": "COLLABORATOR",
-          "body": "Existing/ongoing implementations:\n- Joel's in Rust (https://github.com/lijun-nio/idc509rev/tree/main/c509rev)\n- Joel's implementation for Contiki-NG\n- Lijun's implementation (Java - internal)\n- Student from Shahid (WIP for Contiki-NG)\n\n**Action:** We should add an \"Implementation Status\" section (RFC 7942). Good to do before the submission of the next version. Joel + Lijun will do.\n\n**Action:** Add further test vectors (in appendix or separate files)\n\n**Action:** Move Joel's implementation to separate repo + add licensing info\n",
+          "body": "Existing/ongoing implementations:\n- Joel's in Rust (https://github.com/lijun-nio/idc509rev/tree/main/c509rev)\n- Joel's implementation for Contiki-NG\n- Lijun's implementation (Java - internal)\n- Student from Shahid (WIP for Contiki-NG)\n\n**Action:** We should add an \"Implementation Status\" section (RFC 7942). Good to do before the submission of the next version. Joel + Lijun will do. Example section can [be found here](https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-groupcomm-28#name-implementation-status).\n\n**Action:** Add further test vectors (in appendix or separate files)\n\n**Action:** Move Joel's implementation to separate repo + add licensing info\n",
           "createdAt": "2026-10-19T11:45:59Z",
-          "updatedAt": "2026-10-19T12:16:27Z"
+          "updatedAt": "2026-10-20T09:16:30Z"
         }
       ]
     },
