@@ -66,6 +66,7 @@ normative:
   RFC9360:
   RFC9682:
   RFC9688:
+  RFC9277:
   RFC9846:
   I-D.ietf-cose-cbor-encoded-cert:
   I-D.ietf-stir-certificates-ocsp:
@@ -195,17 +196,17 @@ This document further defines the following constrained aliases for use in all C
 ~~~~~~~~~~~ cddl
 uint8 = uint .le 255
 
-uint15 = uint .le 32767
-
 uint32 = uint .le 2^32 - 1
 
 uint63 = uint .le 2^63 - 1
 
-int64 = int .ge -2^63 .le 2^63 - 1
+int16 = int .ge -32768 .le 32767
 
-IntAlgorithmIdentifier = int64
+IntAlgorithmIdentifier = int16
 
-IntExtension = ( extensionID: int64, extensionValue: Defined )
+IntExtension = ( extensionID: IntExtensionID, extensionValue: Defined )
+
+IntExtensionID = (uint63 .ge 1) / (nint .ge -2^63 + 1)
 
 IntExtensions = [ * IntExtension ]
 ~~~~~~~~~~~
@@ -213,9 +214,9 @@ IntExtensions = [ * IntExtension ]
 
 `IntAlgorithmIdentifier` is the `int`-only instantiation of `AlgorithmIdentifier` from {{I-D.ietf-cose-cbor-encoded-cert}}.  It is used throughout this document wherever an algorithm identifier appears in the wire encoding.
 
-`IntExtension` is the instantiation of `Extension` from {{I-D.ietf-cose-cbor-encoded-cert}} with extensionID of type int.  It is used throughout this document wherever a single extension appears in the wire encoding.
+`IntExtension` is the instantiation of `Extension` from {{I-D.ietf-cose-cbor-encoded-cert}} with an integer `extensionID`.  As in C509 certificates ({{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.10}}), the absolute value of `extensionID` is the value from the "C509 Extensions" registry, and its sign indicates whether the extension is critical: critical extensions are encoded with a negative sign and non-critical extensions with a positive sign.  It is used throughout this document wherever a single extension appears in the wire encoding.
 
-`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries have int-only `extensionID`.
+`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries are `IntExtension` entries.
 
 # Encoding of Time Fields {#time-encoding}
 
@@ -247,7 +248,7 @@ TBSCertList = (
 C509CRLInfo = [ CRLInfoData ]
 
 CRLInfoData = (
-  crlType                : uint15, ; 0 = C509CRL
+  crlType                : int16, ; 0 = C509CRL
   signatureAlgorithm     : IntAlgorithmIdentifier,
   authoritySubject       : Name / #6.121(bytes),
   authorityKeyIdentifier : bytes / null,
@@ -290,7 +291,7 @@ The `crlType` field serves as the type discriminator for `C509CRL`, following th
 
 ### signatureAlgorithm
 
-Encoded identically to the `int` choice of `issuerSignatureAlgorithm` in C509 certificates (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}).  Algorithm integer values are from the same registry used for C509 certificates.
+Encoded identically to the `int` choice of `issuerSignatureAlgorithm` in C509 certificates (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}).  Algorithm integer values are from the same registry used for C509 certificates.
 
 Unlike in {{RFC5280}}, where the signature algorithm appears outside the `TBSCertList` and is therefore not covered by the CRL signature, `signatureAlgorithm` is part of `CRLInfoData` within `TBSCertList` and is therefore covered by the signature.  This prevents algorithm-substitution attacks on the CRL.
 
@@ -479,7 +480,7 @@ C509 OCSP defines CBOR encodings for OCSP requests and OCSP responses as defined
 
 C509 OCSP requests and responses are not wire-format-compatible with DER-encoded OCSP messages as defined in {{RFC6960}}.  The two formats cannot be mechanically converted to or from each other without semantic interpretation of the contained data.
 
-`C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an unsigned integer that identifies the structure type. Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
+`C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an integer that identifies the structure type. Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
 
 ## Identification of Certificates {#cert-identification}
 
@@ -509,7 +510,7 @@ C509OCSPRequest = C509UnsignedOCSPRequest /
                   C509SimpleOCSPRequest
 
 C509UnsignedOCSPRequest = [
-  ocspRequestType    : 0, ; uint15
+  ocspRequestType    : 0, ; int16
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   extensions         : IntExtensions,
@@ -517,7 +518,7 @@ C509UnsignedOCSPRequest = [
 ]
 
 TBSOCSPRequest = (
-  ocspRequestType    : 1, ; uint15
+  ocspRequestType    : 1, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -533,7 +534,7 @@ C509SignedOCSPRequest = [
 ]
 
 C509SimpleOCSPRequest = [
-  ocspRequestType    : 2, ; uint15
+  ocspRequestType    : 2, ; int16
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   issuerCertHash     : HashId8,
@@ -576,7 +577,7 @@ The `ocspRequestType` field serves as the discriminator for `C509OCSPRequest`:
 
 The `issuerCertHash` field appears in `PerIssuerOCSPRequest`, `PerIssuerOCSPResponse`, `C509SimpleOCSPRequest`, and `TBSSimpleOCSPResponse`.  It contains a hash of the issuer certificate:
 
-- `issuerCertHash`: hash computed over the deterministically encoded certificate, i.e., the CBOR-encoded C509Certificate or the DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
+- `issuerCertHash`: hash computed over the deterministically encoded certificate, i.e., the CBOR-encoded C509Certificate or the DER-encoded ({{X.690}}) X.509 certificate.  For a CBOR re-encoded X.509 certificate (`c509CertificateType` = 3, see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.1}}), the hash MUST be computed over the DER-encoded X.509 certificate, not over its C509 encoding, since such a certificate may have more than one conformant CBOR encoding (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.4}}).  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
 
 In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies the issuer using two separate hashes: `issuerNameHash` (a hash of the DER-encoded issuer name) and `issuerKeyHash` (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (`issuerCertHash`), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 `issuerCertHash` with an RFC 6960 DER-encoded `CertID` must recompute the respective hash inputs; the values are not directly comparable.
 
@@ -603,7 +604,7 @@ Each `SingleCertRequest` contains:
 #### C509SignedOCSPRequest
 
 - The `ocspRequestType` field MUST be 1.
-- The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.
+- The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.
 - The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
 - The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. When `requestorCerts` is not `null`, it carries the corresponding certificate chain so that the receiver can verify the identity of the requestor.
@@ -645,12 +646,12 @@ C509OCSPResponse = C509ErrorOCSPResponse /
                    C509SimpleOCSPResponse
 
 C509ErrorOCSPResponse = [
-  ocspResponseType  : 0,  ; uint15
+  ocspResponseType  : 0,  ; int16
   responseStatus    : int .ge -256 .le 255
 ]
 
 TBSBasicOCSPResponse = (
-  ocspResponseType   : 1, ; uint15
+  ocspResponseType   : 1, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -667,7 +668,7 @@ C509BasicOCSPResponse = [
 ]
 
 TBSSimpleOCSPResponse = (
-  ocspResponseType   : 2, ; uint15
+  ocspResponseType   : 2, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -748,7 +749,7 @@ The `ocspResponseType` field of `C509BasicOCSPResponse` is 1, distinguishing it 
 `TBSSimpleOCSPResponse` is the group of fields to be signed.  The `signatureValue` field is the only field outside the signed group.  Covering `signatureAlgorithm`, `responderCertHash`, and `responderCerts` within the signed content prevents algorithm-substitution and certificate-chain substitution attacks.
 
 - The `ocspResponseType` field MUST be 2, which discriminates `C509SimpleOCSPResponse` from `C509ErrorOCSPResponse` and `C509BasicOCSPResponse`.
-- The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.  It is part of `TBSSimpleOCSPResponse` and is therefore covered by the signature.
+- The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of `TBSSimpleOCSPResponse` and is therefore covered by the signature.
 - The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
 - The `responderCertHash` field identifies the OCSP responder; see {{responderCertHash}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  If present, it MUST have the same value as the `nonce` in the corresponding `C509SimpleOCSPRequest`.
@@ -776,7 +777,7 @@ When present, the `responderCerts` field carries the certificate chain starting 
 
 #### signatureAlgorithm and signatureValue
 
-- `signatureAlgorithm`: the signature algorithm used to compute `signatureValue`, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.  It is part of the `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` group and is therefore covered by the signature.
+- `signatureAlgorithm`: the signature algorithm used to compute `signatureValue`, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of the `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` group and is therefore covered by the signature.
 - `signatureValue`: the signature computed over the CBOR Sequence of the `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` group.
 
 #### producedAt, thisUpdate, nextUpdate
@@ -910,6 +911,8 @@ The only per-type differences are in how identity hashes are computed and how ce
 | `responderCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate |
 | `requestorCerts` / `responderCerts` | `COSE_C509` | `#6.121(COSE_X509)` |
 {: #tab-certtypeinterop title="Per-type differences in C509 OCSP identity fields"}
+
+In this table, "C509 certificate" refers to a natively signed C509 certificate (`c509CertificateType` = 2).  A CBOR re-encoded X.509 certificate (`c509CertificateType` = 3) is treated as an X.509 certificate: its identity hash MUST be computed over the DER-encoded X.509 certificate.
 
 In a hybrid deployment where the responder holds an X.509 certificate, `responderCertHash` contains the hash of the DER-encoded X.509 certificate and `responderCerts` carries a `#6.121(COSE_X509)` chain.  In a deployment using C509 certificates throughout, all identity hashes are computed over CBOR-encoded certificates and certificate chains are carried as `COSE_C509`.  The `hashAlgorithm` field at the top level of each request or response structure governs all hashes within that structure.
 
@@ -1209,7 +1212,7 @@ IANA is requested to assign the following entries in the "application" registry 
 
 ### Media Type application/c509-crl+cbor
 
-When the application/c509-crl+cbor media type is used, the data is a C509CRL structure.
+When the application/c509-crl+cbor media type is used, the data is a C509CRL structure.  A stored file format is defined with "magic number" TBD11 using the reserved CBOR tag 55799 and the Content-Format TBD7, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-crl+cbor
 
@@ -1232,7 +1235,7 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): N/A
+* Magic number(s): TBD11
 * File extension(s): .c509
 * Macintosh file type code(s): N/A
 
@@ -1248,7 +1251,7 @@ Change controller: IETF
 
 ### Media Type application/c509-crlinfo+cbor
 
-When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.
+When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.  A stored file format is defined with "magic number" TBD12 using the reserved CBOR tag 55799 and the Content-Format TBD8, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-crlinfo+cbor
 
@@ -1271,7 +1274,7 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): N/A
+* Magic number(s): TBD12
 * File extension(s): .c509
 * Macintosh file type code(s): N/A
 
@@ -1287,7 +1290,7 @@ Change controller: IETF
 
 ### Media Type application/c509-ocspreq+cbor
 
-When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.
+When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.  A stored file format is defined with "magic number" TBD13 using the reserved CBOR tag 55799 and the Content-Format TBD9, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-ocspreq+cbor
 
@@ -1310,7 +1313,7 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): N/A
+* Magic number(s): TBD13
 * File extension(s): .c509
 * Macintosh file type code(s): N/A
 
@@ -1326,7 +1329,7 @@ Change controller: IETF
 
 ### Media Type application/c509-ocspresp+cbor
 
-When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.
+When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.  A stored file format is defined with "magic number" TBD14 using the reserved CBOR tag 55799 and the Content-Format TBD10, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-ocspresp+cbor
 
@@ -1349,7 +1352,7 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): N/A
+* Magic number(s): TBD14
 * File extension(s): .c509
 * Macintosh file type code(s): N/A
 
