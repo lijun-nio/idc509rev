@@ -1049,7 +1049,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Liao, et al.</td>
-<td class="center">Expires 22 April 2027</td>
+<td class="center">Expires 26 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1062,12 +1062,12 @@ svg {
 <dd class="internet-draft">draft-liao-cose-c509-revocation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-19" class="published">19 October 2026</time>
+<time datetime="2026-10-23" class="published">23 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-22">22 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-26">26 April 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1132,7 +1132,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 22 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 26 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -3310,7 +3310,7 @@ TNQuery = text .size (1..15)
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-implementation-status" class="section-name selfRef">Implementation Status</a>
       </h2>
 <p id="section-8-1">This section is to be removed before publishing as an RFC.<a href="#section-8-1" class="pilcrow">¶</a></p>
-<p id="section-8-2">Note to RFC Editor: when deleting this section, please also delete RFC 7942 from the references of this document.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-2">Note to RFC Editor: Please remove this section before publication.  When deleting this section, please also delete RFC 7942 from the references of this document.<a href="#section-8-2" class="pilcrow">¶</a></p>
 <p id="section-8-3">(Boilerplate as per <span><a href="https://rfc-editor.org/rfc/rfc7942#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC7942" class="cite xref">RFC7942</a>]</span>:)<a href="#section-8-3" class="pilcrow">¶</a></p>
 <p id="section-8-4">This section records the status of known implementations of the
 protocol defined by this specification at the time of posting of
@@ -3335,7 +3335,61 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
         <h3 id="name-implementation-1">
 <a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-implementation-1" class="section-name selfRef">Implementation #1</a>
         </h3>
-<p id="section-8.1-1">TODO<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.1-1.1">
+            <p id="section-8.1-1.1.1">Organization: RISE AB<a href="#section-8.1-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-1.2">
+            <p id="section-8.1-1.2.1">Implementation: c509rev, available in the <code>c509rev</code> directory of the GitHub repository of this document (https://github.com/lijun-nio/idc509rev)<a href="#section-8.1-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-1.3">
+            <p id="section-8.1-1.3.1">Description: A reference implementation of the C509 CRL and C509 OCSP structures specified in this document, written in Rust.<a href="#section-8.1-1.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-1.4">
+            <p id="section-8.1-1.4.1">Implementation's level of maturity: Prototype.  Intended for testing and reference purposes, not for production use.<a href="#section-8.1-1.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-1.5">
+            <p id="section-8.1-1.5.1">Coverage:<a href="#section-8.1-1.5.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.1-1.5.2.1">
+                <p id="section-8.1-1.5.2.1.1">C509 CRL, including the compact <code>revokedCertsList</code> encoding with fixed-length revoked-certificate and removed-from-CRL entries.<a href="#section-8.1-1.5.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.1-1.5.2.2">
+                <p id="section-8.1-1.5.2.2.1">C509 OCSP requests of all defined types (simple, unsigned, and signed).  The signed-request variants carrying the requestor's certificate or certificate chain are supported only as an opaque pass-through.<a href="#section-8.1-1.5.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.1-1.5.2.3">
+                <p id="section-8.1-1.5.2.3.1">C509 OCSP responses of all defined types (error, basic, and simple).<a href="#section-8.1-1.5.2.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.1-1.5.2.4">
+                <p id="section-8.1-1.5.2.4.1">The C509 Hash Algorithms registry (SHA-2 family), including truncated identity hashes.<a href="#section-8.1-1.5.2.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.1-1.5.2.5">
+                <p id="section-8.1-1.5.2.5.1">Time encoding, including the delta encodings used in OCSP.<a href="#section-8.1-1.5.2.5.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.1-1.5.2.6">
+                <p id="section-8.1-1.5.2.6.1">Signing and signature verification with Ed25519 and ECDSA with secp256r1 and SHA-256.<a href="#section-8.1-1.5.2.6.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.1-1.5.2.7">
+                <p id="section-8.1-1.5.2.7.1">PEM textual representation of C509 CRLs and C509 OCSP messages, as specified in this document.<a href="#section-8.1-1.5.2.7.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.1-1.5.2.8">
+                <p id="section-8.1-1.5.2.8.1">Names are supported only in the single common-name text form.<a href="#section-8.1-1.5.2.8.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-8.1-1.6">
+            <p id="section-8.1-1.6.1">Version compatibility: draft-liao-cose-c509-revocation-00<a href="#section-8.1-1.6.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-1.7">
+            <p id="section-8.1-1.7.1">Interoperability: The encoder output matches the examples in this document byte for byte (for signed objects, the to-be-signed part), and all examples successfully round-trip through decoding and re-encoding.  No interoperability testing with independent implementations has been performed yet.<a href="#section-8.1-1.7.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-1.8">
+            <p id="section-8.1-1.8.1">Licensing: See the repository of this document.<a href="#section-8.1-1.8.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-1.9">
+            <p id="section-8.1-1.9.1">Contact: Joel Höglund (joel.hoglund@ri.se)<a href="#section-8.1-1.9.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
 </section>
 </div>
 <div id="sec-implementation-2">
@@ -3343,7 +3397,35 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
         <h3 id="name-implementation-2">
 <a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-implementation-2" class="section-name selfRef">Implementation #2</a>
         </h3>
-<p id="section-8.2-1">TODO<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.2-1.1">
+            <p id="section-8.2-1.1.1">Organization: NIO Inc.<a href="#section-8.2-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-1.2">
+            <p id="section-8.2-1.2.1">Implementation: Internal project, not publicly available<a href="#section-8.2-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-1.3">
+            <p id="section-8.2-1.3.1">Description: An implementation of the C509 CRL and C509 OCSP structures specified in this document, written in Java.<a href="#section-8.2-1.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-1.4">
+            <p id="section-8.2-1.4.1">Implementation's level of maturity: Prototype.<a href="#section-8.2-1.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-1.5">
+            <p id="section-8.2-1.5.1">Coverage: All structures and features specified in this document.<a href="#section-8.2-1.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-1.6">
+            <p id="section-8.2-1.6.1">Version compatibility: draft-liao-cose-c509-revocation-00<a href="#section-8.2-1.6.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-1.7">
+            <p id="section-8.2-1.7.1">Interoperability: This implementation was used to produce the examples in the appendices of this document.<a href="#section-8.2-1.7.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-1.8">
+            <p id="section-8.2-1.8.1">Licensing: Internal use only.<a href="#section-8.2-1.8.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-1.9">
+            <p id="section-8.2-1.9.1">Contact: Lijun Liao (lijun.liao@nio.io)<a href="#section-8.2-1.9.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
 </section>
 </div>
 </section>
