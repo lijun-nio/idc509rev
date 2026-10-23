@@ -925,17 +925,57 @@ The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then wrapped be
 # Implementation Status # {#sec-implementation-status}
 {:removeinrfc}
 
-Note to RFC Editor: when deleting this section, please also delete RFC 7942 from the references of this document.
+Note to RFC Editor: Please remove this section before publication.  When deleting this section, please also delete RFC 7942 from the references of this document.
 
 {::boilerplate rfc7942info}
 
 ## Implementation \#1 # {#sec-implementation-1}
 
-TODO
+- Organization: RISE AB
+
+- Implementation: c509rev, available in the `c509rev` directory of the GitHub repository of this document (https://github.com/lijun-nio/idc509rev)
+
+- Description: A reference implementation of the C509 CRL and C509 OCSP structures specified in this document, written in Rust.
+
+- Implementation's level of maturity: Prototype.  Intended for testing and reference purposes, not for production use.
+
+- Coverage:
+  - C509 CRL, including the compact `revokedCertsList` encoding with fixed-length revoked-certificate and removed-from-CRL entries.
+  - C509 OCSP requests of all defined types (simple, unsigned, and signed).  The signed-request variants carrying the requestor's certificate or certificate chain are supported only as an opaque pass-through.
+  - C509 OCSP responses of all defined types (error, basic, and simple).
+  - The C509 Hash Algorithms registry (SHA-2 family), including truncated identity hashes.
+  - Time encoding, including the delta encodings used in OCSP.
+  - Signing and signature verification with Ed25519 and ECDSA with secp256r1 and SHA-256.
+  - PEM textual representation of C509 CRLs and C509 OCSP messages, as specified in this document.
+  - Names are supported only in the single common-name text form.
+
+- Version compatibility: draft-liao-cose-c509-revocation-00
+
+- Interoperability: The encoder output matches the examples in this document byte for byte (for signed objects, the to-be-signed part), and all examples successfully round-trip through decoding and re-encoding.  No interoperability testing with independent implementations has been performed yet.
+
+- Licensing: See the repository of this document.
+
+- Contact: Joel Höglund (joel.hoglund@ri.se)
 
 ## Implementation \#2 # {#sec-implementation-2}
 
-TODO
+- Organization: NIO Inc.
+
+- Implementation: Internal project, not publicly available
+
+- Description: An implementation of the C509 CRL and C509 OCSP structures specified in this document, written in Java.
+
+- Implementation's level of maturity: Prototype.
+
+- Coverage: All structures and features specified in this document.
+
+- Version compatibility: draft-liao-cose-c509-revocation-00
+
+- Interoperability: This implementation was used to produce the examples in the appendices of this document.
+
+- Licensing: Internal use only.
+
+- Contact: Lijun Liao (lijun.liao@nio.io)
 
 # Security Considerations {#security}
 
