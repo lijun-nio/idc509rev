@@ -74,6 +74,7 @@ normative:
     date: 2023
 
 informative:
+  RFC3280:
   RFC7228:
   RFC7925:
   POSIX:
@@ -112,7 +113,7 @@ entity:
 
 --- abstract
 
-This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additionally this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}
+This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additionally, this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}.
 
 
 --- middle
@@ -131,9 +132,9 @@ This document specifies:
 
    - Reduce the search complexity for a given certificate serial number from O(n) to O(log(n)):
 
-     - Replace implicit `certificateIssuer` mechanism by explicit per-issuer grouping.
+     - Replace the implicit `certificateIssuer` mechanism with explicit per-issuer grouping.
 
-     - Use dedicated list for the `removeFromCRL` revocation entries.
+     - Use a dedicated list for the `removeFromCRL` revocation entries.
 
      - Use fixed-length entry encoding.
 
@@ -165,7 +166,7 @@ This section considers both widely deployed certificate-status mechanisms and cl
 
 - **X.509 CRLs and OCSP** ({{RFC5280}}, {{RFC6960}}) provide the baseline revocation mechanisms, but their DER encodings are not compact enough for constrained deployments and are not certificate-type agnostic.  This document keeps their semantics while defining CBOR encodings that are smaller and easier to process.
 
-- **OCSP stapling** ({{RFC6066}}, {{RFC9846}}) reduces client latency by having the server provide a fresh OCSP response, but it does not define a revocation status format of its own.  It still depends on the underlying OCSP message structure, so it cannot replace a compact, stand-alone status representation.
+- **OCSP stapling** ({{RFC6066}}, {{RFC9846}}) reduces client latency by having the server provide a fresh OCSP response, but it does not define a revocation status format of its own.  It still depends on the underlying OCSP message structure, so it cannot replace a compact, standalone status representation.
 
 - **Short-lived certificates** reduce reliance on revocation, but they do not provide revocation status when certificates must remain valid for longer periods or must be withdrawn immediately after compromise.  They also shift the problem to more frequent issuance and renewal rather than eliminating status checking.
 
@@ -187,7 +188,7 @@ This document uses the terminology from {{RFC5280}}, {{RFC6960}}, {{RFC7228}}, {
 
 # Common Types {#common-types}
 
-The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and  `AlgorithmIdentifier`. Additionally, the following type is imported from {{RFC9360}}: `COSE_X509`.
+The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and `AlgorithmIdentifier`. Additionally, the following type is imported from {{RFC9360}}: `COSE_X509`.
 
 This document further defines the following constrained aliases for use in all CDDL definitions:
 
@@ -218,7 +219,7 @@ IntExtensions = [ * IntExtension ]
 
 # Encoding of Time Fields {#time-encoding}
 
-Time fields are encoded as unwrapped CBOR epoch-based date/time (`~time`).  The tag content MUST be a non-negative integer.  In POSIX time {{POSIX}}, leap seconds are ignored; a leap second has the same POSIX time as the second before it.
+Time fields are encoded as unwrapped CBOR epoch-based date/time (`~time`).  The value MUST be a non-negative integer.  In POSIX time {{POSIX}}, leap seconds are ignored; a leap second has the same POSIX time as the second before it.
 
 # C509 CRL {#c509crl}
 
@@ -297,7 +298,7 @@ Unlike in {{RFC5280}}, where the signature algorithm appears outside the `TBSCer
 
 The `authoritySubject` and `authorityKeyIdentifier` fields identify the CRL authority.
 
-The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)` (#6.121: alternative 0), where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}). Since the `Name` structure may also be `bytes`, the DER-encoded subject is wrapped in a 121-tagged structure.
+The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)` (tag 121 is alternative 0), where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}). Since the `Name` structure may also be `bytes`, the DER-encoded subject is wrapped in a 121-tagged structure.
 
 The `authorityKeyIdentifier` field is identical to the value of the authority's `subjectKeyIdentifier` extension.  This field corresponds to the X.509 CRL extension `authorityKeyIdentifier` ({{RFC5280, Section 5.2.1}}).  It is promoted to a dedicated field because it MUST be present in conforming X.509 CRLs and because making it explicit simplifies the structure and reduces encoded size compared to representing it as a generic extension.
 
@@ -344,7 +345,7 @@ In X.509 CRLs ({{RFC5280, Section 5.3.3}}), an indirect CRL uses the `certificat
 
 `PerIssuerRevokedCerts` solves both problems by introducing an explicit intermediate structure that groups all revocation information for one issuer.  The issuer is identified directly in the `issuer` field of the structure rather than being inferred from the position of a CRL entry extension.  This makes the grouping unambiguous and easy to parse, and it allows an issuer to appear in the list even when it has no revoked certificates.
 
-A second design problem in X.509 CRLs is that each revocation entry has variable length due to
+A second design problem in X.509 CRLs is that each revocation entry has variable length because:
 
 - the serial number length differs between certificates,
 
@@ -354,7 +355,7 @@ A second design problem in X.509 CRLs is that each revocation entry has variable
 
 This variable-length layout makes it impossible to determine whether a given serial number is present in the list without scanning every entry sequentially, resulting in O(n) lookup time.
 
-In this document, the `revokedCertsControl` structure introduces fixed parameters (`serialNumberLength`, `dateLength`) that make every entry within `revokedCerts` exactly the same size.  The `flags` field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL `removeFromCRL` entries in X.509) are kept in a dedicated `removedFromCRLCerts` field rather than mixed into `revokedCerts`.  This keeps `revokedCerts` free of removal noise, reducing its size and allowing implementations to process currently-revoked and removed entries independently.
+In this document, the `revokedCertsControl` structure introduces fixed parameters (`serialNumberLength`, `dateLength`) that make every entry within `revokedCerts` exactly the same size.  The `flags` field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL `removeFromCRL` entries in X.509) are kept in a dedicated `removedFromCRLCerts` field rather than mixed into `revokedCerts`.  This keeps `revokedCerts` free of removal noise, reducing its size and allowing implementations to process currently revoked and removed entries independently.
 
 #### Fields
 
@@ -370,7 +371,7 @@ Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer
 
   - The `serialNumberLength` field defines the length, in bytes, of a certificate serial number.  It MUST be greater than 0.  It is the smallest value that can encode all certificate serial numbers without leading zeros.
 
-   Each certificate serial number is encoded as a fixed-length big-endian integer of length `serialNumberLength`.  If the encoded value is shorter than `serialNumberLength`, it is left-padded with zeros.
+    Each certificate serial number is encoded as a fixed-length big-endian integer of length `serialNumberLength`.  If the encoded value is shorter than `serialNumberLength`, it is left-padded with zeros.
 
   - The `dateLength` field defines the length, in bytes, of the big-endian encoded revocation-date offset relative to `baseDate`.  A value of 0 means that no revocation date is included in `revokedCerts` entries.  This is permitted in C509-native deployments where the revocation date is not required -- for example, when minimizing revocation data is more important than recording the revocation time.  Implementations that need to convert a C509 CRL to an RFC 5280 DER-encoded CRL MUST set `dateLength` to a non-zero value, since {{RFC5280, Section 5.1}} requires a `revocationDate` in every CRL entry.  When `dateLength` is non-zero, the offset MUST fit within the specified byte length without leading zero bytes.
 
@@ -414,7 +415,7 @@ The `crlExtensions` field contains extensions for the CRL.  This document does n
 | -    | issuingDistributionPoint | {{RFC5280, Section 5.2.5}}  | - |
 | -    | freshestCRL              | {{RFC5280, Section 5.2.6}}  | - |
 | -    | authorityInfoAccess      | {{RFC5280, Section 5.2.7}}  | - |
-| -    | orderedList              | OID 2.5.29.56 (ITU-T X.509, Section 9.5.2.5) | field `sorted` (ascSerialNum); - (ascRevDate) |
+| -    | orderedList              | OID 2.5.29.56 (ITU-T X.509, Section 9.5.2.5) | bit 0 of `flags` (ascSerialNum); - (ascRevDate) |
 | -    | toBeRevoked              | OID 2.5.29.58 (ITU-T X.509, Section 9.5.2.6) | - |
 | -    | revokedGroups            | OID 2.5.29.59 (ITU-T X.509, Section 9.5.2.7) | - |
 {: #tab-crlExt title="CRL extensions and their equivalents"}
@@ -449,8 +450,8 @@ The value is encoded as described in {{time-encoding}}.  When this extension is 
 
 | Code | Extension           | Reference         | Equivalent |
 |:-----|:--------------------|:------------------| :------------------|
-| -    | reasonCode          | {{RFC5280, Section 5.3.1}} / ITU-T X.509, Section 9.6.2.1  | field `removedFromCRLCerts` and `revokedCerts` |
-| -    | holdInstructionCode | {{RFC5280, Section 5.3.2}} / ITU-T X.509, Section 9.6.2.2  | - |
+| -    | reasonCode          | {{RFC5280, Section 5.3.1}} / ITU-T X.509, Section 9.6.2.1  | fields `removedFromCRLCerts` and `revokedCerts` |
+| -    | holdInstructionCode | {{RFC3280, Section 5.3.2}} / ITU-T X.509, Section 9.6.2.2  | - |
 | -    | invalidityDate      | {{RFC5280, Section 5.3.2}} / ITU-T X.509, Section 9.6.2.3  | - |
 | -    | certificateIssuer   | {{RFC5280, Section 5.3.3}} / ITU-T X.509, Section 9.6.2.4  | field `issuer` within `PerIssuerRevokedCerts` |
 {: #tab-crlEntryExt title="CRL entry extensions defined for X.509 CRLs"}
@@ -461,7 +462,7 @@ Encoded identically to `signatureValue` in C509 certificates (see {{I-D.ietf-cos
 
 ## PEM Representation
 
-The CBOR-encoded C509CRL is first BASE64-encoded, and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of {{RFC7468}}.
+The CBOR-encoded C509CRL is first Base64-encoded and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of {{RFC7468}}.
 
 ~~~
 -----BEGIN C509 CRL-----
@@ -486,7 +487,7 @@ To reduce OCSP message size, this document defines two truncated-hash identifier
 
 - `HashId8`: the leading 8 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId8` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures where a short identifier provides sufficient uniqueness in the deployment context.
 
-- `HashId20`: the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA‑256 or SHA‑3‑256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversary needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
+- `HashId20`: the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA-256 or SHA3-256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversary needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
 
 ~~~~~~~~~~~ cddl
 HashId8   = bytes .size 8
@@ -575,7 +576,7 @@ The `ocspRequestType` field serves as the discriminator for `C509OCSPRequest`:
 
 The `issuerCertHash` field appears in `PerIssuerOCSPRequest`, `PerIssuerOCSPResponse`, `C509SimpleOCSPRequest`, and `TBSSimpleOCSPResponse`.  It contains a hash of the issuer certificate:
 
-- `issuerCertHash`: hash computed over the deterministically encoded certificate. It is the CBOR-encoded C509Certificate or DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
+- `issuerCertHash`: hash computed over the deterministically encoded certificate, i.e., the CBOR-encoded C509Certificate or the DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
 
 In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies the issuer using two separate hashes: `issuerNameHash` (a hash of the DER-encoded issuer name) and `issuerKeyHash` (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (`issuerCertHash`), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 `issuerCertHash` with an RFC 6960 DER-encoded `CertID` must recompute the respective hash inputs; the values are not directly comparable.
 
@@ -605,7 +606,7 @@ Each `SingleCertRequest` contains:
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.
 - The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
-- The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. `requestorCerts` MUST carry the corresponding certificate chain so that the receiver can verify the identity of the requestor.
+- The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. When `requestorCerts` is not `null`, it carries the corresponding certificate chain so that the receiver can verify the identity of the requestor.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 - The `requests` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
 - The `requestorCerts` field contains a sorted certificate chain starting with the signer's certificate, or MUST be `null` if no certificates are transported.  When the signer holds a C509 certificate chain, the value is `COSE_C509`.  When the signer holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).
@@ -616,6 +617,7 @@ Each `SingleCertRequest` contains:
 `C509SimpleOCSPRequest` is a compact request format for querying the status of a single certificate.  Unlike `C509UnsignedOCSPRequest`, which uses a two-level `PerIssuerOCSPRequests` / `SingleCertRequest` grouping to batch multiple serial numbers across one or more issuers, `C509SimpleOCSPRequest` flattens the structure into a single CBOR array for the common case of a one-certificate query.
 
 - The `ocspRequestType` field MUST be 2.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.
 - The `issuerCertHash` field identifies the issuer of the target certificate; see {{issuer-hash-id}}.
 - The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
@@ -623,7 +625,7 @@ Each `SingleCertRequest` contains:
 
 ### PEM Representation
 
-The CBOR-encoded C509 OCSP request is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP REQUEST-----" and "-----END C509 OCSP REQUEST-----", following the framework of {{RFC7468}}.
+The CBOR-encoded C509 OCSP request is first Base64-encoded and then wrapped between "-----BEGIN C509 OCSP REQUEST-----" and "-----END C509 OCSP REQUEST-----", following the framework of {{RFC7468}}.
 
 ~~~
 -----BEGIN C509 OCSP REQUEST-----
@@ -770,12 +772,12 @@ If present, this field MUST have the same value as the `nonce` in the correspond
 
 #### responderCerts {#responderCerts}
 
-When present, the `responderCerts` field carries the certificate chain starting with the responder certificate identified by `responderCertHash`.  When the responder holds a C509 certificate chain, the value is `COSE_C509`.  When the responder holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).  The field is part of `TBSBasicOCSPResponse` and is therefore covered by the signature, which prevents certificate-chain substitution attacks.
+When present, the `responderCerts` field carries the certificate chain starting with the responder certificate identified by `responderCertHash`.  When the responder holds a C509 certificate chain, the value is `COSE_C509`.  When the responder holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).  The field is part of `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` and is therefore covered by the signature, which prevents certificate-chain substitution attacks.
 
 #### signatureAlgorithm and signatureValue
 
-- `signatureAlgorithm`: the signature algorithm used to compute `signatureValue`, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.  It is part of the `TBSBasicOCSPResponse` group and is therefore covered by the signature.
-- `signatureValue`: the signature computed over the CBOR Sequence of the `TBSBasicOCSPResponse` group.
+- `signatureAlgorithm`: the signature algorithm used to compute `signatureValue`, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.11}}.  It is part of the `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` group and is therefore covered by the signature.
+- `signatureValue`: the signature computed over the CBOR Sequence of the `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` group.
 
 #### producedAt, thisUpdate, nextUpdate
 
@@ -826,7 +828,7 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 
 #### OCSP Extensions {#ocsp-extensions}
 
-{{tab-ocspext}} describes the OCSP extensions defined in {{RFC6960}} and their mapping in this document.
+{{tab-ocspext}} describes the OCSP extensions defined in {{RFC6960}} and {{I-D.ietf-stir-certificates-ocsp}} and their mapping in this document.
 
 | Code | Extension             | RFC Reference     | Applied in | Replaced in this document |
 |:----:|:----------------------|:------------------| :----------|:--------------|
@@ -838,7 +840,7 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 | TBD3 | Preferred Signature Algorithms | {{RFC6960, Section 4.4.7}} | Request Extension | - |
 |  -   | Extended Revoked Definition | {{RFC6960, Section 4.4.8}}  | Response Extension | cert status `not-issued` (for serial numbers not issued by a recognized issuer) and `unknown` (for unrecognized issuers) |
 | TBD6 | TN Query | {{I-D.ietf-stir-certificates-ocsp}} | Single Request Extension | - |
-{: #tab-ocspext title="OCSP extensions defined in RFC 6960"}
+{: #tab-ocspext title="OCSP extensions and their mapping"}
 
 This document defines the following extension values:
 
@@ -867,7 +869,7 @@ PreferredSignatureAlgorithms = [ + PreferredSignatureAlgorithm ]
 
 The `sigIdentifier` field carries the signature algorithm identifier.  The `pubKeyAlgIdentifiers` field carries the public key algorithm identifier and MUST be one of:
 
-- a CBOR array of two or more `IntAlgorithmIdentifier` values, sorted in descending order of preference, when the responder is willing to accept any of the listed public key algorithms as a match for this signature algorithm preference (e.g., to express hybrid or multi-algorithm key policies); the first entry in the array represents the most preferred public key algorithm,
+- a CBOR array of two or more `IntAlgorithmIdentifier` values, sorted in descending order of preference, when the requestor is willing to accept any of the listed public key algorithms as a match for this signature algorithm preference (e.g., to express hybrid or multi-algorithm key policies); the first entry in the array represents the most preferred public key algorithm,
 - a single `IntAlgorithmIdentifier` value, when exactly one public key algorithm is acceptable, or
 - `null`, when the public key algorithm is unconstrained or implied by `sigIdentifier`.
 
@@ -883,6 +885,17 @@ TNQuery = text .size (1..15)
 The `TNQuery` extension carries a telephone number string conforming to the TelephoneNumber ASN.1 type ({{RFC8226, Section 3}}).  When included in single request extensions, it specifies the telephone number for which the OCSP query is being performed (typically the number from the "orig" field of a PASSporT being validated).
 
 This extension is allowed only in the single-request extensions per {{I-D.ietf-stir-certificates-ocsp}}.
+
+### PEM Representation
+
+The CBOR-encoded C509 OCSP response is first Base64-encoded and then wrapped between "-----BEGIN C509 OCSP RESPONSE-----" and "-----END C509 OCSP RESPONSE-----", following the framework of {{RFC7468}}.
+
+~~~
+-----BEGIN C509 OCSP RESPONSE-----
+(base64-encoded CBOR C509 OCSP Response)
+-----END C509 OCSP RESPONSE-----
+~~~
+{: #fig-pem-c509-ocsp-resp title="C509 OCSP Response PEM Encoding"}
 
 ## Certificate Type Interoperability {#cert-type-interop}
 
@@ -902,7 +915,7 @@ In a hybrid deployment where the responder holds an X.509 certificate, `responde
 
 ## OCSP Stapling in TLS
 
-In standard TLS certificate status stapling (see the `status_request` extension, {{RFC9846}}), the stapled OCSP response is a DER-encoded `OCSPResponse`.  To allow C509 OCSP stapling, this document defines a new TLS `CertificateStatusType` value {{RFC6066, Section 8}}:
+In standard TLS certificate status stapling (see the `status_request` extension, {{RFC9846}}), the stapled OCSP response is a DER-encoded `OCSPResponse`.  To allow C509 OCSP stapling, this document defines a new TLS `CertificateStatusType` value (see {{RFC6066, Section 8}}):
 
 | Value | Name              | Reference     |
 |:-----:|:------------------|:--------------|
@@ -910,17 +923,6 @@ In standard TLS certificate status stapling (see the `status_request` extension,
 {: #tab-tlsstaple title="TLS CertificateStatusType for C509 OCSP"}
 
 When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509OCSPResponse` instead of a DER-encoded `OCSPResponse`.
-
-### PEM Representation
-
-The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP RESPONSE-----" and "-----END C509 OCSP RESPONSE-----", following the framework of {{RFC7468}}.
-
-~~~
------BEGIN C509 OCSP RESPONSE-----
-(base64-encoded CBOR C509 OCSP Response)
------END C509 OCSP RESPONSE-----
-~~~
-{: #fig-pem-c509-ocsp-resp title="C509 OCSP Response PEM Encoding"}
 
 # Implementation Status # {#sec-implementation-status}
 {:removeinrfc}
@@ -989,7 +991,7 @@ Note to RFC Editor: Please replace all occurrences of "{{&SELF}}" with the RFC n
 
 ## C509 CRL Types Registry {#crltypes}
 
-IANA has created a new registry titled "C509 CRL Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to create a new registry titled "C509 CRL Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+-------------------------------+-------------------+
@@ -1003,7 +1005,7 @@ IANA has created a new registry titled "C509 CRL Types" under the registry group
 
 ## C509 OCSP Request Types Registry {#ocspreqtypes}
 
-IANA has created a new registry titled "C509 OCSP Request Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to create a new registry titled "C509 OCSP Request Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+-------------------------------+-------------------+
@@ -1022,7 +1024,7 @@ IANA has created a new registry titled "C509 OCSP Request Types" under the regis
 
 ## C509 OCSP Response Types Registry {#ocspresptypes}
 
-IANA has created a new registry titled "C509 OCSP Response Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to create a new registry titled "C509 OCSP Response Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+-------------------------------+-------------------+
@@ -1040,7 +1042,7 @@ IANA has created a new registry titled "C509 OCSP Response Types" under the regi
 
 ## C509 Hash Algorithms Registry {#hashalg}
 
-IANA has created a new registry titled "C509 Hash Algorithms" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Name, Identifiers, OID, Parameters, DER, Comments, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. The fields Name, OID, Parameters, and DER are mandatory. If it is not expected to be understood from the other information (e.g., the OID), then the Comments field must contain a reference to where the Hash Algorithm is described. For values in the interval \[-24, 23\] the registration procedure is "IETF Review with Expert Review", and for all other values the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to create a new registry titled "C509 Hash Algorithms" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Name, Identifiers, OID, Parameters, DER, Comments, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. The fields Name, OID, Parameters, and DER are mandatory. If it is not expected to be understood from the other information (e.g., the OID), then the Comments field must contain a reference to where the Hash Algorithm is described. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+----------------------------------------------------------+
@@ -1203,7 +1205,7 @@ IANA is requested to register the following entries in the "Textual Encoding Lab
 
 ## Media Type Application Registry
 
-IANA is requested to assign the following entries into the "application" registry in the registry group "Media Types" with this document as reference.
+IANA is requested to assign the following entries in the "application" registry in the registry group "Media Types" with this document as reference.
 
 ### Media Type application/c509-crl+cbor
 
@@ -1212,6 +1214,8 @@ When the application/c509-crl+cbor media type is used, the data is a C509CRL str
 Subtype name: c509-crl+cbor
 
 Required parameters: N/A
+
+Optional parameters: N/A
 
 Encoding considerations: binary
 
@@ -1230,7 +1234,6 @@ Additional information:
 * Deprecated alias names for this type: N/A
 * Magic number(s): N/A
 * File extension(s): .c509
-
 * Macintosh file type code(s): N/A
 
 Person & email address to contact for further information: iesg@ietf.org
@@ -1251,6 +1254,8 @@ Subtype name: c509-crlinfo+cbor
 
 Required parameters: N/A
 
+Optional parameters: N/A
+
 Encoding considerations: binary
 
 Security considerations: See {{security}} of {{&SELF}}.
@@ -1268,7 +1273,6 @@ Additional information:
 * Deprecated alias names for this type: N/A
 * Magic number(s): N/A
 * File extension(s): .c509
-
 * Macintosh file type code(s): N/A
 
 Person & email address to contact for further information: iesg@ietf.org
@@ -1289,6 +1293,8 @@ Subtype name: c509-ocspreq+cbor
 
 Required parameters: N/A
 
+Optional parameters: N/A
+
 Encoding considerations: binary
 
 Security considerations: See {{security}} of {{&SELF}}.
@@ -1306,7 +1312,6 @@ Additional information:
 * Deprecated alias names for this type: N/A
 * Magic number(s): N/A
 * File extension(s): .c509
-
 * Macintosh file type code(s): N/A
 
 Person & email address to contact for further information: iesg@ietf.org
@@ -1327,6 +1332,8 @@ Subtype name: c509-ocspresp+cbor
 
 Required parameters: N/A
 
+Optional parameters: N/A
+
 Encoding considerations: binary
 
 Security considerations: See {{security}} of {{&SELF}}.
@@ -1344,7 +1351,6 @@ Additional information:
 * Deprecated alias names for this type: N/A
 * Magic number(s): N/A
 * File extension(s): .c509
-
 * Macintosh file type code(s): N/A
 
 Person & email address to contact for further information: iesg@ietf.org
@@ -1369,8 +1375,8 @@ IANA is requested to add entries for "application/c509-crl+cbor", "application/c
 | application/            | -       | TBD7  | [[this     |
 | c509-crl+cbor           |         |       | document]] |
 +-------------------------+---------+-------+------------+
-| application/            |         |       | [[this     |
-| c509-crlinfo+cbor       | -       | TBD8  | document]] |
+| application/            |         | TBD8  | [[this     |
+| c509-crlinfo+cbor       | -       |       | document]] |
 +-------------------------+---------+-------+------------+
 | application/            | -       | TBD9  | [[this     |
 | c509-ocspreq+cbor       |         |       | document]] |
@@ -1394,7 +1400,7 @@ TODO
 | Section       | Description           | size(X509) | size(C509) | Size Reduction |
 |:--------------|:----------------------|:-----------|:-----------|:----------------------|
 | {{exam-crl-no-revoked}} | CRL Example Without Revoked Certificates | 147 | 120 | 18% |
-| {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 335 | 177 |47% |
+| {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 335 | 177 | 47% |
 | {{exam-delta-crl-revoked}} | Delta CRL Example With Revoked Certificates | 335 | 160 | 52% |
 | {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 409 | 202 | 51% |
 | {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 152 | 51 | 66% |
@@ -1436,7 +1442,7 @@ MC4CAQAwBQYDK2VwBCIEIDP+AdMbqXudBAN3YNAwoR0i3nl4IuoSSA6Hazy2oAKc
 259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F
 ~~~~~
 
-##### Textual (PEM) Representation
+##### Textual Representation
 
 [comment]: <> (replace-data:cert/crlocsp-ca/c509cert-t2.txt)
 ~~~~~
@@ -1910,7 +1916,7 @@ Annotated hex
 - Direct CRL
 - Delta CRL
 - With revoked certificates
-- With entries removed from CRL since last full CRL
+- With entries removed from the CRL since the last full CRL
 - Note that the X.509 CRL and the C509 CRL are not convertible.
 
 #### X.509 CRL
@@ -2411,7 +2417,7 @@ Annotated hex
 [comment]: <> (replace-reduction:ocspreq/signed-ocspreq/ocspreq.hex % ocspreq/signed-ocspreq/x509ocspreq.pem)
 - Size reduction: 65%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
-- Signed OCSP Request (`C509UnsignedOCSPRequest`) without requestor's certificate
+- Signed OCSP Request (`C509SignedOCSPRequest`) without requestor's certificate
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
 #### X.509 OCSP Request
@@ -2560,7 +2566,7 @@ Annotated hex
 [comment]: <> (replace-reduction:ocspreq/signed-ocspreq-with-cert/ocspreq.hex % ocspreq/signed-ocspreq-with-cert/x509ocspreq.pem)
 - Size reduction: 60%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
-- Signed OCSP Request (`C509UnsignedOCSPRequest`) with embedded requestor's certificate
+- Signed OCSP Request (`C509SignedOCSPRequest`) with embedded requestor's certificate
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
 #### X.509 OCSP Request
@@ -2775,7 +2781,7 @@ Annotated hex
 [comment]: <> (replace-reduction:ocspreq/signed-ocspreq-with-certchain/ocspreq.hex % ocspreq/signed-ocspreq-with-certchain/x509ocspreq.pem)
 - Size reduction: 55%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
-- Signed OCSP Request (`C509UnsignedOCSPRequest`) with embedded requestor's certificate chain (2 certificates)
+- Signed OCSP Request (`C509SignedOCSPRequest`) with embedded requestor's certificate chain (2 certificates)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
 #### X.509 OCSP Request
@@ -3077,7 +3083,7 @@ Annotated hex
 - Size reduction: 59%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Simple OCSP Response (`C509SimpleOCSPResponse`) without responder's certificate
-- Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
+- Note that the X.509 OCSP Response and the C509 OCSP Response are not convertible.
 
 #### X.509 OCSP Response
 
@@ -3180,7 +3186,7 @@ Annotated hex
 - Size reduction: 71%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) without responder's certificate
-- Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
+- Note that the X.509 OCSP Response and the C509 OCSP Response are not convertible.
 
 #### X.509 OCSP Response
 
@@ -3374,7 +3380,7 @@ Annotated hex
 - Size reduction: 62%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) with embedded responder's certificate
-- Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
+- Note that the X.509 OCSP Response and the C509 OCSP Response are not convertible.
 
 #### X.509 OCSP Response
 
@@ -3602,7 +3608,7 @@ Annotated hex
 - Size reduction: 57%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) with embedded responder's certificate chain (2 certificates)
-- Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
+- Note that the X.509 OCSP Response and the C509 OCSP Response are not convertible.
 
 #### X.509 OCSP Response
 
