@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-22T02:19:04.051495+00:00",
+  "timestamp": "2026-10-25T02:09:31.292561+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -759,6 +759,37 @@
           "body": "> 2\\. Got confirmation from TrustAsia (https://www.trustasia.com/index-en) and Alibaba Cloud.\n\nExcellent! Let us see how the other parties we reach out to reply",
           "createdAt": "2026-10-19T13:18:52Z",
           "updatedAt": "2026-10-19T13:18:52Z"
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "id": "I_kwDOTDu4zs8AAAABZbhokw",
+      "title": "Hash algorithm",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/20",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "In the current draft, we register our own hash algorithms.\n\nAnother direction is to use the algorithm codes defined in COSE algorithms (which is a collection of all algorithm types, including hash, signature, encrytion, KDF, ...).\n\nDiscussion and decision is needed.\n\n @marco-tiloca-sics @rikard-sics @highlunder  @comsats",
+      "createdAt": "2026-10-23T16:26:31Z",
+      "updatedAt": "2026-10-24T21:20:11Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I feel like reusage is the best choice whenever possible. Will have a look and follow up with a longer comment ",
+          "createdAt": "2026-10-23T21:34:14Z",
+          "updatedAt": "2026-10-23T21:34:14Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "TL;DR: My impression is that the current structure of the registry \"C509 Hash Algorithms\" is as intended and aligned with other registries in the new C509 ecosystem.\n\n\nLooking at the new registry \"C509 Hash Algorithms\" defined in the draft:\n\n* In spite of its name, its entries don't indicate only hash algorithms, but rather a bundle of information about hash algorithms.\n\n  At the same time, it's really aligned with the spirit of other C509 registries, e.g., \"C509 Signature Algorithms\" [1] that has the same fields with reference to signature algorithms.\n\n* Like for the registry at [1], I thought that the intent was to be able to use also algorithms that are not registered in the \"COSE Algorithms\" registry [2].\n\n  E.g., for \"C509 Hash Algorithms\", see the entry with 'Value' = 3 for \"SHA-224\"; for \"C509 Signature Algorithms\" [1], see the entry with 'Value' = 8 for \"SM2 with SM3\".\n\n  If the idea is instead to limit the C509 Hash Algorithms specifically to hash algorithms that are also registered in the \"COSE Algorithms\" registry [2] (although I haven't had that impression so far), then their 'Value' in the \"C509 Hash Algorithms\" could indeed use the same value that the corresponding algorithm has in the 'Value' column of the \"COSE Algorithms\" registry [2] (e.g., -16 for \"SHA-256\"). However, thinking of fields like 'hashAlgorithm' defined in the draft, this also results in having less control when it comes to prioritizing values according to the most efficient, desired encoding in CBOR.\n\n\n[1] https://www.iana.org/assignments/cbor-encoded-x509-c509#c509-signature-algorithms\n\n[2] https://www.iana.org/assignments/cose#algorithms",
+          "createdAt": "2026-10-24T21:19:30Z",
+          "updatedAt": "2026-10-24T21:20:11Z"
         }
       ]
     }
