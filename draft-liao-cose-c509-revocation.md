@@ -51,7 +51,6 @@ author:
 
 normative:
   RFC5280:
-  RFC5754:
   RFC6066:
   RFC6960:
   RFC7120:
@@ -59,23 +58,36 @@ normative:
   RFC8126:
   RFC8226:
   RFC8610:
-  RFC8702:
   RFC8742:
   RFC8949:
   RFC9147:
+  RFC9054:
   RFC9360:
   RFC9682:
-  RFC9688:
   RFC9277:
   RFC9846:
   I-D.ietf-cose-cbor-encoded-cert:
   I-D.ietf-stir-certificates-ocsp:
-  GMT.0006-2023:
-    title: GM/T 0006-2023, Cryptographic Application Identifier Specification
-    date: 2023
+  IANA.cose:
+  FIPS202:
+    title: "SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions"
+    target: https://doi.org/10.6028/NIST.FIPS.202
+    seriesinfo:
+      NIST: FIPS PUB 202
+    date: August 2015
+  ISO10118-3:
+    title: "IT Security techniques -- Hash-functions -- Part 3: Dedicated hash-functions"
+    seriesinfo:
+      ISO/IEC: 10118-3:2018
+    date: 2018
 
 informative:
   RFC3280:
+  GBT32905-2016:
+    title: "Information security techniques -- SM3 cryptographic hash algorithm"
+    seriesinfo:
+      GB/T: 32905-2016
+    date: 2016
   RFC7228:
   RFC7925:
   POSIX:
@@ -482,6 +494,12 @@ C509 OCSP requests and responses are not wire-format-compatible with DER-encoded
 
 `C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an integer that identifies the structure type. Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
 
+## Hash Algorithms {#hash-algs}
+
+The `hashAlgorithm` field of C509 OCSP requests and responses identifies the hash algorithm used to compute all hashes within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry {{IANA.cose}}, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 {{RFC9054}}.  This document registers SHA3-256, SHA3-384, SHA3-512, and SM3 in that registry (see {{iana-cose-alg}}).
+
+The hash algorithm MUST produce an output of at least 20 bytes, so that `HashId20` values can be derived (see {{cert-identification}}).  Consequently, SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifiers `HashId8` and `HashId20`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.
+
 ## Identification of Certificates {#cert-identification}
 
 To reduce OCSP message size, this document defines two truncated-hash identifier types used to refer to certificates compactly:
@@ -596,7 +614,7 @@ Each `SingleCertRequest` contains:
 #### C509UnsignedOCSPRequest {#C509UnsignedOCSPRequest}
 
 - The `ocspRequestType` field MUST be 0.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 - The `requests` field is a list of `PerIssuerOCSPRequest` entries, each grouping target certificates by issuer; see {{per-issuer-requests}}.
@@ -605,7 +623,7 @@ Each `SingleCertRequest` contains:
 
 - The `ocspRequestType` field MUST be 1.
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
 - The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. When `requestorCerts` is not `null`, it carries the corresponding certificate chain so that the receiver can verify the identity of the requestor.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
@@ -618,7 +636,7 @@ Each `SingleCertRequest` contains:
 `C509SimpleOCSPRequest` is a compact request format for querying the status of a single certificate.  Unlike `C509UnsignedOCSPRequest`, which uses a two-level `PerIssuerOCSPRequests` / `SingleCertRequest` grouping to batch multiple serial numbers across one or more issuers, `C509SimpleOCSPRequest` flattens the structure into a single CBOR array for the common case of a one-certificate query.
 
 - The `ocspRequestType` field MUST be 2.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.
 - The `issuerCertHash` field identifies the issuer of the target certificate; see {{issuer-hash-id}}.
 - The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
@@ -750,7 +768,7 @@ The `ocspResponseType` field of `C509BasicOCSPResponse` is 1, distinguishing it 
 
 - The `ocspResponseType` field MUST be 2, which discriminates `C509SimpleOCSPResponse` from `C509ErrorOCSPResponse` and `C509BasicOCSPResponse`.
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of `TBSSimpleOCSPResponse` and is therefore covered by the signature.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `responderCertHash` field identifies the OCSP responder; see {{responderCertHash}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  If present, it MUST have the same value as the `nonce` in the corresponding `C509SimpleOCSPRequest`.
 - The `issuerCertHash` field identifies the issuer of the queried certificate; see {{issuer-hash-id}}.
@@ -948,7 +966,7 @@ Note to RFC Editor: Please remove this section before publication.  When deletin
   - C509 CRL, including the compact `revokedCertsList` encoding with fixed-length revoked-certificate and removed-from-CRL entries.
   - C509 OCSP requests of all defined types (simple, unsigned, and signed).  The signed-request variants carrying the requestor's certificate or certificate chain are supported only as an opaque pass-through.
   - C509 OCSP responses of all defined types (error, basic, and simple).
-  - The C509 Hash Algorithms registry (SHA-2 family), including truncated identity hashes.
+  - The hash algorithms SHA-256, SHA-384, and SHA-512, including truncated identity hashes.
   - Time encoding, including the delta encodings used in OCSP.
   - Signing and signature verification with Ed25519 and ECDSA with secp256r1 and SHA-256.
   - PEM textual representation of C509 CRLs and C509 OCSP messages, as specified in this document.
@@ -1043,105 +1061,19 @@ IANA is requested to create a new registry titled "C509 OCSP Response Types" und
 {: #fig-ocspresptypes title="C509 OCSP Response Types"}
 {: artwork-align="center"}
 
-## C509 Hash Algorithms Registry {#hashalg}
+## COSE Algorithms Registry {#iana-cose-alg}
 
-IANA is requested to create a new registry titled "C509 Hash Algorithms" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Name, Identifiers, OID, Parameters, DER, Comments, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. The fields Name, OID, Parameters, and DER are mandatory. If it is not expected to be understood from the other information (e.g., the OID), then the Comments field must contain a reference to where the Hash Algorithm is described. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to register the following hash algorithms in the "COSE Algorithms" registry under the registry group "CBOR Object Signing and Encryption (COSE)" {{IANA.cose}}:
 
-~~~~~~~~~~~
-+-------+----------------------------------------------------------+
-| Value | Hash Algorithm                                           |
-+=======+==========================================================+
-|   0   | Name:        SHA-256                                     |
-|       | Identifiers: id-sha256                                   |
-|       | OID:         2.16.840.1.101.3.4.2.1                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 01      |
-|       | Comments:    RFC 5754                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   1   | Name:        SHA-384                                     |
-|       | Identifiers: id-sha384                                   |
-|       | OID:         2.16.840.1.101.3.4.2.2                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 02      |
-|       | Comments:    RFC 5754                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   2   | Name:        SHA-512                                     |
-|       | Identifiers: id-sha512                                   |
-|       | OID:         2.16.840.1.101.3.4.2.3                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 03      |
-|       | Comments:    RFC 5754                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   3   | Name:        SHA-224                                     |
-|       | Identifiers: id-sha224                                   |
-|       | OID:         2.16.840.1.101.3.4.2.4                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 04      |
-|       | Comments:    RFC 5754                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   4   | Name:        SM3                                         |
-|       | Identifiers: id-sm3                                      |
-|       | OID:         1.2.156.10197.1.401                         |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0A 06 08 2A 81 1C CF 55 01 83 11         |
-|       | Comments:    GM/T 0006-2023                              |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   5   | Name:        SHA3-256                                    |
-|       | Identifiers: id-sha3-256                                 |
-|       | OID:         2.16.840.1.101.3.4.2.8                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 08      |
-|       | Comments:    RFC 9688                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   6   | Name:        SHA3-384                                    |
-|       | Identifiers: id-sha3-384                                 |
-|       | OID:         2.16.840.1.101.3.4.2.9                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 09      |
-|       | Comments:    RFC 9688                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   7   | Name:        SHA3-512                                    |
-|       | Identifiers: id-sha3-512                                 |
-|       | OID:         2.16.840.1.101.3.4.2.10                     |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0A      |
-|       | Comments:    RFC 9688                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   8   | Name:        SHA3-224                                    |
-|       | Identifiers: id-sha3-224                                 |
-|       | OID:         2.16.840.1.101.3.4.2.7                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 07      |
-|       | Comments:    RFC 9688                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   9   | Name:        SHAKE128                                    |
-|       | Identifiers: id-shake128                                 |
-|       | OID:         2.16.840.1.101.3.4.2.11                     |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0B      |
-|       | Comments:    RFC 8702                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   10  | Name:        SHAKE256                                    |
-|       | Identifiers: id-shake256                                 |
-|       | OID:         2.16.840.1.101.3.4.2.12                     |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0C      |
-|       | Comments:    RFC 8702                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-~~~~~~~~~~~
-{: #fig-hashalgs title="C509 Hash Algorithms"}
-{: artwork-align="center"}
+| Name     | Value | Description        | Capabilities | Change Controller | Reference                       | Recommended |
+|----------|-------|--------------------|--------------|-------------------|---------------------------------|-------------|
+| SHA3-256 | TBD15 | SHA-3 256-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
+| SHA3-384 | TBD16 | SHA-3 384-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
+| SHA3-512 | TBD17 | SHA-3 512-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
+| SM3      | TBD18 | SM3 256-bit Hash   | \[\]         | IETF              | {{ISO10118-3}}, {{&SELF}}       | No          |
+{: #tab-iana-cose-alg title="COSE Algorithms Registrations"}
+
+SM3 is also specified in the Chinese national standard {{GBT32905-2016}}; the algorithm specified there is identical to the one in {{ISO10118-3}}.
 
 ## Extension Identifiers Registry
 
@@ -3870,6 +3802,25 @@ Annotated hex
 616:     BAA1EFDF94A0A944AC8CA67679CA04CEAF327C12CB9F1C2DCACA9D2E94
 645:     9BFEA755C405
 ~~~~~
+
+# Document Updates # {#sec-document-updates}
+{:removeinrfc}
+
+## Version -00 to -01 ## {#sec-00-01}
+
+* Added the section "Alternative Certificate Status Checking Mechanisms".
+
+* Constrained the value ranges of integer fields in the CDDL.
+
+* Replaced the "C509 Hash Algorithms" registry with the "COSE Algorithms" registry, and requested registrations for SHA3-256, SHA3-384, SHA3-512, and SM3.
+
+* Specified the PEM representation of C509 CRL and C509 OCSP messages.
+
+* Added the registries for C509 CRL types and C509 OCSP request and response types.
+
+* Added the section "Implementation Status".
+
+* Clarifications and editorial improvements.
 
 # Acknowledgments # {#acknowledgments}
 {:numbered="false"}
