@@ -165,6 +165,10 @@ recorded here as a known limitation.
 - **Checked date arithmetic.** `baseDate + offset` (both attacker-controlled) uses
   `checked_add`, returning `Malformed` instead of overflow-panicking (debug) or
   wrapping (release).
+- **OCSP nonce length.** A non-null `nonce` must be 16 to 32 bytes
+  (`bytes .size (16..32)` in the draft CDDL); other lengths are rejected as
+  `Malformed` on decode (`nonce_length_is_enforced`). Encoders do not check it;
+  callers supply a 16–32-byte nonce from a cryptographically strong RNG.
 
 **Known limitations**
 - **Other CDDL range bounds not yet enforced on decode.** The value-level ranges
