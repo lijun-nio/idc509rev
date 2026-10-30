@@ -108,7 +108,7 @@ byte-for-byte against the draft's worked examples (KAT).
 | Area | Module | State |
 |------|--------|-------|
 | C509 Hash Algorithms registry + SHA-2 dispatch | `hashalg` | done |
-| `~time` (absolute + OCSP deltas) | `time` | done |
+| `~time` (absolute + CRL/OCSP deltas) | `time` | done |
 | Shared `Name` / `Extension` helpers | `common` | done |
 | C509 CRL encode | `crl` | done — all 4 examples match |
 | C509 OCSP request encode (Simple/Unsigned/Signed) | `ocsp_req` | done — all examples match |
@@ -176,29 +176,30 @@ recorded here as a known limitation.
 - **`serde_cbor` is unmaintained** (RUSTSEC-2021-0127). It is a widely-used, stable
   crate and is the CBOR library the companion `c509` cert implementation also uses;
   a future move to a maintained CBOR crate (e.g. `ciborium`) is noted but not done.
-- **Truncated identity hashes reduce collision resistance.** The default 8-byte
-  (`HashId8`) cert/serial identity hashes give ~64-bit second-preimage / ~32-bit
-  birthday resistance, a size/security trade-off for constrained deployments. This
-  is a draft-level property; see the draft's Security Considerations. `HashLen::Full`
-  is available.
+- **Truncated identity hashes reduce collision resistance.** Following the draft,
+  certificate hashes (`issuerCertHash`, `responderCertHash`, `requestorCertHash`)
+  are `HashId8` (8 bytes: ~64-bit second-preimage / ~32-bit birthday resistance)
+  and `serialNumberHash` is `HashId20` (20 bytes: ~160-bit / ~80-bit). This is a
+  draft-level size/security trade-off; see the draft's Security Considerations.
+  `HashLen::Full` is available.
 - **`cbor_item_end` in `lcbor.rs` is unused** here (vendored with the encoder). It
   panics on unsupported additional-info and recurses unbounded, but is not on any
   live path in this crate.
 
 ## Findings surfaced against the draft
 
-This codec exists partly to review the draft. Two issues found so far (details in
-`../../CBOR-revocation-management/REFERENCE-IMPL-PLAN.md` §Findings):
+This codec exists partly to review the draft. Two issues it surfaced have since
+been resolved in the draft (commit 8ba1c83, which updated the examples), and the
+codec was synced to match (0e28550):
 
-1. **CRL `nextUpdate`** — the §5.3.6 text says it is a delta from `thisUpdate`,
-   but all four CRL examples encode an absolute timestamp. This impl follows the
-   examples (absolute); the switch is isolated in `time::crl_next_update`.
-2. **OCSP example identity hashes are not reproducible** — the examples'
-   `issuerCertHash` / `responderCertHash` do not equal SHA-256 of the published
-   helper-cert bytes under any obvious reading (C509, C509 without the type byte,
-   the DER reconstruction, or bstr-wrapped C509). Captured as an `#[ignore]`'d
-   KAT (`certhash::tests::issuer_cert_hash_matches_example`) pending author
-   clarification.
+1. **CRL `nextUpdate`** — the text defined it as a delta from `thisUpdate`, but
+   the CRL examples encoded an absolute timestamp. The examples now encode the
+   delta; `time::crl_next_update` encodes the forward delta and is covered by
+   `crl_next_update_is_forward_delta`.
+2. **OCSP example identity hashes were not reproducible** — `issuerCertHash` /
+   `responderCertHash` did not match a hash of the published helper certificates.
+   With the updated examples they do;
+   `certhash::tests::{issuer,responder}_cert_hash_matches_example` both pass.
 
 ## Layout
 
@@ -208,7 +209,7 @@ src/
   lcbor.rs      deterministic CBOR encoder (vendored from c509, BSD-3-Clause)
   registry.rs   C509 signature-algorithm ids (v1 profile)
   hashalg.rs    C509 Hash Algorithms registry, hash dispatch, HashLen
-  time.rs       ~time encoding (absolute + OCSP deltas)
+  time.rs       ~time encoding (absolute + CRL/OCSP deltas)
   common.rs     Name, Extension, shared CBOR helpers
   crl.rs        C509 CRL
   ocsp_req.rs   C509 OCSP request (Simple / Unsigned / Signed)
