@@ -1,79 +1,124 @@
 # c509rev
 
-A Rust reference implementation of **C509 Certificate Revocation Management**
+A Rust implementation of **C509 Certificate Revocation Management**
 ([`draft-liao-cose-c509-revocation`](../draft-liao-cose-c509-revocation.md)):
-C509 CRL and C509 OCSP — the CBOR encodings of X.509 CRLs (RFC 5280 §5) and OCSP
-messages (RFC 6960).
+C509 CRL and C509 OCSP, the CBOR encodings of X.509 CRLs (RFC 5280, Section 5)
+and OCSP messages (RFC 6960).
 
-It is **separate from** the C509 *certificate* codec
-(`CBOR-certificates/c509_demo_impl`, crate `c509`) and **builds standalone** — no
-sibling checkout required. The few primitives it originally reused from `c509` are
-carried locally: the deterministic CBOR encoder (`src/lcbor.rs`, vendored verbatim
-under BSD-3-Clause), the two v1-profile signature-algorithm ids (`src/registry.rs`),
-and Ed25519/ECDSA-P256 TBS signing (`sign_tbs` in `src/sign.rs`).
+The crate builds standalone. Its dependencies are `serde_cbor`, `sha2`, `hex`,
+`ed25519-dalek`, and `p256`. The deterministic CBOR encoder (`src/lcbor.rs`) is
+taken from the C509 certificate implementation in
+[cose-wg/CBOR-certificates](https://github.com/cose-wg/CBOR-certificates)
+(BSD-3-Clause).
 
-> **Test/reference tooling only. Not for production use.**
+> **Test and reference tooling. Not for production use.**
 
-## Quick start
+## Build and test
 
 ```sh
-cargo test     # 32 KATs + unit tests — all should pass
 cargo build
+cargo test     # known-answer tests against the draft examples, plus unit tests
 ```
 
-Self-contained: the only dependencies are `serde_cbor`, `sha2`, `hex`,
-`ed25519-dalek`, and `p256`, so it builds in any clone with no sibling checkout.
+## Supported
+
+| Feature | Module | Notes |
+|---------|--------|-------|
+| C509 CRL: encode, decode, sign, verify | `crl` | full and delta CRLs, indirect CRLs, `revokedCertsControl` fixed-width entries, `removedFromCRLCerts` |
+| C509 OCSP request: encode, decode, sign, verify | `ocsp_req` | Unsigned (0), Signed (1), Simple (2) |
+| C509 OCSP response: encode, decode, sign, verify | `ocsp_resp` | Error (0), Basic (1), Simple (2) |
+| Signature algorithms | `registry`, `sign` | Ed25519 (12), ECDSA with SHA-256 on secp256r1 (0) |
+| Hash algorithms | `hashalg` | SHA-256 (-16), SHA-384 (-43), SHA-512 (-44) |
+| Identity hashes | `certhash` | `HashId8` for certificate hashes, `HashId20` for `serialNumberHash`; full-length output via `HashLen::Full` |
+| Time encoding | `time` | absolute `~time`, and the CRL and OCSP relative fields |
+| Textual representation | `pem` | PEM (RFC 7468) for `C509 CRL`, `C509 OCSP REQUEST`, `C509 OCSP RESPONSE` |
+| Command-line tool | `bin/c509rev` | `decode`, `verify`, `pem` |
+
+Encoding is deterministic, and decoding then re-encoding reproduces the input
+bytes, including the signature. The draft publishes no signing keys for its
+examples, so for signed objects the known-answer tests compare the TBS bytes.
+Signing and verification are tested with the crate's own keys.
+
+## Not supported
+
+- SHAKE128 (-18), SHAKE256 (-45), SHA3-256/384/512, and SM3. `hash()` returns
+  `UnsupportedAlg` for them.
+- `Name` values other than a single common name carried as a text string.
+- `requestorCerts` / `responderCerts` are carried as opaque encoded CBOR. The
+  certificate chain is not parsed or validated.
+- Certificate path validation and responder authorization. `verify` checks only
+  the signature against the public key it is given.
+- Conversion between X.509 DER CRLs/OCSP messages and their C509 encodings.
+- Encoding from a source format in the command-line tool. It decodes, verifies,
+  and converts to PEM.
+
+## Input validation
+
+Decoding is intended to be safe on untrusted input:
+
+- The crate contains no `unsafe` code. Malformed or truncated CBOR returns an
+  error, not a panic.
+- `serialNumberLength` (1..=20) and `dateLength` (0..=8) are checked before they
+  size the fixed-width CRL entries, and entry lists whose length is not a multiple
+  of the entry width are rejected.
+- `baseDate + offset` is computed with overflow checks.
+- A non-null OCSP `nonce` must be 16 to 32 bytes. The encoders do not check this:
+  the caller supplies a nonce of that length from a cryptographically strong RNG.
+- Signatures are verified with `ed25519-dalek` (Ed25519) and `p256` (ECDSA). Key
+  and signature lengths are checked, and the algorithm is taken from the object.
+
+Known gaps:
+
+- These CDDL value ranges are parsed but not enforced: `crlType` and the OCSP
+  type fields (`uint15`), `crlNumber` and `baseCrlNumber` (`uint63 .ge 1`),
+  `nextUpdate` and `baseDate` (`uint63`), `revocationReason` (`uint8`). None of
+  them sizes a buffer or an index.
+- Ed25519 verification uses `VerifyingKey::verify`, which rejects non-canonical
+  signatures but, unlike `verify_strict`, accepts small-order public keys.
+- `serde_cbor` is unmaintained (RUSTSEC-2021-0127).
+- `lcbor::cbor_item_end` panics on unsupported additional-information values and
+  recurses without a bound. It is not called by this crate.
+- `HashId8` gives about 64-bit second-preimage and 32-bit collision resistance,
+  `HashId20` about 160-bit and 80-bit. See the draft's Security Considerations.
 
 ## Usage
-
-### Runnable examples
-
-The quickest way to see the codec produce real bytes:
-
-| Command | What it prints |
-|---------|----------------|
-| `cargo run --example sizes` | CSV of encoded byte sizes vs. #certs (N) / #revoked (R), truncated vs. full hashes (LRev Tier-0 data) |
-| `cargo run --example ecdsa_crl_vector` | a deterministic P-256-signed CRL as `crl_hex=…` + its `pubkey_hex=…` (a reproducible cross-impl test vector) |
-| `cargo run --example crl_payload <R>` | hex of a signed CRL carrying `R` revoked entries (the on-wire E10 multi-hop payload) |
 
 ### Command-line tool
 
 `c509rev <object> <action> <infile> [pubkey-hex]`, where `object` is
-`crl` | `ocsp-req` | `ocsp-resp` and `action` is `decode` | `verify` | `pem`.
-The input file may be either hex (whitespace ignored) or a PEM textual
-representation (`-----BEGIN C509 …-----`); the format is auto-detected.
+`crl`, `ocsp-req`, or `ocsp-resp`, and `action` is `decode`, `verify`, or `pem`.
+The input file holds hex (whitespace ignored) or PEM; the format is detected
+automatically.
 
 ```sh
-# decode: pretty-print the parsed structure
 cargo run -- crl       decode path/to/crl.hex
 cargo run -- ocsp-req  decode path/to/req.hex
 cargo run -- ocsp-resp decode path/to/resp.hex
 
-# verify: check the signature over the TBS
-#   pubkey-hex = Ed25519 32-byte, or secp256r1 SEC1 (uncompressed 04|x|y)
+# pubkey-hex: Ed25519 (32 bytes) or secp256r1 SEC1 uncompressed (04|x|y)
 cargo run -- crl verify path/to/crl.hex <pubkey-hex>
 
-# pem: re-emit the object as its PEM textual representation (RFC 7468)
-cargo run -- crl pem path/to/crl.hex          # -> -----BEGIN C509 CRL----- …
-cargo run -- crl decode path/to/crl.pem       # PEM input is auto-detected
+cargo run -- crl pem path/to/crl.hex       # -> -----BEGIN C509 CRL----- ...
 ```
 
-Full round-trip using the example vector — mint a signed CRL, then verify it:
+### Examples
 
-```sh
-cargo run --example ecdsa_crl_vector       # prints crl_hex=… and pubkey_hex=…
-# put the value after `crl_hex=` into crl.hex, then:
-cargo run -- crl verify crl.hex <the pubkey_hex value>     # -> VERIFY OK
-```
+| Command | Output |
+|---------|--------|
+| `cargo run --example ecdsa_crl_vector` | a deterministic secp256r1-signed CRL (`crl_hex=...`) and its public key (`pubkey_hex=...`) |
+| `cargo run --example crl_payload <R>` | hex of a signed CRL with `R` revoked entries |
+| `cargo run --example sizes` | CSV of encoded sizes by number of certificates and revoked entries, with truncated and full-length hashes |
 
-### As a library
+To check a signature end to end, run the `ecdsa_crl_vector` example, write the
+`crl_hex` value to `crl.hex`, and run `cargo run -- crl verify crl.hex <pubkey_hex>`.
+
+### Library
 
 ```rust
 use c509rev::crl::{C509Crl, CrlInfo};
 use c509rev::common::Name;
 use c509rev::registry::SIG_ED25519;
 
-// Build → sign → encode.
 let mut crl = C509Crl {
     info: CrlInfo {
         crl_type: 0,
@@ -90,139 +135,35 @@ let mut crl = C509Crl {
     signature_value: vec![],
 };
 crl.sign(private_key_pem)?;         // PKCS#8 PEM, Ed25519 or P-256
-let bytes = crl.encode();           // deterministic CBOR
+let bytes = crl.encode();
 
-// Decode → verify.
 let parsed = C509Crl::decode(&bytes)?;
 parsed.verify(&public_key_bytes)?;  // Ed25519 32-byte, or secp256r1 SEC1
 ```
 
-OCSP requests and responses follow the same `encode` / `decode` / `sign` / `verify`
-shape (`ocsp_req::C509OcspRequest`, `ocsp_resp::C509OcspResponse`).
-
-## Status
-
-The v1 codec is complete: **encode + decode + sign + verify + a CLI**, validated
-byte-for-byte against the draft's worked examples (KAT).
-
-| Area | Module | State |
-|------|--------|-------|
-| C509 Hash Algorithms registry + SHA-2 dispatch | `hashalg` | done |
-| `~time` (absolute + CRL/OCSP deltas) | `time` | done |
-| Shared `Name` / `Extension` helpers | `common` | done |
-| C509 CRL encode | `crl` | done — all 4 examples match |
-| C509 OCSP request encode (Simple/Unsigned/Signed) | `ocsp_req` | done — all examples match |
-| C509 OCSP response encode (Error/Basic/Simple) | `ocsp_resp` | done — all examples match |
-| Cert/serial identity hashes | `certhash` | functions done (see Findings) |
-| Decode (CRL + OCSP) | `decode` | done — all 9 examples round-trip |
-| Sign + verify (Ed25519, ECDSA-secp256r1) | `sign` | done — sign↔verify round-trip |
-| PEM textual representation (RFC 7468) | `pem` | done — round-trips + RFC 4648 base64 vectors |
-| CLI (`decode` / `verify` / `pem`) | `bin/c509rev` | done |
-
-For signed objects (CRL, signed OCSP request/response) the encode KAT is a **TBS
-byte-match**, because the draft ships no example signing keys, so the
-`signatureValue` itself cannot be reproduced; sign/verify is validated with the
-crate's own test keys, and decode→re-encode round-trips the full example bytes
-including the original signature.
-
-Remaining polish (not blocking v1): encode-from-a-source-format in the CLI,
-the signed-request *with-cert*/*with-chain* variants (the `requestor_certs`
-field is already an opaque pass-through), and full `Name` beyond the single-CN
-text form. X.509-DER ↔ C509 *semantic* interop is the separate phase 2.
-
-## Hash truncation
-
-Per the project's design decision, the OCSP cert/serial identity hashes
-(`issuerCertHash`, `serialNumberHash`, `responder`/`requestorCertHash`) are
-emitted **8-byte, KID-style** by default (`hashalg::HashLen::Trunc8`) to keep
-constrained OCSP small; `HashLen::Full` is retained so the encoders can be
-checked against the draft's full-hash examples.
-
-## Security considerations & known limitations
-
-This is **reference/test tooling, not production code** (see the disclaimer above).
-A security pass over the untrusted-input surface (decode + verify of
-attacker-supplied CRL/OCSP bytes) found the following; each is either fixed or
-recorded here as a known limitation.
-
-**Reviewed sound**
-- No `unsafe` code anywhere in the crate.
-- The CBOR parse goes through `serde_cbor::from_slice`, which returns an error
-  (not a panic) on truncated/malformed input.
-- Signature verification: Ed25519 via `ed25519-dalek` (strict/canonical) and
-  ECDSA-secp256r1-SHA256 via `p256`, with explicit key/signature length checks;
-  the algorithm is dispatched from the object and returns `UnsupportedAlg` /
-  `BadSignature` safely — no verify-bypass.
-
-**Fixed (hardening)**
-- **Bounded fixed-width entry parsing.** `revokedCertsControl.serialNumberLength`
-  (`1..=20`) and `dateLength` (`0..=8`) are enforced on decode per the draft CDDL
-  *before* they size the entry stride and per-entry sub-slices. Unbounded values
-  would otherwise overflow the stride / index past a chunk, turning a malformed
-  CRL into an out-of-bounds panic (DoS). See `decode_control` /
-  `decode_revoked` / `decode_removed`, with regression tests
-  `control_rejects_out_of_range_lengths` and `revoked_rejects_date_overflow`.
-- **Checked date arithmetic.** `baseDate + offset` (both attacker-controlled) uses
-  `checked_add`, returning `Malformed` instead of overflow-panicking (debug) or
-  wrapping (release).
-- **OCSP nonce length.** A non-null `nonce` must be 16 to 32 bytes
-  (`bytes .size (16..32)` in the draft CDDL); other lengths are rejected as
-  `Malformed` on decode (`nonce_length_is_enforced`). Encoders do not check it;
-  callers supply a 16–32-byte nonce from a cryptographically strong RNG.
-
-**Known limitations**
-- **Other CDDL range bounds not yet enforced on decode.** The value-level ranges
-  the draft tightened — `crlType`/`ocsp*Type` (`uint15`), `crlNumber`/`baseCrlNumber`
-  (`uint63 .ge 1`), `nextUpdate`/`baseDate` (`uint63`), `revocationReason` (`uint8`)
-  — are parsed but not range-checked. These are stored, not used to size memory,
-  so they are a **spec-conformance gap, not a memory-safety issue**. TODO: enforce
-  on decode (tracked; see the inline `NOTE` in `decode.rs`).
-- **`serde_cbor` is unmaintained** (RUSTSEC-2021-0127). It is a widely-used, stable
-  crate and is the CBOR library the companion `c509` cert implementation also uses;
-  a future move to a maintained CBOR crate (e.g. `ciborium`) is noted but not done.
-- **Truncated identity hashes reduce collision resistance.** Following the draft,
-  certificate hashes (`issuerCertHash`, `responderCertHash`, `requestorCertHash`)
-  are `HashId8` (8 bytes: ~64-bit second-preimage / ~32-bit birthday resistance)
-  and `serialNumberHash` is `HashId20` (20 bytes: ~160-bit / ~80-bit). This is a
-  draft-level size/security trade-off; see the draft's Security Considerations.
-  `HashLen::Full` is available.
-- **`cbor_item_end` in `lcbor.rs` is unused** here (vendored with the encoder). It
-  panics on unsupported additional-info and recurses unbounded, but is not on any
-  live path in this crate.
-
-## Findings surfaced against the draft
-
-This codec exists partly to review the draft. Two issues it surfaced have since
-been resolved in the draft (commit 8ba1c83, which updated the examples), and the
-codec was synced to match (0e28550):
-
-1. **CRL `nextUpdate`** — the text defined it as a delta from `thisUpdate`, but
-   the CRL examples encoded an absolute timestamp. The examples now encode the
-   delta; `time::crl_next_update` encodes the forward delta and is covered by
-   `crl_next_update_is_forward_delta`.
-2. **OCSP example identity hashes were not reproducible** — `issuerCertHash` /
-   `responderCertHash` did not match a hash of the published helper certificates.
-   With the updated examples they do;
-   `certhash::tests::{issuer,responder}_cert_hash_matches_example` both pass.
+`ocsp_req::C509OcspRequest` and `ocsp_resp::C509OcspResponse` have the same
+`encode`, `decode`, `sign`, and `verify` methods.
 
 ## Layout
 
 ```
 src/
-  lib.rs        crate root + discriminator constants
-  lcbor.rs      deterministic CBOR encoder (vendored from c509, BSD-3-Clause)
-  registry.rs   C509 signature-algorithm ids (v1 profile)
-  hashalg.rs    C509 Hash Algorithms registry, hash dispatch, HashLen
-  time.rs       ~time encoding (absolute + CRL/OCSP deltas)
-  common.rs     Name, Extension, shared CBOR helpers
-  crl.rs        C509 CRL
-  ocsp_req.rs   C509 OCSP request (Simple / Unsigned / Signed)
-  ocsp_resp.rs  C509 OCSP response (Error / Basic / Simple)
-  certhash.rs   issuer/serial/responder/requestor identity hashes
-  pem.rs        PEM textual representation (RFC 7468) + RFC 4648 base64
-  bin/c509rev.rs  CLI (decode / verify / pem)
+  lib.rs          crate root, type discriminators
+  lcbor.rs        deterministic CBOR encoder
+  registry.rs     signature algorithm identifiers
+  hashalg.rs      hash algorithm identifiers, hashing, truncation
+  time.rs         time encoding
+  common.rs       Name, Extension, shared CBOR helpers
+  crl.rs          C509 CRL
+  ocsp_req.rs     C509 OCSP request
+  ocsp_resp.rs    C509 OCSP response
+  certhash.rs     certificate and serial-number identity hashes
+  decode.rs       decoding for all objects
+  sign.rs         signing and verification
+  pem.rs          PEM textual representation
+  bin/c509rev.rs  command-line tool
 examples/
-  sizes.rs           size CSV (LRev Tier-0)
-  ecdsa_crl_vector.rs deterministic P-256 signed CRL test vector
-  crl_payload.rs     signed CRL of R entries (E10 payload)
+  ecdsa_crl_vector.rs
+  crl_payload.rs
+  sizes.rs
 ```
