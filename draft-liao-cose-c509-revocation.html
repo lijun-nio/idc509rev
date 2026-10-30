@@ -1369,6 +1369,26 @@ svg {
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
             <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-signature-verification" class="internal xref">Signature Verification</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-truncated-hash-identifiers" class="internal xref">Truncated Hash Identifiers</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
+                <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="auto internal xref">9.3</a>.  <a href="#name-privacy" class="internal xref">Privacy</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4">
+                <p id="section-toc.1-1.9.2.4.1"><a href="#section-9.4" class="auto internal xref">9.4</a>.  <a href="#name-freshness-and-replay" class="internal xref">Freshness and Replay</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.5">
+                <p id="section-toc.1-1.9.2.5.1"><a href="#section-9.5" class="auto internal xref">9.5</a>.  <a href="#name-completeness-of-crls" class="internal xref">Completeness of CRLs</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.6">
+                <p id="section-toc.1-1.9.2.6.1"><a href="#section-9.6" class="auto internal xref">9.6</a>.  <a href="#name-parsing-and-denial-of-servi" class="internal xref">Parsing and Denial of Service</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
             <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
@@ -1891,7 +1911,7 @@ RevokedCertsControl = [
         <h3 id="name-field-encodings">
 <a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-field-encodings" class="section-name selfRef">Field Encodings</a>
         </h3>
-<div id="crlinfodata-and-c509crlinfo">
+<div id="crlinfo">
 <section id="section-6.3.1">
           <h4 id="name-crlinfodata-and-c509crlinfo">
 <a href="#section-6.3.1" class="section-number selfRef">6.3.1. </a><a href="#name-crlinfodata-and-c509crlinfo" class="section-name selfRef">CRLInfoData and C509CRLInfo</a>
@@ -2015,7 +2035,7 @@ RevokedCertsControl = [
 <p id="section-6.3.8-3"><code>removeFromCRL</code> (enumeration value 0x08) is not encoded in <code>revokedCerts</code>.  Certificates removed from the CRL are instead indicated in the <code>removedFromCRLCerts</code> field of <code>PerIssuerRevokedCerts</code>.<a href="#section-6.3.8-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="revokedcertslist-and-perissuerrevokedcerts">
+<div id="revoked-certs-list">
 <section id="section-6.3.9">
           <h4 id="name-revokedcertslist-and-periss">
 <a href="#section-6.3.9" class="section-number selfRef">6.3.9. </a><a href="#name-revokedcertslist-and-periss" class="section-name selfRef">revokedCertsList and PerIssuerRevokedCerts</a>
@@ -2436,7 +2456,7 @@ C509OCSPRequest = C509UnsignedOCSPRequest /
 C509UnsignedOCSPRequest = [
   ocspRequestType    : 0, ; int16
   hashAlgorithm      : IntAlgorithmIdentifier,
-  nonce              : bytes / null,
+  nonce              : bytes .size (16..32) / null,
   extensions         : IntExtensions,
   requests           : PerIssuerOCSPRequests
 ]
@@ -2445,7 +2465,7 @@ TBSOCSPRequest = (
   ocspRequestType    : 1, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
-  nonce              : bytes / null,
+  nonce              : bytes .size (16..32) / null,
   requestorCertHash  : HashId8,
   extensions         : IntExtensions,
   requests           : PerIssuerOCSPRequests,
@@ -2460,7 +2480,7 @@ C509SignedOCSPRequest = [
 C509SimpleOCSPRequest = [
   ocspRequestType    : 2, ; int16
   hashAlgorithm      : IntAlgorithmIdentifier,
-  nonce              : bytes / null,
+  nonce              : bytes .size (16..32) / null,
   issuerCertHash     : HashId8,
   serialNumberHash   : HashId20,
   extensions         : IntExtensions
@@ -2587,7 +2607,7 @@ SingleCertRequest = (
                 <p id="section-7.4.2.4-1.2.1">The <code>hashAlgorithm</code> field specifies the hash algorithm used to compute <code>issuerCertHash</code> and <code>serialNumberHash</code>.  The algorithm is encoded as specified in <a href="#hash-algs" class="auto internal xref">Section 7.2</a>.<a href="#section-7.4.2.4-1.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.4.2.4-1.3">
-                <p id="section-7.4.2.4-1.3.1">The <code>nonce</code> field contains the request nonce, or <span class="bcp14">MUST</span> be <code>null</code> when no nonce is present.<a href="#section-7.4.2.4-1.3.1" class="pilcrow">¶</a></p>
+                <p id="section-7.4.2.4-1.3.1">The <code>nonce</code> field contains the request nonce, or <span class="bcp14">MUST</span> be <code>null</code> when no nonce is present.  The nonce <span class="bcp14">MUST</span> be generated by a cryptographically strong pseudorandom number generator and <span class="bcp14">MUST</span> be between 16 and 32 bytes long.  An OCSP server <span class="bcp14">MUST</span> reject a request whose nonce is shorter than 16 bytes or longer than 32 bytes by returning a <code>C509ErrorOCSPResponse</code> with <code>responseStatus</code> set to <code>malformedRequest</code> (1).<a href="#section-7.4.2.4-1.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.4.2.4-1.4">
                 <p id="section-7.4.2.4-1.4.1">The <code>extensions</code> field contains request-level extensions; see <a href="#ocsp-extensions" class="auto internal xref">Section 7.5.2.13</a>.<a href="#section-7.4.2.4-1.4.1" class="pilcrow">¶</a></p>
@@ -2648,7 +2668,7 @@ SingleCertRequest = (
                 <p id="section-7.4.2.6-2.2.1">The <code>hashAlgorithm</code> field specifies the hash algorithm used to compute <code>issuerCertHash</code> and <code>serialNumberHash</code>.  The algorithm is encoded as specified in <a href="#hash-algs" class="auto internal xref">Section 7.2</a>.<a href="#section-7.4.2.6-2.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.4.2.6-2.3">
-                <p id="section-7.4.2.6-2.3.1">The <code>nonce</code> field contains the request nonce, or <span class="bcp14">MUST</span> be <code>null</code> when no nonce is present.<a href="#section-7.4.2.6-2.3.1" class="pilcrow">¶</a></p>
+                <p id="section-7.4.2.6-2.3.1">The <code>nonce</code> field is as defined for <code>C509UnsignedOCSPRequest</code> (<a href="#C509UnsignedOCSPRequest" class="auto internal xref">Section 7.4.2.4</a>).<a href="#section-7.4.2.6-2.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.4.2.6-2.4">
                 <p id="section-7.4.2.6-2.4.1">The <code>issuerCertHash</code> field identifies the issuer of the target certificate; see <a href="#issuer-hash-id" class="auto internal xref">Section 7.4.2.2</a>.<a href="#section-7.4.2.6-2.4.1" class="pilcrow">¶</a></p>
@@ -2714,7 +2734,7 @@ TBSBasicOCSPResponse = (
   ocspResponseType   : 1, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
-  nonce              : bytes / null,
+  nonce              : bytes .size (16..32) / null,
   responderCertHash  : HashId8,
   producedAt         : ~time,
   extensions         : IntExtensions,
@@ -2731,7 +2751,7 @@ TBSSimpleOCSPResponse = (
   ocspResponseType   : 2, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
-  nonce              : bytes / null,
+  nonce              : bytes .size (16..32) / null,
   responderCertHash  : HashId8,
   issuerCertHash     : HashId8,
   serialNumberHash   : HashId20,
@@ -3291,7 +3311,7 @@ TNQuery = text .size (1..15)
 <p id="section-7.6-5">In a hybrid deployment where the responder holds an X.509 certificate, <code>responderCertHash</code> contains the hash of the DER-encoded X.509 certificate and <code>responderCerts</code> carries a <code>#6.121(COSE_X509)</code> chain.  In a deployment using C509 certificates throughout, all identity hashes are computed over CBOR-encoded certificates and certificate chains are carried as <code>COSE_C509</code>.  The <code>hashAlgorithm</code> field at the top level of each request or response structure governs all hashes within that structure.<a href="#section-7.6-5" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="ocsp-stapling-in-tls">
+<div id="ocsp-stapling">
 <section id="section-7.7">
         <h3 id="name-ocsp-stapling-in-tls">
 <a href="#section-7.7" class="section-number selfRef">7.7. </a><a href="#name-ocsp-stapling-in-tls" class="section-name selfRef">OCSP Stapling in TLS</a>
@@ -3455,7 +3475,75 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
       <h2 id="name-security-considerations">
 <a href="#section-9" class="section-number selfRef">9. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-9-1">TODO<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-1">The security considerations of <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>, <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>, <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>, and <span>[<a href="#RFC8949" class="cite xref">RFC8949</a>], <a href="https://rfc-editor.org/rfc/rfc8949#section-10" class="relref">Section 10</a></span> apply.  This section covers the considerations specific to this document.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<div id="sec-signature">
+<section id="section-9.1">
+        <h3 id="name-signature-verification">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-signature-verification" class="section-name selfRef">Signature Verification</a>
+        </h3>
+<p id="section-9.1-1">The signatures of C509 CRLs and of signed C509 OCSP messages cover all fields except <code>signatureValue</code>, including <code>signatureAlgorithm</code> and <code>requestorCerts</code> or <code>responderCerts</code>.  This prevents algorithm and certificate-chain substitution, but does not replace the validation of <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span> and <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>: the verifier <span class="bcp14">MUST</span> check that <code>signatureAlgorithm</code> matches the signer's public key, <span class="bcp14">MUST</span> validate the signer's certificate chain (a transported chain is only a hint for path construction), and <span class="bcp14">MUST</span> verify that the signer is authorized, as specified in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.2.2.2" class="relref">Section 4.2.2.2</a></span> for OCSP responses and in <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-6.3" class="relref">Section 6.3</a></span> for CRLs.  The signature <span class="bcp14">SHOULD</span> be verified over the bytes as received rather than over a re-encoding.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+<p id="section-9.1-2"><code>C509ErrorOCSPResponse</code> and <code>C509CRLInfo</code> (<a href="#crlinfo" class="auto internal xref">Section 6.3.1</a>) are not signed.  An error response <span class="bcp14">MUST NOT</span> be interpreted as status information about any certificate.  A <code>C509CRLInfo</code> <span class="bcp14">MUST NOT</span> be used for revocation or freshness decisions unless it was obtained over a channel that authenticates the CRL issuer.<a href="#section-9.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-truncated-hash">
+<section id="section-9.2">
+        <h3 id="name-truncated-hash-identifiers">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-truncated-hash-identifiers" class="section-name selfRef">Truncated Hash Identifiers</a>
+        </h3>
+<p id="section-9.2-1"><code>HashId8</code> (<a href="#cert-identification" class="auto internal xref">Section 7.3</a>) only selects a certificate and does not authenticate it; security relies on the signature verification in <a href="#sec-signature" class="auto internal xref">Section 9.1</a>.  A relying party <span class="bcp14">MUST</span> match a response to its request using hash values it has computed itself from the certificates it holds.  A receiver that finds several certificates matching a <code>HashId8</code> <span class="bcp14">MUST NOT</span> assume that a particular one is intended.  An OCSP responder for which an <code>issuerCertHash</code> matches more than one of its issuers, or a <code>serialNumberHash</code> matches more than one serial number, <span class="bcp14">MUST NOT</span> return the status <code>good</code> for that entry.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+<p id="section-9.2-2">Since serial numbers are chosen by the CA, an attacker cannot mount a collision attack on <code>serialNumberHash</code>; making the status of one certificate appear as that of another requires a second preimage of about 2^160 operations.  The serial number <span class="bcp14">MUST</span> be normalized as specified in <a href="#cert-identification" class="auto internal xref">Section 7.3</a> before hashing; otherwise, a revoked certificate is not found.<a href="#section-9.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-privacy">
+<section id="section-9.3">
+        <h3 id="name-privacy">
+<a href="#section-9.3" class="section-number selfRef">9.3. </a><a href="#name-privacy" class="section-name selfRef">Privacy</a>
+        </h3>
+<p id="section-9.3-1"><code>serialNumberHash</code> hides the queried certificate only from observers that do not know its serial number.  Serial numbers are not secret, and the hash is unsalted, so an observer with a set of candidate serial numbers can identify the queried certificate and link repeated queries; <code>issuerCertHash</code> reveals the issuer.  Where this matters, requests and responses <span class="bcp14">SHOULD</span> be protected, e.g., by DTLS or OSCORE, or OCSP stapling (<a href="#ocsp-stapling" class="auto internal xref">Section 7.7</a>) <span class="bcp14">SHOULD</span> be used.<a href="#section-9.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-freshness">
+<section id="section-9.4">
+        <h3 id="name-freshness-and-replay">
+<a href="#section-9.4" class="section-number selfRef">9.4. </a><a href="#name-freshness-and-replay" class="section-name selfRef">Freshness and Replay</a>
+        </h3>
+<p id="section-9.4-1">A relying party <span class="bcp14">MUST</span> check the validity interval of an OCSP response (<span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.2.2.1" class="relref">Section 4.2.2.1</a></span>) and, if it sent a nonce, that the response carries the same nonce.  Without a nonce, a response can be replayed until it expires; relying parties without a reliable clock <span class="bcp14">SHOULD</span> use nonces.<a href="#section-9.4-1" class="pilcrow">¶</a></p>
+<p id="section-9.4-2">The nonce is 16 to 32 bytes long (<a href="#C509UnsignedOCSPRequest" class="auto internal xref">Section 7.4.2.4</a>), whereas <span>[<a href="#RFC8954" class="cite xref">RFC8954</a>]</span> requires new clients to use 32 octets in the Nonce extension of <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>.  A replay succeeds only if the attacker has obtained, from the OCSP responder, a response for the nonce that the relying party later chooses.  With N such responses and M requests, the probability is about N * M / 2^128 for a 16-byte nonce, i.e., about 2^-48 even for N = M = 2^40, and the attack can be neither performed offline nor accelerated by a quantum computer.  A 32-byte nonce adds no practical security but 16 bytes to each request and response, which is significant on constrained links.<a href="#section-9.4-2" class="pilcrow">¶</a></p>
+<p id="section-9.4-3">A relying party <span class="bcp14">MUST NOT</span> use a CRL after <code>thisUpdate + nextUpdate</code>, <span class="bcp14">SHOULD</span> reject a CRL whose <code>crlNumber</code> is lower than that of a CRL previously accepted for the same scope, and <span class="bcp14">MUST</span> combine a delta CRL only with a full CRL whose <code>crlNumber</code> is at least <code>baseCrlNumber</code> (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-5.2.4" class="relref">Section 5.2.4</a></span>).<a href="#section-9.4-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-completeness">
+<section id="section-9.5">
+        <h3 id="name-completeness-of-crls">
+<a href="#section-9.5" class="section-number selfRef">9.5. </a><a href="#name-completeness-of-crls" class="section-name selfRef">Completeness of CRLs</a>
+        </h3>
+<ul class="normal">
+<li class="normal" id="section-9.5-1.1">
+            <p id="section-9.5-1.1.1">Certificates whose serial number is not a positive integer of at most 20 bytes, as required by <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-4.1.2.2" class="relref">Section 4.1.2.2</a></span>, are not supported by this document; C509 CRLs cannot list some of them, and relying parties <span class="bcp14">MUST</span> reject them.<a href="#section-9.5-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-9.5-1.2">
+            <p id="section-9.5-1.2.1">When <code>dateLength</code> is 0, no revocation date is available, and a listed certificate <span class="bcp14">MUST</span> be treated as revoked at all times.<a href="#section-9.5-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-9.5-1.3">
+            <p id="section-9.5-1.3.1">When bit 1 of <code>flags</code> is not set, no reason code is available, and the reason <span class="bcp14">MUST</span> be treated as <code>unspecified</code>.<a href="#section-9.5-1.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-9.5-1.4">
+            <p id="section-9.5-1.4.1">The issuer <span class="bcp14">MUST</span> be compared in the representation that matches the certificate type (<code>Name</code> or tag 121 with a DER-encoded name).<a href="#section-9.5-1.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-9.5-2">Implementations <span class="bcp14">MUST</span> reject a CRL in which the length of <code>revokedCerts</code> or <code>removedFromCRLCerts</code> is not a multiple of the entry length.  An implementation that uses binary search based on bit 0 of <code>flags</code> <span class="bcp14">MUST</span> verify that the entries are sorted, since otherwise a revoked certificate can be missed.<a href="#section-9.5-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-parsing">
+<section id="section-9.6">
+        <h3 id="name-parsing-and-denial-of-servi">
+<a href="#section-9.6" class="section-number selfRef">9.6. </a><a href="#name-parsing-and-denial-of-servi" class="section-name selfRef">Parsing and Denial of Service</a>
+        </h3>
+<p id="section-9.6-1">Messages are parsed before their signature is verified, and unsigned requests are never authenticated.  Implementations <span class="bcp14">MUST</span> reject input that does not conform to the CDDL, <span class="bcp14">SHOULD</span> limit message sizes and the number of entries, and <span class="bcp14">MUST</span> reject input for which computing an absolute time from a base time and an offset overflows.<a href="#section-9.6-1" class="pilcrow">¶</a></p>
+<p id="section-9.6-2">Answering a request may require a signature, and responses are larger than requests, which exposes OCSP responders to resource exhaustion and to abuse for traffic amplification over UDP (<span>[<a href="#RFC7252" class="cite xref">RFC7252</a>], <a href="https://rfc-editor.org/rfc/rfc7252#section-11.3" class="relref">Section 11.3</a></span>).  OCSP responders <span class="bcp14">SHOULD</span> rate-limit requests and <span class="bcp14">MAY</span> require signed requests.<a href="#section-9.6-2" class="pilcrow">¶</a></p>
+<p id="section-9.6-3">A stapled <code>C509OCSPResponse</code> (<a href="#ocsp-stapling" class="auto internal xref">Section 7.7</a>) <span class="bcp14">MUST</span> be validated as if obtained directly from the OCSP responder.<a href="#section-9.6-3" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="iana">
@@ -4073,6 +4161,10 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
         <dd>
 <span class="refAuthor">Bormann, C.</span>, <span class="refAuthor">Ersue, M.</span>, and <span class="refAuthor">A. Keranen</span>, <span class="refTitle">"Terminology for Constrained-Node Networks"</span>, <span class="seriesInfo">RFC 7228</span>, <span class="seriesInfo">DOI 10.17487/RFC7228</span>, <time datetime="2014-05" class="refDate">May 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7228">https://www.rfc-editor.org/rfc/rfc7228</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC7252">[RFC7252]</dt>
+        <dd>
+<span class="refAuthor">Shelby, Z.</span>, <span class="refAuthor">Hartke, K.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"The Constrained Application Protocol (CoAP)"</span>, <span class="seriesInfo">RFC 7252</span>, <span class="seriesInfo">DOI 10.17487/RFC7252</span>, <time datetime="2014-06" class="refDate">June 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7252">https://www.rfc-editor.org/rfc/rfc7252</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC7925">[RFC7925]</dt>
         <dd>
 <span class="refAuthor">Tschofenig, H., Ed.</span> and <span class="refAuthor">T. Fossati</span>, <span class="refTitle">"Transport Layer Security (TLS) / Datagram Transport Layer Security (DTLS) Profiles for the Internet of Things"</span>, <span class="seriesInfo">RFC 7925</span>, <span class="seriesInfo">DOI 10.17487/RFC7925</span>, <time datetime="2016-07" class="refDate">July 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7925">https://www.rfc-editor.org/rfc/rfc7925</a>&gt;</span>. </dd>
@@ -4080,6 +4172,10 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 <dt id="RFC7942">[RFC7942]</dt>
         <dd>
 <span class="refAuthor">Sheffer, Y.</span> and <span class="refAuthor">A. Farrel</span>, <span class="refTitle">"Improving Awareness of Running Code: The Implementation Status Section"</span>, <span class="seriesInfo">BCP 205</span>, <span class="seriesInfo">RFC 7942</span>, <span class="seriesInfo">DOI 10.17487/RFC7942</span>, <time datetime="2016-07" class="refDate">July 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7942">https://www.rfc-editor.org/rfc/rfc7942</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8954">[RFC8954]</dt>
+        <dd>
+<span class="refAuthor">Sahni, M., Ed.</span>, <span class="refTitle">"Online Certificate Status Protocol (OCSP) Nonce Extension"</span>, <span class="seriesInfo">RFC 8954</span>, <span class="seriesInfo">DOI 10.17487/RFC8954</span>, <time datetime="2020-11" class="refDate">November 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8954">https://www.rfc-editor.org/rfc/rfc8954</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="TinyOCSP">[TinyOCSP]</dt>
         <dd>
@@ -7106,7 +7202,10 @@ C509BasicOCSPResponse
             <p id="appendix-B.1-1.6.1">Added the section "Implementation Status".<a href="#appendix-B.1-1.6.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-B.1-1.7">
-            <p id="appendix-B.1-1.7.1">Clarifications and editorial improvements.<a href="#appendix-B.1-1.7.1" class="pilcrow">¶</a></p>
+            <p id="appendix-B.1-1.7.1">Added the section "Security Considerations".<a href="#appendix-B.1-1.7.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.1-1.8">
+            <p id="appendix-B.1-1.8.1">Clarifications and editorial improvements.<a href="#appendix-B.1-1.8.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
