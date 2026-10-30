@@ -151,14 +151,6 @@ Table of Contents
      8.1.  Implementation #1
      8.2.  Implementation #2
    9.  Security Considerations
-     9.1.  Signature Coverage and Verification
-     9.2.  Truncated Hash Identifiers
-     9.3.  Privacy
-     9.4.  Freshness and Replay
-     9.5.  Completeness of Revocation Information
-     9.6.  Parsing and Resource Consumption
-     9.7.  Denial of Service
-     9.8.  OCSP Stapling
    10. IANA Considerations
      10.1.  C509 CRL Types Registry
      10.2.  C509 OCSP Request Types Registry
@@ -1942,226 +1934,7 @@ Table of Contents
 
 9.  Security Considerations
 
-   C509 CRL and C509 OCSP preserve the semantics of X.509 CRLs and OCSP.
-   The security considerations of [RFC5280] and [RFC6960] therefore
-   apply, as do those of C509 certificates
-   [I-D.ietf-cose-cbor-encoded-cert] and of CBOR [RFC8949], Section 10.
-   This section discusses the considerations that are specific to the
-   encodings defined in this document.
-
-9.1.  Signature Coverage and Verification
-
-   In C509 CRLs, C509 signed OCSP requests, and C509 signed OCSP
-   responses, the signature covers every field except signatureValue,
-   including signatureAlgorithm, hashAlgorithm, and the transported
-   certificate chain (requestorCerts or responderCerts).  An attacker
-   therefore cannot substitute the signature algorithm or the
-   certificate chain without invalidating the signature.  This
-   protection does not replace the validation steps required by
-   [RFC5280] and [RFC6960].  In particular, a verifier:
-
-   *  MUST check that signatureAlgorithm is consistent with the public
-      key of the signer's certificate and is acceptable under its local
-      policy;
-
-   *  MUST validate the signer's certificate chain; a chain carried in
-      requestorCerts or responderCerts is a hint for path construction
-      and does not by itself establish trust; and
-
-   *  MUST verify that the signer of an OCSP response is authorized to
-      sign responses for the issuer identified by issuerCertHash, as
-      specified in [RFC6960], Section 4.2.2.2, and that the signer of a
-      CRL is authorized to issue the CRL for every issuer listed in
-      revokedCertsList, as specified in [RFC5280], Section 6.3.
-
-   The signature is computed over the CBOR Sequence of the to-be-signed
-   group.  Although the encoding is deterministic, a verifier SHOULD
-   verify the signature over the bytes as received rather than over a
-   re-encoding of the decoded structure, so that differences between
-   encoders cannot cause valid signatures to fail or invalid content to
-   be accepted.
-
-   C509ErrorOCSPResponse and C509CRLInfo (Section 6.3.1) are not signed.
-   As in [RFC6960], an error response can be forged by an on-path
-   attacker; it MUST NOT be interpreted as information about the status
-   of any certificate.  A C509CRLInfo MUST NOT be used to make
-   revocation or freshness decisions unless it was obtained over a
-   channel that authenticates the CRL issuer, or its content has been
-   verified against a signed C509 CRL.
-
-9.2.  Truncated Hash Identifiers
-
-   Certificates of issuers, requestors, and responders are identified by
-   HashId8, a 64-bit truncated hash (Section 7.3).  HashId8 is an
-   identifier used to select a certificate, not a cryptographic binding:
-   second-preimage resistance of 64 bits and collision resistance of 32
-   bits are not sufficient to authenticate a certificate.  The security
-   of C509 OCSP relies on signature verification and certificate path
-   validation as described in Section 9.1, never on a HashId8 match
-   alone.  In particular:
-
-   *  A relying party MUST match a response to its request by comparing
-      the issuerCertHash and serialNumberHash values with values it has
-      computed itself from the issuer certificate and the target
-      certificate that it holds.
-
-   *  A receiver that finds more than one candidate certificate matching
-      a HashId8 value MUST NOT assume that a particular candidate is the
-      intended one.  It MAY try each candidate in turn when verifying a
-      signature.
-
-   *  An OCSP responder serving more than one issuer that finds more
-      than one of its issuers matching an issuerCertHash MUST NOT return
-      the status good for the affected request entries; it SHOULD return
-      unknown for them.
-
-   serialNumberHash is a 160-bit truncated hash.  As discussed in
-   Section 7.3, finding two serial numbers with the same
-   serialNumberHash requires about 2^80 hash operations, and an attacker
-   additionally needs the issuer to issue a certificate with the
-   colliding serial number.  Since serial numbers are chosen by the CA,
-   CAs SHOULD generate serial numbers that contain at least 64 bits of
-   output from a cryptographically secure random number generator, which
-   prevents attackers from influencing them.
-
-   The truncated identifiers inherit the strength of hashAlgorithm.
-   Section 7.2 prohibits SHA-1 and SHA-256/64.  When an OCSP responder
-   receives a request that uses a hash algorithm that is not acceptable
-   under its policy, it SHOULD return a C509ErrorOCSPResponse with
-   responseStatus set to malformedRequest (1).
-
-   The serial number MUST be normalized as specified in Section 7.3
-   (big-endian, without leading zero bytes) before hashing.  An
-   implementation that hashes a different representation computes a
-   serialNumberHash that does not match, so a revoked certificate would
-   not be found.
-
-9.3.  Privacy
-
-   Replacing serial numbers with serialNumberHash hides the queried
-   certificate only from observers that do not know its serial number.
-   Serial numbers are not secret: they appear in certificates exchanged
-   in the clear (e.g., in TLS 1.2 and DTLS 1.2 handshakes), in CRLs, and
-   in public logs.  The hash is unsalted and deterministic, so an
-   observer who knows a candidate set of serial numbers can recover the
-   queried one by computing the hash of every candidate, and can link
-   repeated queries for the same certificate.  The issuerCertHash
-   reveals the issuer of the queried certificate to observers who know
-   the issuer certificate.  The OCSP responder always learns which
-   certificate is queried, as in [RFC6960].
-
-   Where the confidentiality of status queries matters, the requests and
-   responses SHOULD be protected by a secure transport or by object
-   security, e.g., DTLS or OSCORE.  Alternatively, OCSP stapling
-   (Section 7.7) avoids contact between the relying party and the OCSP
-   responder altogether.
-
-9.4.  Freshness and Replay
-
-   A response without a nonce can be replayed by an attacker until it
-   expires.  A relying party MUST check the validity interval of a
-   response as specified in [RFC6960], Section 4.2.2.1, using the
-   absolute times producedAt + thisUpdate and producedAt + nextUpdate,
-   and MUST check that the nonce of a response equals the nonce of its
-   request whenever it sent one.  A relying party that needs replay
-   protection, e.g., because it lacks a reliable real-time clock, SHOULD
-   include a nonce in its requests and reject responses without a
-   matching nonce.  The nonce SHOULD be generated as recommended in
-   [RFC8954]: at least 32 bytes long and from a cryptographically secure
-   random number generator.  OCSP responders MUST NOT return a response
-   with a nonce other than the one received in the request.
-
-   Similarly, a relying party MUST check that the current time is not
-   later than thisUpdate + nextUpdate of a CRL whose nextUpdate is not
-   null, and SHOULD reject a CRL whose crlNumber is lower than that of a
-   CRL it has previously accepted from the same CRL issuer and scope, to
-   prevent rollback to an older CRL.  When processing a delta CRL, the
-   relying party MUST combine it only with the full CRL whose crlNumber
-   equals baseCrlNumber or a later one, as specified in [RFC5280],
-   Section 5.2.4.
-
-9.5.  Completeness of Revocation Information
-
-   The compact encoding of revokedCertsList (Section 6.3.9) has the
-   following consequences that relying parties need to be aware of:
-
-   *  The serial number of a certificate is encoded as an unsigned
-      integer of at most 20 bytes.  A non-conformant certificate with a
-      negative serial number or a serial number longer than 20 bytes
-      cannot be listed in a C509 CRL.  A relying party that uses C509
-      CRLs as its only source of revocation information MUST reject such
-      certificates.
-
-   *  When dateLength is 0, revocation dates are not available.  Relying
-      parties that need the revocation date, e.g., to accept signatures
-      created before the revocation, cannot use such CRLs for that
-      purpose and MUST treat the certificate as revoked at all times.
-      CRL issuers SHOULD NOT set dateLength to 0 when such relying
-      parties are expected.
-
-   *  When bit 1 of flags is not set, no reason code is available, and
-      the relying party MUST treat the reason as unspecified.  In
-      particular, it cannot distinguish certificateHold, which is
-      temporary, from a permanent revocation, and it MUST treat every
-      listed certificate as revoked.
-
-   *  The issuer of the revoked certificates is identified by a Name for
-      C509 issuers and by a DER-encoded name wrapped in tag 121 for
-      X.509 issuers.  A relying party MUST compare the issuer of a
-      certificate with the issuer (or, when issuer is null,
-      authoritySubject) field in the representation that corresponds to
-      the certificate type, applying the name-matching rules of
-      [RFC5280], Section 7.1.  An incorrect comparison results in a
-      revoked certificate not being found.
-
-   A C509 CRL with an incorrect structure can make revoked certificates
-   invisible to an implementation even when the signature is valid.
-   Implementations MUST verify that the lengths of revokedCerts and
-   removedFromCRLCerts are multiples of the entry length derived from
-   revokedCertsControl, and MUST reject the CRL otherwise.  An
-   implementation that relies on bit 0 of flags to perform a binary
-   search SHOULD verify that the entries are sorted in ascending order
-   and without duplicates when the CRL is first processed, and MUST NOT
-   accept the CRL if they are not, since a binary search over unsorted
-   entries can miss a revoked certificate.
-
-9.6.  Parsing and Resource Consumption
-
-   C509 CRLs and C509 OCSP messages are typically parsed before their
-   signature is verified, and unsigned requests are never authenticated.
-   Implementations MUST treat all input as untrusted until the signature
-   has been verified, MUST reject input that does not conform to the
-   CDDL in this document, and SHOULD limit the sizes of messages and of
-   individual structures (e.g., the number of PerIssuerOCSPRequest and
-   SingleCertRequest entries) according to their resources.
-
-   Times are encoded as offsets from a base time (baseDate, thisUpdate,
-   producedAt).  Offsets of up to 8 bytes can be encoded in revokedCerts
-   and removedFromCRLCerts, and nextUpdate can be as large as 2^63 - 1.
-   Implementations MUST detect integer overflow when computing absolute
-   times from these offsets and MUST reject the input when an overflow
-   occurs.
-
-9.7.  Denial of Service
-
-   Answering an unsigned request may require the OCSP responder to
-   compute a signature, and the response is usually larger than the
-   request (see Appendix A).  OCSP responders are therefore exposed to
-   resource exhaustion and can be abused for traffic amplification when
-   deployed over unreliable transports, such as CoAP over UDP; see
-   [RFC7252], Section 11.3.  OCSP responders SHOULD rate-limit requests,
-   MAY require signed requests (returning sigRequired (5) otherwise),
-   and MAY serve pre-produced responses for requests without a nonce.
-
-9.8.  OCSP Stapling
-
-   When the c509_ocsp certificate status type (Section 7.7) is used, the
-   client MUST validate the stapled C509OCSPResponse as described in
-   this section, exactly as if it had obtained the response from the
-   OCSP responder.  As with stapled DER-encoded OCSP responses, the
-   server can omit the stapled response; whether the client then aborts
-   the handshake or falls back to other mechanisms is a matter of local
-   policy that is outside the scope of this document.
+   TODO
 
 10.  IANA Considerations
 
@@ -2718,11 +2491,6 @@ Table of Contents
               DOI 10.17487/RFC7228, May 2014,
               <https://www.rfc-editor.org/rfc/rfc7228>.
 
-   [RFC7252]  Shelby, Z., Hartke, K., and C. Bormann, "The Constrained
-              Application Protocol (CoAP)", RFC 7252,
-              DOI 10.17487/RFC7252, June 2014,
-              <https://www.rfc-editor.org/rfc/rfc7252>.
-
    [RFC7925]  Tschofenig, H., Ed. and T. Fossati, "Transport Layer
               Security (TLS) / Datagram Transport Layer Security (DTLS)
               Profiles for the Internet of Things", RFC 7925,
@@ -2733,10 +2501,6 @@ Table of Contents
               Code: The Implementation Status Section", BCP 205,
               RFC 7942, DOI 10.17487/RFC7942, July 2016,
               <https://www.rfc-editor.org/rfc/rfc7942>.
-
-   [RFC8954]  Sahni, M., Ed., "Online Certificate Status Protocol (OCSP)
-              Nonce Extension", RFC 8954, DOI 10.17487/RFC8954, November
-              2020, <https://www.rfc-editor.org/rfc/rfc8954>.
 
    [TinyOCSP] Höglund, J., Furuhed, M., and S. Raza, "Lightweight
               certificate revocation for low-power IoT with end-to-end
@@ -5121,8 +4885,6 @@ B.1.  Version -00 to -01
       response types.
 
    *  Added the section "Implementation Status".
-
-   *  Added the section "Security Considerations".
 
    *  Clarifications and editorial improvements.
 
