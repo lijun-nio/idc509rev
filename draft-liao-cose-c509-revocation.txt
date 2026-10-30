@@ -398,8 +398,8 @@ Table of Contents
    equivalent X.509 CRLs (for example, a CRL carrying revoked
    certificates is reduced from 335 to 177 bytes, a 47% reduction), and
    C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP
-   request from 152 to 51 bytes, and a Basic OCSP response without the
-   responder's certificate from 845 to 248 bytes); see Table 14.
+   request from 150 to 51 bytes, and a Basic OCSP response without the
+   responder's certificate from 837 to 248 bytes); see Table 14.
 
    These alternatives are useful in specific deployments, but they do
    not provide the CBOR-based, certificate-type-agnostic revocation
@@ -2545,7 +2545,7 @@ A.1.  Overview
    | Appendix | Unsigned OCSP    | 475        | 132        | 72%       |
    | A.4.2    | Request Example  |            |            |           |
    +----------+------------------+------------+------------+-----------+
-   | Appendix | Signed OCSP      | 584        | 209        | 65%       |
+   | Appendix | Signed OCSP      | 584        | 209        | 64%       |
    | A.4.3    | Request Example  |            |            |           |
    |          | Without          |            |            |           |
    |          | Requestor's      |            |            |           |
@@ -2592,7 +2592,7 @@ A.1.  Overview
    |          | Chain            |            |            |           |
    +----------+------------------+------------+------------+-----------+
 
-   Table 14: Size comparison in examples (TODO: update the percent data)
+                   Table 14: Size comparison in examples
 
 A.2.  Helper Keys and Certificates
 

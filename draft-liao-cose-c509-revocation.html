@@ -1759,7 +1759,7 @@ svg {
           <p id="section-2-2.6.1"><strong>Compact CBOR revocation for IoT (TinyOCSP and CCRL)</strong> <span>[<a href="#TinyOCSP" class="cite xref">TinyOCSP</a>]</span> are prior research mechanisms that reduce OCSP and CRL overhead for low-power IoT, confirming the feasibility and benefits of CBOR-based revocation on constrained hardware.  They are a precursor to this work.  However, they were specified as point solutions rather than as interoperable, certificate-type-agnostic wire formats aligned with the C509 certificate encoding <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>; this document generalizes those mechanisms into complete C509 CRL and C509 OCSP structures usable with C509, X.509, and future certificate types.<a href="#section-2-2.6.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-2-3">The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples (<a href="#examples" class="auto internal xref">Appendix A</a>), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 152 to 51 bytes, and a Basic OCSP response without the responder's certificate from 845 to 248 bytes); see <a href="#tab-examples-overview" class="auto internal xref">Table 14</a>.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-3">The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples (<a href="#examples" class="auto internal xref">Appendix A</a>), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 150 to 51 bytes, and a Basic OCSP response without the responder's certificate from 837 to 248 bytes); see <a href="#tab-examples-overview" class="auto internal xref">Table 14</a>.<a href="#section-2-3" class="pilcrow">¶</a></p>
 <p id="section-2-4">These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.<a href="#section-2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -4108,7 +4108,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 <table class="center" id="table-14">
           <caption>
 <a href="#table-14" class="selfRef">Table 14</a>:
-<a href="#name-size-comparison-in-examples" class="selfRef">Size comparison in examples (TODO: update the percent data)</a>
+<a href="#name-size-comparison-in-examples" class="selfRef">Size comparison in examples</a>
           </caption>
 <thead>
             <tr>
@@ -4181,7 +4181,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
               <td class="text-left" rowspan="1" colspan="1">Signed OCSP Request Example Without Requestor's Certificate</td>
               <td class="text-left" rowspan="1" colspan="1">584</td>
               <td class="text-left" rowspan="1" colspan="1">209</td>
-              <td class="text-left" rowspan="1" colspan="1">65%</td>
+              <td class="text-left" rowspan="1" colspan="1">64%</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
