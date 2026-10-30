@@ -1,9 +1,14 @@
-//! C509 Hash Algorithms registry (draft §"C509 Hash Algorithms") plus the hash
-//! dispatch used to compute `issuerCertHash`, `serialNumberHash`, and the
+//! Hash algorithms for C509 OCSP, identified by their code points in the IANA
+//! "COSE Algorithms" registry (draft §"Hash Algorithms"), plus the hash dispatch
+//! used to compute `issuerCertHash`, `serialNumberHash`, and the
 //! requestor/responder cert hashes.
 //!
-//! This is a **new** registry introduced by the revocation draft, distinct from
-//! the C509 *signature*/PK algorithm registry ([`crate::registry`]).
+//! The `hashAlgorithm` field takes values from the COSE Algorithms registry
+//! (e.g. SHA-256 = -16), aligned with the C509 certificate draft's
+//! `c5t`/COSE_CertHash. The hash MUST produce an output of at least 20 bytes so
+//! that `HashId20` can be derived; consequently SHA-256/64 (-15) and SHA-1 (-14)
+//! MUST NOT be used, and truncated hashes such as SHA-512/256 (-17) SHOULD NOT
+//! be used since `HashId8`/`HashId20` already truncate.
 //!
 //! ## Truncated identifiers (draft §"Truncated Hash Identifiers")
 //! The draft defines two truncated-hash identifier types, and the field decides
@@ -17,30 +22,23 @@
 //! [`HashLen::Full`] is retained so the hash *mechanism* can be checked against
 //! the full-digest test vectors.
 
-use sha2::{Digest, Sha224, Sha256, Sha384, Sha512};
+use sha2::{Digest, Sha256, Sha384, Sha512};
 
-/// `0` — SHA-256 (the constrained default; hardware-accelerated on the target).
-pub const SHA_256: i64 = 0;
-/// `1` — SHA-384.
-pub const SHA_384: i64 = 1;
-/// `2` — SHA-512.
-pub const SHA_512: i64 = 2;
-/// `3` — SHA-224.
-pub const SHA_224: i64 = 3;
-/// `4` — SM3.
-pub const SM3: i64 = 4;
-/// `5` — SHA3-256.
-pub const SHA3_256: i64 = 5;
-/// `6` — SHA3-384.
-pub const SHA3_384: i64 = 6;
-/// `7` — SHA3-512.
-pub const SHA3_512: i64 = 7;
-/// `8` — SHA3-224.
-pub const SHA3_224: i64 = 8;
-/// `9` — SHAKE128.
-pub const SHAKE128: i64 = 9;
-/// `10` — SHAKE256.
-pub const SHAKE256: i64 = 10;
+/// SHA-256 (-16) — the constrained default; hardware-accelerated on the target.
+pub const SHA_256: i64 = -16;
+/// SHA-384 (-43).
+pub const SHA_384: i64 = -43;
+/// SHA-512 (-44).
+pub const SHA_512: i64 = -44;
+/// SHAKE128 (-18) — 256-bit output ({{RFC9054}}); not implemented in this build.
+pub const SHAKE128: i64 = -18;
+/// SHAKE256 (-45) — 512-bit output ({{RFC9054}}); not implemented in this build.
+pub const SHAKE256: i64 = -45;
+
+// SHA3-256, SHA3-384, SHA3-512 (FIPS 202) and SM3 (ISO/IEC 10118-3) are being
+// registered in the COSE Algorithms registry by the revocation draft; their code
+// points are IANA-pending (draft TBD15-TBD18). They are added here once assigned.
+// This build computes only the SHA-2 family (see `digest`).
 
 /// `HashId8` length in bytes — cert identity hashes (issuer/responder/requestor).
 pub const CERT_HASH_LEN: usize = 8;
@@ -86,7 +84,6 @@ pub fn digest(alg: i64, data: &[u8]) -> Result<Vec<u8>, HashError> {
         SHA_256 => Sha256::digest(data).to_vec(),
         SHA_384 => Sha384::digest(data).to_vec(),
         SHA_512 => Sha512::digest(data).to_vec(),
-        SHA_224 => Sha224::digest(data).to_vec(),
         other => return Err(HashError::UnsupportedAlg(other)),
     };
     Ok(out)
@@ -132,8 +129,8 @@ mod tests {
 
     #[test]
     fn unsupported_alg_errors() {
-        assert_eq!(hash(SM3, b"x", HashLen::Full),
-                   Err(HashError::UnsupportedAlg(SM3)));
+        assert_eq!(hash(SHAKE128, b"x", HashLen::Full),
+                   Err(HashError::UnsupportedAlg(SHAKE128)));
         assert!(matches!(hash(SHAKE256, b"x", HashLen::Full),
                          Err(HashError::UnsupportedAlg(_))));
     }
