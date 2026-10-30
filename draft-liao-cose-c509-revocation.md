@@ -51,7 +51,6 @@ author:
 
 normative:
   RFC5280:
-  RFC5754:
   RFC6066:
   RFC6960:
   RFC7120:
@@ -59,21 +58,36 @@ normative:
   RFC8126:
   RFC8226:
   RFC8610:
-  RFC8702:
   RFC8742:
   RFC8949:
   RFC9147:
+  RFC9054:
   RFC9360:
   RFC9682:
-  RFC9688:
+  RFC9277:
   RFC9846:
   I-D.ietf-cose-cbor-encoded-cert:
   I-D.ietf-stir-certificates-ocsp:
-  GMT.0006-2023:
-    title: GM/T 0006-2023, Cryptographic Application Identifier Specification
-    date: 2023
+  IANA.cose:
+  FIPS202:
+    title: "SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions"
+    target: https://doi.org/10.6028/NIST.FIPS.202
+    seriesinfo:
+      NIST: FIPS PUB 202
+    date: August 2015
+  ISO10118-3:
+    title: "IT Security techniques -- Hash-functions -- Part 3: Dedicated hash-functions"
+    seriesinfo:
+      ISO/IEC: 10118-3:2018
+    date: 2018
 
 informative:
+  RFC3280:
+  GBT32905-2016:
+    title: "Information security techniques -- SM3 cryptographic hash algorithm"
+    seriesinfo:
+      GB/T: 32905-2016
+    date: 2016
   RFC7228:
   RFC7925:
   POSIX:
@@ -95,20 +109,31 @@ informative:
   X.690:
     title: "ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)"
     target: https://www.itu.int/rec/T-REC-X.690
+  TinyOCSP:
+    title: "Lightweight certificate revocation for low-power IoT with end-to-end security"
+    author:
+      - ins: J. Höglund
+      - ins: M. Furuhed
+      - ins: S. Raza
+    date: 2023
+    seriesinfo:
+      "Journal of Information Security and Applications": "73:103424"
+      DOI: 10.1016/j.jisa.2023.103424
+    target: https://doi.org/10.1016/j.jisa.2023.103424
 
 entity:
   SELF: "[RFC-XXXX]"
 
 --- abstract
 
-This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additonally this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}
+This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additionally, this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}.
 
 
 --- middle
 
 # Introduction {#intro}
 
-Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} requires compact certificate representations and compact revocation information.  {{I-D.ietf-cose-cbor-encoded-cert}} defines C509 certificates, a CBOR encoding of X.509 certificates {{RFC5280}} that reduces certificate size by over 50% for typical constrained-device profiles  However, revocation mechanisms -- Certificate Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP) messages -- have not yet received the same treatment.
+Public Key Infrastructure (PKI) for constrained environments {{RFC7228}} requires compact certificate representations and compact revocation information.  {{I-D.ietf-cose-cbor-encoded-cert}} defines C509 certificates, a CBOR encoding of X.509 certificates {{RFC5280}} that reduces certificate size by over 50% for typical constrained-device profiles. However, revocation mechanisms such as Certificate Revocation Lists (CRLs) and Online Certificate Status Protocol (OCSP) messages have not yet received the same treatment.
 
 CRLs as defined in {{RFC5280}} can be large, especially when many certificates have been revoked or when CRL extensions add overhead.  In the complementary OCSP mechanism defined in {{RFC6960}}, OCSP responses carry per-certificate status information and may be exchanged during TLS {{RFC9846}} and DTLS {{RFC9147}} handshakes via OCSP stapling {{RFC6066}}, directly affecting handshake latency.
 
@@ -120,9 +145,9 @@ This document specifies:
 
    - Reduce the search complexity for a given certificate serial number from O(n) to O(log(n)):
 
-     - Replace implicit `certificateIssuer` mechanism by explicit per-issuer grouping.
+     - Replace the implicit `certificateIssuer` mechanism with explicit per-issuer grouping.
 
-     - Use dedicated list for the `removeFromCRL` revocation entries.
+     - Use a dedicated list for the `removeFromCRL` revocation entries.
 
      - Use fixed-length entry encoding.
 
@@ -150,11 +175,11 @@ C509 CRL and C509 OCSP are designed to be compatible with certificate profiles f
 
 # Alternative Certificate Status Checking Mechanisms {#status-alternatives}
 
-Only widely deployed mechanisms are considered here.  Several such mechanisms can be used to check certificate status, but none of them replaces the work in this document.
+This section considers both widely deployed certificate-status mechanisms and closely related prior work for constrained environments.  Several such mechanisms can be used to check certificate status, but none of them replaces the work in this document.
 
 - **X.509 CRLs and OCSP** ({{RFC5280}}, {{RFC6960}}) provide the baseline revocation mechanisms, but their DER encodings are not compact enough for constrained deployments and are not certificate-type agnostic.  This document keeps their semantics while defining CBOR encodings that are smaller and easier to process.
 
-- **OCSP stapling** ({{RFC6066}}, {{RFC9846}}) reduces client latency by having the server provide a fresh OCSP response, but it does not define a revocation status format of its own.  It still depends on the underlying OCSP message structure, so it cannot replace a compact, stand-alone status representation.
+- **OCSP stapling** ({{RFC6066}}, {{RFC9846}}) reduces client latency by having the server provide a fresh OCSP response, but it does not define a revocation status format of its own.  It still depends on the underlying OCSP message structure, so it cannot replace a compact, standalone status representation.
 
 - **Short-lived certificates** reduce reliance on revocation, but they do not provide revocation status when certificates must remain valid for longer periods or must be withdrawn immediately after compromise.  They also shift the problem to more frequent issuance and renewal rather than eliminating status checking.
 
@@ -162,7 +187,9 @@ Only widely deployed mechanisms are considered here.  Several such mechanisms ca
 
 - **CRLite** {{CRLite}} compresses revocation information into a browser-oriented filter-based representation, which is useful for client-side deployment at scale.  However, it is not a wire-format replacement for CRLs or OCSP, does not preserve the full per-certificate status structures defined here, and is not a certificate-type-agnostic status format that other implementations can exchange directly.
 
-The compactness benefit over the DER-encoded baselines is concrete.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 152 to 51 bytes, and a Basic OCSP response without the responder's certificate from 845 to 248 bytes); see {{tab-examples-overview}}.
+- **Compact CBOR revocation for IoT (TinyOCSP and CCRL)** {{TinyOCSP}} are prior research mechanisms that reduce OCSP and CRL overhead for low-power IoT, confirming the feasibility and benefits of CBOR-based revocation on constrained hardware.  They are a precursor to this work.  However, they were specified as point solutions rather than as interoperable, certificate-type-agnostic wire formats aligned with the C509 certificate encoding {{I-D.ietf-cose-cbor-encoded-cert}}; this document generalizes those mechanisms into complete C509 CRL and C509 OCSP structures usable with C509, X.509, and future certificate types.
+
+The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 152 to 51 bytes, and a Basic OCSP response without the responder's certificate from 845 to 248 bytes); see {{tab-examples-overview}}.
 
 These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.
 
@@ -174,24 +201,24 @@ This document uses the terminology from {{RFC5280}}, {{RFC6960}}, {{RFC7228}}, {
 
 # Common Types {#common-types}
 
-The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and  `AlgorithmIdentifier`. And the following type is imported from {{RFC9360}}: `COSE_X509`.
+The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and `AlgorithmIdentifier`. Additionally, the following type is imported from {{RFC9360}}: `COSE_X509`.
 
 This document further defines the following constrained aliases for use in all CDDL definitions:
 
 ~~~~~~~~~~~ cddl
 uint8 = uint .le 255
 
-uint15 = uint .le 32767
-
 uint32 = uint .le 2^32 - 1
 
 uint63 = uint .le 2^63 - 1
 
-int64 = int .ge -2^63 .le 2^63 - 1
+int16 = int .ge -32768 .le 32767
 
-IntAlgorithmIdentifier = int64
+IntAlgorithmIdentifier = int16
 
-IntExtension = ( extensionID: int64, extensionValue: Defined )
+IntExtension = ( extensionID: IntExtensionID, extensionValue: Defined )
+
+IntExtensionID = (uint63 .ge 1) / (nint .ge -2^63 + 1)
 
 IntExtensions = [ * IntExtension ]
 ~~~~~~~~~~~
@@ -199,13 +226,13 @@ IntExtensions = [ * IntExtension ]
 
 `IntAlgorithmIdentifier` is the `int`-only instantiation of `AlgorithmIdentifier` from {{I-D.ietf-cose-cbor-encoded-cert}}.  It is used throughout this document wherever an algorithm identifier appears in the wire encoding.
 
-`IntExtension` is the instantiation of `Extension` from {{I-D.ietf-cose-cbor-encoded-cert}} with extensionID of type int.  It is used throughout this document wherever a single extension appears in the wire encoding.
+`IntExtension` is the instantiation of `Extension` from {{I-D.ietf-cose-cbor-encoded-cert}} with an integer `extensionID`.  As in C509 certificates ({{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.10}}), the absolute value of `extensionID` is the value from the "C509 Extensions" registry, and its sign indicates whether the extension is critical: critical extensions are encoded with a negative sign and non-critical extensions with a positive sign.  It is used throughout this document wherever a single extension appears in the wire encoding.
 
-`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries have only int-only `extensionID`.
+`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries are `IntExtension` entries.
 
 # Encoding of Time Fields {#time-encoding}
 
-Time fields are encoded as unwrapped CBOR epoch-based date/time (`~time`).  The tag content MUST be a non-negative integer.  In POSIX time {{POSIX}}, leap seconds are ignored; a leap second has the same POSIX time as the second before it.
+Time fields are encoded as unwrapped CBOR epoch-based date/time (`~time`).  The value MUST be a non-negative integer.  In POSIX time {{POSIX}}, leap seconds are ignored; a leap second has the same POSIX time as the second before it.
 
 # C509 CRL {#c509crl}
 
@@ -233,7 +260,7 @@ TBSCertList = (
 C509CRLInfo = [ CRLInfoData ]
 
 CRLInfoData = (
-  crlType                : uint15, ; 0 = C509CRL
+  crlType                : int16, ; 0 = C509CRL
   signatureAlgorithm     : IntAlgorithmIdentifier,
   authoritySubject       : Name / #6.121(bytes),
   authorityKeyIdentifier : bytes / null,
@@ -284,7 +311,7 @@ Unlike in {{RFC5280}}, where the signature algorithm appears outside the `TBSCer
 
 The `authoritySubject` and `authorityKeyIdentifier` fields identify the CRL authority.
 
-The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)` (#6.121: alternative 0), where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}). Since the `Name` structure may also be `bytes`, the DER-encoded subject is wrapped in a 121-tagged structure.
+The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)` (tag 121 is alternative 0), where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}). Since the `Name` structure may also be `bytes`, the DER-encoded subject is wrapped in a 121-tagged structure.
 
 The `authorityKeyIdentifier` field is identical to the value of the authority's `subjectKeyIdentifier` extension.  This field corresponds to the X.509 CRL extension `authorityKeyIdentifier` ({{RFC5280, Section 5.2.1}}).  It is promoted to a dedicated field because it MUST be present in conforming X.509 CRLs and because making it explicit simplifies the structure and reduces encoded size compared to representing it as a generic extension.
 
@@ -324,14 +351,14 @@ The `reasonCode` ENUMERATED value is encoded as one unsigned byte.  The byte val
 
 #### Design Considerations
 
-In X.509 CRLs ({{RFC5280, Section 5.3.3}}), an indirect CRL uses the `certificateIssuer` CRL entry extension to indicate that a revocation entry — and all subsequent entries — belong to a different issuer.  This mechanism has two significant drawbacks:
+In X.509 CRLs ({{RFC5280, Section 5.3.3}}), an indirect CRL uses the `certificateIssuer` CRL entry extension to indicate that a revocation entry -- and all subsequent entries -- belong to a different issuer.  This mechanism has two significant drawbacks:
 
 - It is implicit and positional, making it difficult to parse correctly and error-prone to implement.
 - It is impossible to represent an issuer that has no currently revoked certificates (e.g., to carry per-issuer extensions or to explicitly indicate that the issuer is known but has an empty revocation list), because there is no entry to attach the `certificateIssuer` extension to.
 
 `PerIssuerRevokedCerts` solves both problems by introducing an explicit intermediate structure that groups all revocation information for one issuer.  The issuer is identified directly in the `issuer` field of the structure rather than being inferred from the position of a CRL entry extension.  This makes the grouping unambiguous and easy to parse, and it allows an issuer to appear in the list even when it has no revoked certificates.
 
-A second design problem in X.509 CRLs is that each revocation entry has variable length due to
+A second design problem in X.509 CRLs is that each revocation entry has variable length because:
 
 - the serial number length differs between certificates,
 
@@ -341,7 +368,7 @@ A second design problem in X.509 CRLs is that each revocation entry has variable
 
 This variable-length layout makes it impossible to determine whether a given serial number is present in the list without scanning every entry sequentially, resulting in O(n) lookup time.
 
-In this document, the `revokedCertsControl` structure introduces fixed parameters (`serialNumberLength`, `dateLength`) that make every entry within `revokedCerts` exactly of the same size.  The `flags` field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL `removeFromCRL` entries in X.509) are kept in a dedicated `removedFromCRLCerts` field rather than mixed into `revokedCerts`.  This keeps `revokedCerts` free of removal noise, reducing its size and allowing implementations to process currently-revoked and removed entries independently.
+In this document, the `revokedCertsControl` structure introduces fixed parameters (`serialNumberLength`, `dateLength`) that make every entry within `revokedCerts` exactly the same size.  The `flags` field can additionally indicate that entries are sorted in ascending order by serial number, enabling binary search and reducing lookup time to O(log(n)).  Using a compact byte-string concatenation rather than a CBOR array of structured items further reduces encoded size and accelerates parsing.  Furthermore, certificates removed from the CRL (delta CRL `removeFromCRL` entries in X.509) are kept in a dedicated `removedFromCRLCerts` field rather than mixed into `revokedCerts`.  This keeps `revokedCerts` free of removal noise, reducing its size and allowing implementations to process currently revoked and removed entries independently.
 
 #### Fields
 
@@ -357,7 +384,7 @@ Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer
 
   - The `serialNumberLength` field defines the length, in bytes, of a certificate serial number.  It MUST be greater than 0.  It is the smallest value that can encode all certificate serial numbers without leading zeros.
 
-   Each certificate serial number is encoded as a fixed-length big-endian integer of length `serialNumberLength`.  If the encoded value is shorter than `serialNumberLength`, it is left-padded with zeros.
+    Each certificate serial number is encoded as a fixed-length big-endian integer of length `serialNumberLength`.  If the encoded value is shorter than `serialNumberLength`, it is left-padded with zeros.
 
   - The `dateLength` field defines the length, in bytes, of the big-endian encoded revocation-date offset relative to `baseDate`.  A value of 0 means that no revocation date is included in `revokedCerts` entries.  This is permitted in C509-native deployments where the revocation date is not required -- for example, when minimizing revocation data is more important than recording the revocation time.  Implementations that need to convert a C509 CRL to an RFC 5280 DER-encoded CRL MUST set `dateLength` to a non-zero value, since {{RFC5280, Section 5.1}} requires a `revocationDate` in every CRL entry.  When `dateLength` is non-zero, the offset MUST fit within the specified byte length without leading zero bytes.
 
@@ -401,7 +428,7 @@ The `crlExtensions` field contains extensions for the CRL.  This document does n
 | -    | issuingDistributionPoint | {{RFC5280, Section 5.2.5}}  | - |
 | -    | freshestCRL              | {{RFC5280, Section 5.2.6}}  | - |
 | -    | authorityInfoAccess      | {{RFC5280, Section 5.2.7}}  | - |
-| -    | orderedList              | OID 2.5.29.56 (ITU-T X.509, Section 9.5.2.5) | field `sorted` (ascSerialNum); - (ascRevDate) |
+| -    | orderedList              | OID 2.5.29.56 (ITU-T X.509, Section 9.5.2.5) | bit 0 of `flags` (ascSerialNum); - (ascRevDate) |
 | -    | toBeRevoked              | OID 2.5.29.58 (ITU-T X.509, Section 9.5.2.6) | - |
 | -    | revokedGroups            | OID 2.5.29.59 (ITU-T X.509, Section 9.5.2.7) | - |
 {: #tab-crlExt title="CRL extensions and their equivalents"}
@@ -436,8 +463,8 @@ The value is encoded as described in {{time-encoding}}.  When this extension is 
 
 | Code | Extension           | Reference         | Equivalent |
 |:-----|:--------------------|:------------------| :------------------|
-| -    | reasonCode          | {{RFC5280, Section 5.3.1}} / ITU-T X.509, Section 9.6.2.1  | field `removedFromCRLCerts` and `revokedCerts` |
-| -    | holdInstructionCode | {{RFC5280, Section 5.3.2}} / ITU-T X.509, Section 9.6.2.2  | - |
+| -    | reasonCode          | {{RFC5280, Section 5.3.1}} / ITU-T X.509, Section 9.6.2.1  | fields `removedFromCRLCerts` and `revokedCerts` |
+| -    | holdInstructionCode | {{RFC3280, Section 5.3.2}} / ITU-T X.509, Section 9.6.2.2  | - |
 | -    | invalidityDate      | {{RFC5280, Section 5.3.2}} / ITU-T X.509, Section 9.6.2.3  | - |
 | -    | certificateIssuer   | {{RFC5280, Section 5.3.3}} / ITU-T X.509, Section 9.6.2.4  | field `issuer` within `PerIssuerRevokedCerts` |
 {: #tab-crlEntryExt title="CRL entry extensions defined for X.509 CRLs"}
@@ -448,7 +475,7 @@ Encoded identically to `signatureValue` in C509 certificates (see {{I-D.ietf-cos
 
 ## PEM Representation
 
-The CBOR-encoded C509CRL is first BASE64-encoded, and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of {{RFC7468}}.
+The CBOR-encoded C509CRL is first Base64-encoded and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of {{RFC7468}}.
 
 ~~~
 -----BEGIN C509 CRL-----
@@ -465,15 +492,21 @@ C509 OCSP defines CBOR encodings for OCSP requests and OCSP responses as defined
 
 C509 OCSP requests and responses are not wire-format-compatible with DER-encoded OCSP messages as defined in {{RFC6960}}.  The two formats cannot be mechanically converted to or from each other without semantic interpretation of the contained data.
 
-`C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an unsigned integer that identifies the structure type. Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
+`C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an integer that identifies the structure type. Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
+
+## Hash Algorithms {#hash-algs}
+
+The `hashAlgorithm` field of C509 OCSP requests and responses identifies the hash algorithm used to compute all hashes within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry {{IANA.cose}}, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 {{RFC9054}}.  This document registers SHA3-256, SHA3-384, SHA3-512, and SM3 in that registry (see {{iana-cose-alg}}).
+
+The hash algorithm MUST produce an output of at least 20 bytes, so that `HashId20` values can be derived (see {{cert-identification}}).  Consequently, SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifiers `HashId8` and `HashId20`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.
 
 ## Identification of Certificates {#cert-identification}
 
 To reduce OCSP message size, this document defines two truncated-hash identifier types used to refer to certificates compactly:
 
-- `HashId8` — the leading 8 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId8` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures where a short identifier provides sufficient uniqueness in the deployment context.
+- `HashId8`: the leading 8 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId8` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures where a short identifier provides sufficient uniqueness in the deployment context.
 
-- `HashId20` — the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA‑256 or SHA‑3‑256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversary needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
+- `HashId20`: the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA-256 or SHA3-256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversary needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
 
 ~~~~~~~~~~~ cddl
 HashId8   = bytes .size 8
@@ -495,7 +528,7 @@ C509OCSPRequest = C509UnsignedOCSPRequest /
                   C509SimpleOCSPRequest
 
 C509UnsignedOCSPRequest = [
-  ocspRequestType    : 0, ; uint15
+  ocspRequestType    : 0, ; int16
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   extensions         : IntExtensions,
@@ -503,7 +536,7 @@ C509UnsignedOCSPRequest = [
 ]
 
 TBSOCSPRequest = (
-  ocspRequestType    : 1, ; uint15
+  ocspRequestType    : 1, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -519,7 +552,7 @@ C509SignedOCSPRequest = [
 ]
 
 C509SimpleOCSPRequest = [
-  ocspRequestType    : 2, ; uint15
+  ocspRequestType    : 2, ; int16
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
   issuerCertHash     : HashId8,
@@ -562,7 +595,7 @@ The `ocspRequestType` field serves as the discriminator for `C509OCSPRequest`:
 
 The `issuerCertHash` field appears in `PerIssuerOCSPRequest`, `PerIssuerOCSPResponse`, `C509SimpleOCSPRequest`, and `TBSSimpleOCSPResponse`.  It contains a hash of the issuer certificate:
 
-- `issuerCertHash`: hash computed over the deterministic encoded certificate. It is the CBOR-encoded C509Certificate or DER-encoded ({{X.690}}) X.509 certificate.  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
+- `issuerCertHash`: hash computed over the deterministically encoded certificate, i.e., the CBOR-encoded C509Certificate or the DER-encoded ({{X.690}}) X.509 certificate.  For a CBOR re-encoded X.509 certificate (`c509CertificateType` = 3, see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.1}}), the hash MUST be computed over the DER-encoded X.509 certificate, not over its C509 encoding, since such a certificate may have more than one conformant CBOR encoding (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.4}}).  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
 
 In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies the issuer using two separate hashes: `issuerNameHash` (a hash of the DER-encoded issuer name) and `issuerKeyHash` (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (`issuerCertHash`), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 `issuerCertHash` with an RFC 6960 DER-encoded `CertID` must recompute the respective hash inputs; the values are not directly comparable.
 
@@ -581,7 +614,7 @@ Each `SingleCertRequest` contains:
 #### C509UnsignedOCSPRequest {#C509UnsignedOCSPRequest}
 
 - The `ocspRequestType` field MUST be 0.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 - The `requests` field is a list of `PerIssuerOCSPRequest` entries, each grouping target certificates by issuer; see {{per-issuer-requests}}.
@@ -590,9 +623,9 @@ Each `SingleCertRequest` contains:
 
 - The `ocspRequestType` field MUST be 1.
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
-- The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. `requestorCerts` MUST carry the corresponding certificate chain so that the receiver can verify the identity of the requestor.
+- The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. When `requestorCerts` is not `null`, it carries the corresponding certificate chain so that the receiver can verify the identity of the requestor.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 - The `requests` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
 - The `requestorCerts` field contains a sorted certificate chain starting with the signer's certificate, or MUST be `null` if no certificates are transported.  When the signer holds a C509 certificate chain, the value is `COSE_C509`.  When the signer holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).
@@ -603,6 +636,7 @@ Each `SingleCertRequest` contains:
 `C509SimpleOCSPRequest` is a compact request format for querying the status of a single certificate.  Unlike `C509UnsignedOCSPRequest`, which uses a two-level `PerIssuerOCSPRequests` / `SingleCertRequest` grouping to batch multiple serial numbers across one or more issuers, `C509SimpleOCSPRequest` flattens the structure into a single CBOR array for the common case of a one-certificate query.
 
 - The `ocspRequestType` field MUST be 2.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.
 - The `issuerCertHash` field identifies the issuer of the target certificate; see {{issuer-hash-id}}.
 - The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
@@ -610,7 +644,7 @@ Each `SingleCertRequest` contains:
 
 ### PEM Representation
 
-The CBOR-encoded C509 OCSP request is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP REQUEST-----" and "-----END C509 OCSP REQUEST-----", following the framework of {{RFC7468}}.
+The CBOR-encoded C509 OCSP request is first Base64-encoded and then wrapped between "-----BEGIN C509 OCSP REQUEST-----" and "-----END C509 OCSP REQUEST-----", following the framework of {{RFC7468}}.
 
 ~~~
 -----BEGIN C509 OCSP REQUEST-----
@@ -630,12 +664,12 @@ C509OCSPResponse = C509ErrorOCSPResponse /
                    C509SimpleOCSPResponse
 
 C509ErrorOCSPResponse = [
-  ocspResponseType  : 0,  ; uint15
+  ocspResponseType  : 0,  ; int16
   responseStatus    : int .ge -256 .le 255
 ]
 
 TBSBasicOCSPResponse = (
-  ocspResponseType   : 1, ; uint15
+  ocspResponseType   : 1, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -652,7 +686,7 @@ C509BasicOCSPResponse = [
 ]
 
 TBSSimpleOCSPResponse = (
-  ocspResponseType   : 2, ; uint15
+  ocspResponseType   : 2, ; int16
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes / null,
@@ -734,7 +768,7 @@ The `ocspResponseType` field of `C509BasicOCSPResponse` is 1, distinguishing it 
 
 - The `ocspResponseType` field MUST be 2, which discriminates `C509SimpleOCSPResponse` from `C509ErrorOCSPResponse` and `C509BasicOCSPResponse`.
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of `TBSSimpleOCSPResponse` and is therefore covered by the signature.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as an integer from the "C509 Hash Algorithms" registry defined in {{hashalg}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `responderCertHash` field identifies the OCSP responder; see {{responderCertHash}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  If present, it MUST have the same value as the `nonce` in the corresponding `C509SimpleOCSPRequest`.
 - The `issuerCertHash` field identifies the issuer of the queried certificate; see {{issuer-hash-id}}.
@@ -757,12 +791,12 @@ If present, this field MUST have the same value as the `nonce` in the correspond
 
 #### responderCerts {#responderCerts}
 
-When present, the `responderCerts` field carries the certificate chain starting with the responder certificate identified by `responderCertHash`.  When the responder holds a C509 certificate chain, the value is `COSE_C509`.  When the responder holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).  The field is part of `TBSBasicOCSPResponse` and is therefore covered by the signature, which prevents certificate-chain substitution attacks.
+When present, the `responderCerts` field carries the certificate chain starting with the responder certificate identified by `responderCertHash`.  When the responder holds a C509 certificate chain, the value is `COSE_C509`.  When the responder holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).  The field is part of `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` and is therefore covered by the signature, which prevents certificate-chain substitution attacks.
 
 #### signatureAlgorithm and signatureValue
 
-- `signatureAlgorithm`: the signature algorithm used to compute `signatureValue`, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of the `TBSBasicOCSPResponse` group and is therefore covered by the signature.
-- `signatureValue`: the signature computed over the CBOR Sequence of the `TBSBasicOCSPResponse` group.
+- `signatureAlgorithm`: the signature algorithm used to compute `signatureValue`, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of the `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` group and is therefore covered by the signature.
+- `signatureValue`: the signature computed over the CBOR Sequence of the `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` group.
 
 #### producedAt, thisUpdate, nextUpdate
 
@@ -813,7 +847,7 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 
 #### OCSP Extensions {#ocsp-extensions}
 
-{{tab-ocspext}} describes the OCSP extensions defined in {{RFC6960}} and their mapping in this document.
+{{tab-ocspext}} describes the OCSP extensions defined in {{RFC6960}} and {{I-D.ietf-stir-certificates-ocsp}} and their mapping in this document.
 
 | Code | Extension             | RFC Reference     | Applied in | Replaced in this document |
 |:----:|:----------------------|:------------------| :----------|:--------------|
@@ -825,7 +859,7 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 | TBD3 | Preferred Signature Algorithms | {{RFC6960, Section 4.4.7}} | Request Extension | - |
 |  -   | Extended Revoked Definition | {{RFC6960, Section 4.4.8}}  | Response Extension | cert status `not-issued` (for serial numbers not issued by a recognized issuer) and `unknown` (for unrecognized issuers) |
 | TBD6 | TN Query | {{I-D.ietf-stir-certificates-ocsp}} | Single Request Extension | - |
-{: #tab-ocspext title="OCSP extensions defined in RFC 6960"}
+{: #tab-ocspext title="OCSP extensions and their mapping"}
 
 This document defines the following extension values:
 
@@ -854,7 +888,7 @@ PreferredSignatureAlgorithms = [ + PreferredSignatureAlgorithm ]
 
 The `sigIdentifier` field carries the signature algorithm identifier.  The `pubKeyAlgIdentifiers` field carries the public key algorithm identifier and MUST be one of:
 
-- a CBOR array of two or more `IntAlgorithmIdentifier` values, sorted in descending order of preference, when the responder is willing to accept any of the listed public key algorithms as a match for this signature algorithm preference (e.g., to express hybrid or multi-algorithm key policies); the first entry in the array represents the most preferred public key algorithm,
+- a CBOR array of two or more `IntAlgorithmIdentifier` values, sorted in descending order of preference, when the requestor is willing to accept any of the listed public key algorithms as a match for this signature algorithm preference (e.g., to express hybrid or multi-algorithm key policies); the first entry in the array represents the most preferred public key algorithm,
 - a single `IntAlgorithmIdentifier` value, when exactly one public key algorithm is acceptable, or
 - `null`, when the public key algorithm is unconstrained or implied by `sigIdentifier`.
 
@@ -871,6 +905,17 @@ The `TNQuery` extension carries a telephone number string conforming to the Tele
 
 This extension is allowed only in the single-request extensions per {{I-D.ietf-stir-certificates-ocsp}}.
 
+### PEM Representation
+
+The CBOR-encoded C509 OCSP response is first Base64-encoded and then wrapped between "-----BEGIN C509 OCSP RESPONSE-----" and "-----END C509 OCSP RESPONSE-----", following the framework of {{RFC7468}}.
+
+~~~
+-----BEGIN C509 OCSP RESPONSE-----
+(base64-encoded CBOR C509 OCSP Response)
+-----END C509 OCSP RESPONSE-----
+~~~
+{: #fig-pem-c509-ocsp-resp title="C509 OCSP Response PEM Encoding"}
+
 ## Certificate Type Interoperability {#cert-type-interop}
 
 C509 OCSP uses a single set of request and response structures that handles both C509 and X.509 certificates without modification.  All participants (requestor, responder, issuer) are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 `ResponderID` CHOICE (`byName` or `byKey`).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), and any future certificate types.
@@ -885,11 +930,13 @@ The only per-type differences are in how identity hashes are computed and how ce
 | `requestorCerts` / `responderCerts` | `COSE_C509` | `#6.121(COSE_X509)` |
 {: #tab-certtypeinterop title="Per-type differences in C509 OCSP identity fields"}
 
+In this table, "C509 certificate" refers to a natively signed C509 certificate (`c509CertificateType` = 2).  A CBOR re-encoded X.509 certificate (`c509CertificateType` = 3) is treated as an X.509 certificate: its identity hash MUST be computed over the DER-encoded X.509 certificate.
+
 In a hybrid deployment where the responder holds an X.509 certificate, `responderCertHash` contains the hash of the DER-encoded X.509 certificate and `responderCerts` carries a `#6.121(COSE_X509)` chain.  In a deployment using C509 certificates throughout, all identity hashes are computed over CBOR-encoded certificates and certificate chains are carried as `COSE_C509`.  The `hashAlgorithm` field at the top level of each request or response structure governs all hashes within that structure.
 
 ## OCSP Stapling in TLS
 
-In standard TLS certificate status stapling (see the `status_request` extension, {{RFC9846}}), the stapled OCSP response is a DER-encoded `OCSPResponse`.  To allow C509 OCSP stapling, this document defines a new TLS `CertificateStatusType` value {{RFC6066, Section 8}}:
+In standard TLS certificate status stapling (see the `status_request` extension, {{RFC9846}}), the stapled OCSP response is a DER-encoded `OCSPResponse`.  To allow C509 OCSP stapling, this document defines a new TLS `CertificateStatusType` value (see {{RFC6066, Section 8}}):
 
 | Value | Name              | Reference     |
 |:-----:|:------------------|:--------------|
@@ -898,16 +945,60 @@ In standard TLS certificate status stapling (see the `status_request` extension,
 
 When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509OCSPResponse` instead of a DER-encoded `OCSPResponse`.
 
-### PEM Representation
+# Implementation Status # {#sec-implementation-status}
+{:removeinrfc}
 
-The CBOR-encoded C509 OCSP response is first BASE64-encoded, and then wrapped between "-----BEGIN C509 OCSP RESPONSE-----" and "-----END C509 OCSP RESPONSE-----", following the framework of {{RFC7468}}.
+Note to RFC Editor: Please remove this section before publication.  When deleting this section, please also delete RFC 7942 from the references of this document.
 
-~~~
------BEGIN C509 OCSP RESPONSE-----
-(base64-encoded CBOR C509 OCSP Response)
------END C509 OCSP RESPONSE-----
-~~~
-{: #fig-pem-c509-ocsp-resp title="C509 OCSP Response PEM Encoding"}
+{::boilerplate rfc7942info}
+
+## Implementation \#1 # {#sec-implementation-1}
+
+- Organization: RISE AB
+
+- Implementation: c509rev, available in the `c509rev` directory of the GitHub repository of this document (https://github.com/lijun-nio/idc509rev)
+
+- Description: A reference implementation of the C509 CRL and C509 OCSP structures specified in this document, written in Rust.
+
+- Implementation's level of maturity: Prototype.  Intended for testing and reference purposes, not for production use.
+
+- Coverage:
+  - C509 CRL, including the compact `revokedCertsList` encoding with fixed-length revoked-certificate and removed-from-CRL entries.
+  - C509 OCSP requests of all defined types (simple, unsigned, and signed).  The signed-request variants carrying the requestor's certificate or certificate chain are supported only as an opaque pass-through.
+  - C509 OCSP responses of all defined types (error, basic, and simple).
+  - The hash algorithms SHA-256, SHA-384, and SHA-512, including truncated identity hashes.
+  - Time encoding, including the delta encodings used in OCSP.
+  - Signing and signature verification with Ed25519 and ECDSA with secp256r1 and SHA-256.
+  - PEM textual representation of C509 CRLs and C509 OCSP messages, as specified in this document.
+  - Names are supported only in the single common-name text form.
+
+- Version compatibility: draft-liao-cose-c509-revocation-00
+
+- Interoperability: The encoder output matches the examples in this document byte for byte (for signed objects, the to-be-signed part), and all examples successfully round-trip through decoding and re-encoding.  No interoperability testing with independent implementations has been performed yet.
+
+- Licensing: See the repository of this document.
+
+- Contact: Joel Höglund (joel.hoglund@ri.se)
+
+## Implementation \#2 # {#sec-implementation-2}
+
+- Organization: NIO Inc.
+
+- Implementation: Internal project, not publicly available
+
+- Description: An implementation of the C509 CRL and C509 OCSP structures specified in this document, written in Java.
+
+- Implementation's level of maturity: Prototype.
+
+- Coverage: All structures and features specified in this document.
+
+- Version compatibility: draft-liao-cose-c509-revocation-00
+
+- Interoperability: This implementation was used to produce the examples in the appendices of this document.
+
+- Licensing: Internal use only.
+
+- Contact: Lijun Liao (lijun.liao@nio.io)
 
 # Security Considerations {#security}
 
@@ -921,7 +1012,7 @@ Note to RFC Editor: Please replace all occurrences of "{{&SELF}}" with the RFC n
 
 ## C509 CRL Types Registry {#crltypes}
 
-IANA has created a new registry titled "C509 CRL Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to create a new registry titled "C509 CRL Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+-------------------------------+-------------------+
@@ -935,7 +1026,7 @@ IANA has created a new registry titled "C509 CRL Types" under the registry group
 
 ## C509 OCSP Request Types Registry {#ocspreqtypes}
 
-IANA has created a new registry titled "C509 OCSP Request Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to create a new registry titled "C509 OCSP Request Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+-------------------------------+-------------------+
@@ -954,7 +1045,7 @@ IANA has created a new registry titled "C509 OCSP Request Types" under the regis
 
 ## C509 OCSP Response Types Registry {#ocspresptypes}
 
-IANA has created a new registry titled "C509 OCSP Response Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to create a new registry titled "C509 OCSP Response Types" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Description, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. It is mandatory to specify content in all columns. For values in the interval \[-24, 23\], the registration procedure is "IETF Review with Expert Review", and for all other values, the registration procedure is "Expert Review". The initial contents of the registry are:
 
 ~~~~~~~~~~~
 +-------+-------------------------------+-------------------+
@@ -970,105 +1061,19 @@ IANA has created a new registry titled "C509 OCSP Response Types" under the regi
 {: #fig-ocspresptypes title="C509 OCSP Response Types"}
 {: artwork-align="center"}
 
-## C509 Hash Algorithms Registry {#hashalg}
+## COSE Algorithms Registry {#iana-cose-alg}
 
-IANA has created a new registry titled "C509 Hash Algorithms" under the registry group "CBOR Encoded X.509 (C509)". The fields of the registry are Value, Name, Identifiers, OID, Parameters, DER, Comments, and Reference, where Value is an integer in the interval \[-32768, 32767\], and the other columns are text strings. The fields Name, OID, Parameters, and DER are mandatory. If it is not expected to be understood from the other information (e.g. the OID), then the Comments field must contain a reference to where the Hash Algorithm is described. For values in the interval \[-24, 23\] the registration procedure is "IETF Review with Expert Review", and for all other values the registration procedure is "Expert Review". The initial contents of the registry are:
+IANA is requested to register the following hash algorithms in the "COSE Algorithms" registry under the registry group "CBOR Object Signing and Encryption (COSE)" {{IANA.cose}}:
 
-~~~~~~~~~~~
-+-------+----------------------------------------------------------+
-| Value | Hash Algorithm                                           |
-+=======+==========================================================+
-|   0   | Name:        SHA-256                                     |
-|       | Identifiers: id-sha256                                   |
-|       | OID:         2.16.840.1.101.3.4.2.1                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 01      |
-|       | Comments:    RFC 5754                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   1   | Name:        SHA-384                                     |
-|       | Identifiers: id-sha384                                   |
-|       | OID:         2.16.840.1.101.3.4.2.2                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 02      |
-|       | Comments:    RFC 5754                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   2   | Name:        SHA-512                                     |
-|       | Identifiers: id-sha512                                   |
-|       | OID:         2.16.840.1.101.3.4.2.3                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 03      |
-|       | Comments:    RFC 5754                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   3   | Name:        SHA-224                                     |
-|       | Identifiers: id-sha224                                   |
-|       | OID:         2.16.840.1.101.3.4.2.4                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 04      |
-|       | Comments:    RFC 5754                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   4   | Name:        SM3                                         |
-|       | Identifiers: id-sm3                                      |
-|       | OID:         1.2.156.10197.1.401                         |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0A 06 08 2A 81 1C CF 55 01 83 11         |
-|       | Comments:    GM/T 0006-2023                              |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   5   | Name:        SHA3-256                                    |
-|       | Identifiers: id-sha3-256                                 |
-|       | OID:         2.16.840.1.101.3.4.2.8                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 08      |
-|       | Comments:    RFC 9688                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   6   | Name:        SHA3-384                                    |
-|       | Identifiers: id-sha3-384                                 |
-|       | OID:         2.16.840.1.101.3.4.2.9                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 09      |
-|       | Comments:    RFC 9688                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   7   | Name:        SHA3-512                                    |
-|       | Identifiers: id-sha3-512                                 |
-|       | OID:         2.16.840.1.101.3.4.2.10                     |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0A      |
-|       | Comments:    RFC 9688                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   8   | Name:        SHA3-224                                    |
-|       | Identifiers: id-sha3-224                                 |
-|       | OID:         2.16.840.1.101.3.4.2.7                      |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 07      |
-|       | Comments:    RFC 9688                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   9   | Name:        SHAKE128                                    |
-|       | Identifiers: id-shake128                                 |
-|       | OID:         2.16.840.1.101.3.4.2.11                     |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0B      |
-|       | Comments:    RFC 8702                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-|   10  | Name:        SHAKE256                                    |
-|       | Identifiers: id-shake256                                 |
-|       | OID:         2.16.840.1.101.3.4.2.12                     |
-|       | Parameters:  absent                                      |
-|       | DER:         30 0B 06 09 60 86 48 01 65 03 04 02 0C      |
-|       | Comments:    RFC 8702                                    |
-|       | Reference:   [[this document]]                           |
-+-------+----------------------------------------------------------+
-~~~~~~~~~~~
-{: #fig-hashalgs title="C509 Hash Algorithms"}
-{: artwork-align="center"}
+| Name     | Value | Description        | Capabilities | Change Controller | Reference                       | Recommended |
+|----------|-------|--------------------|--------------|-------------------|---------------------------------|-------------|
+| SHA3-256 | TBD15 | SHA-3 256-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
+| SHA3-384 | TBD16 | SHA-3 384-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
+| SHA3-512 | TBD17 | SHA-3 512-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
+| SM3      | TBD18 | SM3 256-bit Hash   | \[\]         | IETF              | {{ISO10118-3}}, {{&SELF}}       | No          |
+{: #tab-iana-cose-alg title="COSE Algorithms Registrations"}
+
+SM3 is also specified in the Chinese national standard {{GBT32905-2016}}; the algorithm specified there is identical to the one in {{ISO10118-3}}.
 
 ## Extension Identifiers Registry
 
@@ -1135,15 +1140,17 @@ IANA is requested to register the following entries in the "Textual Encoding Lab
 
 ## Media Type Application Registry
 
-IANA is requested to assign the following entries into the "application" registry in the registry group "Media Types" with this document as reference.
+IANA is requested to assign the following entries in the "application" registry in the registry group "Media Types" with this document as reference.
 
 ### Media Type application/c509-crl+cbor
 
-When the application/c509-crl+cbor media type is used, the data is a C509CRL structure.
+When the application/c509-crl+cbor media type is used, the data is a C509CRL structure.  A stored file format is defined with "magic number" TBD11 using the reserved CBOR tag 55799 and the Content-Format TBD7, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-crl+cbor
 
 Required parameters: N/A
+
+Optional parameters: N/A
 
 Encoding considerations: binary
 
@@ -1160,9 +1167,8 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): N/A
+* Magic number(s): TBD11
 * File extension(s): .c509
-
 * Macintosh file type code(s): N/A
 
 Person & email address to contact for further information: iesg@ietf.org
@@ -1177,11 +1183,13 @@ Change controller: IETF
 
 ### Media Type application/c509-crlinfo+cbor
 
-When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.
+When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.  A stored file format is defined with "magic number" TBD12 using the reserved CBOR tag 55799 and the Content-Format TBD8, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-crlinfo+cbor
 
 Required parameters: N/A
+
+Optional parameters: N/A
 
 Encoding considerations: binary
 
@@ -1198,9 +1206,8 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): N/A
+* Magic number(s): TBD12
 * File extension(s): .c509
-
 * Macintosh file type code(s): N/A
 
 Person & email address to contact for further information: iesg@ietf.org
@@ -1215,11 +1222,13 @@ Change controller: IETF
 
 ### Media Type application/c509-ocspreq+cbor
 
-When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.
+When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.  A stored file format is defined with "magic number" TBD13 using the reserved CBOR tag 55799 and the Content-Format TBD9, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-ocspreq+cbor
 
 Required parameters: N/A
+
+Optional parameters: N/A
 
 Encoding considerations: binary
 
@@ -1236,9 +1245,8 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): N/A
+* Magic number(s): TBD13
 * File extension(s): .c509
-
 * Macintosh file type code(s): N/A
 
 Person & email address to contact for further information: iesg@ietf.org
@@ -1253,11 +1261,13 @@ Change controller: IETF
 
 ### Media Type application/c509-ocspresp+cbor
 
-When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.
+When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.  A stored file format is defined with "magic number" TBD14 using the reserved CBOR tag 55799 and the Content-Format TBD10, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-ocspresp+cbor
 
 Required parameters: N/A
+
+Optional parameters: N/A
 
 Encoding considerations: binary
 
@@ -1274,9 +1284,8 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): N/A
+* Magic number(s): TBD14
 * File extension(s): .c509
-
 * Macintosh file type code(s): N/A
 
 Person & email address to contact for further information: iesg@ietf.org
@@ -1301,8 +1310,8 @@ IANA is requested to add entries for "application/c509-crl+cbor", "application/c
 | application/            | -       | TBD7  | [[this     |
 | c509-crl+cbor           |         |       | document]] |
 +-------------------------+---------+-------+------------+
-| application/            |         |       | [[this     |
-| c509-crlinfo+cbor       | -       | TBD8  | document]] |
+| application/            |         | TBD8  | [[this     |
+| c509-crlinfo+cbor       | -       |       | document]] |
 +-------------------------+---------+-------+------------+
 | application/            | -       | TBD9  | [[this     |
 | c509-ocspreq+cbor       |         |       | document]] |
@@ -1326,19 +1335,19 @@ TODO
 | Section       | Description           | size(X509) | size(C509) | Size Reduction |
 |:--------------|:----------------------|:-----------|:-----------|:----------------------|
 | {{exam-crl-no-revoked}} | CRL Example Without Revoked Certificates | 147 | 120 | 18% |
-| {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 335 | 177 |47% |
+| {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 335 | 177 | 47% |
 | {{exam-delta-crl-revoked}} | Delta CRL Example With Revoked Certificates | 335 | 160 | 52% |
 | {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 409 | 202 | 51% |
-| {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 152 | 51 | 66% |
-| {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 483 | 132 | 73% |
-| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 592 | 209 | 65% |
-| {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 1043 | 420 | 60% |
-| {{exam-signed-ocsp-req-withcertchain}} | Signed OCSP Request Example With Requestor's Certificate Chain | 1379 | 625 | 55% |
+| {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 150 | 51 | 66% |
+| {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 475 | 132 | 72% |
+| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 584 | 209 | 65% |
+| {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 1035 | 420 | 59% |
+| {{exam-signed-ocsp-req-withcertchain}} | Signed OCSP Request Example With Requestor's Certificate Chain | 1371 | 625 | 54% |
 | {{exam-error-ocsp-resp}} | Error OCSP Response Example | 5 | 3 | 40% |
-| {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 338 | 140 | 59% |
-| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 845 | 248 | 71% |
-| {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 1189 | 446 | 62% |
-| {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 1525 | 651 | 57% |
+| {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 336 | 140 | 58% |
+| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 837 | 248 | 70% |
+| {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 1181 | 446 | 62% |
+| {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 1517 | 651 | 57% |
 {: #tab-examples-overview title="Size comparison in examples (TODO: update the percent data)"}
 
 ## Helper Keys and Certificates
@@ -1368,7 +1377,7 @@ MC4CAQAwBQYDK2VwBCIEIDP+AdMbqXudBAN3YNAwoR0i3nl4IuoSSA6Hazy2oAKc
 259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F
 ~~~~~
 
-##### Textual (PEM) Representation
+##### Textual Representation
 
 [comment]: <> (replace-data:cert/crlocsp-ca/c509cert-t2.txt)
 ~~~~~
@@ -1842,7 +1851,7 @@ Annotated hex
 - Direct CRL
 - Delta CRL
 - With revoked certificates
-- With entries removed from CRL since last full CRL
+- With entries removed from the CRL since the last full CRL
 - Note that the X.509 CRL and the C509 CRL are not convertible.
 
 #### X.509 CRL
@@ -2156,15 +2165,15 @@ Annotated hex
 #### X.509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/simple-ocspreq/x509ocspreq.pem)
-PEM content (152 bytes):
+PEM content (150 bytes):
 
 [comment]: <> (replace-data:ocspreq/simple-ocspreq/x509ocspreq.pem)
 ~~~~~
 -----BEGIN OCSP REQUEST-----
-MIGVMIGSMG0wazBpMA0GCWCGSAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkf
-bo46evOXoPQAYFxv+AQgzBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqIC
-FBI0EjQSNBI0EjQSNBI0EjQSNBI0oiEwHzAdBgkrBgEFBQcwAQIEEBERERERERER
-ERERERERERE=
+MIGTMIGQMGswaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV11i5H26O
+Onrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQS
+NBI0EjQSNBI0EjQSNBI0EjQSNKIhMB8wHQYJKwYBBQUHMAECBBARERERERERERER
+ERERERER
 -----END OCSP REQUEST-----
 ~~~~~
 
@@ -2175,7 +2184,7 @@ Plain Hex (51 bytes):
 
 [comment]: <> (replace-data:ocspreq/simple-ocspreq/ocspreq.hex)
 ~~~~~
-860200501111111111111111111111111111111148A01C73A5F3B063345410652787
+86022F501111111111111111111111111111111148A01C73A5F3B063345410652787
 FA0527BC2449A1BFC5AB31AA5A6F0D8D80
 ~~~~~
 
@@ -2185,7 +2194,7 @@ Textual Representation
 ~~~~~
 C509SimpleOCSPRequest
   Type: C509SimpleOCSPRequest (2)
-  Hash Algorithm: SHA256 (0)
+  Hash Algorithm: SHA256 (-16)
   IssuerCertHash:
     a0:1c:73:a5:f3:b0:63:34
   SerialNumberHash:
@@ -2203,7 +2212,7 @@ Annotated hex
  0: 86             # C509OCSPRequest=array[6]
  1:   02             # [0]. ocspRequestType=C509SimpleOCSPRequest
                      #      (2)
- 2:   00             # [1]. hashAlgorithm=SHA256 (0)
+ 2:   2F             # [1]. hashAlgorithm=SHA256 (-16)
  3:   50             # [2]. nonce=byte[16]
  4:     11111111111111111111111111111111
 20:   48             # [3]. issuerCertHash=byte[8]
@@ -2216,29 +2225,28 @@ Annotated hex
 ### Unsigned OCSP Request Example {#exam-unsigned-ocsp-req}
 
 [comment]: <> (replace-reduction:ocspreq/unsigned-ocspreq/ocspreq.hex % ocspreq/unsigned-ocspreq/x509ocspreq.pem)
-- Size reduction: 73%
+- Size reduction: 72%
 - Unsigned OCSP Request (`C509UnsignedOCSPRequest`)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
 #### X.509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/unsigned-ocspreq/x509ocspreq.pem)
-PEM content (483 bytes):
+PEM content (475 bytes):
 
 [comment]: <> (replace-data:ocspreq/unsigned-ocspreq/x509ocspreq.pem)
 ~~~~~
 -----BEGIN OCSP REQUEST-----
-MIIB3zCCAdswggG0MGswaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV
-11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbucl
-t2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQSNDBrMGkwDQYJYIZIAWUDBAIBBQAEIDJT
-jnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2
-TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0VjRWNFYwazBpMA0GCWCG
-SAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQgzBHI
-dAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFFZ4VnhWeFZ4VnhWeFZ4VnhW
-eFZ4MGswaTANBglghkgBZQMEAgEFAAQgMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
-MzMzMzMzMzMEIEREREREREREREREREREREREREREREREREREREREREREAhQiMyIz
-IjMiMyIzIjMiMyIzIjMiM6IhMB8wHQYJKwYBBQUHMAECBBARERERERERERERERER
-ERER
+MIIB1zCCAdMwggGsMGkwZzALBglghkgBZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddY
+uR9ujjp685eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdm
+ogIUEjQSNBI0EjQSNBI0EjQSNBI0EjQwaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9
+N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2
+DtY0fxPBbuclt2aiAhQ0VjRWNFY0VjRWNFY0VjRWNFY0VjBpMGcwCwYJYIZIAWUD
+BAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQgzBHIdAoFCexN
+oUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFFZ4VnhWeFZ4VnhWeFZ4VnhWeFZ4MGkw
+ZzALBglghkgBZQMEAgEEIDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
+BCBERERERERERERERERERERERERERERERERERERERERERAIUIjMiMyIzIjMiMyIz
+IjMiMyIzIjOiITAfMB0GCSsGAQUFBzABAgQQEREREREREREREREREREREQ==
 -----END OCSP REQUEST-----
 ~~~~~
 
@@ -2249,7 +2257,7 @@ Plain Hex (132 bytes):
 
 [comment]: <> (replace-data:ocspreq/unsigned-ocspreq/ocspreq.hex)
 ~~~~~
-8500005011111111111111111111111111111111808648A01C73A5F3B06334808654
+85002F5011111111111111111111111111111111808648A01C73A5F3B06334808654
 10652787FA0527BC2449A1BFC5AB31AA5A6F0D8D805475D8BC4FBAFC6694467641E7
 48DFD53A8B9D176D8054D1AC135D7DA29BDCF4DCA0D5281A51605B67840080482222
 222222222222808254D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B80
@@ -2261,7 +2269,7 @@ Textual Representation
 ~~~~~
 C509UnsignedOCSPRequest
   Type: C509UnsignedOCSPRequest (0)
-  Hash Algorithm: SHA256 (0)
+  Hash Algorithm: SHA256 (-16)
   Nonce
     11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
   Requests
@@ -2305,7 +2313,7 @@ Annotated hex
   0: 85             # C509OCSPRequest=array[5]
   1:   00             # [0]. ocspRequestType=C509UnsignedOCSPRequest
                       #      (0)
-  2:   00             # [1]. hashAlgorithm=SHA256 (0)
+  2:   2F             # [1]. hashAlgorithm=SHA256 (-16)
   3:   50             # [2]. nonce=byte[16]
   4:     11111111111111111111111111111111
  20:   80             # [3]. extensions=array[0]
@@ -2341,32 +2349,32 @@ Annotated hex
 ### Signed OCSP Request Example Without Requestor's Certificate {#exam-signed-ocsp-req}
 
 [comment]: <> (replace-reduction:ocspreq/signed-ocspreq/ocspreq.hex % ocspreq/signed-ocspreq/x509ocspreq.pem)
-- Size reduction: 65%
+- Size reduction: 64%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
-- Signed OCSP Request (`C509UnsignedOCSPRequest`) without requestor's certificate
+- Signed OCSP Request (`C509SignedOCSPRequest`) without requestor's certificate
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
 #### X.509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/signed-ocspreq/x509ocspreq.pem)
-PEM content (592 bytes):
+PEM content (584 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq/x509ocspreq.pem)
 ~~~~~
 -----BEGIN OCSP REQUEST-----
-MIICTDCCAfqhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBtDBrMGkw
-DQYJYIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4
-BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0
-EjQSNBI0EjQwazBpMA0GCWCGSAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkf
-bo46evOXoPQAYFxv+AQgzBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqIC
-FDRWNFY0VjRWNFY0VjRWNFY0VjRWMGswaTANBglghkgBZQMEAgEFAAQgMlOOdIW9
-N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2
-DtY0fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBrMGkwDQYJYIZIAWUD
-BAIBBQAEIDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzBCBERERERERE
-RERERERERERERERERERERERERERERERERAIUIjMiMyIzIjMiMyIzIjMiMyIzIjOi
-ITAfMB0GCSsGAQUFBzABAgQQEREREREREREREREREREREaBMMEowBQYDK2VwA0EA
-DVI0VPbgwwEJDSdfds+dKJ6GpFdP724NTTYL1GMvn/loUMeJAnnJ7jbxvP/R1PE5
-Zyh+lISXhR4F1lvXRAHYCA==
+MIICRDCCAfKhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBrDBpMGcw
+CwYJYIZIAWUDBAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQg
+zBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFBI0EjQSNBI0EjQSNBI0
+EjQSNBI0MGkwZzALBglghkgBZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp6
+85eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0
+VjRWNFY0VjRWNFY0VjRWNFYwaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8N
+K5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPB
+buclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBpMGcwCwYJYIZIAWUDBAIBBCAz
+MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMwQgRERERERERERERERERERE
+REREREREREREREREREREREQCFCIzIjMiMyIzIjMiMyIzIjMiMyIzoiEwHzAdBgkr
+BgEFBQcwAQIEEBERERERERERERERERERERGgTDBKMAUGAytlcANBAJxdKYl8BFnb
+nngr44EK7xqnJFQWfa8iM4Lje1eezFCTX1GiRVJEqS2Oe2HEdFggCngY5q5RkRaY
+qvjTEhXlRwg=
 -----END OCSP REQUEST-----
 ~~~~~
 
@@ -2377,13 +2385,13 @@ Plain Hex (209 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq/ocspreq.hex)
 ~~~~~
-89010C0050111111111111111111111111111111114844F0528B56F35AD9808648A0
+89010C2F50111111111111111111111111111111114844F0528B56F35AD9808648A0
 1C73A5F3B0633480865410652787FA0527BC2449A1BFC5AB31AA5A6F0D8D805475D8
 BC4FBAFC6694467641E748DFD53A8B9D176D8054D1AC135D7DA29BDCF4DCA0D5281A
 51605B67840080482222222222222222808254D3A0C1E3DB92E8F6810537D45CFAEC
-F6CE417E3B80F658407DA70BE70D8C88F5150218B2F60A21320D26FAF8DC198F1665
-4D54CB617A1C3C3F420B3F2FBF74C9B107D81D1815C2CE09B22EAF491313003C49D4
-3AAB8D970B
+F6CE417E3B80F658407B840FABA2179AC564A97BA369436F05316FE45FFA28B773FB
+33397123BA7AB17605572D7B638B26127E1B86FB452C5B4F1FEAE1638D5D328AF893
+B77A7D1106
 ~~~~~
 
 Textual Representation
@@ -2394,7 +2402,7 @@ C509SignedOCSPRequest
   TBSOCSPRequest
     Type: C509SignedOCSPRequest (1)
     Signature Algorithm: Ed25519 (12)
-    Hash Algorithm: SHA256 (0)
+    Hash Algorithm: SHA256 (-16)
     RequestorCertHash
       44:f0:52:8b:56:f3:5a:d9
     Nonce
@@ -2433,10 +2441,10 @@ C509SignedOCSPRequest
             Extensions: <empty>
     Requestor Certs: null
   Signature Value
-    7d:a7:0b:e7:0d:8c:88:f5:15:02:18:b2:f6:0a:21:32:
-    0d:26:fa:f8:dc:19:8f:16:65:4d:54:cb:61:7a:1c:3c:
-    3f:42:0b:3f:2f:bf:74:c9:b1:07:d8:1d:18:15:c2:ce:
-    09:b2:2e:af:49:13:13:00:3c:49:d4:3a:ab:8d:97:0b
+    7b:84:0f:ab:a2:17:9a:c5:64:a9:7b:a3:69:43:6f:05:
+    31:6f:e4:5f:fa:28:b7:73:fb:33:39:71:23:ba:7a:b1:
+    76:05:57:2d:7b:63:8b:26:12:7e:1b:86:fb:45:2c:5b:
+    4f:1f:ea:e1:63:8d:5d:32:8a:f8:93:b7:7a:7d:11:06
 ~~~~~
 
 Annotated hex
@@ -2447,7 +2455,7 @@ Annotated hex
   1:   01             # [0]. ocspRequestType=C509SignedOCSPRequest
                       #      (1)
   2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
-  3:   00             # [2]. hashAlgorithm=SHA256 (0)
+  3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
  21:   48             # [4]. requestorCertHash=byte[8]
@@ -2482,49 +2490,49 @@ Annotated hex
 141:       80             # [1]. extensions=array[0]
 142:   F6             # [7]. requestorCerts=<null>
 143:   58 40          # [8]. signatureValue=byte[64]
-145:     7DA70BE70D8C88F5150218B2F60A21320D26FAF8DC198F16654D54CB61
-174:     7A1C3C3F420B3F2FBF74C9B107D81D1815C2CE09B22EAF491313003C49
-203:     D43AAB8D970B
+145:     7B840FABA2179AC564A97BA369436F05316FE45FFA28B773FB33397123
+174:     BA7AB17605572D7B638B26127E1B86FB452C5B4F1FEAE1638D5D328AF8
+203:     93B77A7D1106
 ~~~~~
 
 ### Signed OCSP Request Example With Requestor's Certificate {#exam-signed-ocsp-req-withcert}
 
 [comment]: <> (replace-reduction:ocspreq/signed-ocspreq-with-cert/ocspreq.hex % ocspreq/signed-ocspreq-with-cert/x509ocspreq.pem)
-- Size reduction: 60%
+- Size reduction: 59%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
-- Signed OCSP Request (`C509UnsignedOCSPRequest`) with embedded requestor's certificate
+- Signed OCSP Request (`C509SignedOCSPRequest`) with embedded requestor's certificate
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
 #### X.509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/signed-ocspreq-with-cert/x509ocspreq.pem)
-PEM content (1043 bytes):
+PEM content (1035 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq-with-cert/x509ocspreq.pem)
 ~~~~~
 -----BEGIN OCSP REQUEST-----
-MIIEDzCCAnmhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBtDBrMGkw
-DQYJYIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4
-BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0
-EjQSNBI0EjQwazBpMA0GCWCGSAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkf
-bo46evOXoPQAYFxv+AQgzBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqIC
-FDRWNFY0VjRWNFY0VjRWNFY0VjRWMGswaTANBglghkgBZQMEAgEFAAQgMlOOdIW9
-N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2
-DtY0fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBrMGkwDQYJYIZIAWUD
-BAIBBQAEIDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzBCBERERERERE
-RERERERERERERERERERERERERERERERERAIUIjMiMyIzIjMiMyIzIjMiMyIzIjOi
-gZ8wgZwwGgYJKwYBBQUHMAEEBA0wCwYJKwYBBQUHMAEBMF8GCSsGAQUFBzABCARS
-MFAwBzAFBgMrZXAwITAKBggqhkjOPQQDAjATBgcqhkjOPQIBBggqhkjOPQMBBzAi
-MAoGCCqGSM49BAMCMBQGByqGSM49AgEGCSskAwMCCAEBBzAdBgkrBgEFBQcwAQIE
-EBERERERERERERERERERERGgggGOMIIBijAFBgMrZXADQQDwRoT41xL70gT6+NTW
-ayTN07XdRKwHRyfduMPbJy0AsRw9TKioMQoLnts6C+6k4s+rORjaTcvZ0Aqv5fQ6
-UJMFoIIBPDCCATgwggE0MIHnoAMCAQICAhI2MAUGAytlcDAaMRgwFgYDVQQDDA90
-ZXN0IGNybG9jc3AtY2EwHhcNMjUwMTAyMDAwMDAwWhcNMjYwMTAyMDAwMDAwWjAZ
-MRcwFQYDVQQDDA5vY3NwLXJlcXVlc3RvcjAqMAUGAytlcAMhAARTCxdk7dS04zq0
-SvD4OJYcAHF210tqNUbst/1XMg3To1IwUDAdBgNVHQ4EFgQUsTbUWYobG2qG2mUQ
-rqVk2BKX5PkwDgYDVR0PAQH/BAQDAgeAMB8GA1UdIwQYMBaAFNl9d+Y0wvcAMAyl
-j8h3NlsVUAeiMAUGAytlcANBAJj5kiFekcWb6v8et+o+/Suqfh29AdErA3eBmFnJ
-Z5A/+c/q9jFbvdahCBJJteLJhUIc0BJ0GlmWOBLI0no1fQI=
+MIIEBzCCAnGhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBrDBpMGcw
+CwYJYIZIAWUDBAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQg
+zBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFBI0EjQSNBI0EjQSNBI0
+EjQSNBI0MGkwZzALBglghkgBZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp6
+85eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0
+VjRWNFY0VjRWNFY0VjRWNFYwaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8N
+K5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPB
+buclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBpMGcwCwYJYIZIAWUDBAIBBCAz
+MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMwQgRERERERERERERERERERE
+REREREREREREREREREREREQCFCIzIjMiMyIzIjMiMyIzIjMiMyIzooGfMIGcMBoG
+CSsGAQUFBzABBAQNMAsGCSsGAQUFBzABATBfBgkrBgEFBQcwAQgEUjBQMAcwBQYD
+K2VwMCEwCgYIKoZIzj0EAwIwEwYHKoZIzj0CAQYIKoZIzj0DAQcwIjAKBggqhkjO
+PQQDAjAUBgcqhkjOPQIBBgkrJAMDAggBAQcwHQYJKwYBBQUHMAECBBARERERERER
+ERERERERERERoIIBjjCCAYowBQYDK2VwA0EAnqnZjVvfg50lAZOGBiSExUCuMKja
+IHCZKykPyiVpW8ECz2Ejd8NiIQ/pnXvzTRvbQz1i7y+figq4L4YZYGfjAaCCATww
+ggE4MIIBNDCB56ADAgECAgISNjAFBgMrZXAwGjEYMBYGA1UEAwwPdGVzdCBjcmxv
+Y3NwLWNhMB4XDTI1MDEwMjAwMDAwMFoXDTI2MDEwMjAwMDAwMFowGTEXMBUGA1UE
+AwwOb2NzcC1yZXF1ZXN0b3IwKjAFBgMrZXADIQAEUwsXZO3UtOM6tErw+DiWHABx
+dtdLajVG7Lf9VzIN06NSMFAwHQYDVR0OBBYEFLE21FmKGxtqhtplEK6lZNgSl+T5
+MA4GA1UdDwEB/wQEAwIHgDAfBgNVHSMEGDAWgBTZfXfmNML3ADAMpY/IdzZbFVAH
+ojAFBgMrZXADQQCY+ZIhXpHFm+r/HrfqPv0rqn4dvQHRKwN3gZhZyWeQP/nP6vYx
+W73WoQgSSbXiyYVCHNASdBpZljgSyNJ6NX0C
 -----END OCSP REQUEST-----
 ~~~~~
 
@@ -2535,7 +2543,7 @@ Plain Hex (420 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq-with-cert/ocspreq.hex)
 ~~~~~
-89010C0050111111111111111111111111111111114844F0528B56F35AD984185D82
+89010C2F50111111111111111111111111111111114844F0528B56F35AD984185D82
 0001185E840CF600820118188648A01C73A5F3B0633480865410652787FA0527BC24
 49A1BFC5AB31AA5A6F0D8D805475D8BC4FBAFC6694467641E748DFD53A8B9D176D80
 54D1AC135D7DA29BDCF4DCA0D5281A51605B67840080482222222222222222808254
@@ -2545,9 +2553,9 @@ D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B8058C38B024212360C6F74657374
 320DD3860154DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E78D
 2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50DD4942D172814C
 46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B624
-08A277A5B70D0D2A3F5ED5442D075840EBF95F92812C9DF3DBC7C19699D5254485AD
-DC930695239D1D68BF7988F3F1B0C76A588BF42F4FCFF373C3705AEB56FC3B6CDEAA
-F66DA0F5BBB735F4A1CDB004
+08A277A5B70D0D2A3F5ED5442D07584075C65F028199FFC884B6A0E3E4F9EDC380A0
+37B1E9B5868C74F5A0CEBCCDF6C7D0C0D69B1BB6976414444E156D72E12E2FF93678
+2513516B02B4A1E40EB13D01
 ~~~~~
 
 Textual Representation
@@ -2558,7 +2566,7 @@ C509SignedOCSPRequest
   TBSOCSPRequest
     Type: C509SignedOCSPRequest (1)
     Signature Algorithm: Ed25519 (12)
-    Hash Algorithm: SHA256 (0)
+    Hash Algorithm: SHA256 (-16)
     RequestorCertHash
       44:f0:52:8b:56:f3:5a:d9
     Nonce
@@ -2622,10 +2630,10 @@ C509SignedOCSPRequest
         60:d5:b4:b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:
         44:2d:07
   Signature Value
-    eb:f9:5f:92:81:2c:9d:f3:db:c7:c1:96:99:d5:25:44:
-    85:ad:dc:93:06:95:23:9d:1d:68:bf:79:88:f3:f1:b0:
-    c7:6a:58:8b:f4:2f:4f:cf:f3:73:c3:70:5a:eb:56:fc:
-    3b:6c:de:aa:f6:6d:a0:f5:bb:b7:35:f4:a1:cd:b0:04
+    75:c6:5f:02:81:99:ff:c8:84:b6:a0:e3:e4:f9:ed:c3:
+    80:a0:37:b1:e9:b5:86:8c:74:f5:a0:ce:bc:cd:f6:c7:
+    d0:c0:d6:9b:1b:b6:97:64:14:44:4e:15:6d:72:e1:2e:
+    2f:f9:36:78:25:13:51:6b:02:b4:a1:e4:0e:b1:3d:01
 ~~~~~
 
 Annotated hex
@@ -2636,7 +2644,7 @@ Annotated hex
   1:   01             # [0]. ocspRequestType=C509SignedOCSPRequest
                       #      (1)
   2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
-  3:   00             # [2]. hashAlgorithm=SHA256 (0)
+  3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
  21:   48             # [4]. requestorCertHash=byte[8]
@@ -2697,56 +2705,56 @@ Annotated hex
 304:     814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772FF04C80
 333:     E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
 354:   58 40          # [8]. signatureValue=byte[64]
-356:     EBF95F92812C9DF3DBC7C19699D5254485ADDC930695239D1D68BF7988
-385:     F3F1B0C76A588BF42F4FCFF373C3705AEB56FC3B6CDEAAF66DA0F5BBB7
-414:     35F4A1CDB004
+356:     75C65F028199FFC884B6A0E3E4F9EDC380A037B1E9B5868C74F5A0CEBC
+385:     CDF6C7D0C0D69B1BB6976414444E156D72E12E2FF936782513516B02B4
+414:     A1E40EB13D01
 ~~~~~
 
 ### Signed OCSP Request Example With Requestor's Certificate Chain {#exam-signed-ocsp-req-withcertchain}
 
 [comment]: <> (replace-reduction:ocspreq/signed-ocspreq-with-certchain/ocspreq.hex % ocspreq/signed-ocspreq-with-certchain/x509ocspreq.pem)
-- Size reduction: 55%
+- Size reduction: 54%
 - Verifiable with certificate in {{ocsp-requestor-cert}}
-- Signed OCSP Request (`C509UnsignedOCSPRequest`) with embedded requestor's certificate chain (2 certificates)
+- Signed OCSP Request (`C509SignedOCSPRequest`) with embedded requestor's certificate chain (2 certificates)
 - Note that the X.509 OCSP Request and the C509 OCSP Request are not convertible.
 
 #### X.509 OCSP Request
 
 [comment]: <> (replace-size:ocspreq/signed-ocspreq-with-certchain/x509ocspreq.pem)
-PEM content (1379 bytes):
+PEM content (1371 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq-with-certchain/x509ocspreq.pem)
 ~~~~~
 -----BEGIN OCSP REQUEST-----
-MIIFXzCCAnmhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBtDBrMGkw
-DQYJYIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4
-BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0
-EjQSNBI0EjQwazBpMA0GCWCGSAFlAwQCAQUABCAyU450hb03rkVPHw0rl1XXWLkf
-bo46evOXoPQAYFxv+AQgzBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqIC
-FDRWNFY0VjRWNFY0VjRWNFY0VjRWMGswaTANBglghkgBZQMEAgEFAAQgMlOOdIW9
-N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2
-DtY0fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBrMGkwDQYJYIZIAWUD
-BAIBBQAEIDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzBCBERERERERE
-RERERERERERERERERERERERERERERERERAIUIjMiMyIzIjMiMyIzIjMiMyIzIjOi
-gZ8wgZwwGgYJKwYBBQUHMAEEBA0wCwYJKwYBBQUHMAEBMF8GCSsGAQUFBzABCARS
-MFAwBzAFBgMrZXAwITAKBggqhkjOPQQDAjATBgcqhkjOPQIBBggqhkjOPQMBBzAi
-MAoGCCqGSM49BAMCMBQGByqGSM49AgEGCSskAwMCCAEBBzAdBgkrBgEFBQcwAQIE
-EBERERERERERERERERERERGgggLeMIIC2jAFBgMrZXADQQDwRoT41xL70gT6+NTW
-ayTN07XdRKwHRyfduMPbJy0AsRw9TKioMQoLnts6C+6k4s+rORjaTcvZ0Aqv5fQ6
-UJMFoIICjDCCAogwggE0MIHnoAMCAQICAhI2MAUGAytlcDAaMRgwFgYDVQQDDA90
-ZXN0IGNybG9jc3AtY2EwHhcNMjUwMTAyMDAwMDAwWhcNMjYwMTAyMDAwMDAwWjAZ
-MRcwFQYDVQQDDA5vY3NwLXJlcXVlc3RvcjAqMAUGAytlcAMhAARTCxdk7dS04zq0
-SvD4OJYcAHF210tqNUbst/1XMg3To1IwUDAdBgNVHQ4EFgQUsTbUWYobG2qG2mUQ
-rqVk2BKX5PkwDgYDVR0PAQH/BAQDAgeAMB8GA1UdIwQYMBaAFNl9d+Y0wvcAMAyl
-j8h3NlsVUAeiMAUGAytlcANBAJj5kiFekcWb6v8et+o+/Suqfh29AdErA3eBmFnJ
-Z5A/+c/q9jFbvdahCBJJteLJhUIc0BJ0GlmWOBLI0no1fQIwggFMMIH/oAMCAQIC
-AQEwBQYDK2VwMB4xHDAaBgNVBAMME3Rlc3QgY3Jsb2NzcC1yb290Y2EwHhcNMjUw
-MTAxMDAwMDAwWhcNMjYxMjMxMjM1OTU5WjAaMRgwFgYDVQQDDA90ZXN0IGNybG9j
-c3AtY2EwKjAFBgMrZXADIQBe+KNVoAGnxQ0jSUcBIIExpLsquSDUC/sO4farKP90
-AKNmMGQwHQYDVR0OBBYEFNl9d+Y0wvcAMAylj8h3NlsVUAeiMA4GA1UdDwEB/wQE
-AwIBBjASBgNVHRMBAf8ECDAGAQH/AgEBMB8GA1UdIwQYMBaAFJEjnPr554Nssp9R
-4TGR2xDTrhaTMAUGAytlcANBANZeAdfL+kF/sXuZ95ftaSevVi/2Po01s+On04Fg
-zGRnQBBNjzkYl92rEZjz0FomGSBDYqb4PDOIIRs2vFY9QQI=
+MIIFVzCCAnGhHaQbMBkxFzAVBgNVBAMMDm9jc3AtcmVxdWVzdG9yMIIBrDBpMGcw
+CwYJYIZIAWUDBAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQg
+zBHIdAoFCexNoUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFBI0EjQSNBI0EjQSNBI0
+EjQSNBI0MGkwZzALBglghkgBZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp6
+85eg9ABgXG/4BCDMEch0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0
+VjRWNFY0VjRWNFY0VjRWNFYwaTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8N
+K5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPB
+buclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeDBpMGcwCwYJYIZIAWUDBAIBBCAz
+MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMwQgRERERERERERERERERERE
+REREREREREREREREREREREQCFCIzIjMiMyIzIjMiMyIzIjMiMyIzooGfMIGcMBoG
+CSsGAQUFBzABBAQNMAsGCSsGAQUFBzABATBfBgkrBgEFBQcwAQgEUjBQMAcwBQYD
+K2VwMCEwCgYIKoZIzj0EAwIwEwYHKoZIzj0CAQYIKoZIzj0DAQcwIjAKBggqhkjO
+PQQDAjAUBgcqhkjOPQIBBgkrJAMDAggBAQcwHQYJKwYBBQUHMAECBBARERERERER
+ERERERERERERoIIC3jCCAtowBQYDK2VwA0EAnqnZjVvfg50lAZOGBiSExUCuMKja
+IHCZKykPyiVpW8ECz2Ejd8NiIQ/pnXvzTRvbQz1i7y+figq4L4YZYGfjAaCCAoww
+ggKIMIIBNDCB56ADAgECAgISNjAFBgMrZXAwGjEYMBYGA1UEAwwPdGVzdCBjcmxv
+Y3NwLWNhMB4XDTI1MDEwMjAwMDAwMFoXDTI2MDEwMjAwMDAwMFowGTEXMBUGA1UE
+AwwOb2NzcC1yZXF1ZXN0b3IwKjAFBgMrZXADIQAEUwsXZO3UtOM6tErw+DiWHABx
+dtdLajVG7Lf9VzIN06NSMFAwHQYDVR0OBBYEFLE21FmKGxtqhtplEK6lZNgSl+T5
+MA4GA1UdDwEB/wQEAwIHgDAfBgNVHSMEGDAWgBTZfXfmNML3ADAMpY/IdzZbFVAH
+ojAFBgMrZXADQQCY+ZIhXpHFm+r/HrfqPv0rqn4dvQHRKwN3gZhZyWeQP/nP6vYx
+W73WoQgSSbXiyYVCHNASdBpZljgSyNJ6NX0CMIIBTDCB/6ADAgECAgEBMAUGAytl
+cDAeMRwwGgYDVQQDDBN0ZXN0IGNybG9jc3Atcm9vdGNhMB4XDTI1MDEwMTAwMDAw
+MFoXDTI2MTIzMTIzNTk1OVowGjEYMBYGA1UEAwwPdGVzdCBjcmxvY3NwLWNhMCow
+BQYDK2VwAyEAXvijVaABp8UNI0lHASCBMaS7Krkg1Av7DuH2qyj/dACjZjBkMB0G
+A1UdDgQWBBTZfXfmNML3ADAMpY/IdzZbFVAHojAOBgNVHQ8BAf8EBAMCAQYwEgYD
+VR0TAQH/BAgwBgEB/wIBATAfBgNVHSMEGDAWgBSRI5z6+eeDbLKfUeExkdsQ064W
+kzAFBgMrZXADQQDWXgHXy/pBf7F7mfeX7Wknr1Yv9j6NNbPjp9OBYMxkZ0AQTY85
+GJfdqxGY89BaJhkgQ2Km+DwziCEbNrxWPUEC
 -----END OCSP REQUEST-----
 ~~~~~
 
@@ -2757,7 +2765,7 @@ Plain Hex (625 bytes):
 
 [comment]: <> (replace-data:ocspreq/signed-ocspreq-with-certchain/ocspreq.hex)
 ~~~~~
-89010C0050111111111111111111111111111111114844F0528B56F35AD984185D82
+89010C2F50111111111111111111111111111111114844F0528B56F35AD984185D82
 0001185E840CF600820118188648A01C73A5F3B0633480865410652787FA0527BC24
 49A1BFC5AB31AA5A6F0D8D805475D8BC4FBAFC6694467641E748DFD53A8B9D176D80
 54D1AC135D7DA29BDCF4DCA0D5281A51605B67840080482222222222222222808254
@@ -2773,9 +2781,9 @@ D3A0C1E3DB92E8F6810537D45CFAECF6CE417E3B808258C38B024212360C6F746573
 008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860230107542DA3A4
 03F7D2F4E0B3D8031A73BA8A839F557F0F5840E50465D60C02A2111EF3FC6E44F2A3
 6008765B552351F9A3F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D
-3CC1DB2CCD180AA0A2D0E191310B0F584071D39CBD6611FD5B0C3092FCE58016B966
-232851AC3167CD0CDEF47DF0F0BC738616EB65BB2BA509C8CF45EDBC9B784A4A7092
-5E97AE152871E9D665C477500E
+3CC1DB2CCD180AA0A2D0E191310B0F58408EC4D20A1C156B2FDB61D82D39EF9D54CC
+BFFE42EAC1ACADDECD20787D979A38823BBB1A6458C22F07E6487073769FB9B52544
+7A43B0C9C3BCDE790455DEC508
 ~~~~~
 
 Textual Representation
@@ -2786,7 +2794,7 @@ C509SignedOCSPRequest
   TBSOCSPRequest
     Type: C509SignedOCSPRequest (1)
     Signature Algorithm: Ed25519 (12)
-    Hash Algorithm: SHA256 (0)
+    Hash Algorithm: SHA256 (-16)
     RequestorCertHash
       44:f0:52:8b:56:f3:5a:d9
     Nonce
@@ -2864,10 +2872,10 @@ C509SignedOCSPRequest
         0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
         18:0a:a0:a2:d0:e1:91:31:0b:0f
   Signature Value
-    71:d3:9c:bd:66:11:fd:5b:0c:30:92:fc:e5:80:16:b9:
-    66:23:28:51:ac:31:67:cd:0c:de:f4:7d:f0:f0:bc:73:
-    86:16:eb:65:bb:2b:a5:09:c8:cf:45:ed:bc:9b:78:4a:
-    4a:70:92:5e:97:ae:15:28:71:e9:d6:65:c4:77:50:0e
+    8e:c4:d2:0a:1c:15:6b:2f:db:61:d8:2d:39:ef:9d:54:
+    cc:bf:fe:42:ea:c1:ac:ad:de:cd:20:78:7d:97:9a:38:
+    82:3b:bb:1a:64:58:c2:2f:07:e6:48:70:73:76:9f:b9:
+    b5:25:44:7a:43:b0:c9:c3:bc:de:79:04:55:de:c5:08
 ~~~~~
 
 Annotated hex
@@ -2878,7 +2886,7 @@ Annotated hex
   1:   01             # [0]. ocspRequestType=C509SignedOCSPRequest
                       #      (1)
   2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
-  3:   00             # [2]. hashAlgorithm=SHA256 (0)
+  3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
  21:   48             # [4]. requestorCertHash=byte[8]
@@ -2949,9 +2957,9 @@ Annotated hex
 525:       F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
 553:       D0E191310B0F
 559:   58 40          # [8]. signatureValue=byte[64]
-561:     71D39CBD6611FD5B0C3092FCE58016B966232851AC3167CD0CDEF47DF0
-590:     F0BC738616EB65BB2BA509C8CF45EDBC9B784A4A70925E97AE152871E9
-619:     D665C477500E
+561:     8EC4D20A1C156B2FDB61D82D39EF9D54CCBFFE42EAC1ACADDECD20787D
+590:     979A38823BBB1A6458C22F07E6487073769FB9B525447A43B0C9C3BCDE
+619:     790455DEC508
 ~~~~~
 
 ## OCSP Response Examples
@@ -3006,27 +3014,26 @@ Annotated hex
 ### Simple OCSP Response Example {#exam-simple-ocsp-resp}
 
 [comment]: <> (replace-reduction:ocspresp/simple-ocspresp/ocspresp.hex % ocspresp/simple-ocspresp/x509ocspresp.pem)
-- Size reduction: 59%
+- Size reduction: 58%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Simple OCSP Response (`C509SimpleOCSPResponse`) without responder's certificate
-- Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
+- Note that the X.509 OCSP Response and the C509 OCSP Response are not convertible.
 
 #### X.509 OCSP Response
 
 [comment]: <> (replace-size:ocspresp/simple-ocspresp/x509ocspresp.pem)
-PEM content (338 bytes):
+PEM content (336 bytes):
 
 [comment]: <> (replace-data:ocspresp/simple-ocspresp/x509ocspresp.pem)
 ~~~~~
 -----BEGIN OCSP RESPONSE-----
-MIIBTgoBAKCCAUcwggFDBgkrBgEFBQcwAQEEggE0MIIBMDCB46IWBBTq5ZqK6ar0
-EEsV5Q6O4BcVF3QYrxgPMjAyNTAzMDMwMDAwMDBaMIGUMIGRMGkwDQYJYIZIAWUD
-BAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ
-7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0EjQSNBI0EjSA
-ABgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWqEhMB8wHQYJKwYB
-BQUHMAECBBARERERERERERERERERERERMAUGAytlcANBAGEzM3X9KkpZLfpEMRoz
-3TwWMLEfWkJkVHA++53Yj9QrrI6Sqry4t9AouNcGLORbv42mroG3GkYESuMSK3uG
-Wgg=
+MIIBTAoBAKCCAUUwggFBBgkrBgEFBQcwAQEEggEyMIIBLjCB4aIWBBTq5ZqK6ar0
+EEsV5Q6O4BcVF3QYrxgPMjAyNTAzMDMwMDAwMDBaMIGSMIGPMGcwCwYJYIZIAWUD
+BAIBBCAyU450hb03rkVPHw0rl1XXWLkfbo46evOXoPQAYFxv+AQgzBHIdAoFCexN
+oUzliG5yNkwPY7YO1jR/E8Fu5yW3ZqICFBI0EjQSNBI0EjQSNBI0EjQSNBI0gAAY
+DzIwMjUwMzAyMTYwMDAwWqARGA8yMDI1MDMwMzA3MDAwMFqhITAfMB0GCSsGAQUF
+BzABAgQQERERERERERERERERERERETAFBgMrZXADQQAoVz6mB1JqePHWA2adyeK4
+ElU3cwbFiAepAQkUhmtUT9vU4J4mc/QxA39Ja36kVABy8+f62xw0f+5v3G9LTS0M
 -----END OCSP RESPONSE-----
 ~~~~~
 
@@ -3037,11 +3044,11 @@ Plain Hex (140 bytes):
 
 [comment]: <> (replace-data:ocspresp/simple-ocspresp/ocspresp.hex)
 ~~~~~
-8E020C005011111111111111111111111111111111480600867838E3311A48A01C73
+8E020C2F5011111111111111111111111111111111480600867838E3311A48A01C73
 A5F3B063345410652787FA0527BC2449A1BFC5AB31AA5A6F0D8D001A67C4F1003970
-7F19627080F65840E3419955AEB3D74AD5BC7D32264E8976C3AB6F68643C6BF66CC2
-F9352FF3E861A0BD1506C78B09D3FAE869D1FD3C87EF461CF6D2096EA0AC11FCFF5E
-BC0FA70C
+7F19627080F6584052D9F137BC08E4D17C3C1A0412EF70F6C4BA7124EB998F3B0A53
+AAF62F84FD18BF9AB24AEC7CE9C73717A816BFA1E3E9B0BEE6FA1DD588F0A2C838DF
+DED37404
 ~~~~~
 
 Textual Representation
@@ -3052,7 +3059,7 @@ C509SimpleOCSPResponse
   TBSSimpleOCSPResponse
     Type: C509SimpleOCSPResponse (2)
     Signature Algorithm: Ed25519 (12)
-    Hash Algorithm: SHA256 (0)
+    Hash Algorithm: SHA256 (-16)
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
@@ -3069,10 +3076,10 @@ C509SimpleOCSPResponse
     Extensions: <empty>
     Responder Certs: null
   Signature Value
-    e3:41:99:55:ae:b3:d7:4a:d5:bc:7d:32:26:4e:89:76:
-    c3:ab:6f:68:64:3c:6b:f6:6c:c2:f9:35:2f:f3:e8:61:
-    a0:bd:15:06:c7:8b:09:d3:fa:e8:69:d1:fd:3c:87:ef:
-    46:1c:f6:d2:09:6e:a0:ac:11:fc:ff:5e:bc:0f:a7:0c
+    52:d9:f1:37:bc:08:e4:d1:7c:3c:1a:04:12:ef:70:f6:
+    c4:ba:71:24:eb:99:8f:3b:0a:53:aa:f6:2f:84:fd:18:
+    bf:9a:b2:4a:ec:7c:e9:c7:37:17:a8:16:bf:a1:e3:e9:
+    b0:be:e6:fa:1d:d5:88:f0:a2:c8:38:df:de:d3:74:04
 ~~~~~
 
 Annotated hex
@@ -3083,7 +3090,7 @@ Annotated hex
   1:   02             # [0]. ocspResponseType=C509SimpleOCSPResponse
                       #      (2)
   2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
-  3:   00             # [2]. hashAlgorithm=SHA256 (0)
+  3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
  21:   48             # [4]. responderCertHash=byte[8]
@@ -3100,46 +3107,46 @@ Annotated hex
  72:   80             # [11]. extensions=array[0]
  73:   F6             # [12]. responderCerts=<null>
  74:   58 40          # [13]. signatureValue=byte[64]
- 76:     E3419955AEB3D74AD5BC7D32264E8976C3AB6F68643C6BF66CC2F9352F
-105:     F3E861A0BD1506C78B09D3FAE869D1FD3C87EF461CF6D2096EA0AC11FC
-134:     FF5EBC0FA70C
+ 76:     52D9F137BC08E4D17C3C1A0412EF70F6C4BA7124EB998F3B0A53AAF62F
+105:     84FD18BF9AB24AEC7CE9C73717A816BFA1E3E9B0BEE6FA1DD588F0A2C8
+134:     38DFDED37404
 ~~~~~
 
 
 ### Basic OCSP Response Example Without Responder's Certificate {#exam-basic-ocsp-resp}
 
 [comment]: <> (replace-reduction:ocspresp/basic-ocspresp/ocspresp.hex % ocspresp/basic-ocspresp/x509ocspresp.pem)
-- Size reduction: 71%
+- Size reduction: 70%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) without responder's certificate
-- Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
+- Note that the X.509 OCSP Response and the C509 OCSP Response are not convertible.
 
 #### X.509 OCSP Response
 
 [comment]: <> (replace-size:ocspresp/basic-ocspresp/x509ocspresp.pem)
-PEM content (845 bytes):
+PEM content (837 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp/x509ocspresp.pem)
 ~~~~~
 -----BEGIN OCSP RESPONSE-----
-MIIDSQoBAKCCA0IwggM+BgkrBgEFBQcwAQEEggMvMIIDKzCCAt2iFgQU6uWaiumq
-9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnwwgZEwaTANBglghkgB
-ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
-BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
-NIAAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaMIGnMGkwDQYJ
-YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
-Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
-VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjUwMzAyMTYwMDAwWqAR
-GA8yMDI1MDMwMzA3MDAwMFowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
-Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
-fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
-MFqgAwoBBBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBkTBp
-MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
-MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
-MyIzIjMiMyIzggAYDzIwMjUwMzAyMTYwMDAwWqARGA8yMDI1MDMwMzA3MDAwMFqh
-MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
-AgUAMAUGAytlcANBAHrbfHeKVrcvjeFMQT9cTvhYU81DmwQpZiyRtH+MhBfSjqsl
-riv95/TO4bhcpRnJl5T3D8ojWrMGiFJo1IB8gwc=
+MIIDQQoBAKCCAzowggM2BgkrBgEFBQcwAQEEggMnMIIDIzCCAtWiFgQU6uWaiumq
+9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnQwgY8wZzALBglghkgB
+ZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ
+7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0EjQSNBI0EjSA
+ABgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBpTBnMAsGCWCG
+SAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
+BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQ0VjRWNFY0VjRWNFY0VjRWNFY0
+VqEWGA8xOTcwMDEwMTAwMDAwMFqgAwoBBhgPMjAyNTAzMDIxNjAwMDBaoBEYDzIw
+MjUwMzAzMDcwMDAwWjCBpTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV
+11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbucl
+t2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAwMFqgAwoB
+BBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBjzBnMAsGCWCG
+SAFlAwQCAQQgMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMEIERERERE
+REREREREREREREREREREREREREREREREREREAhQiMyIzIjMiMyIzIjMiMyIzIjMi
+M4IAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaoTIwMDAdBgkr
+BgEFBQcwAQIEEBEREREREREREREREREREREwDwYJKwYBBQUHMAEJBAIFADAFBgMr
+ZXADQQCaRi+pYIEMvQ/4MpYqP8MDa4wRdqow+HmCecWetC36CdSC0KF+oukKTk/b
+65VJ3TmJa1blNiaKl58HVz5zVR8D
 -----END OCSP RESPONSE-----
 ~~~~~
 
@@ -3150,14 +3157,14 @@ Plain Hex (248 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp/ocspresp.hex)
 ~~~~~
-8A010C005011111111111111111111111111111111480600867838E3311A1A67C4F1
+8A010C2F5011111111111111111111111111111111480600867838E3311A1A67C4F1
 00808648A01C73A5F3B06334808F5410652787FA0527BC2449A1BFC5AB31AA5A6F0D
 8D0039707F196270805475D8BC4FBAFC6694467641E748DFD53A8B9D176D0139707F
 1962708054D1AC135D7DA29BDCF4DCA0D5281A51605B678400821A67C32F00043970
 7F19627080482222222222222222808554D3A0C1E3DB92E8F6810537D45CFAECF6CE
-417E3B0239707F19627080F65840E4869C57A66BAB501ACAEB7E5024105253D72F45
-D349AE21FB941ABE4435F8A6C9D1CA5D2784AB30CF177FF075B5502AEAEE09C1146C
-F490663EAED9243A760D
+417E3B0239707F19627080F658401BB7E5C65F7D65260A4FB127BE66B1DB3E7C9F16
+DC2969D5F67DFCF25DCCF1EE09ED28441F92B5242AF60F760AE4029EC5C74DB7C042
+3A941F869358C71FF800
 ~~~~~
 
 Textual Representation
@@ -3168,7 +3175,7 @@ C509BasicOCSPResponse
   TBSBasicOCSPResponse
     Type: C509BasicOCSPResponse (1)
     Signature Algorithm: Ed25519 (12)
-    Hash Algorithm: SHA256 (0)
+    Hash Algorithm: SHA256 (-16)
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
@@ -3221,10 +3228,10 @@ C509BasicOCSPResponse
             Extensions: <empty>
     Responder Certs: null
   Signature Value
-    e4:86:9c:57:a6:6b:ab:50:1a:ca:eb:7e:50:24:10:52:
-    53:d7:2f:45:d3:49:ae:21:fb:94:1a:be:44:35:f8:a6:
-    c9:d1:ca:5d:27:84:ab:30:cf:17:7f:f0:75:b5:50:2a:
-    ea:ee:09:c1:14:6c:f4:90:66:3e:ae:d9:24:3a:76:0d
+    1b:b7:e5:c6:5f:7d:65:26:0a:4f:b1:27:be:66:b1:db:
+    3e:7c:9f:16:dc:29:69:d5:f6:7d:fc:f2:5d:cc:f1:ee:
+    09:ed:28:44:1f:92:b5:24:2a:f6:0f:76:0a:e4:02:9e:
+    c5:c7:4d:b7:c0:42:3a:94:1f:86:93:58:c7:1f:f8:00
 ~~~~~
 
 Annotated hex
@@ -3235,7 +3242,7 @@ Annotated hex
   1:   01             # [0]. ocspResponseType=C509BasicOCSPResponse
                       #      (1)
   2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
-  3:   00             # [2]. hashAlgorithm=SHA256 (0)
+  3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
  21:   48             # [4]. responderCertHash=byte[8]
@@ -3295,9 +3302,9 @@ Annotated hex
 180:       80             # [4]. extensions=array[0]
 181:   F6             # [8]. responderCerts=<null>
 182:   58 40          # [9]. signature value=byte[64]
-184:     E4869C57A66BAB501ACAEB7E5024105253D72F45D349AE21FB941ABE44
-213:     35F8A6C9D1CA5D2784AB30CF177FF075B5502AEAEE09C1146CF490663E
-242:     AED9243A760D
+184:     1BB7E5C65F7D65260A4FB127BE66B1DB3E7C9F16DC2969D5F67DFCF25D
+213:     CCF1EE09ED28441F92B5242AF60F760AE4029EC5C74DB7C0423A941F86
+242:     9358C71FF800
 ~~~~~
 
 ### Basic OCSP Response Example With Responder's Certificate {#exam-basic-ocsp-resp-withcert}
@@ -3306,41 +3313,41 @@ Annotated hex
 - Size reduction: 62%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) with embedded responder's certificate
-- Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
+- Note that the X.509 OCSP Response and the C509 OCSP Response are not convertible.
 
 #### X.509 OCSP Response
 
 [comment]: <> (replace-size:ocspresp/basic-ocspresp-with-cert/x509ocspresp.pem)
-PEM content (1189 bytes):
+PEM content (1181 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp-with-cert/x509ocspresp.pem)
 ~~~~~
 -----BEGIN OCSP RESPONSE-----
-MIIEoQoBAKCCBJowggSWBgkrBgEFBQcwAQEEggSHMIIEgzCCAt2iFgQU6uWaiumq
-9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnwwgZEwaTANBglghkgB
-ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
-BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
-NIAAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaMIGnMGkwDQYJ
-YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
-Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
-VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjUwMzAyMTYwMDAwWqAR
-GA8yMDI1MDMwMzA3MDAwMFowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
-Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
-fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
-MFqgAwoBBBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBkTBp
-MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
-MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
-MyIzIjMiMyIzggAYDzIwMjUwMzAyMTYwMDAwWqARGA8yMDI1MDMwMzA3MDAwMFqh
-MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
-AgUAMAUGAytlcANBAHrbfHeKVrcvjeFMQT9cTvhYU81DmwQpZiyRtH+MhBfSjqsl
-riv95/TO4bhcpRnJl5T3D8ojWrMGiFJo1IB8gwegggFUMIIBUDCCAUwwgf+gAwIB
-AgICEjUwBQYDK2VwMBoxGDAWBgNVBAMMD3Rlc3QgY3Jsb2NzcC1jYTAeFw0yNTAx
-MDIwMDAwMDBaFw0yNjAxMDIwMDAwMDBaMBkxFzAVBgNVBAMMDm9jc3AtcmVzcG9u
-ZGVyMCowBQYDK2VwAyEAgZR7vCSKrHlzghGo11v5LLd32ZQHPfI64GOA7yxXOXaj
-ajBoMB0GA1UdDgQWBBTq5ZqK6ar0EEsV5Q6O4BcVF3QYrzAOBgNVHQ8BAf8EBAMC
-B4AwHwYDVR0jBBgwFoAU2X135jTC9wAwDKWPyHc2WxVQB6IwFgYDVR0lAQH/BAww
-CgYIKwYBBQUHAwkwBQYDK2VwA0EAE6Mo4UW6t2eMBWxsYX3UvhUJnaoXUOH7fAsp
-qSPXK/f3h5+FSrkt0RCxXzct4Flmgi+HToCGEf1F3T0sXCiHCA==
+MIIEmQoBAKCCBJIwggSOBgkrBgEFBQcwAQEEggR/MIIEezCCAtWiFgQU6uWaiumq
+9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnQwgY8wZzALBglghkgB
+ZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ
+7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0EjQSNBI0EjSA
+ABgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBpTBnMAsGCWCG
+SAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
+BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQ0VjRWNFY0VjRWNFY0VjRWNFY0
+VqEWGA8xOTcwMDEwMTAwMDAwMFqgAwoBBhgPMjAyNTAzMDIxNjAwMDBaoBEYDzIw
+MjUwMzAzMDcwMDAwWjCBpTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV
+11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbucl
+t2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAwMFqgAwoB
+BBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBjzBnMAsGCWCG
+SAFlAwQCAQQgMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMEIERERERE
+REREREREREREREREREREREREREREREREREREAhQiMyIzIjMiMyIzIjMiMyIzIjMi
+M4IAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaoTIwMDAdBgkr
+BgEFBQcwAQIEEBEREREREREREREREREREREwDwYJKwYBBQUHMAEJBAIFADAFBgMr
+ZXADQQCaRi+pYIEMvQ/4MpYqP8MDa4wRdqow+HmCecWetC36CdSC0KF+oukKTk/b
+65VJ3TmJa1blNiaKl58HVz5zVR8DoIIBVDCCAVAwggFMMIH/oAMCAQICAhI1MAUG
+AytlcDAaMRgwFgYDVQQDDA90ZXN0IGNybG9jc3AtY2EwHhcNMjUwMTAyMDAwMDAw
+WhcNMjYwMTAyMDAwMDAwWjAZMRcwFQYDVQQDDA5vY3NwLXJlc3BvbmRlcjAqMAUG
+AytlcAMhAIGUe7wkiqx5c4IRqNdb+Sy3d9mUBz3yOuBjgO8sVzl2o2owaDAdBgNV
+HQ4EFgQU6uWaiumq9BBLFeUOjuAXFRd0GK8wDgYDVR0PAQH/BAQDAgeAMB8GA1Ud
+IwQYMBaAFNl9d+Y0wvcAMAylj8h3NlsVUAeiMBYGA1UdJQEB/wQMMAoGCCsGAQUF
+BwMJMAUGAytlcANBABOjKOFFurdnjAVsbGF91L4VCZ2qF1Dh+3wLKakj1yv394ef
+hUq5LdEQsV83LeBZZoIvh06AhhH9Rd09LFwohwg=
 -----END OCSP RESPONSE-----
 ~~~~~
 
@@ -3351,7 +3358,7 @@ Plain Hex (446 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp-with-cert/ocspresp.hex)
 ~~~~~
-8A010C005011111111111111111111111111111111480600867838E3311A1A67C4F1
+8A010C2F5011111111111111111111111111111111480600867838E3311A1A67C4F1
 00808648A01C73A5F3B06334808F5410652787FA0527BC2449A1BFC5AB31AA5A6F0D
 8D0039707F196270805475D8BC4FBAFC6694467641E748DFD53A8B9D176D0139707F
 1962708054D1AC135D7DA29BDCF4DCA0D5281A51605B678400821A67C32F00043970
@@ -3362,9 +3369,9 @@ Plain Hex (446 bytes):
 5401D06151DF9629DB579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C39005
 D492450E105627095840A01B0CBF3E34A4762D05404FD08A7AEC103035358314686D
 72B6159078C76E1D88597F37531886A3F52F256FD722192B289D6844014467F1F17F
-05ACBB7B660A58400085EA27969E5A162EA31D371522F62F0DF278272225DEAD6F17
-3C42D5482142A3F032872850A4E2C2D9A759A0F460E1250B6FDEBB6636B3672CA02E
-FB880A04
+05ACBB7B660A5840C8B1C14815BD49604E7A99439C84B550FED5F94CFF35E8238CD5
+3CEA91D58A0D4627D2EA0800EBEA3E1453C0E71B175B441466E3431FB235A1BD6E43
+03109B03
 ~~~~~
 
 Textual Representation
@@ -3375,7 +3382,7 @@ C509BasicOCSPResponse
   TBSBasicOCSPResponse
     Type: C509BasicOCSPResponse (1)
     Signature Algorithm: Ed25519 (12)
-    Hash Algorithm: SHA256 (0)
+    Hash Algorithm: SHA256 (-16)
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
@@ -3442,10 +3449,10 @@ C509BasicOCSPResponse
         6f:d7:22:19:2b:28:9d:68:44:01:44:67:f1:f1:7f:05:
         ac:bb:7b:66:0a
   Signature Value
-    00:85:ea:27:96:9e:5a:16:2e:a3:1d:37:15:22:f6:2f:
-    0d:f2:78:27:22:25:de:ad:6f:17:3c:42:d5:48:21:42:
-    a3:f0:32:87:28:50:a4:e2:c2:d9:a7:59:a0:f4:60:e1:
-    25:0b:6f:de:bb:66:36:b3:67:2c:a0:2e:fb:88:0a:04
+    c8:b1:c1:48:15:bd:49:60:4e:7a:99:43:9c:84:b5:50:
+    fe:d5:f9:4c:ff:35:e8:23:8c:d5:3c:ea:91:d5:8a:0d:
+    46:27:d2:ea:08:00:eb:ea:3e:14:53:c0:e7:1b:17:5b:
+    44:14:66:e3:43:1f:b2:35:a1:bd:6e:43:03:10:9b:03
 ~~~~~
 
 Annotated hex
@@ -3456,7 +3463,7 @@ Annotated hex
   1:   01             # [0]. ocspResponseType=C509BasicOCSPResponse
                       #      (1)
   2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
-  3:   00             # [2]. hashAlgorithm=SHA256 (0)
+  3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
  21:   48             # [4]. responderCertHash=byte[8]
@@ -3523,9 +3530,9 @@ Annotated hex
 328:     D08A7AEC103035358314686D72B6159078C76E1D88597F37531886A3F5
 357:     2F256FD722192B289D6844014467F1F17F05ACBB7B660A
 380:   58 40          # [9]. signature value=byte[64]
-382:     0085EA27969E5A162EA31D371522F62F0DF278272225DEAD6F173C42D5
-411:     482142A3F032872850A4E2C2D9A759A0F460E1250B6FDEBB6636B3672C
-440:     A02EFB880A04
+382:     C8B1C14815BD49604E7A99439C84B550FED5F94CFF35E8238CD53CEA91
+411:     D58A0D4627D2EA0800EBEA3E1453C0E71B175B441466E3431FB235A1BD
+440:     6E4303109B03
 ~~~~~
 
 ### Basic OCSP Response Example With Responder's Certificate Chain {#exam-basic-ocsp-resp-withcertchain}
@@ -3534,48 +3541,48 @@ Annotated hex
 - Size reduction: 57%
 - Verifiable with certificate in {{ocsp-responder-cert}}
 - Basic OCSP Response (`C509BasicOCSPResponse`) with embedded responder's certificate chain (2 certificates)
-- Note that the X.509 OCSP response and the C509 OCSP response are not convertible.
+- Note that the X.509 OCSP Response and the C509 OCSP Response are not convertible.
 
 #### X.509 OCSP Response
 
 [comment]: <> (replace-size:ocspresp/basic-ocspresp-with-certchain/x509ocspresp.pem)
-PEM content (1525 bytes):
+PEM content (1517 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp-with-certchain/x509ocspresp.pem)
 ~~~~~
 -----BEGIN OCSP RESPONSE-----
-MIIF8QoBAKCCBeowggXmBgkrBgEFBQcwAQEEggXXMIIF0zCCAt2iFgQU6uWaiumq
-9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnwwgZEwaTANBglghkgB
-ZQMEAgEFAAQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
-BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQSNBI0EjQSNBI0EjQSNBI0EjQS
-NIAAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaMIGnMGkwDQYJ
-YIZIAWUDBAIBBQAEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDM
-Ech0CgUJ7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUNFY0VjRWNFY0VjRWNFY0
-VjRWNFahFhgPMTk3MDAxMDEwMDAwMDBaoAMKAQYYDzIwMjUwMzAyMTYwMDAwWqAR
-GA8yMDI1MDMwMzA3MDAwMFowgacwaTANBglghkgBZQMEAgEFAAQgMlOOdIW9N65F
-Tx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0
-fxPBbuclt2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAw
-MFqgAwoBBBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBkTBp
-MA0GCWCGSAFlAwQCAQUABCAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz
-MwQgREREREREREREREREREREREREREREREREREREREREREQCFCIzIjMiMyIzIjMi
-MyIzIjMiMyIzggAYDzIwMjUwMzAyMTYwMDAwWqARGA8yMDI1MDMwMzA3MDAwMFqh
-MjAwMB0GCSsGAQUFBzABAgQQERERERERERERERERERERETAPBgkrBgEFBQcwAQkE
-AgUAMAUGAytlcANBAHrbfHeKVrcvjeFMQT9cTvhYU81DmwQpZiyRtH+MhBfSjqsl
-riv95/TO4bhcpRnJl5T3D8ojWrMGiFJo1IB8gwegggKkMIICoDCCAUwwgf+gAwIB
-AgICEjUwBQYDK2VwMBoxGDAWBgNVBAMMD3Rlc3QgY3Jsb2NzcC1jYTAeFw0yNTAx
-MDIwMDAwMDBaFw0yNjAxMDIwMDAwMDBaMBkxFzAVBgNVBAMMDm9jc3AtcmVzcG9u
-ZGVyMCowBQYDK2VwAyEAgZR7vCSKrHlzghGo11v5LLd32ZQHPfI64GOA7yxXOXaj
-ajBoMB0GA1UdDgQWBBTq5ZqK6ar0EEsV5Q6O4BcVF3QYrzAOBgNVHQ8BAf8EBAMC
-B4AwHwYDVR0jBBgwFoAU2X135jTC9wAwDKWPyHc2WxVQB6IwFgYDVR0lAQH/BAww
-CgYIKwYBBQUHAwkwBQYDK2VwA0EAE6Mo4UW6t2eMBWxsYX3UvhUJnaoXUOH7fAsp
-qSPXK/f3h5+FSrkt0RCxXzct4Flmgi+HToCGEf1F3T0sXCiHCDCCAUwwgf+gAwIB
-AgIBATAFBgMrZXAwHjEcMBoGA1UEAwwTdGVzdCBjcmxvY3NwLXJvb3RjYTAeFw0y
-NTAxMDEwMDAwMDBaFw0yNjEyMzEyMzU5NTlaMBoxGDAWBgNVBAMMD3Rlc3QgY3Js
-b2NzcC1jYTAqMAUGAytlcAMhAF74o1WgAafFDSNJRwEggTGkuyq5INQL+w7h9qso
-/3QAo2YwZDAdBgNVHQ4EFgQU2X135jTC9wAwDKWPyHc2WxVQB6IwDgYDVR0PAQH/
-BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHwYDVR0jBBgwFoAUkSOc+vnng2yy
-n1HhMZHbENOuFpMwBQYDK2VwA0EA1l4B18v6QX+xe5n3l+1pJ69WL/Y+jTWz46fT
-gWDMZGdAEE2PORiX3asRmPPQWiYZIENipvg8M4ghGza8Vj1BAg==
+MIIF6QoBAKCCBeIwggXeBgkrBgEFBQcwAQEEggXPMIIFyzCCAtWiFgQU6uWaiumq
+9BBLFeUOjuAXFRd0GK8YDzIwMjUwMzAzMDAwMDAwWjCCAnQwgY8wZzALBglghkgB
+ZQMEAgEEIDJTjnSFvTeuRU8fDSuXVddYuR9ujjp685eg9ABgXG/4BCDMEch0CgUJ
+7E2hTOWIbnI2TA9jtg7WNH8TwW7nJbdmogIUEjQSNBI0EjQSNBI0EjQSNBI0EjSA
+ABgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBpTBnMAsGCWCG
+SAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV11i5H26OOnrzl6D0AGBcb/gEIMwRyHQK
+BQnsTaFM5YhucjZMD2O2DtY0fxPBbuclt2aiAhQ0VjRWNFY0VjRWNFY0VjRWNFY0
+VqEWGA8xOTcwMDEwMTAwMDAwMFqgAwoBBhgPMjAyNTAzMDIxNjAwMDBaoBEYDzIw
+MjUwMzAzMDcwMDAwWjCBpTBnMAsGCWCGSAFlAwQCAQQgMlOOdIW9N65FTx8NK5dV
+11i5H26OOnrzl6D0AGBcb/gEIMwRyHQKBQnsTaFM5YhucjZMD2O2DtY0fxPBbucl
+t2aiAhRWeFZ4VnhWeFZ4VnhWeFZ4VnhWeKEWGA8yMDI1MDMwMTE2MDAwMFqgAwoB
+BBgPMjAyNTAzMDIxNjAwMDBaoBEYDzIwMjUwMzAzMDcwMDAwWjCBjzBnMAsGCWCG
+SAFlAwQCAQQgMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMEIERERERE
+REREREREREREREREREREREREREREREREREREAhQiMyIzIjMiMyIzIjMiMyIzIjMi
+M4IAGA8yMDI1MDMwMjE2MDAwMFqgERgPMjAyNTAzMDMwNzAwMDBaoTIwMDAdBgkr
+BgEFBQcwAQIEEBEREREREREREREREREREREwDwYJKwYBBQUHMAEJBAIFADAFBgMr
+ZXADQQCaRi+pYIEMvQ/4MpYqP8MDa4wRdqow+HmCecWetC36CdSC0KF+oukKTk/b
+65VJ3TmJa1blNiaKl58HVz5zVR8DoIICpDCCAqAwggFMMIH/oAMCAQICAhI1MAUG
+AytlcDAaMRgwFgYDVQQDDA90ZXN0IGNybG9jc3AtY2EwHhcNMjUwMTAyMDAwMDAw
+WhcNMjYwMTAyMDAwMDAwWjAZMRcwFQYDVQQDDA5vY3NwLXJlc3BvbmRlcjAqMAUG
+AytlcAMhAIGUe7wkiqx5c4IRqNdb+Sy3d9mUBz3yOuBjgO8sVzl2o2owaDAdBgNV
+HQ4EFgQU6uWaiumq9BBLFeUOjuAXFRd0GK8wDgYDVR0PAQH/BAQDAgeAMB8GA1Ud
+IwQYMBaAFNl9d+Y0wvcAMAylj8h3NlsVUAeiMBYGA1UdJQEB/wQMMAoGCCsGAQUF
+BwMJMAUGAytlcANBABOjKOFFurdnjAVsbGF91L4VCZ2qF1Dh+3wLKakj1yv394ef
+hUq5LdEQsV83LeBZZoIvh06AhhH9Rd09LFwohwgwggFMMIH/oAMCAQICAQEwBQYD
+K2VwMB4xHDAaBgNVBAMME3Rlc3QgY3Jsb2NzcC1yb290Y2EwHhcNMjUwMTAxMDAw
+MDAwWhcNMjYxMjMxMjM1OTU5WjAaMRgwFgYDVQQDDA90ZXN0IGNybG9jc3AtY2Ew
+KjAFBgMrZXADIQBe+KNVoAGnxQ0jSUcBIIExpLsquSDUC/sO4farKP90AKNmMGQw
+HQYDVR0OBBYEFNl9d+Y0wvcAMAylj8h3NlsVUAeiMA4GA1UdDwEB/wQEAwIBBjAS
+BgNVHRMBAf8ECDAGAQH/AgEBMB8GA1UdIwQYMBaAFJEjnPr554Nssp9R4TGR2xDT
+rhaTMAUGAytlcANBANZeAdfL+kF/sXuZ95ftaSevVi/2Po01s+On04FgzGRnQBBN
+jzkYl92rEZjz0FomGSBDYqb4PDOIIRs2vFY9QQI=
 -----END OCSP RESPONSE-----
 ~~~~~
 
@@ -3586,7 +3593,7 @@ Plain Hex (651 bytes):
 
 [comment]: <> (replace-data:ocspresp/basic-ocspresp-with-certchain/ocspresp.hex)
 ~~~~~
-8A010C005011111111111111111111111111111111480600867838E3311A1A67C4F1
+8A010C2F5011111111111111111111111111111111480600867838E3311A1A67C4F1
 00808648A01C73A5F3B06334808F5410652787FA0527BC2449A1BFC5AB31AA5A6F0D
 8D0039707F196270805475D8BC4FBAFC6694467641E748DFD53A8B9D176D0139707F
 1962708054D1AC135D7DA29BDCF4DCA0D5281A51605B678400821A67C32F00043970
@@ -3603,9 +3610,9 @@ F35401D06151DF9629DB579DC8CCA453A8210107542F45E78D2CAEDF368CDF53C390
 2CAEDF368CDF53C39005D492450E1056211860230107542DA3A403F7D2F4E0B3D803
 1A73BA8A839F557F0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9
 A3F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0
-A2D0E191310B0F5840B633C9598073E3920876FE12B86AD32422E7F2C2361177A6D5
-90F20BEBBAA1EFDF94A0A944AC8CA67679CA04CEAF327C12CB9F1C2DCACA9D2E949B
-FEA755C405
+A2D0E191310B0F58408AE4AAB91FE232B36AE874CE310BE76449626B177C2E596A21
+E3DECDA9E7B9DC702291C6DAF19AF5ADE236EE34B38996CF4803BC6569037492EB41
+F7ADE8D505
 ~~~~~
 
 Textual Representation
@@ -3616,7 +3623,7 @@ C509BasicOCSPResponse
   TBSBasicOCSPResponse
     Type: C509BasicOCSPResponse (1)
     Signature Algorithm: Ed25519 (12)
-    Hash Algorithm: SHA256 (0)
+    Hash Algorithm: SHA256 (-16)
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
@@ -3697,10 +3704,10 @@ C509BasicOCSPResponse
         0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
         18:0a:a0:a2:d0:e1:91:31:0b:0f
   Signature Value
-    b6:33:c9:59:80:73:e3:92:08:76:fe:12:b8:6a:d3:24:
-    22:e7:f2:c2:36:11:77:a6:d5:90:f2:0b:eb:ba:a1:ef:
-    df:94:a0:a9:44:ac:8c:a6:76:79:ca:04:ce:af:32:7c:
-    12:cb:9f:1c:2d:ca:ca:9d:2e:94:9b:fe:a7:55:c4:05
+    8a:e4:aa:b9:1f:e2:32:b3:6a:e8:74:ce:31:0b:e7:64:
+    49:62:6b:17:7c:2e:59:6a:21:e3:de:cd:a9:e7:b9:dc:
+    70:22:91:c6:da:f1:9a:f5:ad:e2:36:ee:34:b3:89:96:
+    cf:48:03:bc:65:69:03:74:92:eb:41:f7:ad:e8:d5:05
 ~~~~~
 
 Annotated hex
@@ -3711,7 +3718,7 @@ Annotated hex
   1:   01             # [0]. ocspResponseType=C509BasicOCSPResponse
                       #      (1)
   2:   0C             # [1]. signatureAlgorithm=Ed25519 (12)
-  3:   00             # [2]. hashAlgorithm=SHA256 (0)
+  3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
  21:   48             # [4]. responderCertHash=byte[8]
@@ -3789,10 +3796,29 @@ Annotated hex
 551:       F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2
 579:       D0E191310B0F
 585:   58 40          # [9]. signature value=byte[64]
-587:     B633C9598073E3920876FE12B86AD32422E7F2C2361177A6D590F20BEB
-616:     BAA1EFDF94A0A944AC8CA67679CA04CEAF327C12CB9F1C2DCACA9D2E94
-645:     9BFEA755C405
+587:     8AE4AAB91FE232B36AE874CE310BE76449626B177C2E596A21E3DECDA9
+616:     E7B9DC702291C6DAF19AF5ADE236EE34B38996CF4803BC6569037492EB
+645:     41F7ADE8D505
 ~~~~~
+
+# Document Updates # {#sec-document-updates}
+{:removeinrfc}
+
+## Version -00 to -01 ## {#sec-00-01}
+
+* Added the section "Alternative Certificate Status Checking Mechanisms".
+
+* Constrained the value ranges of integer fields in the CDDL.
+
+* Replaced the "C509 Hash Algorithms" registry with the "COSE Algorithms" registry, and requested registrations for SHA3-256, SHA3-384, SHA3-512, and SM3.
+
+* Specified the PEM representation of C509 CRL and C509 OCSP messages.
+
+* Added the registries for C509 CRL types and C509 OCSP request and response types.
+
+* Added the section "Implementation Status".
+
+* Clarifications and editorial improvements.
 
 # Acknowledgments # {#acknowledgments}
 {:numbered="false"}
