@@ -189,7 +189,7 @@ This section considers both widely deployed certificate-status mechanisms and cl
 
 - **Compact CBOR revocation for IoT (TinyOCSP and CCRL)** {{TinyOCSP}} are prior research mechanisms that reduce OCSP and CRL overhead for low-power IoT, confirming the feasibility and benefits of CBOR-based revocation on constrained hardware.  They are a precursor to this work.  However, they were specified as point solutions rather than as interoperable, certificate-type-agnostic wire formats aligned with the C509 certificate encoding {{I-D.ietf-cose-cbor-encoded-cert}}; this document generalizes those mechanisms into complete C509 CRL and C509 OCSP structures usable with C509, X.509, and future certificate types.
 
-The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 152 to 51 bytes, and a Basic OCSP response without the responder's certificate from 845 to 248 bytes); see {{tab-examples-overview}}.
+The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 150 to 51 bytes, and a Basic OCSP response without the responder's certificate from 837 to 248 bytes); see {{tab-examples-overview}}.
 
 These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.
 
@@ -1340,7 +1340,7 @@ TODO
 | {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 409 | 202 | 51% |
 | {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 150 | 51 | 66% |
 | {{exam-unsigned-ocsp-req}} | Unsigned OCSP Request Example | 475 | 132 | 72% |
-| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 584 | 209 | 65% |
+| {{exam-signed-ocsp-req}} | Signed OCSP Request Example Without Requestor's Certificate | 584 | 209 | 64% |
 | {{exam-signed-ocsp-req-withcert}} | Signed OCSP Request Example With Requestor's Certificate | 1035 | 420 | 59% |
 | {{exam-signed-ocsp-req-withcertchain}} | Signed OCSP Request Example With Requestor's Certificate Chain | 1371 | 625 | 54% |
 | {{exam-error-ocsp-resp}} | Error OCSP Response Example | 5 | 3 | 40% |
@@ -1348,7 +1348,7 @@ TODO
 | {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 837 | 248 | 70% |
 | {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 1181 | 446 | 62% |
 | {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 1517 | 651 | 57% |
-{: #tab-examples-overview title="Size comparison in examples (TODO: update the percent data)"}
+{: #tab-examples-overview title="Size comparison in examples"}
 
 ## Helper Keys and Certificates
 
