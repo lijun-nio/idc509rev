@@ -69,29 +69,14 @@ normative:
   I-D.ietf-cose-cbor-encoded-cert:
   I-D.ietf-stir-certificates-ocsp:
   IANA.cose:
-  FIPS202:
-    title: "SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions"
-    target: https://doi.org/10.6028/NIST.FIPS.202
-    seriesinfo:
-      NIST: FIPS PUB 202
-    date: August 2015
-  ISO10118-3:
-    title: "IT Security techniques -- Hash-functions -- Part 3: Dedicated hash-functions"
-    seriesinfo:
-      ISO/IEC: 10118-3:2018
-    date: 2018
 
 informative:
   RFC3280:
-  GBT32905-2016:
-    title: "Information security techniques -- SM3 cryptographic hash algorithm"
-    seriesinfo:
-      GB/T: 32905-2016
-    date: 2016
   RFC7228:
   RFC7252:
   RFC7925:
   RFC8954:
+  RFC9861:
   POSIX:
     title: IEEE Standard for Information Technology--Portable Operating System Interface (POSIX(TM)) Base Specifications, Issue 7
     target: https://pubs.opengroup.org/onlinepubs/9699919799/
@@ -498,9 +483,9 @@ C509 OCSP requests and responses are not wire-format-compatible with DER-encoded
 
 ## Hash Algorithms {#hash-algs}
 
-The `hashAlgorithm` field of C509 OCSP requests and responses identifies the hash algorithm used to compute all hashes within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry {{IANA.cose}}, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 {{RFC9054}}.  This document registers SHA3-256, SHA3-384, SHA3-512, and SM3 in that registry (see {{iana-cose-alg}}).
+The `hashAlgorithm` field of C509 OCSP requests and responses identifies the hash algorithm used to compute all hashes within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry {{IANA.cose}}, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 {{RFC9054}}.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.
 
-The hash algorithm MUST produce an output of at least 20 bytes, so that `HashId20` values can be derived (see {{cert-identification}}).  Consequently, SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifiers `HashId8` and `HashId20`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.
+The hash algorithm MUST produce an output of at least 20 bytes, so that `HashId20` values can be derived (see {{cert-identification}}).  Consequently, SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifiers `HashId8` and `HashId20`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) {{RFC9861}}, the output length is the length of the identifier being computed, i.e., 8 bytes for `HashId8` and 20 bytes for `HashId20`.
 
 ## Identification of Certificates {#cert-identification}
 
@@ -1103,20 +1088,6 @@ IANA is requested to create a new registry titled "C509 OCSP Response Types" und
 ~~~~~~~~~~~
 {: #fig-ocspresptypes title="C509 OCSP Response Types"}
 {: artwork-align="center"}
-
-## COSE Algorithms Registry {#iana-cose-alg}
-
-IANA is requested to register the following hash algorithms in the "COSE Algorithms" registry under the registry group "CBOR Object Signing and Encryption (COSE)" {{IANA.cose}}:
-
-| Name     | Value | Description        | Capabilities | Change Controller | Reference                       | Recommended |
-|----------|-------|--------------------|--------------|-------------------|---------------------------------|-------------|
-| SHA3-256 | TBD15 | SHA-3 256-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
-| SHA3-384 | TBD16 | SHA-3 384-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
-| SHA3-512 | TBD17 | SHA-3 512-bit Hash | \[\]         | IETF              | {{FIPS202}}, {{&SELF}}          | Yes         |
-| SM3      | TBD18 | SM3 256-bit Hash   | \[\]         | IETF              | {{ISO10118-3}}, {{&SELF}}       | No          |
-{: #tab-iana-cose-alg title="COSE Algorithms Registrations"}
-
-SM3 is also specified in the Chinese national standard {{GBT32905-2016}}; the algorithm specified there is identical to the one in {{ISO10118-3}}.
 
 ## Extension Identifiers Registry
 
@@ -3853,7 +3824,7 @@ Annotated hex
 
 * Constrained the value ranges of integer fields in the CDDL.
 
-* Replaced the "C509 Hash Algorithms" registry with the "COSE Algorithms" registry, and requested registrations for SHA3-256, SHA3-384, SHA3-512, and SM3.
+* Replaced the "C509 Hash Algorithms" registry with the "COSE Algorithms" registry.
 
 * Specified the PEM representation of C509 CRL and C509 OCSP messages.
 

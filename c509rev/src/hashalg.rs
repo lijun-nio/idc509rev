@@ -35,9 +35,8 @@ pub const SHAKE128: i64 = -18;
 /// SHAKE256 (-45) — 512-bit output ({{RFC9054}}); not implemented in this build.
 pub const SHAKE256: i64 = -45;
 
-// SHA3-256, SHA3-384, SHA3-512 (FIPS 202) and SM3 (ISO/IEC 10118-3) are being
-// registered in the COSE Algorithms registry by the revocation draft; their code
-// points are IANA-pending (draft TBD15-TBD18). They are added here once assigned.
+// Any hash algorithm in the COSE Algorithms registry may be used; SHA3-256,
+// SHA3-384, SHA3-512, and SM3 are added here once they are registered there.
 // This build computes only the SHA-2 family (see `digest`).
 
 /// `HashId8` length in bytes — cert identity hashes (issuer/responder/requestor).
