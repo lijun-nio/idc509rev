@@ -1008,7 +1008,7 @@ The security considerations of {{RFC5280}}, {{RFC6960}}, {{I-D.ietf-cose-cbor-en
 
 ## Signature Verification {#sec-signature}
 
-The signatures of C509 CRLs and of signed C509 OCSP messages cover all fields except `signatureValue`, including `signatureAlgorithm` and `requestorCerts` or `responderCerts`.  This prevents algorithm and certificate-chain substitution, but does not replace the validation of {{RFC5280}} and {{RFC6960}}: the verifier MUST check that `signatureAlgorithm` matches the signer's public key, MUST validate the signer's certificate chain (a transported chain is only a hint for path construction), and MUST verify that the signer is authorized, as specified in {{RFC6960, Section 4.2.2.2}} for OCSP responses and in {{RFC5280, Section 6.3}} for CRLs.  The signature SHOULD be verified over the bytes as received rather than over a re-encoding.
+The signatures of C509 CRLs and of signed C509 OCSP messages cover all fields except `signatureValue`, including `signatureAlgorithm` and `requestorCerts` or `responderCerts`.  This prevents algorithm and certificate-chain substitution, but does not replace the validation of {{RFC5280}} and {{RFC6960}}: the verifier MUST check that `signatureAlgorithm` matches the signer's public key, MUST validate the signer's certificate chain (a transported chain is only a hint for path construction), and MUST verify that the signer is authorized, as specified in {{RFC6960, Section 4.2.2.2}} for OCSP responses and in {{RFC5280, Section 6.3}} for CRLs.  The signature MUST be verified over the bytes as received rather than over a re-encoding.  A message that is not deterministically encoded ({{terminology}}), e.g., one with an integer or a length not encoded in its shortest form or with an indefinite-length item, MUST be rejected; otherwise, implementations can interpret the same signed bytes differently, and values computed over the encoding, such as cache keys, are not stable.
 
 `C509ErrorOCSPResponse` and `C509CRLInfo` ({{crlinfo}}) are not signed.  An error response MUST NOT be interpreted as status information about any certificate.  A `C509CRLInfo` MUST NOT be used for revocation or freshness decisions unless it was obtained over a channel that authenticates the CRL issuer.
 
@@ -1017,6 +1017,10 @@ The signatures of C509 CRLs and of signed C509 OCSP messages cover all fields ex
 `HashId8` ({{cert-identification}}) only selects a certificate and does not authenticate it; security relies on the signature verification in {{sec-signature}}.  A relying party MUST match a response to its request using hash values it has computed itself from the certificates it holds.  A receiver that finds several certificates matching a `HashId8` MUST NOT assume that a particular one is intended.  An OCSP responder for which an `issuerCertHash` matches more than one of its issuers, or a `serialNumberHash` matches more than one serial number, MUST NOT return the status `good` for that entry.
 
 Since serial numbers are chosen by the CA, an attacker cannot mount a collision attack on `serialNumberHash`; making the status of one certificate appear as that of another requires a second preimage of about 2^160 operations.  The serial number MUST be normalized as specified in {{cert-identification}} before hashing; otherwise, a revoked certificate is not found.
+
+## Certificate Status {#sec-status}
+
+The statuses `not-issued` and `unknown` ({{SingleCertResponse}}) do not assert that a certificate is valid, and a relying party MUST NOT treat them as `good`.  An OCSP responder that knows that a serial number was not issued by a recognized issuer SHOULD return `not-issued` rather than `good`.
 
 ## Privacy {#sec-privacy}
 
