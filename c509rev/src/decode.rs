@@ -10,7 +10,8 @@
 //! SECURITY: the length fields that size fixed-width entries
 //! (`serialNumberLength`, `dateLength`) ARE range-checked on decode (see
 //! `decode_control`), and `baseDate + offset` uses `checked_add`, so malformed
-//! input yields `DecodeError::Malformed` rather than a panic. NOTE (conformance,
+//! input yields `DecodeError::Malformed` rather than a panic. The OCSP `nonce`
+//! length (16..=32 bytes) is enforced as well. NOTE (conformance,
 //! TODO): the remaining draft CDDL value ranges — `crlType`/`ocsp*Type`
 //! (`uint15`), `crlNumber`/`baseCrlNumber` (`uint63 .ge 1`), `nextUpdate`/
 //! `baseDate` (`uint63`), `revocationReason` (`uint8`) — are parsed but not yet
@@ -90,6 +91,22 @@ fn is_null(v: &Value) -> bool {
 
 fn opt_bytes(v: &Value, ctx: &'static str) -> Result<Option<Vec<u8>>, DecodeError> {
     if is_null(v) { Ok(None) } else { Ok(Some(as_bytes(v, ctx)?)) }
+}
+
+/// Minimum OCSP nonce length in bytes (draft CDDL `bytes .size (16..32)`).
+pub const NONCE_MIN_LEN: usize = 16;
+/// Maximum OCSP nonce length in bytes.
+pub const NONCE_MAX_LEN: usize = 32;
+
+/// Decode an OCSP `nonce`: `null`, or a byte string of 16 to 32 bytes.
+fn opt_nonce(v: &Value) -> Result<Option<Vec<u8>>, DecodeError> {
+    let nonce = opt_bytes(v, "nonce")?;
+    if let Some(n) = &nonce {
+        if n.len() < NONCE_MIN_LEN || n.len() > NONCE_MAX_LEN {
+            return Err(DecodeError::Malformed("nonce length out of range (16..=32)"));
+        }
+    }
+    Ok(nonce)
 }
 
 fn opt_u64(v: &Value, ctx: &'static str) -> Result<Option<u64>, DecodeError> {
@@ -354,7 +371,7 @@ impl C509OcspRequest {
                 }
                 Ok(C509OcspRequest::Unsigned {
                     hash_algorithm: as_i64(&a[1], "hashAlgorithm")?,
-                    nonce: opt_bytes(&a[2], "nonce")?,
+                    nonce: opt_nonce(&a[2])?,
                     extensions: decode_extensions(&a[3])?,
                     requests: decode_req_requests(&a[4])?,
                 })
@@ -365,7 +382,7 @@ impl C509OcspRequest {
                 }
                 Ok(C509OcspRequest::Simple {
                     hash_algorithm: as_i64(&a[1], "hashAlgorithm")?,
-                    nonce: opt_bytes(&a[2], "nonce")?,
+                    nonce: opt_nonce(&a[2])?,
                     issuer_cert_hash: as_bytes(&a[3], "issuerCertHash")?,
                     serial_number_hash: as_bytes(&a[4], "serialNumberHash")?,
                     extensions: decode_extensions(&a[5])?,
@@ -378,7 +395,7 @@ impl C509OcspRequest {
                 Ok(C509OcspRequest::Signed {
                     signature_algorithm: as_i64(&a[1], "signatureAlgorithm")?,
                     hash_algorithm: as_i64(&a[2], "hashAlgorithm")?,
-                    nonce: opt_bytes(&a[3], "nonce")?,
+                    nonce: opt_nonce(&a[3])?,
                     requestor_cert_hash: as_bytes(&a[4], "requestorCertHash")?,
                     extensions: decode_extensions(&a[5])?,
                     requests: decode_req_requests(&a[6])?,
@@ -469,7 +486,7 @@ impl C509OcspResponse {
                 Ok(C509OcspResponse::Basic {
                     signature_algorithm: as_i64(&a[1], "signatureAlgorithm")?,
                     hash_algorithm: as_i64(&a[2], "hashAlgorithm")?,
-                    nonce: opt_bytes(&a[3], "nonce")?,
+                    nonce: opt_nonce(&a[3])?,
                     responder_cert_hash: as_bytes(&a[4], "responderCertHash")?,
                     produced_at: as_u64(&a[5], "producedAt")?,
                     extensions: decode_extensions(&a[6])?,
@@ -485,7 +502,7 @@ impl C509OcspResponse {
                 Ok(C509OcspResponse::Simple {
                     signature_algorithm: as_i64(&a[1], "signatureAlgorithm")?,
                     hash_algorithm: as_i64(&a[2], "hashAlgorithm")?,
-                    nonce: opt_bytes(&a[3], "nonce")?,
+                    nonce: opt_nonce(&a[3])?,
                     responder_cert_hash: as_bytes(&a[4], "responderCertHash")?,
                     issuer_cert_hash: as_bytes(&a[5], "issuerCertHash")?,
                     serial_number_hash: as_bytes(&a[6], "serialNumberHash")?,
@@ -591,5 +608,23 @@ mod tests {
         rt_resp(ERROR_RESP);
         rt_resp(SIMPLE_RESP);
         rt_resp(BASIC_RESP);
+    }
+
+    #[test]
+    fn nonce_length_is_enforced() {
+        use super::DecodeError;
+        // SIMPLE_REQ carries a 16-byte nonce (0x50 ‖ 16 × 0x11); swap in others.
+        let orig = format!("50{}", "11".repeat(16));
+        let with = |nonce_item: String| hex::decode(SIMPLE_REQ.replacen(&orig, &nonce_item, 1)).unwrap();
+
+        let short = with(format!("4f{}", "11".repeat(15)));            // 15 bytes
+        let long = with(format!("5821{}", "11".repeat(33)));           // 33 bytes
+        let max = with(format!("5820{}", "11".repeat(32)));            // 32 bytes
+        let null = with("f6".to_string());                             // null
+
+        assert!(matches!(C509OcspRequest::decode(&short), Err(DecodeError::Malformed(_))));
+        assert!(matches!(C509OcspRequest::decode(&long), Err(DecodeError::Malformed(_))));
+        assert!(C509OcspRequest::decode(&max).is_ok());
+        assert!(C509OcspRequest::decode(&null).is_ok());
     }
 }
