@@ -188,34 +188,37 @@ This document uses the terminology from {{RFC5280}}, {{RFC6960}}, {{RFC7228}}, {
 
 # Common Types {#common-types}
 
-The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `COSE_C509`, and `AlgorithmIdentifier`. Additionally, the following type is imported from {{RFC9360}}: `COSE_X509`.
+The following types are imported from {{I-D.ietf-cose-cbor-encoded-cert}}: `Name`, `Extension`, `Extensions`, `Defined`, `COSE_C509`, and `AlgorithmIdentifier`. Additionally, the following type is imported from {{RFC9360}}: `COSE_X509`.
 
 This document further defines the following constrained aliases for use in all CDDL definitions:
 
 ~~~~~~~~~~~ cddl
 uint8 = uint .le 255
 
-uint32 = uint .le 2^32 - 1
+uint32 = 0..4294967295             ; 2^32 - 1
 
-uint63 = uint .le 2^63 - 1
+uint63 = 0..9223372036854775807    ; 2^63 - 1
 
-int16 = int .ge -32768 .le 32767
+int16 = -32768..32767
 
 IntAlgorithmIdentifier = int16
 
 IntExtension = ( extensionID: IntExtensionID, extensionValue: Defined )
 
-IntExtensionID = (uint63 .ge 1) / (nint .ge -2^63 + 1)
+IntExtensionID = 1..9223372036854775807 / ;   2^32 - 1
+                 -9223372036854775807..-1  ; -(2^32 - 1)
 
 IntExtensions = [ * IntExtension ]
 ~~~~~~~~~~~
-{: sourcecode-name="c509crl.cddl"}
+{: sourcecode-name="c509common.cddl"}
+
+The CDDL definitions in this document are split into three files: `c509common.cddl` (the definitions above), `c509crl.cddl` ({{c509crl}}), and `c509ocsp.cddl` ({{c509ocsp}}).  Both `c509crl.cddl` and `c509ocsp.cddl` depend on `c509common.cddl` and on the types imported from {{I-D.ietf-cose-cbor-encoded-cert}} and {{RFC9360}}.
 
 `IntAlgorithmIdentifier` is the `int`-only instantiation of `AlgorithmIdentifier` from {{I-D.ietf-cose-cbor-encoded-cert}}.  It is used throughout this document wherever an algorithm identifier appears in the wire encoding.
 
 `IntExtension` is the instantiation of `Extension` from {{I-D.ietf-cose-cbor-encoded-cert}} with an integer `extensionID`.  As in C509 certificates ({{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.10}}), the absolute value of `extensionID` is the value from the "C509 Extensions" registry, and its sign indicates whether the extension is critical: critical extensions are encoded with a negative sign and non-critical extensions with a positive sign.  It is used throughout this document wherever a single extension appears in the wire encoding.
 
-`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries are `IntExtension` entries.
+`IntExtensions` is the instantiation of `Extensions` from {{I-D.ietf-cose-cbor-encoded-cert}} where all embedded `Extension` entries are `IntExtension` entries.  An `IntExtensions` field with no extensions is encoded as an empty array.
 
 # Encoding of Time Fields {#time-encoding}
 
@@ -247,7 +250,7 @@ TBSCertList = (
 C509CRLInfo = [ CRLInfoData ]
 
 CRLInfoData = (
-  crlType                : int16, ; 0 = C509CRL
+  crlType                : 0, ; int16
   signatureAlgorithm     : IntAlgorithmIdentifier,
   authoritySubject       : Name / #6.121(bytes),
   authorityKeyIdentifier : bytes,
@@ -258,19 +261,19 @@ CRLInfoData = (
   crlExtensions          : IntExtensions,
 )
 
-CRLNumber = uint63 .ge 1
+CRLNumber = 1..9223372036854775807
 
 PerIssuerRevokedCerts = (
   issuer                 : Name / #6.121(bytes) / null,
   revokedCertsControl    : RevokedCertsControl / null,
   extensions             : IntExtensions,
-  revokedCerts           : bytes / null,
-  removedFromCRLCerts    : bytes / null,
+  revokedCerts           : bytes .size (1..2147483647) / null,
+  removedFromCRLCerts    : bytes .size (1..2147483647) / null,
 )
 
 RevokedCertsControl = [
   flags               : uint32,
-  serialNumberLength  : uint .le 20,
+  serialNumberLength  : 1..20,
   dateLength          : uint .le 8,
   baseDate            : ~time,
 ]
@@ -282,11 +285,18 @@ RevokedCertsControl = [
 
 ### CRLInfoData and C509CRLInfo {#crlinfo}
 
-`CRLInfoData` is a CDDL group that carries all CRL fields except `revokedCertsList`.  `C509CRLInfo` is the standalone CBOR array form of `CRLInfoData`; it can be used to convey CRL information (crlType, signature algorithm, issuer identity, CRL number, validity window, extensions) without the potentially large revocation list.  `TBSCertList` embeds `CRLInfoData` and adds `revokedCertsList`.
+`CRLInfoData` is a CDDL group that carries all CRL fields except `revokedCertsList`.  `C509CRLInfo` is the standalone CBOR array form of `CRLInfoData`; it can be used to convey CRL information (crlType, signature algorithm, issuer identity, CRL number, validity window, base CRL number, extensions) without the potentially large revocation list.  `TBSCertList` embeds `CRLInfoData` and adds `revokedCertsList`.
 
 ### crlType
 
-The `crlType` field serves as the type discriminator for `C509CRL`, following the same extensibility pattern as `ocspRequestType` and `ocspResponseType`.  This document defines only type 0, corresponding to the `C509CRL` structure.  Future specifications may define additional types by assigning new integer values.
+The `crlType` field serves as the discriminator for `C509CRL`:
+
+| Value | Type |
+|:-----:|:-----|
+| 0 | `C509CRL` |
+{: #tab-crl-types title="CRL types"}
+
+Future specifications may define additional types by assigning new integer values.
 
 ### signatureAlgorithm
 
@@ -304,11 +314,11 @@ The `authorityKeyIdentifier` field is identical to the value of the authority's 
 
 ### crlNumber
 
-The `crlNumber` field is encoded as an unsigned integer (`uint`).  It corresponds to the `cRLNumber` extension in {{RFC5280, Section 5.2.3}}, which this document replaces with a dedicated field.  The value is monotonically increasing for both full and delta CRLs.
+The `crlNumber` field is encoded as a positive integer (`CRLNumber`, from 1 to 2^63 - 1).  It corresponds to the `cRLNumber` extension in {{RFC5280, Section 5.2.3}}, which this document replaces with a dedicated field.  The value is monotonically increasing for both full and delta CRLs.
 
 ### thisUpdate and nextUpdate
 
-The `thisUpdate` field is encoded as described in {{time-encoding}}.  The `nextUpdate` field is encoded as a `uint` representing the number of seconds from `thisUpdate` until the next CRL is expected to be issued.  It is encoded as `null` when no next update time is known.
+The `thisUpdate` field is encoded as described in {{time-encoding}}.  The `nextUpdate` field is encoded as a `uint63` representing the number of seconds from `thisUpdate` until the next CRL is expected to be issued.  It is encoded as `null` when no next update time is known.
 
 ### baseCrlNumber
 
@@ -359,7 +369,7 @@ In this document, the `revokedCertsControl` structure introduces fixed parameter
 
 #### Fields
 
-The `revokedCertsList` field is either a CBOR array of one or more `PerIssuerRevokedCerts` entries, each describing the revocation state for certificates issued by one issuer, or CBOR `null`.  `revokedCertsList` MUST be encoded as CBOR `null` when all of the following conditions hold: no certificates are currently revoked, no certificates have been removed from the CRL, the only issuer that would appear is the CRL's own `authoritySubject` (i.e., the `issuer` field is `null`), and there are no non-empty per-issuer extensions.
+The `revokedCertsList` field is either a CBOR array of one or more `PerIssuerRevokedCerts` entries, each describing the revocation state for certificates issued by one issuer, or CBOR `null`.  Since `PerIssuerRevokedCerts` is a CDDL group, the fields of each entry are inlined in the array rather than wrapped in a nested array; an array with n entries therefore contains 5n elements.  `revokedCertsList` MUST be encoded as CBOR `null` when all of the following conditions hold: no certificates are currently revoked, no certificates have been removed from the CRL, the only issuer that would appear is the CRL's own `authoritySubject` (i.e., the `issuer` field is `null`), and there are no non-empty per-issuer extensions.
 
 Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer using the following fields:
 
@@ -377,7 +387,7 @@ Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer
 
   - The `baseDate` field is a reference time used to compute revocation and removal dates, encoded as described in {{time-encoding}}.  It MUST be greater than or equal to the issuer certificate's `notBefore`, which ensures that all stored offsets are non-negative.  It is RECOMMENDED to set `baseDate` to the earliest revocation date and removal-from-CRL date among all entries in this CRL, as this minimizes the magnitude of stored offsets and reduces encoding size.  Any time between the issuer certificate's `notBefore` (inclusive) and that earliest date (inclusive) is a conformant value.  Revocation dates in `revokedCerts` and removal dates in `removedFromCRLCerts` are stored as non-negative offsets, in seconds, from `baseDate`.
 
-- The `extensions` field contains per-issuer extensions.  If no per-issuer extensions are present, this field MUST be encoded as an empty CBOR array.
+- The `extensions` field contains per-issuer extensions.
 
 - The `revokedCerts` field is a CBOR byte string containing the concatenated byte sequence of revoked-certificate entries.  Each entry is the concatenation of:
   - a big-endian encoded certificate serial number of length `serialNumberLength`;
@@ -588,9 +598,9 @@ In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies th
 
 #### PerIssuerOCSPRequests, PerIssuerOCSPRequest, SingleCertRequests and SingleCertRequest {#per-issuer-requests}
 
-`PerIssuerOCSPRequests` is a list of `PerIssuerOCSPRequest` entries.  In X.509 OCSP ({{RFC6960, Section 4.1.1}}), every `Request` entry embeds a full `CertID` containing the issuer identity fields (`hashAlgorithm`, `issuerNameHash`, `issuerKeyHash`) alongside the `serialNumber`.  When multiple certificates from the same issuer are queried in a single request, these issuer fields are repeated verbatim for every entry, wasting space.  `PerIssuerOCSPRequest` solves this by grouping all single-certificate requests for the same issuer under one entry: the `issuerCertHash` field is encoded once and shared across all `SingleCertRequest` entries in the `singleRequests` list, eliminating the per-entry duplication.
+`PerIssuerOCSPRequests` is a list of `PerIssuerOCSPRequest` entries.  In X.509 OCSP ({{RFC6960, Section 4.1.1}}), every `Request` entry embeds a full `CertID` containing the issuer identity fields (`hashAlgorithm`, `issuerNameHash`, `issuerKeyHash`) alongside the `serialNumber`.  When multiple certificates from the same issuer are queried in a single request, these issuer fields are repeated verbatim for every entry, wasting space.  `PerIssuerOCSPRequest` solves this by grouping all single-certificate requests for the same issuer under one entry: the `issuerCertHash` field is encoded once and shared across all `SingleCertRequest` entries in the `singleRequests` list, eliminating the per-entry duplication.  Since `PerIssuerOCSPRequest` and `SingleCertRequest` are CDDL groups, the fields of each entry are inlined in the enclosing array rather than wrapped in a nested array.
 
-- The `extensions` field contains per-issuer extensions that apply to all single-certificate requests in this `PerIssuerOCSPRequest` entry; see {{ocsp-per-issuer-extensions}}.  If no per-issuer extensions are present, this field MUST be encoded as an empty CBOR array.
+- The `extensions` field contains per-issuer extensions that apply to all single-certificate requests in this `PerIssuerOCSPRequest` entry; see {{ocsp-per-issuer-extensions}}.
 - The `singleRequests` field is a list of `SingleCertRequest` entries for certificates from this issuer.
 
 Each `SingleCertRequest` contains:
@@ -627,7 +637,7 @@ Each `SingleCertRequest` contains:
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
 - The `issuerCertHash` field identifies the issuer of the target certificate; see {{issuer-hash-id}}.
 - The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
-- The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.  If no extensions are present, this field MUST be encoded as an empty CBOR array.
+- The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 
 ### PEM Representation
 
@@ -652,7 +662,7 @@ C509OCSPResponse = C509ErrorOCSPResponse /
 
 C509ErrorOCSPResponse = [
   ocspResponseType  : 0,  ; int16
-  responseStatus    : int .ge -256 .le 255
+  responseStatus    : -128..127
 ]
 
 TBSBasicOCSPResponse = (
@@ -683,7 +693,7 @@ TBSSimpleOCSPResponse = (
   certStatus         : CertStatus,
   producedAt         : ~time,
   thisUpdate         : nint / 0,
-  nextUpdate         : uint / null,
+  nextUpdate         : uint63 / null,
   extensions         : IntExtensions,
   responderCerts     : COSE_C509 / #6.121(COSE_X509) / null,
 )
@@ -706,7 +716,7 @@ SingleCertResponses = [ + SingleCertResponse ]
 SingleCertResponse = (
   serialNumberHash : HashId20,
   certStatus       : CertStatus,
-  thisUpdate       : int .le 0 .ge -2,147,483,648,
+  thisUpdate       : nint / 0,
   nextUpdate       : uint63 / null,
   extensions       : IntExtensions,
 )
@@ -756,15 +766,15 @@ The `ocspResponseType` field of `C509BasicOCSPResponse` is 1, distinguishing it 
 - The `ocspResponseType` field MUST be 2, which discriminates `C509SimpleOCSPResponse` from `C509ErrorOCSPResponse` and `C509BasicOCSPResponse`.
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of `TBSSimpleOCSPResponse` and is therefore covered by the signature.
 - The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
-- The `responderCertHash` field identifies the OCSP responder; see {{responderCertHash}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  If present, it MUST have the same value as the `nonce` in the corresponding `C509SimpleOCSPRequest`.
+- The `responderCertHash` field identifies the OCSP responder; see {{responderCertHash}}.
 - The `issuerCertHash` field identifies the issuer of the queried certificate; see {{issuer-hash-id}}.
 - The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
+- The `certStatus` field encodes the revocation status; see {{SingleCertResponse}}.
 - The `producedAt` field is the time at which this response was produced, encoded as described in {{time-encoding}}.
 - The `thisUpdate` field is encoded as a non-positive integer (`nint / 0`) representing the number of seconds from `producedAt` at which the indicated status is known to be correct.  It MUST be 0 or negative, since the status cannot be known at a time in the future relative to the time the response was produced.
-- The `nextUpdate` field is encoded as a `uint` representing the number of seconds from `producedAt` until the next response update is expected, or `null` if the update time is unknown.
-- The `certStatus` field encodes the revocation status; see {{SingleCertResponse}}.
-- The `extensions` field contains response-level extensions; see {{ocsp-extensions}}.  If no extensions are present, this field MUST be encoded as an empty CBOR array.
+- The `nextUpdate` field is encoded as a `uint63` representing the number of seconds from `producedAt` until the next response update is expected, or `null` if the update time is unknown.
+- The `extensions` field contains response-level extensions; see {{ocsp-extensions}}.
 - The `responderCerts` field carries the certificate chain starting with the responder certificate identified by `responderCertHash`; see {{responderCerts}}.
 - The `signatureValue` field is the signature computed over the CBOR Sequence of the `TBSSimpleOCSPResponse` group.
 
@@ -787,7 +797,7 @@ When present, the `responderCerts` field carries the certificate chain starting 
 
 #### producedAt, thisUpdate, nextUpdate
 
-The `producedAt` field is encoded as described in {{time-encoding}}.  The `thisUpdate` field is encoded as a non-positive integer (`nint / 0`) representing the number of seconds from `producedAt` at which the indicated status is known to be correct; it MUST be 0 or negative, since the status cannot be known at a time in the future relative to when the response was produced.  The `nextUpdate` field is encoded as a `uint` representing the number of seconds from `producedAt` until the next update is expected to be available.  `nextUpdate` may be `null`, which indicates an unknown update time.
+The `producedAt` field is encoded as described in {{time-encoding}}.  The `thisUpdate` field is encoded as a non-positive integer (`nint / 0`) representing the number of seconds from `producedAt` at which the indicated status is known to be correct; it MUST be 0 or negative, since the status cannot be known at a time in the future relative to when the response was produced.  The `nextUpdate` field is encoded as a `uint63` representing the number of seconds from `producedAt` until the next update is expected to be available.  `nextUpdate` may be `null`, which indicates an unknown update time.
 
 #### extensions
 
@@ -795,9 +805,9 @@ See {{ocsp-extensions}}.
 
 #### PerIssuerOCSPResponses and PerIssuerOCSPResponse
 
-`PerIssuerOCSPResponses` is a list of `PerIssuerOCSPResponse` entries.  For the same reason as on the request side (see {{per-issuer-requests}}), the `issuerCertHash` field is encoded once per issuer and shared across all `SingleCertResponse` entries in the `singleResponses` list, avoiding the per-entry repetition that would occur if the issuer identity were embedded in every individual response entry.  `PerIssuerOCSPResponse` groups single responses for certificates issued by the same issuer; the issuer is identified by `issuerCertHash` (see {{issuer-hash-id}}).
+`PerIssuerOCSPResponses` is a list of `PerIssuerOCSPResponse` entries.  For the same reason as on the request side (see {{per-issuer-requests}}), the `issuerCertHash` field is encoded once per issuer and shared across all `SingleCertResponse` entries in the `singleResponses` list, avoiding the per-entry repetition that would occur if the issuer identity were embedded in every individual response entry.  `PerIssuerOCSPResponse` groups single responses for certificates issued by the same issuer; the issuer is identified by `issuerCertHash` (see {{issuer-hash-id}}).  As on the request side, `PerIssuerOCSPResponse` and `SingleCertResponse` are CDDL groups whose fields are inlined in the enclosing array.
 
-- The `extensions` field contains per-issuer extensions that apply to all single-certificate responses in this `PerIssuerOCSPResponse` entry; see {{ocsp-per-issuer-extensions}}.  If no per-issuer extensions are present, this field MUST be encoded as an empty CBOR array.
+- The `extensions` field contains per-issuer extensions that apply to all single-certificate responses in this `PerIssuerOCSPResponse` entry; see {{ocsp-per-issuer-extensions}}.
 - The `singleResponses` field contains one `SingleCertResponse` for each queried certificate issued by that issuer.
 
 #### SingleCertResponse {#SingleCertResponse}
@@ -823,7 +833,7 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 
 #### Per-Issuer OCSP Extensions {#ocsp-per-issuer-extensions}
 
-`PerIssuerOCSPRequest.extensions` and `PerIssuerOCSPResponse.extensions` carry per-issuer extensions.  If no per-issuer extensions are present, the field MUST be encoded as an empty CBOR array.
+`PerIssuerOCSPRequest.extensions` and `PerIssuerOCSPResponse.extensions` carry per-issuer extensions.
 
 {{tab-perIssuerOCSPExt}} lists the per-issuer extensions defined in this document.
 
@@ -879,7 +889,7 @@ The `sigIdentifier` field carries the signature algorithm identifier.  The `pubK
 - a single `IntAlgorithmIdentifier` value, when exactly one public key algorithm is acceptable, or
 - `null`, when the public key algorithm is unconstrained or implied by `sigIdentifier`.
 
-`PreferredSignatureAlgorithms` MUST be sorted in descending order of preference; the first entry represents the most preferred algorithm combination.
+`PreferredSignatureAlgorithms` MUST be sorted in descending order of preference; the first entry represents the most preferred algorithm combination.  Since `PreferredSignatureAlgorithm` is a CDDL group, the fields of each entry are inlined in the array rather than wrapped in a nested array.
 
 * TN Query: The extension value MUST be encoded as follows.
 
