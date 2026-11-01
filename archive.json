@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-25T02:09:31.292561+00:00",
+  "timestamp": "2026-11-01T03:01:15.682191+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -774,7 +774,7 @@
       "labels": [],
       "body": "In the current draft, we register our own hash algorithms.\n\nAnother direction is to use the algorithm codes defined in COSE algorithms (which is a collection of all algorithm types, including hash, signature, encrytion, KDF, ...).\n\nDiscussion and decision is needed.\n\n @marco-tiloca-sics @rikard-sics @highlunder  @comsats",
       "createdAt": "2026-10-23T16:26:31Z",
-      "updatedAt": "2026-10-24T21:20:11Z",
+      "updatedAt": "2026-10-31T08:03:37Z",
       "closedAt": null,
       "comments": [
         {
@@ -790,6 +790,69 @@
           "body": "TL;DR: My impression is that the current structure of the registry \"C509 Hash Algorithms\" is as intended and aligned with other registries in the new C509 ecosystem.\n\n\nLooking at the new registry \"C509 Hash Algorithms\" defined in the draft:\n\n* In spite of its name, its entries don't indicate only hash algorithms, but rather a bundle of information about hash algorithms.\n\n  At the same time, it's really aligned with the spirit of other C509 registries, e.g., \"C509 Signature Algorithms\" [1] that has the same fields with reference to signature algorithms.\n\n* Like for the registry at [1], I thought that the intent was to be able to use also algorithms that are not registered in the \"COSE Algorithms\" registry [2].\n\n  E.g., for \"C509 Hash Algorithms\", see the entry with 'Value' = 3 for \"SHA-224\"; for \"C509 Signature Algorithms\" [1], see the entry with 'Value' = 8 for \"SM2 with SM3\".\n\n  If the idea is instead to limit the C509 Hash Algorithms specifically to hash algorithms that are also registered in the \"COSE Algorithms\" registry [2] (although I haven't had that impression so far), then their 'Value' in the \"C509 Hash Algorithms\" could indeed use the same value that the corresponding algorithm has in the 'Value' column of the \"COSE Algorithms\" registry [2] (e.g., -16 for \"SHA-256\"). However, thinking of fields like 'hashAlgorithm' defined in the draft, this also results in having less control when it comes to prioritizing values according to the most efficient, desired encoding in CBOR.\n\n\n[1] https://www.iana.org/assignments/cbor-encoded-x509-c509#c509-signature-algorithms\n\n[2] https://www.iana.org/assignments/cose#algorithms",
           "createdAt": "2026-10-24T21:19:30Z",
           "updatedAt": "2026-10-24T21:20:11Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Any other thoughts or preferences\uff1fIf we choose the cose algorithm table, I need also to update the test vectors before 2. Nov.",
+          "createdAt": "2026-10-29T13:15:02Z",
+          "updatedAt": "2026-10-29T13:15:02Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Here a overview of algorithms registered in this draft:\n\n| This ID | COSE |\n| --- | --- |\nSHA-224 | \u274c\nSHA-256 | \u2705\nSHA-384 | \u2705\nSHA-512 | \u2705\nSHA3-224 | \u274c\nSHA3-256 | \u274c\nSHA3-384 | \u274c\nSHA3-512 | \u274c\nSM2 | \u274c\nSHAKE128 | \u2705 \nSHAKE256 | \u2705 \n\nSHA-224 and SHA3-224 are not important, we can remove the support of them. What we need are SM2 (for Chinese market) and the SHA3-family. ",
+          "createdAt": "2026-10-29T13:24:34Z",
+          "updatedAt": "2026-10-29T13:24:34Z"
+        },
+        {
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I prefer to use the COSE hash algorithm. One important reason is the main C509 draft defines a COSE header 'c5t' of type COSE_CertHash which uses the COSE hash algorithms.",
+          "createdAt": "2026-10-29T16:55:31Z",
+          "updatedAt": "2026-10-29T16:55:31Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "@marco-tiloca-sics @rikard-sics @highlunder @comsats \n\nTo accelerate the process, I created a PR which uses the COSE hash algorithms under https://github.com/lijun-nio/idc509rev/pull/21\n\nPlease review!",
+          "createdAt": "2026-10-29T18:23:53Z",
+          "updatedAt": "2026-10-29T18:23:53Z"
+        },
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Agree with moving to the COSE Algorithms registry (PR #21). It seems to keep consistency within C509: the C509 certificate draft already identifies hashes via COSE codes in c5t/COSE_CertHash. The C509\u2011specific registry is used for signatures and not for hashes.\n\nOn Marco's two points: (1) algorithms missing from COSE (SM3, SHA3*) would be handled by registering them in COSE, which the PR does; (2) the CBOR\u2011encoding\u2011efficiency concern is small/hopefully negligible for the constrained default \u2014 SHA\u2011256 stays a single byte, and I think only SHA\u2011384/512 would cost one extra byte.\n\nFrom the implementation side this is a low\u2011effort change: I can re\u2011sync the Rust c509rev (and the Contiki\u2011NG C) implementation to the COSE codes and regenerate the size\u2011comparison tables, when there are updated test vectors to use.\n",
+          "createdAt": "2026-10-29T20:14:14Z",
+          "updatedAt": "2026-10-29T20:14:14Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thanks! I realize now that, due to the obviously intended use of c5t, registering wished but missing hash algorithms in the COSE registry was going to happen anyway. At that point, one more reason to reuse that same namespace. COSE all the way, then :-)",
+          "createdAt": "2026-10-29T20:56:28Z",
+          "updatedAt": "2026-10-29T20:56:28Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Thank you all. I merged PR #21.",
+          "createdAt": "2026-10-30T10:32:44Z",
+          "updatedAt": "2026-10-30T10:32:44Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "@highlunder Please adapt your RUST code.",
+          "createdAt": "2026-10-30T10:34:19Z",
+          "updatedAt": "2026-10-30T10:34:19Z"
+        },
+        {
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "body": "In the commit 871135332267bd0044d022578c8818f2bec6c59f I dropped registering new hash algorithms.",
+          "createdAt": "2026-10-31T08:03:36Z",
+          "updatedAt": "2026-10-31T08:03:36Z"
         }
       ]
     }
@@ -937,7 +1000,7 @@
       "labels": [],
       "body": "Follows up on the WG request (Ivo, COSE list) to compare this work with existing\nsolutions. The \"Alternative Certificate Status Checking Mechanisms\" section was\nqualitative only; this adds one paragraph with concrete size figures.\n\n**What:** C509 CRLs are 18\u201352% smaller than the equivalent X.509 CRLs, and C509\nOCSP messages 40\u201373% smaller, with representative per-message examples (e.g. a CRL\nwith revoked certs 335\u2192177 B; a Basic OCSP response without responder cert\n845\u2192248 B).\n\n**Traceability:** every number is taken from the draft's *own* worked-examples\ntable (`tab-examples-overview`), which is auto-generated from the example\n`.hex`/`.pem` artifacts. This means no external data and fully reproducible.\n\n**Build:** renders clean with kramdown-rfc + xml2rfc. Single-paragraph addition;\nindependent of the TinyOCSP/CCRL comparison PR.\n\nAdditionally, it should now be ok to remove the \"TODO: update the percent data\"\ncomment",
       "createdAt": "2026-10-12T15:16:30Z",
-      "updatedAt": "2026-10-13T07:48:02Z",
+      "updatedAt": "2026-10-30T20:00:13Z",
       "baseRepository": "lijun-nio/idc509rev",
       "baseRefName": "main",
       "baseRefOid": "937e67b08603d487aff0c5ab16e930feb7e0fad2",
@@ -969,6 +1032,355 @@
               "body": "Instead of \"concrete\", consider \"concrete and substantial\".",
               "createdAt": "2026-10-13T07:47:55Z",
               "updatedAt": "2026-10-13T07:48:02Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "id": "PR_kwDOTDu4zs8AAAABLmVc8A",
+      "title": "Use cose hash algorithm",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/21",
+      "state": "MERGED",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-10-29T18:21:21Z",
+      "updatedAt": "2026-10-30T19:59:45Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "6ff5ee2df1a3516c7d4b7bb502365dc70731b2a3",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "cose-hashalg",
+      "headRefOid": "305c0488c40339de05bc4d435adea70ee94bb063",
+      "closedAt": "2026-10-30T10:30:54Z",
+      "mergedAt": "2026-10-30T10:30:54Z",
+      "mergedBy": "lijun-nio",
+      "mergeCommit": {
+        "oid": "841309d61e2105a7a6ba1dccbabfa3ee4b709e34"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVAFDNg",
+          "commit": {
+            "abbreviatedOid": "305c048"
+          },
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "[See comment left on #20 ]",
+          "createdAt": "2026-10-29T20:14:20Z",
+          "updatedAt": "2026-10-29T20:14:20Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVAk6fQ",
+          "commit": {
+            "abbreviatedOid": "305c048"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Looks good to me. Thank you!",
+          "createdAt": "2026-10-29T20:57:03Z",
+          "updatedAt": "2026-10-29T20:57:03Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "id": "PR_kwDOTDu4zs8AAAABLxiXbw",
+      "title": "draft: correct OCSP size figures and drop stale percent TODO (#3)",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/22",
+      "state": "MERGED",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Reconcile the size-comparison prose with the worked examples and the overview table: the Simple OCSP Request example is 150 bytes (not 152) and the Basic OCSP Response without the responder's certificate is 837 bytes (not 845), matching the PEM-content sizes in the examples and tab-examples-overview.\n\nFix the Signed OCSP Request (without requestor's certificate) reduction: 584 -> 209 bytes is 64%, not 65%.\n\nRemove the \"(TODO: update the percent data)\" note from the table caption; the percentages are now verified against the examples. Addresses #3 .\n",
+      "createdAt": "2026-10-30T13:28:29Z",
+      "updatedAt": "2026-10-30T20:00:57Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "841309d61e2105a7a6ba1dccbabfa3ee4b709e34",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "draft/size-table-fixes",
+      "headRefOid": "924dbd0fee8131292c331a903ae9decc173ba115",
+      "closedAt": "2026-10-30T19:59:09Z",
+      "mergedAt": "2026-10-30T19:59:09Z",
+      "mergedBy": "lijun-nio",
+      "mergeCommit": {
+        "oid": "28dd3811ec5efb2129523638dd8e79343359f2c3"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVIhg1g",
+          "commit": {
+            "abbreviatedOid": "924dbd0"
+          },
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "looks fine.",
+          "createdAt": "2026-10-30T13:47:50Z",
+          "updatedAt": "2026-10-30T13:47:50Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVM__gg",
+          "commit": {
+            "abbreviatedOid": "924dbd0"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Looks good; thanks!",
+          "createdAt": "2026-10-30T19:49:02Z",
+          "updatedAt": "2026-10-30T19:49:02Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "id": "PR_kwDOTDu4zs8AAAABLxl1bA",
+      "title": "c509rev: sync hash algorithm ids to the COSE Algorithms registry",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/23",
+      "state": "MERGED",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "_If_ we want to keep an implementation in main, it should be aligned with the latest draft. Alternatively, we could kick the implementation out of main, and let it live only in the c509rev-impl branch, your call!\n\nThis PR is to sync the Rust reference implementation to the draft's COSE Algorithms registry updates:\n*SHA-256 = -16, SHA-384 = -43, SHA-512 = -44, SHAKE128 = -18, SHAKE256 = -45. \n*Drop SHA-224 and SHA3-224 (removed from the draft); SM3 and SHA3-256/384/512 are IANA-pending (draft TBD15\u2013TBD18) and added once their code points are assigned. \n*OCSP request/response known-answer tests updated (hashAlgorithm byte 0x00 \u2192 0x2F);\n\n",
+      "createdAt": "2026-10-30T13:32:50Z",
+      "updatedAt": "2026-10-30T20:00:45Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "841309d61e2105a7a6ba1dccbabfa3ee4b709e34",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "c509rev-impl",
+      "headRefOid": "45c570ad8a3a2eed99a1c6c7c16afd5ecf70c123",
+      "closedAt": "2026-10-30T19:58:47Z",
+      "mergedAt": "2026-10-30T19:58:47Z",
+      "mergedBy": "lijun-nio",
+      "mergeCommit": {
+        "oid": "11fdca72c9fece62eafa9e8b1100bfdb6cc640f0"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVIjCkw",
+          "commit": {
+            "abbreviatedOid": "45c570a"
+          },
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "looks fine. We could decide later once WG-adopted, whether to keep both impl and doc in one repo.",
+          "createdAt": "2026-10-30T13:49:37Z",
+          "updatedAt": "2026-10-30T13:49:37Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "id": "PR_kwDOTDu4zs8AAAABL4oCqA",
+      "title": "c509rev: enforce the 16..32-byte OCSP nonce and refresh the README",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/24",
+      "state": "MERGED",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Follows a6d1b1a and brings the README up to date with the draft. \r\n\r\n`cargo test`: 46 passed, 0 ignored, 0 warnings.\r\n\r\n- **Nonce length.** a6d1b1a constrains the OCSP `nonce` to `bytes .size (16..32)`, and the Security Considerations require implementations to reject input that does not conform to the CDDL. The decoder now rejects a non-null nonce shorter than 16 or longer than 32 bytes as `Malformed`, in all OCSP request and response types. New test: `nonce_length_is_enforced`. The draft examples use 16-byte nonces, so the known-answer tests are unchanged.\r\n- **README.** Rewritten to state what the crate supports, what it does not, and how it validates input, with the known gaps. This corrects some stale statements.",
+      "createdAt": "2026-10-30T23:48:45Z",
+      "updatedAt": "2026-10-31T18:45:30Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "a6d1b1a72440ce25e789cb3ae88982a3624a7b32",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "c509rev-impl",
+      "headRefOid": "df55b63ebf2443ebef922c613b912a06be072e98",
+      "closedAt": "2026-10-31T18:45:29Z",
+      "mergedAt": "2026-10-31T18:45:29Z",
+      "mergedBy": "xipki",
+      "mergeCommit": {
+        "oid": "b81fdc54cecae75e79cf6801fa95f210b195c504"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVQ-vlQ",
+          "commit": {
+            "abbreviatedOid": "df55b63"
+          },
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-10-31T08:50:14Z",
+          "updatedAt": "2026-10-31T08:50:14Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 25,
+      "id": "PR_kwDOTDu4zs8AAAABL4yW8A",
+      "title": "c509rev: remove experimental status list module",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/25",
+      "state": "MERGED",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Admin clean-up: remove experimental `status_list.rs` and related code not covered by the draft. After this change the crate implements only the objects the draft defines: C509 CRL, C509 OCSP request, and C509 OCSP response.\n\nNo other behaviour changes. `cargo test`: 41 passed (the 4 removed tests were the status list's own), 0 warnings.\n",
+      "createdAt": "2026-10-31T00:09:44Z",
+      "updatedAt": "2026-10-31T18:46:07Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "a6d1b1a72440ce25e789cb3ae88982a3624a7b32",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "c509rev/remove-status-list",
+      "headRefOid": "7f991a30223af4432e918c90385365919f47abe1",
+      "closedAt": "2026-10-31T18:46:07Z",
+      "mergedAt": "2026-10-31T18:46:07Z",
+      "mergedBy": "xipki",
+      "mergeCommit": {
+        "oid": "cc630d355c8f7cc3489749be59164915c140cec2"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVQ-0vw",
+          "commit": {
+            "abbreviatedOid": "7f991a3"
+          },
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-10-31T08:50:47Z",
+          "updatedAt": "2026-10-31T08:50:47Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "id": "PR_kwDOTDu4zs8AAAABL46WAQ",
+      "title": "draft: one modification and one addition to Security Considerations",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/26",
+      "state": "OPEN",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Two potential small additions to the Security Considerations section, each independent of the other, so either can be dropped.\n\n1. **Signature Verification: deterministic encoding.** Verifying the signature over the bytes as received becomes a MUST (was SHOULD), and a message that is not deterministically encoded (the Terminology section already defines \"CBOR\" as deterministically encoded CBOR) MUST be rejected. Otherwise implementations can interpret the same signed bytes differently, and values computed over the encoding, such as cache keys, are not stable.\n\n2. **New subsection Certificate Status.** `not-issued` and `unknown` do not assert that a certificate is valid, and a relying party MUST NOT treat them as `good`. A responder that knows that a serial number was not issued SHOULD return `not-issued` rather than `good`. This is a SHOULD because RFC 6960, Section 2.2, allows `good` for a serial number that was never issued.\n",
+      "createdAt": "2026-10-31T00:27:33Z",
+      "updatedAt": "2026-10-31T18:58:49Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "a6d1b1a72440ce25e789cb3ae88982a3624a7b32",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "draft/sec-cons-additions",
+      "headRefOid": "2235391d089d60c664cdc439122ce15999851c9a",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVQ0MrQ",
+          "commit": {
+            "abbreviatedOid": "2235391"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-31T07:54:30Z",
+          "updatedAt": "2026-10-31T07:54:30Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "Suggestion to avoid avoid ambiguities:\n\nOLD\nThe signature MUST be verified over the bytes as received rather than over a re-encoding.\n\nNEW\nThe input to the signature verification process MUST be the bytes as received rather than the result of a re-encoding.",
+              "createdAt": "2026-10-31T07:54:30Z",
+              "updatedAt": "2026-10-31T07:54:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVQ0VrQ",
+          "commit": {
+            "abbreviatedOid": "2235391"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2026-10-31T07:55:10Z",
+          "updatedAt": "2026-10-31T07:55:10Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVQ_UfQ",
+          "commit": {
+            "abbreviatedOid": "2235391"
+          },
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-10-31T08:53:37Z",
+          "updatedAt": "2026-10-31T08:53:37Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVTOA4g",
+          "commit": {
+            "abbreviatedOid": "2235391"
+          },
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-31T18:55:33Z",
+          "updatedAt": "2026-10-31T18:55:34Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "I'd like to keep the (left) original text.\n1) A message that is not deterministically encoded ... MUST be rejected --> This requires additional checks, and the receiver is usually lean while parsing messages.\n2) We do not limit how an application verifies the signature, give just suggestion here.",
+              "createdAt": "2026-10-31T18:55:33Z",
+              "updatedAt": "2026-10-31T18:55:34Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVTPV7g",
+          "commit": {
+            "abbreviatedOid": "2235391"
+          },
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-31T18:58:48Z",
+          "updatedAt": "2026-10-31T18:58:49Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "> An OCSP responder that knows that a serial number was not issued by a recognized issuer SHOULD return `not-issued` rather than `good`.\n\nIn the reality many OCSP responders use CRL as the status source, and will consider an issuer number not in the CRL as \"good\". With the text above we may have problem in this case.",
+              "createdAt": "2026-10-31T18:58:49Z",
+              "updatedAt": "2026-10-31T18:58:49Z"
             }
           ]
         }
