@@ -250,7 +250,7 @@ CRLInfoData = (
   crlType                : int16, ; 0 = C509CRL
   signatureAlgorithm     : IntAlgorithmIdentifier,
   authoritySubject       : Name / #6.121(bytes),
-  authorityKeyIdentifier : bytes / null,
+  authorityKeyIdentifier : bytes,
   crlNumber              : CRLNumber,
   thisUpdate             : ~time,
   nextUpdate             : uint63 / null,
