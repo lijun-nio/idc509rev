@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-01T03:01:15.682191+00:00",
+  "timestamp": "2026-11-03T04:27:41.266646+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -667,7 +667,7 @@
       "labels": [],
       "body": "In the meantime I submitted some changes to cover #13 and #12, and also other enhancement.\n\n@rikard-sics @comsats @highlunder @marco-tiloca-sics Please share your commits, comments, etc. to make our draft mature for a CfA.\n\n\n\n",
       "createdAt": "2026-08-06T07:12:04Z",
-      "updatedAt": "2026-10-20T09:16:30Z",
+      "updatedAt": "2026-11-02T14:56:20Z",
       "closedAt": null,
       "comments": [
         {
@@ -694,9 +694,9 @@
         {
           "author": "rikard-sics",
           "authorAssociation": "COLLABORATOR",
-          "body": "Existing/ongoing implementations:\n- Joel's in Rust (https://github.com/lijun-nio/idc509rev/tree/main/c509rev)\n- Joel's implementation for Contiki-NG\n- Lijun's implementation (Java - internal)\n- Student from Shahid (WIP for Contiki-NG)\n\n**Action:** We should add an \"Implementation Status\" section (RFC 7942). Good to do before the submission of the next version. Joel + Lijun will do. Example section can [be found here](https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-groupcomm-28#name-implementation-status).\n\n**Action:** Add further test vectors (in appendix or separate files)\n\n**Action:** Move Joel's implementation to separate repo + add licensing info\n",
+          "body": "Existing/ongoing implementations:\n- Joel's in Rust (https://github.com/lijun-nio/idc509rev/tree/main/c509rev)\n- Joel's implementation for Contiki-NG\n- Lijun's implementation (Java - internal)\n- Student from Shahid (WIP for Contiki-NG)\n\n~~**Action:** We should add an \"Implementation Status\" section (RFC 7942). Good to do before the submission of the next version. Joel + Lijun will do. Example section can [be found here](https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-groupcomm-28#name-implementation-status).~~ **DONE in 4789d81ab8ddec51e0ebf36ac73aa7959f5e52e9**\n\n**Action:** Add further test vectors (in appendix or separate files)\n\n**Action:** Move Joel's implementation to separate repo + add licensing info\n",
           "createdAt": "2026-10-19T11:45:59Z",
-          "updatedAt": "2026-10-20T09:16:30Z"
+          "updatedAt": "2026-11-02T14:56:20Z"
         }
       ]
     },
@@ -736,7 +736,7 @@
       "labels": [],
       "body": "Feedback from chairs: NIO are interested. Are there any other parties besides them interested in this work?",
       "createdAt": "2026-10-19T11:54:52Z",
-      "updatedAt": "2026-10-19T13:18:52Z",
+      "updatedAt": "2026-11-02T14:52:07Z",
       "closedAt": null,
       "comments": [
         {
@@ -759,6 +759,13 @@
           "body": "> 2\\. Got confirmation from TrustAsia (https://www.trustasia.com/index-en) and Alibaba Cloud.\n\nExcellent! Let us see how the other parties we reach out to reply",
           "createdAt": "2026-10-19T13:18:52Z",
           "updatedAt": "2026-10-19T13:18:52Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Reminder: Fill in more info here as we get confirmation of interest from parties",
+          "createdAt": "2026-11-02T14:52:07Z",
+          "updatedAt": "2026-11-02T14:52:07Z"
         }
       ]
     },
@@ -774,7 +781,7 @@
       "labels": [],
       "body": "In the current draft, we register our own hash algorithms.\n\nAnother direction is to use the algorithm codes defined in COSE algorithms (which is a collection of all algorithm types, including hash, signature, encrytion, KDF, ...).\n\nDiscussion and decision is needed.\n\n @marco-tiloca-sics @rikard-sics @highlunder  @comsats",
       "createdAt": "2026-10-23T16:26:31Z",
-      "updatedAt": "2026-10-31T08:03:37Z",
+      "updatedAt": "2026-11-02T14:57:39Z",
       "closedAt": null,
       "comments": [
         {
@@ -853,8 +860,31 @@
           "body": "In the commit 871135332267bd0044d022578c8818f2bec6c59f I dropped registering new hash algorithms.",
           "createdAt": "2026-10-31T08:03:36Z",
           "updatedAt": "2026-10-31T08:03:36Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> 13\\. [@highlunder](https://github.com/highlunder) Please adapt your RUST code.\n\nOkay, so this issue can be closed, pending this point ",
+          "createdAt": "2026-11-02T14:57:39Z",
+          "updatedAt": "2026-11-02T14:57:39Z"
         }
       ]
+    },
+    {
+      "number": 27,
+      "id": "I_kwDOTDu4zs8AAAABb3oncw",
+      "title": "Check future versions with the idnits3 checker",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/27",
+      "state": "OPEN",
+      "author": "rikard-sics",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "It will become mandatory.\n\nLink to the checker: https://author-tools.ietf.org/idnits3/",
+      "createdAt": "2026-11-02T15:10:25Z",
+      "updatedAt": "2026-11-02T15:10:25Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -1285,7 +1315,7 @@
       "labels": [],
       "body": "Two potential small additions to the Security Considerations section, each independent of the other, so either can be dropped.\n\n1. **Signature Verification: deterministic encoding.** Verifying the signature over the bytes as received becomes a MUST (was SHOULD), and a message that is not deterministically encoded (the Terminology section already defines \"CBOR\" as deterministically encoded CBOR) MUST be rejected. Otherwise implementations can interpret the same signed bytes differently, and values computed over the encoding, such as cache keys, are not stable.\n\n2. **New subsection Certificate Status.** `not-issued` and `unknown` do not assert that a certificate is valid, and a relying party MUST NOT treat them as `good`. A responder that knows that a serial number was not issued SHOULD return `not-issued` rather than `good`. This is a SHOULD because RFC 6960, Section 2.2, allows `good` for a serial number that was never issued.\n",
       "createdAt": "2026-10-31T00:27:33Z",
-      "updatedAt": "2026-10-31T18:58:49Z",
+      "updatedAt": "2026-11-02T14:45:01Z",
       "baseRepository": "lijun-nio/idc509rev",
       "baseRefName": "main",
       "baseRefOid": "a6d1b1a72440ce25e789cb3ae88982a3624a7b32",
@@ -1296,7 +1326,36 @@
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Considering that there is still discussion and open points regarding this PR, I would propose not merging it before submission of the next version.\r\n\r\nThoughts?",
+          "createdAt": "2026-11-02T12:09:26Z",
+          "updatedAt": "2026-11-02T12:09:26Z"
+        },
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Considering that there is still discussion and open points regarding this PR, I would propose not merging it before submission of the next version.\r\n> \r\n> Thoughts?\r\n\r\nAs long as the rest of you are either ok with the current SHOULD, or don't foresee major problems changing it later if we so decide, I don't mind either way!",
+          "createdAt": "2026-11-02T13:02:52Z",
+          "updatedAt": "2026-11-02T13:02:52Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "At a high level:\r\n\r\n* Keeping the \"SHOULD\" instances is fine for now, and it might even be good in the long run (as long as more text around it is added). See more comments inline to the proposed changes.\r\n\r\n* At the moment, no need to rush with merging this PR. We can think more about it.",
+          "createdAt": "2026-11-02T14:24:07Z",
+          "updatedAt": "2026-11-02T14:24:07Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Okay, I will take a decision to submit now without this PR. We can of course include it (modified or not) in the next version",
+          "createdAt": "2026-11-02T14:45:01Z",
+          "updatedAt": "2026-11-02T14:45:01Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOTDu4zs8AAAABVQ0MrQ",
@@ -1381,6 +1440,46 @@
               "body": "> An OCSP responder that knows that a serial number was not issued by a recognized issuer SHOULD return `not-issued` rather than `good`.\n\nIn the reality many OCSP responders use CRL as the status source, and will consider an issuer number not in the CRL as \"good\". With the text above we may have problem in this case.",
               "createdAt": "2026-10-31T18:58:49Z",
               "updatedAt": "2026-10-31T18:58:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVgL6fQ",
+          "commit": {
+            "abbreviatedOid": "2235391"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-11-02T14:22:56Z",
+          "updatedAt": "2026-11-02T14:22:57Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "If the first \"MUST\" about the signature verification becomes a \"SHOULD\" again, we should have additional text that gives acceptable reasons to deviate (i.e., to do re-encoding of what was received) and under which circumstances.\r\n\r\nIf the second \"MUST\" about rejecting what does not use deterministic encoding becomes a \"SHOULD\", then:\r\n\r\n* We could keep the already present text \"otherwise, implementations ...\" to clarify the consequences from deviating.\r\n\r\n* We should add text that gives acceptable reasons to deviate and under which circumstances. This would also be consistent with the expectation set in Section 3 that, unless otherwise stated, \"CBOR\" refers to deterministically encoded CBOR.",
+              "createdAt": "2026-11-02T14:22:56Z",
+              "updatedAt": "2026-11-02T14:22:57Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABVgMk5w",
+          "commit": {
+            "abbreviatedOid": "2235391"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-11-02T14:23:35Z",
+          "updatedAt": "2026-11-02T14:23:35Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "That suggests that a \"SHOULD\" is appropriate then, as there are actually existing cases of deviations where \"good\" is returned. Then it would be good to state those reasons.",
+              "createdAt": "2026-11-02T14:23:35Z",
+              "updatedAt": "2026-11-02T14:23:35Z"
             }
           ]
         }
