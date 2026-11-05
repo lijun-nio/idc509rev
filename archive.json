@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-03T04:27:41.266646+00:00",
+  "timestamp": "2026-11-05T04:04:07.156061+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -885,6 +885,51 @@
       "updatedAt": "2026-11-02T15:10:25Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 28,
+      "id": "I_kwDOTDu4zs8AAAABcC86tA",
+      "title": "Resolving the Name / #6.121 encoding ambiguity in C509 CRLs",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/28",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "**In draft-ietf-cose-cbor-encoded-cert:**\n\n```\nName = [ * RDNAttribute ] / SpecialText\n\nSpecialText = text / bytes / tag\n```\n\n**In this draft**, the CRL structure has the following definitions:\n\n```\nauthoritySubject       : Name / #6.121(bytes),\n\nissuer                 : Name / #6.121(bytes) / null,\n```\n\nThis creates an ambiguity. `#6.121` (the tag for alternative 0) is meant to mark a DER-encoded X.509 name, but because `SpecialText` allows `tag`, the same encoding can also be parsed as a `Name`. I see two ways to solve this:\n\n**Option 1: Update draft-ietf-cose-cbor-encoded-cert.** Specify that a name consisting of a single commonName, which is currently encoded using the tag alternative, is instead encoded as `[ * RDNAttribute ]`.\n\n- Pros:\n  - Names in certificates and CRLs use the same encoding, so they can be matched byte for byte.\n- Cons:\n  - Requires a change to the C509 base specification.\n\n**Option 2: Define a new CDDL type in this draft**, e.g. `RDNAttributes`:\n\n```\nRDNAttributes = [ * RDNAttribute ]\n\nauthoritySubject       : RDNAttributes / #6.121(bytes),\n\nissuer                 : RDNAttributes / #6.121(bytes) / null,\n```\n\n- Pros:\n  - No change to the C509 base specification is needed.\n- Cons:\n  - If a certificate's Name consists of a single commonName attribute, it must be re-encoded before it can be compared with the CRL's name.\n\nWhich option would the you prefer?\n@marco-tiloca-sics @highlunder @comsats \n\n@rikard-sics : Maybe we could bring this up during the COSE WG presentation?",
+      "createdAt": "2026-11-03T05:53:36Z",
+      "updatedAt": "2026-11-04T08:50:22Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Yes we could raise this during the IETF 127 presentation and see if the WG has any preferred solution",
+          "createdAt": "2026-11-03T07:46:18Z",
+          "updatedAt": "2026-11-03T07:46:18Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "At this stage of the process, I easily prefer Option 2: it avoids changing draft-ietf-cose-cbor-encoded-cert and it is \"cleaner\" as it defines what the data model needs here (acknowledging that a non-ambiguous reuse of `Name` is not possible). Sure, the mentioned re-enconding is not nice.\n\nHowever, the change proposed as Option 1 is about forcing the use of `[ * RDNAttribute ]` for a name that consists of a single commonName.\n\nCan't the same reasoning be incrementally applied to Option 2 and evolve it into the following Option 3?\n\n```\nRDNAttributes = [ * RDNAttribute ]\n\nauthoritySubject       : RDNAttributes,\n\nissuer                 : RDNAttributes / null,\n```\n\nIn other words, if it is in principle acceptable that C509 certificates could use the tag alternative instead of using `[ * RDNAttribute ]` also for a name consisting of a single commonName, can't the same be acceptable for the CRL structure here? Is this perhaps a backward compatibility issue for CRL responders?",
+          "createdAt": "2026-11-03T20:33:39Z",
+          "updatedAt": "2026-11-03T20:33:39Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Option 3 does not provide the option to support X.509 Name.",
+          "createdAt": "2026-11-04T08:34:17Z",
+          "updatedAt": "2026-11-04T08:34:17Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thanks, got it (and, of course, X.509 Name is not in the scope of draft-ietf-cose-cbor-encoded-cert).\n\nThen `#6.121(bytes)` needs to stay around to ensure that the compact CRL structure works also when X.509 certificates are involved.",
+          "createdAt": "2026-11-04T08:50:22Z",
+          "updatedAt": "2026-11-04T08:50:22Z"
+        }
+      ]
     }
   ],
   "pulls": [
