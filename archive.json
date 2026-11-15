@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-05T04:04:07.156061+00:00",
+  "timestamp": "2026-11-15T03:39:46.745961+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -781,7 +781,7 @@
       "labels": [],
       "body": "In the current draft, we register our own hash algorithms.\n\nAnother direction is to use the algorithm codes defined in COSE algorithms (which is a collection of all algorithm types, including hash, signature, encrytion, KDF, ...).\n\nDiscussion and decision is needed.\n\n @marco-tiloca-sics @rikard-sics @highlunder  @comsats",
       "createdAt": "2026-10-23T16:26:31Z",
-      "updatedAt": "2026-11-02T14:57:39Z",
+      "updatedAt": "2026-11-14T20:38:05Z",
       "closedAt": null,
       "comments": [
         {
@@ -928,6 +928,30 @@
           "body": "Thanks, got it (and, of course, X.509 Name is not in the scope of draft-ietf-cose-cbor-encoded-cert).\n\nThen `#6.121(bytes)` needs to stay around to ensure that the compact CRL structure works also when X.509 certificates are involved.",
           "createdAt": "2026-11-04T08:50:22Z",
           "updatedAt": "2026-11-04T08:50:22Z"
+        }
+      ]
+    },
+    {
+      "number": 29,
+      "id": "I_kwDOTDu4zs8AAAABfTivYw",
+      "title": "Serial Number in the OCSP responses",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/29",
+      "state": "OPEN",
+      "author": "xipki",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Currently we use `HashId20` (trunctat hash value) over the serial number. I discussed this with some PKI industry experts, and they wish us to use the raw serial number instead. The main reasons are\n- OCSP database needs to have columns to contain HashId20 of the serial numbers. This is difficult to implement. The hash algorithms may vary from OCSP request to request (it is specified in the field `hashAlgorithm`), so the database needs to be extended to have multiple HashId20 columns (each column for one supported hash algorithm). And new algorithms may be registered in the future, and once the database schema is created, it is quite difficult to change it by adding new columns.\n- Our proposal supports also X.509, that means the software needs to support old existing OCSP database, which do not contain such HashId20 columns.\n- The current codebase for X.509 OCSP uses serial number, there are lots of work to support HashId20.\n- The benefit of privacy of using hash value is limited. If one collects enough serial numbers, it can still find the serial number according to the hash value (via look-up).\n\nI needs your input. @rikard-sics  @highlunder @marco-tiloca-sics @comsats.\n\n@rikard-sics : should we also add this point to your presentation slides?\n",
+      "createdAt": "2026-11-14T20:53:54Z",
+      "updatedAt": "2026-11-14T22:04:10Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Given the points above (especially the second and third), it seems unavoidable to use serial numbers for being compatible with how the back-end works.\n\nFor the sake of the argument:\n\n* The second and third points show that any deviation from raw serial numbers is basically out of question. However ...\n\n* For the case in the first point, it's not necessarily required to have one column per supported algorithm. There can still be a single column with an extensible semantics, e.g., encoding pairs (HashAlgorithmId, HashValue).",
+          "createdAt": "2026-11-14T22:04:10Z",
+          "updatedAt": "2026-11-14T22:04:10Z"
         }
       ]
     }
