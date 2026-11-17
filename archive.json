@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-15T03:39:46.745961+00:00",
+  "timestamp": "2026-11-17T05:35:55.560675+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -898,7 +898,7 @@
       "labels": [],
       "body": "**In draft-ietf-cose-cbor-encoded-cert:**\n\n```\nName = [ * RDNAttribute ] / SpecialText\n\nSpecialText = text / bytes / tag\n```\n\n**In this draft**, the CRL structure has the following definitions:\n\n```\nauthoritySubject       : Name / #6.121(bytes),\n\nissuer                 : Name / #6.121(bytes) / null,\n```\n\nThis creates an ambiguity. `#6.121` (the tag for alternative 0) is meant to mark a DER-encoded X.509 name, but because `SpecialText` allows `tag`, the same encoding can also be parsed as a `Name`. I see two ways to solve this:\n\n**Option 1: Update draft-ietf-cose-cbor-encoded-cert.** Specify that a name consisting of a single commonName, which is currently encoded using the tag alternative, is instead encoded as `[ * RDNAttribute ]`.\n\n- Pros:\n  - Names in certificates and CRLs use the same encoding, so they can be matched byte for byte.\n- Cons:\n  - Requires a change to the C509 base specification.\n\n**Option 2: Define a new CDDL type in this draft**, e.g. `RDNAttributes`:\n\n```\nRDNAttributes = [ * RDNAttribute ]\n\nauthoritySubject       : RDNAttributes / #6.121(bytes),\n\nissuer                 : RDNAttributes / #6.121(bytes) / null,\n```\n\n- Pros:\n  - No change to the C509 base specification is needed.\n- Cons:\n  - If a certificate's Name consists of a single commonName attribute, it must be re-encoded before it can be compared with the CRL's name.\n\nWhich option would the you prefer?\n@marco-tiloca-sics @highlunder @comsats \n\n@rikard-sics : Maybe we could bring this up during the COSE WG presentation?",
       "createdAt": "2026-11-03T05:53:36Z",
-      "updatedAt": "2026-11-04T08:50:22Z",
+      "updatedAt": "2026-11-15T17:43:26Z",
       "closedAt": null,
       "comments": [
         {
@@ -928,6 +928,20 @@
           "body": "Thanks, got it (and, of course, X.509 Name is not in the scope of draft-ietf-cose-cbor-encoded-cert).\n\nThen `#6.121(bytes)` needs to stay around to ensure that the compact CRL structure works also when X.509 certificates are involved.",
           "createdAt": "2026-11-04T08:50:22Z",
           "updatedAt": "2026-11-04T08:50:22Z"
+        },
+        {
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "body": "What about the following CDDL definition?\n\n```\nNameChoice = [type int, name Defined]\n\n-- For type 0: name = Name (C509 Name defined in the C509 base draft)\n-- For type 1: name = bstr (DER-encoded X.509 name)\n\nauthoritySubject       : NameChoice,\n\nissuer                 : NameChoice / null,\n```\n\nWe need to add new IANA registry to register the type for NameChoice.\nWith this suggestion, it is still possible to compare octet-by-octet between CRL and C509 certificate / X509 certificate.",
+          "createdAt": "2026-11-15T17:19:57Z",
+          "updatedAt": "2026-11-15T17:19:57Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thanks, I think that that direction would work! See below a completed and revised version, also renaming NameChoice to NameVariant.\n\n\n```\nName = [ * RDNAttribute ] / SpecialText\n; from draft-ietf-cose-cbor-encoded-cert\n\nSpecialText = text / bytes / tag\n; from draft-ietf-cose-cbor-encoded-cert\n\nNameVariant = [type: int, name: any]\n\nauthoritySubject       : NameVariant,\n\nissuer                 : NameVariant / null,\n```\n\nAs to type within NameVariant:\n* 0: the `name` element has type `Name`\n* 1: the `name` has type `bstr` (the DER-encoded X.509 name)\n\nYes, a new registry is needed for the values of the `type` element of the NameVariant array. I guess that the intent is only to map a value of `type`to a type of CBOR data item (e.g., `bstr`) and not necessarily with something as specific as a DER-encoded X.509 name.",
+          "createdAt": "2026-11-15T17:43:26Z",
+          "updatedAt": "2026-11-15T17:43:26Z"
         }
       ]
     },
@@ -943,7 +957,7 @@
       "labels": [],
       "body": "Currently we use `HashId20` (trunctat hash value) over the serial number. I discussed this with some PKI industry experts, and they wish us to use the raw serial number instead. The main reasons are\n- OCSP database needs to have columns to contain HashId20 of the serial numbers. This is difficult to implement. The hash algorithms may vary from OCSP request to request (it is specified in the field `hashAlgorithm`), so the database needs to be extended to have multiple HashId20 columns (each column for one supported hash algorithm). And new algorithms may be registered in the future, and once the database schema is created, it is quite difficult to change it by adding new columns.\n- Our proposal supports also X.509, that means the software needs to support old existing OCSP database, which do not contain such HashId20 columns.\n- The current codebase for X.509 OCSP uses serial number, there are lots of work to support HashId20.\n- The benefit of privacy of using hash value is limited. If one collects enough serial numbers, it can still find the serial number according to the hash value (via look-up).\n\nI needs your input. @rikard-sics  @highlunder @marco-tiloca-sics @comsats.\n\n@rikard-sics : should we also add this point to your presentation slides?\n",
       "createdAt": "2026-11-14T20:53:54Z",
-      "updatedAt": "2026-11-14T22:04:10Z",
+      "updatedAt": "2026-11-15T21:06:00Z",
       "closedAt": null,
       "comments": [
         {
@@ -952,6 +966,20 @@
           "body": "Given the points above (especially the second and third), it seems unavoidable to use serial numbers for being compatible with how the back-end works.\n\nFor the sake of the argument:\n\n* The second and third points show that any deviation from raw serial numbers is basically out of question. However ...\n\n* For the case in the first point, it's not necessarily required to have one column per supported algorithm. There can still be a single column with an extensible semantics, e.g., encoding pairs (HashAlgorithmId, HashValue).",
           "createdAt": "2026-11-14T22:04:10Z",
           "updatedAt": "2026-11-14T22:04:10Z"
+        },
+        {
+          "author": "rikard-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> [@rikard-sics](https://github.com/rikard-sics) : should we also add this point to your presentation slides?\n\nYes I think it is worth bringing up, will add it",
+          "createdAt": "2026-11-15T17:45:36Z",
+          "updatedAt": "2026-11-15T17:45:36Z"
+        },
+        {
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "body": "If we do not want to manage a new registry group, we can also use the IANA registry \"TLS Certificate Types\" under https://www.iana.org/assignments/tls-extensiontype-values .",
+          "createdAt": "2026-11-15T21:06:00Z",
+          "updatedAt": "2026-11-15T21:06:00Z"
         }
       ]
     }
