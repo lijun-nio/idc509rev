@@ -102,7 +102,7 @@ fn crl(r: usize) -> usize {
             crl_type: 0,
             signature_algorithm: ED25519,
             authority_subject: c509rev::common::Name::Text("test crlocsp-ca".into()),
-            authority_key_identifier: Some(vec![0u8; 20]),
+            authority_key_identifier: vec![0u8; 20],
             crl_number: 1,
             this_update: 1_736_208_754,
             next_update: Some(1_736_813_554),
