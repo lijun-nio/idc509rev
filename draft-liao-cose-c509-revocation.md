@@ -69,6 +69,7 @@ normative:
   I-D.ietf-cose-cbor-encoded-cert:
   I-D.ietf-stir-certificates-ocsp:
   IANA.cose:
+  IANA.tls-extensiontype-values:
 
 informative:
   RFC3280:
@@ -250,7 +251,7 @@ C509CRLInfo = [ CRLInfoData ]
 CRLInfoData = (
   crlType                : 0, ; int16
   signatureAlgorithm     : IntAlgorithmIdentifier,
-  authoritySubject       : Name / #6.121(bytes),
+  authoritySubject       : NameVariant,
   authorityKeyIdentifier : bytes,
   crlNumber              : CRLNumber,
   thisUpdate             : ~time,
@@ -262,12 +263,17 @@ CRLInfoData = (
 CRLNumber = 1..9223372036854775807
 
 PerIssuerRevokedCerts = (
-  issuer                 : Name / #6.121(bytes) / null,
+  issuer                 : NameVariant / null,
   revokedCertsControl    : RevokedCertsControl / null,
   extensions             : IntExtensions,
   revokedCerts           : bytes .size (1..2147483647) / null,
   removedFromCRLCerts    : bytes .size (1..2147483647) / null,
 )
+
+NameVariant = [
+  type                   : uint .le 255,
+  name                   : any,
+]
 
 RevokedCertsControl = [
   flags               : uint32,
@@ -302,11 +308,26 @@ Encoded identically to the `int` choice of `issuerSignatureAlgorithm` in C509 ce
 
 Unlike in {{RFC5280}}, where the signature algorithm appears outside the `TBSCertList` and is therefore not covered by the CRL signature, `signatureAlgorithm` is part of `CRLInfoData` within `TBSCertList` and is therefore covered by the signature.  This prevents algorithm-substitution attacks on the CRL.
 
+### NameVariant {#name-variant}
+
+A `NameVariant` carries the name of a CA, together with the type of the certificate from which the name is taken.  This allows a C509 CRL to identify CAs that hold C509 certificates, X.509 certificates, or certificates of other types.
+
+- The `type` field identifies the certificate type.  Its value is taken from the "TLS Certificate Types" registry {{IANA.tls-extensiontype-values}}.
+- The `name` field contains the name, encoded as determined by `type`.
+
+This document defines the encoding of `name` for the following certificate types:
+
+- `type` = 0 (X509): `name` is a byte string containing the DER-encoded ({{X.690}}) X.500 `Name` ({{RFC5280, Section 4.1.2.4}}).
+- `type` = 4 (C509): `name` is a `Name` as defined in {{I-D.ietf-cose-cbor-encoded-cert}}.
+
+For any other certificate type that defines names, the name is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, `name` is the CBOR data item that represents the name in the certificate; otherwise, `name` is a byte string containing the name in the original encoding of the certificate type.
+A receiver that does not support the certificate type indicated by `type` cannot interpret `name`.  It MUST NOT match such a `NameVariant` with any certificate.
+
 ### authoritySubject and authorityKeyIdentifier
 
 The `authoritySubject` and `authorityKeyIdentifier` fields identify the CRL authority.
 
-The `authoritySubject` field identifies the subject of the CRL issuer.  When the CRL is issued by a C509 CA, `authoritySubject` is a `Name` value identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is encoded as `#6.121(bytes)` (tag 121 is alternative 0), where the byte string contains the DER-encoded `Name` from the `subject` field of the issuing X.509 CA certificate ({{X.690}}). Since the `Name` structure may also be `bytes`, the DER-encoded subject is wrapped in a 121-tagged structure.
+The `authoritySubject` field identifies the subject of the CRL issuer as a `NameVariant` ({{name-variant}}).  Its `type` is the type of the CRL issuer's certificate, and its `name` is the `subject` field of that certificate.  For example, when the CRL is issued by a C509 CA, `authoritySubject` is `[4, subject]`, where `subject` is identical to the `subject` field of the authority C509 certificate.  When the CRL is issued by an X.509 CA (e.g., in a hybrid deployment where a legacy CA issues a C509-format CRL), `authoritySubject` is `[0, subject]`, where `subject` is a byte string containing the DER-encoded `subject` field of the issuing X.509 CA certificate.
 
 The `authorityKeyIdentifier` field is identical to the value of the authority's `subjectKeyIdentifier` extension.  This field corresponds to the X.509 CRL extension `authorityKeyIdentifier` ({{RFC5280, Section 5.2.1}}).  It is promoted to a dedicated field because it MUST be present in conforming X.509 CRLs and because making it explicit simplifies the structure and reduces encoded size compared to representing it as a generic extension.
 
@@ -371,7 +392,7 @@ The `revokedCertsList` field is either a CBOR array of one or more `PerIssuerRev
 
 Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer using the following fields:
 
-- The `issuer` field identifies the issuer of the certificates covered by this `PerIssuerRevokedCerts` entry.  When the issuer is a C509 CA, it is encoded as a `Name` value identical to the `issuer` field of the covered C509 certificates.  When the issuer is an X.509 CA, it is encoded as `#6.121(bytes)` (tag 121 is alternative 0), where the byte string contains the DER-encoded `Name` from the `issuer` field of the covered X.509 certificates ({{X.690}}).  If the issuer is identical to the CRL's `authoritySubject` field, it MUST be encoded as CBOR `null`.
+- The `issuer` field identifies the issuer of the certificates covered by this `PerIssuerRevokedCerts` entry as a `NameVariant` ({{name-variant}}).  Its `type` is the type of the covered certificates, and its `name` is their `issuer` field.  For example, when the covered certificates are C509 certificates, `issuer` is `[4, issuer]`, where `issuer` is identical to the `issuer` field of the covered C509 certificates; when they are X.509 certificates, `issuer` is `[0, issuer]`, where `issuer` is a byte string containing the DER-encoded `issuer` field of the covered X.509 certificates.  If the issuer is identical to the CRL's `authoritySubject` field, it MUST be encoded as CBOR `null`.
 
 - The `revokedCertsControl` field defines the controls for interpreting `removedFromCRLCerts` and `revokedCerts`.  If either `removedFromCRLCerts` or `revokedCerts` is non-`null`, `revokedCertsControl` MUST NOT be `null`.  If both `removedFromCRLCerts` and `revokedCerts` are `null`, `revokedCertsControl` MUST be `null` to reduce CRL size.
 
