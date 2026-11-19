@@ -113,7 +113,7 @@ entity:
 
 --- abstract
 
-This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing plaintext serial numbers with hashes to preserve requestor privacy, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additionally, this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}.
+This document specifies CBOR-encoded PKI structures for use with C509 certificates (draft-ietf-cose-cbor-encoded-cert), X.509 certificates (RFC 5280), and future certificate types. It defines C509 CRL and C509 OCSP, compact CBOR encodings of X.509 Certificate Revocation Lists (RFC 5280) and OCSP messages (RFC 6960), respectively. The structures defined in this document are certificate-type agnostic and can be used with C509 certificates, X.509 certificates, or future certificate types without modification. C509 OCSP improves on RFC 6960 by signing a wider set of fields to prevent algorithm-substitution and certificate-chain substitution attacks, replacing the two-hash issuer identity with a single certificate hash, and identifying all participants (requestor, responder, issuer) by a uniform certificate hash rather than type-specific fields. C509 CRL and C509 OCSP are not wire-format-compatible with their DER-encoded X.509 counterparts and cannot be converted to or from them without semantic interpretation. Additionally, this document specifies the PEM representation of the C509 structures following the framework of {{RFC7468}}.
 
 
 --- middle
@@ -142,11 +142,9 @@ This document specifies:
 
    - Define dedicated fields for the common extensions to simplify the encoding: `crlNumber`, `authorityKeyIdentifier`, `deltaCRLIndicator`.
 
-- **C509 OCSP** -- a CBOR encoding of OCSP requests and responses ({{RFC6960}}).  The encoding compresses common fields while preserving semantic equivalence.  Four key improvements are made over {{RFC6960}}:
+- **C509 OCSP** -- a CBOR encoding of OCSP requests and responses ({{RFC6960}}).  The encoding compresses common fields while preserving semantic equivalence.  Three key improvements are made over {{RFC6960}}:
 
    - The signature in signed requests and responses is computed over a wider set of fields than in {{RFC6960}}, including the signature algorithm and the certificate chain, preventing algorithm-substitution and certificate-chain substitution attacks.
-
-   - Certificate serial numbers in requests and responses are replaced by hashes (`serialNumberHash`), providing privacy against passive observers who do not already know the queried serial numbers.
 
    - The issuer is identified by a single hash over the issuer certificate (`issuerCertHash`) rather than by the two-hash `CertID`, reducing per-issuer overhead.
 
@@ -495,25 +493,35 @@ C509 OCSP requests and responses are not wire-format-compatible with DER-encoded
 
 The `hashAlgorithm` field of C509 OCSP requests and responses identifies the hash algorithm used to compute all hashes within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry {{IANA.cose}}, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 {{RFC9054}}.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.
 
-The hash algorithm MUST produce an output of at least 20 bytes, so that `HashId20` values can be derived (see {{cert-identification}}).  Consequently, SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifiers `HashId8` and `HashId20`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) {{RFC9861}}, the output length is the length of the identifier being computed, i.e., 8 bytes for `HashId8` and 20 bytes for `HashId20`.
+The hash algorithm MUST produce an output of at least 20 bytes.  Consequently, SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifier `HashId8` (see {{cert-identification}}), so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) {{RFC9861}}, the output length is the length of the identifier being computed, i.e., 8 bytes for `HashId8`.
 
 ## Identification of Certificates {#cert-identification}
 
-To reduce OCSP message size, this document defines two truncated-hash identifier types used to refer to certificates compactly:
+To reduce OCSP message size, this document defines a truncated-hash identifier type used to refer to certificates compactly:
 
 - `HashId8`: the leading 8 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId8` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures where a short identifier provides sufficient uniqueness in the deployment context.
 
-- `HashId20`: the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`. `HashId20` is intended for identifying certificate serial numbers (the `serialNumberHash` field) when higher uniqueness is required to minimize collision risk. When derived from a secure hash (e.g., SHA-256 or SHA3-256) and treated as a random output, it gives ~2^160 preimage work and ~2^80 collision resistance (birthday bound) for the truncated value. Since the relying party verifies a certificate's signature before querying OCSP, an adversary needs to construct a different certificate that (a) validates under the same issuer chain and (b) has a serial number whose hash truncation equals an existing certificate's `HashId20`. Such a construction is practically infeasible.
-
 ~~~~~~~~~~~ cddl
 HashId8   = bytes .size 8
-HashId20  = bytes .size 20
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 
-`HashId20` is used to carry the hash of the certificate serial number of the target certificate, computed using the `hashAlgorithm` of the enclosing structure.  The serial number is encoded in big-endian byte order without a leading zero byte (as in C509 certificates) before hashing.  In X.509, a `CertificateSerialNumber` INTEGER is DER-encoded with a leading zero byte when the most-significant bit is set; that leading zero MUST be stripped before computing the hash.
+## Certificate Serial Numbers {#cert-serial-number}
 
-Using a hash rather than the plain serial number preserves the privacy of the requestor: an observer cannot determine which certificate is being queried without already knowing the serial number.
+The certificate whose status is requested or reported is identified by `issuerCertHash` together with its serial number, carried in the `serialNumber` field.
+
+~~~~~~~~~~~ cddl
+SerialNumber = bytes .size (1..20)
+~~~~~~~~~~~
+{: sourcecode-name="c509ocsp.cddl"}
+
+The `serialNumber` field contains the certificate serial number of the target certificate as an unsigned big-endian integer without a leading zero byte, encoded as a byte string.  This is the encoding of `CertificateSerialNumber` in C509 certificates ({{I-D.ietf-cose-cbor-encoded-cert}}), so for a C509 certificate the value is the certificate's serial number as is.
+
+For an X.509 certificate, the serial number is an ASN.1 INTEGER ({{RFC5280, Section 4.1.2.2}}).  Its DER encoding is two's complement and therefore contains a leading zero byte when the most-significant bit of the value is set.  This leading zero byte is not part of `serialNumber`: the value is the contents octets of the DER-encoded INTEGER with a leading zero byte, if present, removed.  For example, the DER-encoded serial number `02 03 00 8F 01` gives `serialNumber` `h'8F01'`.
+
+Since a serial number is a positive integer of at most 20 bytes ({{RFC5280, Section 4.1.2.2}}), `serialNumber` is 1 to 20 bytes long.
+
+As in the `CertID` of {{RFC6960}}, the serial number is carried in plain form and is not hashed.  Serial numbers are not secret, and an unsalted hash would not prevent an observer with a set of candidate serial numbers from identifying the queried certificate (see {{sec-privacy}}).  The plain serial number is at most 20 bytes long, lets an OCSP responder look up the certificate directly, and cannot collide.
 
 ## C509 OCSP Request {#ocsp-request}
 
@@ -553,7 +561,7 @@ C509SimpleOCSPRequest = [
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..32) / null,
   issuerCertHash     : HashId8,
-  serialNumberHash   : HashId20,
+  serialNumber       : SerialNumber,
   extensions         : IntExtensions
 ]
 
@@ -568,7 +576,7 @@ PerIssuerOCSPRequest = (
 SingleCertRequests  = [ + SingleCertRequest ]
 
 SingleCertRequest = (
-  serialNumberHash : HashId20,
+  serialNumber     : SerialNumber,
   extensions       : IntExtensions,
 )
 ~~~~~~~~~~~
@@ -605,13 +613,13 @@ In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies th
 
 Each `SingleCertRequest` contains:
 
-- The `serialNumberHash` field is the truncated hash of the certificate serial number of the target certificate, computed using the `hashAlgorithm` of the enclosing request structure.  The serial number is encoded in big-endian byte order without a leading zero byte (as in C509 certificates) before hashing.  Using a hash rather than the plain serial number preserves the privacy of the requestor: an observer cannot determine which certificate is being queried without already knowing the serial number.
+- The `serialNumber` field is the certificate serial number of the target certificate; see {{cert-serial-number}}.
 - The `extensions` field contains extensions for the single request; see {{ocsp-extensions}}.
 
 #### C509UnsignedOCSPRequest {#C509UnsignedOCSPRequest}
 
 - The `ocspRequestType` field MUST be 0.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  The nonce MUST be generated by a cryptographically strong pseudorandom number generator and MUST be between 16 and 32 bytes long.  An OCSP server MUST reject a request whose nonce is shorter than 16 bytes or longer than 32 bytes by returning a `C509ErrorOCSPResponse` with `responseStatus` set to `malformedRequest` (1).
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 - The `requests` field is a list of `PerIssuerOCSPRequest` entries, each grouping target certificates by issuer; see {{per-issuer-requests}}.
@@ -620,7 +628,7 @@ Each `SingleCertRequest` contains:
 
 - The `ocspRequestType` field MUST be 1.
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `requestorCertHash` and `issuerCertHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
 - The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. When `requestorCerts` is not `null`, it carries the corresponding certificate chain so that the receiver can verify the identity of the requestor.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
@@ -633,10 +641,10 @@ Each `SingleCertRequest` contains:
 `C509SimpleOCSPRequest` is a compact request format for querying the status of a single certificate.  Unlike `C509UnsignedOCSPRequest`, which uses a two-level `PerIssuerOCSPRequests` / `SingleCertRequest` grouping to batch multiple serial numbers across one or more issuers, `C509SimpleOCSPRequest` flattens the structure into a single CBOR array for the common case of a one-certificate query.
 
 - The `ocspRequestType` field MUST be 2.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash` and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `issuerCertHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
 - The `issuerCertHash` field identifies the issuer of the target certificate; see {{issuer-hash-id}}.
-- The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
+- The `serialNumber` field is the certificate serial number of the target certificate; see {{cert-serial-number}}.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 
 ### PEM Representation
@@ -689,7 +697,7 @@ TBSSimpleOCSPResponse = (
   nonce              : bytes .size (16..32) / null,
   responderCertHash  : HashId8,
   issuerCertHash     : HashId8,
-  serialNumberHash   : HashId20,
+  serialNumber       : SerialNumber,
   certStatus         : CertStatus,
   producedAt         : ~time,
   thisUpdate         : nint / 0,
@@ -714,7 +722,7 @@ PerIssuerOCSPResponse = (
 SingleCertResponses = [ + SingleCertResponse ]
 
 SingleCertResponse = (
-  serialNumberHash : HashId20,
+  serialNumber     : SerialNumber,
   certStatus       : CertStatus,
   thisUpdate       : nint / 0,
   nextUpdate       : uint63 / null,
@@ -765,11 +773,11 @@ The `ocspResponseType` field of `C509BasicOCSPResponse` is 1, distinguishing it 
 
 - The `ocspResponseType` field MUST be 2, which discriminates `C509SimpleOCSPResponse` from `C509ErrorOCSPResponse` and `C509BasicOCSPResponse`.
 - The `signatureAlgorithm` field specifies the signature algorithm, as defined in {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.3}}.  It is part of `TBSSimpleOCSPResponse` and is therefore covered by the signature.
-- The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash`, `issuerCertHash`, and `serialNumberHash`.  The algorithm is encoded as specified in {{hash-algs}}.
+- The `hashAlgorithm` field specifies the hash algorithm used to compute `responderCertHash` and `issuerCertHash`.  The algorithm is encoded as specified in {{hash-algs}}.
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  If present, it MUST have the same value as the `nonce` in the corresponding `C509SimpleOCSPRequest`.
 - The `responderCertHash` field identifies the OCSP responder; see {{responderCertHash}}.
 - The `issuerCertHash` field identifies the issuer of the queried certificate; see {{issuer-hash-id}}.
-- The `serialNumberHash` field is the hash of the certificate serial number of the target certificate, computed as in {{cert-identification}}.
+- The `serialNumber` field is the certificate serial number of the target certificate; see {{cert-serial-number}}.
 - The `certStatus` field encodes the revocation status; see {{SingleCertResponse}}.
 - The `producedAt` field is the time at which this response was produced, encoded as described in {{time-encoding}}.
 - The `thisUpdate` field is encoded as a non-positive integer (`nint / 0`) representing the number of seconds from `producedAt` at which the indicated status is known to be correct.  It MUST be 0 or negative, since the status cannot be known at a time in the future relative to the time the response was produced.
@@ -812,9 +820,9 @@ See {{ocsp-extensions}}.
 
 #### SingleCertResponse {#SingleCertResponse}
 
-##### serialNumberHash {#serialNumberHash-section}
+##### serialNumber {#serialNumber-section}
 
-This field contains the truncated hash of the serial number of the certificate being queried, computed as in {{cert-identification}}.
+This field contains the serial number of the certificate being queried; see {{cert-serial-number}}.
 
 ##### extensions
 
@@ -1009,13 +1017,13 @@ The signatures of C509 CRLs and of signed C509 OCSP messages cover all fields ex
 
 ## Truncated Hash Identifiers {#sec-truncated-hash}
 
-`HashId8` ({{cert-identification}}) only selects a certificate and does not authenticate it; security relies on the signature verification in {{sec-signature}}.  A relying party MUST match a response to its request using hash values it has computed itself from the certificates it holds.  A receiver that finds several certificates matching a `HashId8` MUST NOT assume that a particular one is intended.  An OCSP responder for which an `issuerCertHash` matches more than one of its issuers, or a `serialNumberHash` matches more than one serial number, MUST NOT return the status `good` for that entry.
+`HashId8` ({{cert-identification}}) only selects a certificate and does not authenticate it; security relies on the signature verification in {{sec-signature}}.  A relying party MUST match a response to its request using hash values it has computed itself from the certificates it holds.  A receiver that finds several certificates matching a `HashId8` MUST NOT assume that a particular one is intended.  An OCSP responder for which an `issuerCertHash` matches more than one of its issuers MUST NOT return the status `good` for that entry.
 
-Since serial numbers are chosen by the CA, an attacker cannot mount a collision attack on `serialNumberHash`; making the status of one certificate appear as that of another requires a second preimage of about 2^160 operations.  The serial number MUST be normalized as specified in {{cert-identification}} before hashing; otherwise, a revoked certificate is not found.
+The serial number MUST be normalized as specified in {{cert-serial-number}}; otherwise, a revoked certificate is not found.
 
 ## Privacy {#sec-privacy}
 
-`serialNumberHash` hides the queried certificate only from observers that do not know its serial number.  Serial numbers are not secret, and the hash is unsalted, so an observer with a set of candidate serial numbers can identify the queried certificate and link repeated queries; `issuerCertHash` reveals the issuer.  Where this matters, requests and responses SHOULD be protected, e.g., by DTLS or OSCORE, or OCSP stapling ({{ocsp-stapling}}) SHOULD be used.
+As in {{RFC6960}}, the serial number in a request or response is not protected: an observer can identify the queried certificate and link repeated queries, and `issuerCertHash` reveals the issuer.  Where this matters, requests and responses SHOULD be protected, e.g., by DTLS or OSCORE, or OCSP stapling ({{ocsp-stapling}}) SHOULD be used.
 
 ## Freshness and Replay {#sec-freshness}
 
@@ -3835,6 +3843,8 @@ Annotated hex
 * Constrained the value ranges of integer fields in the CDDL.
 
 * Replaced the "C509 Hash Algorithms" registry with the "COSE Algorithms" registry.
+
+* Replaced `serialNumberHash` (`HashId20`) in OCSP requests and responses with the plain serial number (`serialNumber`), and removed `HashId20`.
 
 * Specified the PEM representation of C509 CRL and C509 OCSP messages.
 
