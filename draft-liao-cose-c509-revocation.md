@@ -396,7 +396,7 @@ Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer
 
 - The `issuer` field identifies the issuer of the certificates covered by this `PerIssuerRevokedCerts` entry as a `NameVariant` ({{name-variant}}).  Its `type` is the type of the covered certificates, and its `name` is their `issuer` field.  For example, when the covered certificates are C509 certificates, `issuer` is `[4, issuer]`, where `issuer` is identical to the `issuer` field of the covered C509 certificates; when they are X.509 certificates, `issuer` is `[0, issuer]`, where `issuer` is a byte string containing the DER-encoded `issuer` field of the covered X.509 certificates.  If the issuer is identical to the CRL's `authoritySubject` field, it MUST be encoded as CBOR `null`.
 
-  The `type` of `issuer`, or of `authoritySubject` if `issuer` is `null`, also determines how the serial numbers in `revokedCerts` and `removedFromCRLCerts` are derived.  A raw public key ({{RFC7250}}), i.e., `type` = 2 (RawPublicKey), has no serial number.  Its serial number is defined as the leading 20 bytes of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded `SubjectPublicKeyInfo`.  If the first of these 20 bytes is 0x00, it is replaced by 0xFF.  The serial number of a raw public key is therefore always 20 bytes long and has no leading zero byte.
+  The `type` of `issuer`, or of `authoritySubject` if `issuer` is `null`, also determines how the serial numbers in `revokedCerts` and `removedFromCRLCerts` are derived.  A raw public key ({{RFC7250}}), i.e., `type` = 2 (RawPublicKey), has no serial number.  Its serial number is defined as the leading 20 bytes of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded `SubjectPublicKeyInfo`.  If the first of these 20 bytes is 0x00, it is replaced by 0x7F.  The serial number of a raw public key is therefore always 20 bytes long and has no leading zero byte.
 
 - The `revokedCertsControl` field defines the controls for interpreting `removedFromCRLCerts` and `revokedCerts`.  If either `removedFromCRLCerts` or `revokedCerts` is non-`null`, `revokedCertsControl` MUST NOT be `null`.  If both `removedFromCRLCerts` and `revokedCerts` are `null`, `revokedCertsControl` MUST be `null` to reduce CRL size.
 
@@ -531,6 +531,8 @@ HashId8   = bytes .size 8
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 
+For a raw public key ({{RFC7250}}), which has no certificate, the raw public key takes the place of the certificate: `issuerCertHash`, `requestorCertHash`, and `responderCertHash` are computed over the DER-encoded `SubjectPublicKeyInfo` of the raw public key.
+
 ## Certificate Serial Numbers {#cert-serial-number}
 
 The certificate whose status is requested or reported is identified by `issuerCertHash` together with its serial number, carried in the `serialNumber` field.
@@ -544,7 +546,9 @@ The `serialNumber` field contains the certificate serial number of the target ce
 
 For an X.509 certificate, the serial number is an ASN.1 INTEGER ({{RFC5280, Section 4.1.2.2}}).  Its DER encoding is two's complement and therefore contains a leading zero byte when the most-significant bit of the value is set.  This leading zero byte is not part of `serialNumber`: the value is the contents octets of the DER-encoded INTEGER with a leading zero byte, if present, removed.  For example, the DER-encoded serial number `02 03 00 8F 01` gives `serialNumber` `h'8F01'`.
 
-Since a serial number is a positive integer of at most 20 bytes ({{RFC5280, Section 4.1.2.2}}), `serialNumber` is 1 to 20 bytes long.
+For a raw public key ({{RFC7250}}), which has no serial number, the serial number is derived as in C509 CRLs ({{revoked-certs-list}}): `serialNumber` is the leading 20 bytes of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded `SubjectPublicKeyInfo`.  If the first of these 20 bytes is 0x00, it is replaced by 0x7F.  SHA-256 is used regardless of the `hashAlgorithm` field of the enclosing structure.
+
+Since a serial number is a positive integer of at most 20 bytes ({{RFC5280, Section 4.1.2.2}}), and the serial number of a raw public key is 20 bytes long without a leading zero byte, `serialNumber` is 1 to 20 bytes long.
 
 As in the `CertID` of {{RFC6960}}, the serial number is carried in plain form and is not hashed.  Serial numbers are not secret, and an unsalted hash would not prevent an observer with a set of candidate serial numbers from identifying the queried certificate (see {{sec-privacy}}).  The plain serial number is at most 20 bytes long, lets an OCSP responder look up the certificate directly, and cannot collide.
 
@@ -625,7 +629,7 @@ The `ocspRequestType` field serves as the discriminator for `C509OCSPRequest`:
 
 The `issuerCertHash` field appears in `PerIssuerOCSPRequest`, `PerIssuerOCSPResponse`, `C509SimpleOCSPRequest`, and `TBSSimpleOCSPResponse`.  It contains a hash of the issuer certificate:
 
-- `issuerCertHash`: hash computed over the deterministically encoded certificate, i.e., the CBOR-encoded C509Certificate or the DER-encoded ({{X.690}}) X.509 certificate.  For a CBOR re-encoded X.509 certificate (`c509CertificateType` = 3, see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.1}}), the hash MUST be computed over the DER-encoded X.509 certificate, not over its C509 encoding, since such a certificate may have more than one conformant CBOR encoding (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.4}}).  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
+- `issuerCertHash`: hash computed over the deterministically encoded certificate, i.e., the CBOR-encoded C509Certificate or the DER-encoded ({{X.690}}) X.509 certificate.  If the issuer holds a raw public key ({{RFC7250}}) instead of a certificate, the hash is computed over the DER-encoded `SubjectPublicKeyInfo` of the raw public key (see {{cert-identification}}).  For a CBOR re-encoded X.509 certificate (`c509CertificateType` = 3, see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.1.1}}), the hash MUST be computed over the DER-encoded X.509 certificate, not over its C509 encoding, since such a certificate may have more than one conformant CBOR encoding (see {{I-D.ietf-cose-cbor-encoded-cert, Section 3.4}}).  The hash algorithm is specified by the `hashAlgorithm` field of the enclosing request or response structure.
 
 In X.509 OCSP ({{RFC6960, Section 4.1.1}}), the `CertID` structure identifies the issuer using two separate hashes: `issuerNameHash` (a hash of the DER-encoded issuer name) and `issuerKeyHash` (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (`issuerCertHash`), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 `issuerCertHash` with an RFC 6960 DER-encoded `CertID` must recompute the respective hash inputs; the values are not directly comparable.
 
@@ -658,7 +662,7 @@ Each `SingleCertRequest` contains:
 - The `requestorCertHash` field is a hash of the signer's certificate, computed using `hashAlgorithm`. When `requestorCerts` is not `null`, it carries the corresponding certificate chain so that the receiver can verify the identity of the requestor.
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 - The `requests` field is as defined for `C509UnsignedOCSPRequest` ({{C509UnsignedOCSPRequest}}).
-- The `requestorCerts` field contains a sorted certificate chain starting with the signer's certificate, or MUST be `null` if no certificates are transported.  When the signer holds a C509 certificate chain, the value is `COSE_C509`.  When the signer holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).
+- The `requestorCerts` field contains a sorted certificate chain starting with the signer's certificate, or MUST be `null` if no certificates are transported.  When the signer holds a C509 certificate chain, the value is `COSE_C509`.  When the signer holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).  When the signer holds a raw public key ({{RFC7250}}), the value MUST be `null`: a raw public key has no certificate chain, and the receiver needs to already trust the signer's raw public key.
 - The `signatureValue` field is the signature computed over the CBOR Sequence of the `TBSOCSPRequest` group.
 
 #### C509SimpleOCSPRequest {#C509SimpleOCSPRequest}
@@ -821,7 +825,7 @@ If present, this field MUST have the same value as the `nonce` in the correspond
 
 #### responderCerts {#responderCerts}
 
-When present, the `responderCerts` field carries the certificate chain starting with the responder certificate identified by `responderCertHash`.  When the responder holds a C509 certificate chain, the value is `COSE_C509`.  When the responder holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).  The field is part of `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` and is therefore covered by the signature, which prevents certificate-chain substitution attacks.
+When present, the `responderCerts` field carries the certificate chain starting with the responder certificate identified by `responderCertHash`.  When the responder holds a C509 certificate chain, the value is `COSE_C509`.  When the responder holds an X.509 certificate chain, the value is `#6.121(COSE_X509)`, wrapping a `COSE_X509` chain with CBOR tag 121 (alternative 0).  When the responder holds a raw public key ({{RFC7250}}), the value MUST be `null`: a raw public key has no certificate chain, and the receiver needs to already trust the responder's raw public key.  The field is part of `TBSBasicOCSPResponse` or `TBSSimpleOCSPResponse` and is therefore covered by the signature, which prevents certificate-chain substitution attacks.
 
 #### signatureAlgorithm and signatureValue
 
@@ -948,16 +952,17 @@ The CBOR-encoded C509 OCSP response is first Base64-encoded and then wrapped bet
 
 ## Certificate Type Interoperability {#cert-type-interop}
 
-C509 OCSP uses a single set of request and response structures that handles both C509 and X.509 certificates without modification.  All participants (requestor, responder, issuer) are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 `ResponderID` CHOICE (`byName` or `byKey`).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), and any future certificate types.
+C509 OCSP uses a single set of request and response structures that handles both C509 and X.509 certificates without modification.  All participants (requestor, responder, issuer) are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 `ResponderID` CHOICE (`byName` or `byKey`).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), raw public keys ({{RFC7250}}), and any future certificate types.
 
 The only per-type differences are in how identity hashes are computed and how certificate chains are carried:
 
-| Field | C509 certificate | X.509 certificate |
-|:------|:-----------------|:------------------|
-| `issuerCertHash`    | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate |
-| `requestorCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate |
-| `responderCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate |
-| `requestorCerts` / `responderCerts` | `COSE_C509` | `#6.121(COSE_X509)` |
+| Field | C509 certificate | X.509 certificate | Raw public key |
+|:------|:-----------------|:------------------|:---------------|
+| `issuerCertHash`    | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate | Hash of DER-encoded `SubjectPublicKeyInfo` |
+| `requestorCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate | Hash of DER-encoded `SubjectPublicKeyInfo` |
+| `responderCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate | Hash of DER-encoded `SubjectPublicKeyInfo` |
+| `serialNumber`      | `certificateSerialNumber` | Serial number without leading zero byte | Derived from SHA-256 of DER-encoded `SubjectPublicKeyInfo` |
+| `requestorCerts` / `responderCerts` | `COSE_C509` | `#6.121(COSE_X509)` | `null` |
 {: #tab-certtypeinterop title="Per-type differences in C509 OCSP identity fields"}
 
 In this table, "C509 certificate" refers to a natively signed C509 certificate (`c509CertificateType` = 2).  A CBOR re-encoded X.509 certificate (`c509CertificateType` = 3) is treated as an X.509 certificate: its identity hash MUST be computed over the DER-encoded X.509 certificate.
