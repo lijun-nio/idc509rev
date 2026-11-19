@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-17T05:35:55.560675+00:00",
+  "timestamp": "2026-11-19T04:54:48.614447+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -774,15 +774,15 @@
       "id": "I_kwDOTDu4zs8AAAABZbhokw",
       "title": "Hash algorithm",
       "url": "https://github.com/lijun-nio/idc509rev/issues/20",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "lijun-nio",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "In the current draft, we register our own hash algorithms.\n\nAnother direction is to use the algorithm codes defined in COSE algorithms (which is a collection of all algorithm types, including hash, signature, encrytion, KDF, ...).\n\nDiscussion and decision is needed.\n\n @marco-tiloca-sics @rikard-sics @highlunder  @comsats",
       "createdAt": "2026-10-23T16:26:31Z",
-      "updatedAt": "2026-11-14T20:38:05Z",
-      "closedAt": null,
+      "updatedAt": "2026-11-18T22:37:28Z",
+      "closedAt": "2026-11-18T22:37:28Z",
       "comments": [
         {
           "author": "rikard-sics",
@@ -867,6 +867,13 @@
           "body": "> 13\\. [@highlunder](https://github.com/highlunder) Please adapt your RUST code.\n\nOkay, so this issue can be closed, pending this point ",
           "createdAt": "2026-11-02T14:57:39Z",
           "updatedAt": "2026-11-02T14:57:39Z"
+        },
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Sorry for not noticing this before!\n\nThe Rust implementation (c509rev) uses the COSE Algorithms codes since 09f5f79: SHA-256 (-16), SHA-384 (-43) and SHA-512 (-44). Currently, the codes for SHAKE128 (-18) and SHAKE256 (-45) are defined but not implemented. Nothing beyond the COSE registry is used, in line with 8711353. The constants can be found in c509rev/src/hashalg.rs.\n\nSo this can be closed from the implementation side, I'm going ahead closing it.",
+          "createdAt": "2026-11-18T22:37:28Z",
+          "updatedAt": "2026-11-18T22:37:28Z"
         }
       ]
     },
@@ -898,7 +905,7 @@
       "labels": [],
       "body": "**In draft-ietf-cose-cbor-encoded-cert:**\n\n```\nName = [ * RDNAttribute ] / SpecialText\n\nSpecialText = text / bytes / tag\n```\n\n**In this draft**, the CRL structure has the following definitions:\n\n```\nauthoritySubject       : Name / #6.121(bytes),\n\nissuer                 : Name / #6.121(bytes) / null,\n```\n\nThis creates an ambiguity. `#6.121` (the tag for alternative 0) is meant to mark a DER-encoded X.509 name, but because `SpecialText` allows `tag`, the same encoding can also be parsed as a `Name`. I see two ways to solve this:\n\n**Option 1: Update draft-ietf-cose-cbor-encoded-cert.** Specify that a name consisting of a single commonName, which is currently encoded using the tag alternative, is instead encoded as `[ * RDNAttribute ]`.\n\n- Pros:\n  - Names in certificates and CRLs use the same encoding, so they can be matched byte for byte.\n- Cons:\n  - Requires a change to the C509 base specification.\n\n**Option 2: Define a new CDDL type in this draft**, e.g. `RDNAttributes`:\n\n```\nRDNAttributes = [ * RDNAttribute ]\n\nauthoritySubject       : RDNAttributes / #6.121(bytes),\n\nissuer                 : RDNAttributes / #6.121(bytes) / null,\n```\n\n- Pros:\n  - No change to the C509 base specification is needed.\n- Cons:\n  - If a certificate's Name consists of a single commonName attribute, it must be re-encoded before it can be compared with the CRL's name.\n\nWhich option would the you prefer?\n@marco-tiloca-sics @highlunder @comsats \n\n@rikard-sics : Maybe we could bring this up during the COSE WG presentation?",
       "createdAt": "2026-11-03T05:53:36Z",
-      "updatedAt": "2026-11-15T17:43:26Z",
+      "updatedAt": "2026-11-18T22:25:11Z",
       "closedAt": null,
       "comments": [
         {
@@ -942,6 +949,13 @@
           "body": "Thanks, I think that that direction would work! See below a completed and revised version, also renaming NameChoice to NameVariant.\n\n\n```\nName = [ * RDNAttribute ] / SpecialText\n; from draft-ietf-cose-cbor-encoded-cert\n\nSpecialText = text / bytes / tag\n; from draft-ietf-cose-cbor-encoded-cert\n\nNameVariant = [type: int, name: any]\n\nauthoritySubject       : NameVariant,\n\nissuer                 : NameVariant / null,\n```\n\nAs to type within NameVariant:\n* 0: the `name` element has type `Name`\n* 1: the `name` has type `bstr` (the DER-encoded X.509 name)\n\nYes, a new registry is needed for the values of the `type` element of the NameVariant array. I guess that the intent is only to map a value of `type`to a type of CBOR data item (e.g., `bstr`) and not necessarily with something as specific as a DER-encoded X.509 name.",
           "createdAt": "2026-11-15T17:43:26Z",
           "updatedAt": "2026-11-15T17:43:26Z"
+        },
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Did you get any feedback from the IETF meeting?\n\nIn any case: \n\n`NameVariant = [type: int, name: any]` works for me: it is unambiguous, it keeps the X.509 case, and the C509 name inside it is still byte-for-byte the name from the certificate.\n\nTwo remarks:\n\n1. Cost. It adds two bytes to every name (array header and type). That is small, but it applies to every CRL, so the size tables and all CRL examples change.\n\n2. About registry. I would be fine with reusing \"TLS Certificate Types\" (X.509 = 0, C509 = 4) as proposed in #29 instead of creating a registry. The name would then be encoded as names are encoded in certificates of that type. If so, we probably want to explicitly state that only 0 and 4 are used in this document, since not every registered type has a name encoding. The numbering is then 0 = DER-encoded X.509 Name, 4 = C509 Name, the reverse of the proposal above. The CDDL could spell out both cases, which would let a tool check the `name` element:\n\n   ```\n   NameVariant = [ type: 0, name: bytes ] / [ type: 4, name: Name ]\n   ```\n\nI will update the Rust implementation when this is decided.",
+          "createdAt": "2026-11-18T22:25:10Z",
+          "updatedAt": "2026-11-18T22:25:10Z"
         }
       ]
     },
@@ -957,7 +971,7 @@
       "labels": [],
       "body": "Currently we use `HashId20` (trunctat hash value) over the serial number. I discussed this with some PKI industry experts, and they wish us to use the raw serial number instead. The main reasons are\n- OCSP database needs to have columns to contain HashId20 of the serial numbers. This is difficult to implement. The hash algorithms may vary from OCSP request to request (it is specified in the field `hashAlgorithm`), so the database needs to be extended to have multiple HashId20 columns (each column for one supported hash algorithm). And new algorithms may be registered in the future, and once the database schema is created, it is quite difficult to change it by adding new columns.\n- Our proposal supports also X.509, that means the software needs to support old existing OCSP database, which do not contain such HashId20 columns.\n- The current codebase for X.509 OCSP uses serial number, there are lots of work to support HashId20.\n- The benefit of privacy of using hash value is limited. If one collects enough serial numbers, it can still find the serial number according to the hash value (via look-up).\n\nI needs your input. @rikard-sics  @highlunder @marco-tiloca-sics @comsats.\n\n@rikard-sics : should we also add this point to your presentation slides?\n",
       "createdAt": "2026-11-14T20:53:54Z",
-      "updatedAt": "2026-11-15T21:06:00Z",
+      "updatedAt": "2026-11-18T22:05:28Z",
       "closedAt": null,
       "comments": [
         {
@@ -980,6 +994,13 @@
           "body": "If we do not want to manage a new registry group, we can also use the IANA registry \"TLS Certificate Types\" under https://www.iana.org/assignments/tls-extensiontype-values .",
           "createdAt": "2026-11-15T21:06:00Z",
           "updatedAt": "2026-11-15T21:06:00Z"
+        },
+        {
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I support using the serial number itself.\n\nFrom the constrained-client side it is an improvement, not a cost:\n\n- The client does not have to hash the serial number.\n- The message does not grow. `serialNumberHash` is always 20 bytes; a serial number is at most 20 bytes and usually shorter.\n- The match becomes exact. The rule that a responder must not return `good` when a `serialNumberHash` matches more than one serial number is no longer needed.\n- It is consistent with the C509 CRL, which already carries serial numbers in the clear.\n\nI agree that the privacy argument is weak: the hash is unsalted, so anyone with a set of candidate serial numbers can identify the certificate. The Security Considerations already say that requests and responses should be protected (DTLS, OSCORE) or stapled where this matters, and that remains the answer.\n\nThings to update if we do this:\n\n- Encoding: the serial number as a byte string in big-endian order without a leading zero byte, as in C509 certificates, so that the value can be copied from the certificate.\n- The overview bullet that lists hashed serial numbers as a privacy feature, and the paragraphs on `serialNumberHash` in the Security Considerations.\n- OCSP examples.\n- I assume `HashId20` itself can go.\n\nI will adapt the Rust implementation (c509rev) once the CDDL is settled.",
+          "createdAt": "2026-11-18T22:05:27Z",
+          "updatedAt": "2026-11-18T22:05:27Z"
         }
       ]
     }
@@ -1581,6 +1602,32 @@
           ]
         }
       ]
+    },
+    {
+      "number": 30,
+      "id": "PR_kwDOTDu4zs8AAAABQQLFnA",
+      "title": "c509rev: follow the CDDL changes of 1b375b9",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/30",
+      "state": "OPEN",
+      "author": "highlunder",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Code updates to follow the CDDL changes of 1b375b9\n\n- `authorityKeyIdentifier` is a byte string and no longer `null`: `CrlInfo` holds it as bytes and the decoder rejects `null`.\n- `responseStatus` of `C509ErrorOCSPResponse` is limited to -128..127: it is held as `i8` and the decoder rejects values outside that range.\n\nTwo tests added. `cargo test --all-targets`: 44 passed, 0 warnings.\n\n[I will merge myself unless someone complains soon. And maybe we should agree to just keep the implementation in a separate branch, so I can push updates without touching main.]\n",
+      "createdAt": "2026-11-18T23:10:18Z",
+      "updatedAt": "2026-11-18T23:10:18Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "1b375b9d03dd5ac08ee741b7ae13d46b802730ed",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "c509rev/cddl-sync",
+      "headRefOid": "aa2727cf2f941af940d03e9f593db407cf945fb4",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
