@@ -232,10 +232,10 @@ A C509 CRL is not wire-format-compatible with a DER-encoded X.509 CRL.  The two 
 
 ## C509 CRL CDDL {#crl-cddl}
 
-The following CDDL defines the top-level `C509CRL` structure and the `TBSCertList` sequence:
+The following CDDL defines the top-level `C509CertificateList` structure and the `TBSCertList` sequence:
 
 ~~~~~~~~~~~ cddl
-C509CRL = [
+C509CertificateList = [
   TBSCertList,
   signatureValue : any,
 ]
@@ -277,7 +277,7 @@ RevokedCertsControl = [
 ]
 ~~~~~~~~~~~
 {: sourcecode-name="c509crl.cddl"}
-{: #fig-CRLcddl title="CDDL for C509CRL"}
+{: #fig-CRLcddl title="CDDL for C509CertificateList"}
 
 ## Field Encodings {#crl-fields}
 
@@ -287,11 +287,11 @@ RevokedCertsControl = [
 
 ### crlType
 
-The `crlType` field serves as the discriminator for `C509CRL`:
+The `crlType` field identifies the format of `C509CertificateList` and `C509CRLInfo`:
 
-| Value | Type |
-|:-----:|:-----|
-| 0 | `C509CRL` |
+| Value | Type | Description |
+|:-----:|:-----|:------------|
+| 0 | Basic | The format defined in this document |
 {: #tab-crl-types title="CRL types"}
 
 Future specifications may define additional types by assigning new integer values.
@@ -470,11 +470,11 @@ Encoded identically to `signatureValue` in C509 certificates (see {{I-D.ietf-cos
 
 ## PEM Representation
 
-The CBOR-encoded C509CRL is first Base64-encoded and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of {{RFC7468}}.
+The CBOR-encoded C509CertificateList is first Base64-encoded and then wrapped between "-----BEGIN C509 CRL-----" and "-----END C509 CRL-----", following the framework of {{RFC7468}}.
 
 ~~~
 -----BEGIN C509 CRL-----
-(base64-encoded CBOR C509CRL)
+(base64-encoded CBOR C509CertificateList)
 -----END C509 CRL-----
 ~~~
 {: #fig-pem-c509-crl title="C509 CRL PEM Encoding"}
@@ -1064,7 +1064,7 @@ IANA is requested to create a new registry titled "C509 CRL Types" under the reg
 +-------+-------------------------------+-------------------+
 | Value | Description                   | Reference         |
 +=======+===============================+===================+
-|     0 | C509CRL                       | [[this document]] |
+|     0 | Basic                         | [[this document]] |
 +-------+-------------------------------+-------------------+
 ~~~~~~~~~~~
 {: #fig-crltypes title="C509 CRL Types"}
@@ -1176,7 +1176,7 @@ IANA is requested to assign the following entries in the "application" registry 
 
 ### Media Type application/c509-crl+cbor
 
-When the application/c509-crl+cbor media type is used, the data is a C509CRL structure.  A stored file format is defined with "magic number" TBD11 using the reserved CBOR tag 55799 and the Content-Format TBD7, enveloped as described in {{RFC9277, Section 2.2}}.
+When the application/c509-crl+cbor media type is used, the data is a C509CertificateList structure.  A stored file format is defined with "magic number" TBD11 using the reserved CBOR tag 55799 and the Content-Format TBD7, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-crl+cbor
 
