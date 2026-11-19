@@ -3455,7 +3455,8 @@ TNQuery = text .size (1..15)
           </tbody>
         </table>
 </div>
-<p id="section-7.10-3">When <code>CertificateStatusType</code> is <code>c509_ocsp</code>, the <code>status</code> field contains a CBOR-encoded <code>C509OCSPResponse</code> instead of a DER-encoded <code>OCSPResponse</code>.<a href="#section-7.10-3" class="pilcrow">¶</a></p>
+<p id="section-7.10-3">When <code>CertificateStatusType</code> is <code>c509_ocsp</code>, the <code>status</code> field contains a CBOR-encoded <code>C509SimpleOCSPResponse</code> (<a href="#C509SimpleOCSPResponse" class="auto internal xref">Section 7.8.2.3</a>) instead of a DER-encoded <code>OCSPResponse</code>.  Other C509 OCSP response types <span class="bcp14">MUST NOT</span> be used.  A client that receives a different response type <span class="bcp14">MUST</span> treat the stapled response as absent.<a href="#section-7.10-3" class="pilcrow">¶</a></p>
+<p id="section-7.10-4">The <code>issuerCertHash</code> and <code>serialNumber</code> of the stapled response <span class="bcp14">MUST</span> match the certificate the response is stapled to.  Since a stapled response is not obtained in reply to a request from the TLS client, its <code>nonce</code> is not checked by the client; the server <span class="bcp14">SHOULD</span> obtain the response without a nonce.<a href="#section-7.10-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -3657,7 +3658,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
         </h3>
 <p id="section-9.6-1">Messages are parsed before their signature is verified, and unsigned requests are never authenticated.  Implementations <span class="bcp14">MUST</span> reject input that does not conform to the CDDL, <span class="bcp14">SHOULD</span> limit message sizes and the number of entries, and <span class="bcp14">MUST</span> reject input for which computing an absolute time from a base time and an offset overflows.<a href="#section-9.6-1" class="pilcrow">¶</a></p>
 <p id="section-9.6-2">Answering a request may require a signature, and responses are larger than requests, which exposes OCSP responders to resource exhaustion and to abuse for traffic amplification over UDP (<span>[<a href="#RFC7252" class="cite xref">RFC7252</a>], <a href="https://rfc-editor.org/rfc/rfc7252#section-11.3" class="relref">Section 11.3</a></span>).  OCSP responders <span class="bcp14">SHOULD</span> rate-limit requests and <span class="bcp14">MAY</span> require signed requests.<a href="#section-9.6-2" class="pilcrow">¶</a></p>
-<p id="section-9.6-3">A stapled <code>C509OCSPResponse</code> (<a href="#ocsp-stapling" class="auto internal xref">Section 7.10</a>) <span class="bcp14">MUST</span> be validated as if obtained directly from the OCSP responder.<a href="#section-9.6-3" class="pilcrow">¶</a></p>
+<p id="section-9.6-3">A stapled <code>C509SimpleOCSPResponse</code> (<a href="#ocsp-stapling" class="auto internal xref">Section 7.10</a>) <span class="bcp14">MUST</span> be validated as if obtained directly from the OCSP responder.<a href="#section-9.6-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

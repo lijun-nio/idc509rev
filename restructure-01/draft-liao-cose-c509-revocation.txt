@@ -1989,7 +1989,16 @@ Table of Contents
                                     OCSP
 
    When CertificateStatusType is c509_ocsp, the status field contains a
-   CBOR-encoded C509OCSPResponse instead of a DER-encoded OCSPResponse.
+   CBOR-encoded C509SimpleOCSPResponse (Section 7.8.2.3) instead of a
+   DER-encoded OCSPResponse.  Other C509 OCSP response types MUST NOT be
+   used.  A client that receives a different response type MUST treat
+   the stapled response as absent.
+
+   The issuerCertHash and serialNumber of the stapled response MUST
+   match the certificate the response is stapled to.  Since a stapled
+   response is not obtained in reply to a request from the TLS client,
+   its nonce is not checked by the client; the server SHOULD obtain the
+   response without a nonce.
 
 8.  Implementation Status
 
@@ -2204,8 +2213,8 @@ Table of Contents
    Section 11.3).  OCSP responders SHOULD rate-limit requests and MAY
    require signed requests.
 
-   A stapled C509OCSPResponse (Section 7.10) MUST be validated as if
-   obtained directly from the OCSP responder.
+   A stapled C509SimpleOCSPResponse (Section 7.10) MUST be validated as
+   if obtained directly from the OCSP responder.
 
 10.  IANA Considerations
 
