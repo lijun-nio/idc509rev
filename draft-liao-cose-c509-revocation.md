@@ -514,6 +514,16 @@ C509 OCSP requests and responses are not wire-format-compatible with DER-encoded
 
 `C509OCSPRequest` and `C509OCSPResponse` are designed to be extensible.  The first field of every message is `ocspRequestType` or `ocspResponseType`, an integer that identifies the structure type. Future specifications may define additional types by assigning new integer values, enabling new request or response structures to be introduced without modifying the existing types.
 
+## Conformance Requirements {#ocsp-conformance}
+
+To ensure interoperability, implementations of C509 OCSP MUST support the following message types:
+
+- An OCSP client MUST support `C509SimpleOCSPRequest` ({{C509SimpleOCSPRequest}}) and `C509SimpleOCSPResponse` ({{C509SimpleOCSPResponse}}).  Support for `C509BasicOCSPRequest` and `C509BasicOCSPResponse` is OPTIONAL.
+
+- An OCSP responder MUST support `C509SimpleOCSPRequest`, `C509SimpleOCSPResponse`, `C509BasicOCSPRequest`, and `C509BasicOCSPResponse`.
+
+- Both OCSP clients and OCSP responders MUST support `C509ErrorOCSPResponse`.
+
 ## Hash Algorithms {#hash-algs}
 
 The `hashAlgorithm` field of C509 OCSP requests and responses identifies the hash algorithm used to compute the certificate hashes (`issuerCertHash`, `requestorCertHash`, and `responderCertHash`) within the enclosing structure.  It does not apply to the virtual serial number of a raw public key, which is always computed using SHA-256 (see {{cert-serial-number}}).  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry {{IANA.cose}}, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 {{RFC9054}}.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.
