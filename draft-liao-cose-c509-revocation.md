@@ -54,6 +54,7 @@ normative:
   RFC6066:
   RFC6960:
   RFC7120:
+  RFC7250:
   RFC7468:
   RFC8126:
   RFC8226:
@@ -318,6 +319,7 @@ A `NameVariant` carries the name of a CA, together with the type of the certific
 This document defines the encoding of `name` for the following certificate types:
 
 - `type` = 0 (X509): `name` is a byte string containing the DER-encoded ({{X.690}}) X.500 `Name` ({{RFC5280, Section 4.1.2.4}}).
+- `type` = 2 (RawPublicKey): `name` is a byte string that identifies the authority responsible for the raw public keys ({{RFC7250}}).  Its value is assigned by the deployment, e.g., a fixed value in a closed environment, and is compared byte for byte.
 - `type` = 4 (C509): `name` is a `Name` as defined in {{I-D.ietf-cose-cbor-encoded-cert}}.
 
 For any other certificate type that defines names, the name is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, `name` is the CBOR data item that represents the name in the certificate; otherwise, `name` is a byte string containing the name in the original encoding of the certificate type.
@@ -393,6 +395,8 @@ The `revokedCertsList` field is either a CBOR array of one or more `PerIssuerRev
 Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer using the following fields:
 
 - The `issuer` field identifies the issuer of the certificates covered by this `PerIssuerRevokedCerts` entry as a `NameVariant` ({{name-variant}}).  Its `type` is the type of the covered certificates, and its `name` is their `issuer` field.  For example, when the covered certificates are C509 certificates, `issuer` is `[4, issuer]`, where `issuer` is identical to the `issuer` field of the covered C509 certificates; when they are X.509 certificates, `issuer` is `[0, issuer]`, where `issuer` is a byte string containing the DER-encoded `issuer` field of the covered X.509 certificates.  If the issuer is identical to the CRL's `authoritySubject` field, it MUST be encoded as CBOR `null`.
+
+  The `type` of `issuer`, or of `authoritySubject` if `issuer` is `null`, also determines how the serial numbers in `revokedCerts` and `removedFromCRLCerts` are derived.  A raw public key ({{RFC7250}}), i.e., `type` = 2 (RawPublicKey), has no serial number.  Its serial number is defined as the leading 20 bytes of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded `SubjectPublicKeyInfo`.  If the first of these 20 bytes is 0x00, it is replaced by 0xFF.  The serial number of a raw public key is therefore always 20 bytes long and has no leading zero byte.
 
 - The `revokedCertsControl` field defines the controls for interpreting `removedFromCRLCerts` and `revokedCerts`.  If either `removedFromCRLCerts` or `revokedCerts` is non-`null`, `revokedCertsControl` MUST NOT be `null`.  If both `removedFromCRLCerts` and `revokedCerts` are `null`, `revokedCertsControl` MUST be `null` to reduce CRL size.
 
