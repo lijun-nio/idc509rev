@@ -995,7 +995,9 @@ In standard TLS certificate status stapling (see the `status_request` extension,
 | TBD1  | c509_ocsp         | This document |
 {: #tab-tlsstaple title="TLS CertificateStatusType for C509 OCSP"}
 
-When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509OCSPResponse` instead of a DER-encoded `OCSPResponse`.
+When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509SimpleOCSPResponse` ({{C509SimpleOCSPResponse}}) instead of a DER-encoded `OCSPResponse`.  Other C509 OCSP response types MUST NOT be used.  A client that receives a different response type MUST treat the stapled response as absent.
+
+The `issuerCertHash` and `serialNumber` of the stapled response MUST match the certificate the response is stapled to.  Since a stapled response is not obtained in reply to a request from the TLS client, its `nonce` is not checked by the client; the server SHOULD obtain the response without a nonce.
 
 # Implementation Status # {#sec-implementation-status}
 {:removeinrfc}
@@ -1095,7 +1097,7 @@ Messages are parsed before their signature is verified, and unsigned requests ar
 
 Answering a request may require a signature, and responses are larger than requests, which exposes OCSP responders to resource exhaustion and to abuse for traffic amplification over UDP ({{RFC7252, Section 11.3}}).  OCSP responders SHOULD rate-limit requests and MAY require signed requests.
 
-A stapled `C509OCSPResponse` ({{ocsp-stapling}}) MUST be validated as if obtained directly from the OCSP responder.
+A stapled `C509SimpleOCSPResponse` ({{ocsp-stapling}}) MUST be validated as if obtained directly from the OCSP responder.
 
 # IANA Considerations {#iana}
 
