@@ -1426,16 +1426,16 @@ TODO
 | {{exam-crl-revoked}} | CRL Example With Revoked Certificates | 421 | 263 | 38% |
 | {{exam-delta-crl-revoked}} | Delta CRL Example With Revoked Certificates | 421 | 248 | 41% |
 | {{exam-indirect-crl-revoked}} | Indirect CRL Example With Revoked Certificates | 493 | 294 | 40% |
-| {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 146 | 59 | 60% |
-| {{exam-unsigned-ocsp-req}} | Unsigned Basic OCSP Request Example | 459 | 141 | 69% |
-| {{exam-signed-ocsp-req}} | Signed Basic OCSP Request Example Without Requestor's Certificate | 568 | 229 | 60% |
-| {{exam-signed-ocsp-req-withcert}} | Signed Basic OCSP Request Example With Requestor's Certificate | 1019 | 442 | 57% |
-| {{exam-signed-ocsp-req-withcertchain}} | Signed Basic OCSP Request Example With Requestor's Certificate Chain | 1355 | 647 | 52% |
+| {{exam-simple-ocsp-req}} | Simple OCSP Request Example | 146 | 55 | 62% |
+| {{exam-unsigned-ocsp-req}} | Unsigned Basic OCSP Request Example | 459 | 133 | 71% |
+| {{exam-signed-ocsp-req}} | Signed Basic OCSP Request Example Without Requestor's Certificate | 568 | 217 | 62% |
+| {{exam-signed-ocsp-req-withcert}} | Signed Basic OCSP Request Example With Requestor's Certificate | 1019 | 430 | 58% |
+| {{exam-signed-ocsp-req-withcertchain}} | Signed Basic OCSP Request Example With Requestor's Certificate Chain | 1355 | 635 | 53% |
 | {{exam-error-ocsp-resp}} | Error OCSP Response Example | 5 | 3 | 40% |
-| {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 332 | 160 | 52% |
-| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 821 | 268 | 67% |
-| {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 1165 | 468 | 60% |
-| {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 1501 | 673 | 55% |
+| {{exam-simple-ocsp-resp}} | Simple OCSP Response Example | 332 | 152 | 54% |
+| {{exam-basic-ocsp-resp}} | Basic OCSP Response Example Without Responder's Certificate | 821 | 256 | 69% |
+| {{exam-basic-ocsp-resp-withcert}} | Basic OCSP Response Example With Responder's Certificate | 1165 | 456 | 61% |
+| {{exam-basic-ocsp-resp-withcertchain}} | Basic OCSP Response Example With Responder's Certificate Chain | 1501 | 661 | 56% |
 {: #tab-examples-overview title="Size comparison in examples"}
 
 ## Helper Keys and Certificates
