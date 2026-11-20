@@ -1024,7 +1024,7 @@ Note to RFC Editor: Please remove this section before publication.  When deletin
   - PEM textual representation of C509 CRLs and C509 OCSP messages, as specified in this document.
   - Names are supported only in the single common-name text form.
 
-- Version compatibility: draft-liao-cose-c509-revocation-00
+- Version compatibility: draft-liao-cose-c509-revocation-02
 
 - Interoperability: The encoder output matches the examples in this document byte for byte (for signed objects, the to-be-signed part), and all examples successfully round-trip through decoding and re-encoding.  No interoperability testing with independent implementations has been performed yet.
 
@@ -1044,7 +1044,7 @@ Note to RFC Editor: Please remove this section before publication.  When deletin
 
 - Coverage: All structures and features specified in this document.
 
-- Version compatibility: draft-liao-cose-c509-revocation-00
+- Version compatibility: draft-liao-cose-c509-revocation-02
 
 - Interoperability: This implementation was used to produce the examples in the appendices of this document.
 
