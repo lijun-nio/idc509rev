@@ -176,7 +176,7 @@ This section considers both widely deployed certificate-status mechanisms and cl
 
 - **Compact CBOR revocation for IoT (TinyOCSP and CCRL)** {{TinyOCSP}} are prior research mechanisms that reduce OCSP and CRL overhead for low-power IoT, confirming the feasibility and benefits of CBOR-based revocation on constrained hardware.  They are a precursor to this work.  However, they were specified as point solutions rather than as interoperable, certificate-type-agnostic wire formats aligned with the C509 certificate encoding {{I-D.ietf-cose-cbor-encoded-cert}}; this document generalizes those mechanisms into complete C509 CRL and C509 OCSP structures usable with C509, X.509, and future certificate types.
 
-The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 18% to 52% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 335 to 177 bytes, a 47% reduction), and C509 OCSP messages are 40% to 73% smaller (for example, a Simple OCSP request from 150 to 51 bytes, and a Basic OCSP response without the responder's certificate from 837 to 248 bytes); see {{tab-examples-overview}}.
+The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 17% to 41% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 421 to 263 bytes, a 38% reduction), and C509 OCSP messages are 40% to 69% smaller (for example, a Simple OCSP request from 146 to 59 bytes, and a Basic OCSP response without the responder's certificate from 821 to 268 bytes); see {{tab-examples-overview}}.
 
 These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.
 
@@ -3963,6 +3963,26 @@ Annotated hex
 # Document Updates # {#sec-document-updates}
 {:removeinrfc}
 
+## Version -01 to -02 ## {#sec-01-02}
+
+* Replaced `serialNumberHash` in OCSP requests and responses with the plain serial number (`serialNumber`).
+
+* Replaced `HashId8` with `HashId20` for the certificate hashes `issuerCertHash`, `requestorCertHash`, and `responderCertHash`, and discussed the collision probability in the Security Considerations.
+
+* Merged `C509UnsignedOCSPRequest` and `C509SignedOCSPRequest` into `C509BasicOCSPRequest` (type 1).
+
+* Renamed `C509CRL` to `C509CertificateList`, aligned with `CertificateList` in {{RFC5280}}, and named CRL type 0 "Basic".
+
+* Introduced `NameVariant` for the CRL fields `authoritySubject` and `issuer`, replacing `Name / #6.121(bytes)`.  The name type is taken from the "TLS Certificate Types" registry.
+
+* Introduced `CertChainVariant` for the OCSP fields `requestorCerts` and `responderCerts`, replacing `COSE_C509 / #6.121(COSE_X509)`.
+
+* Added support for raw public keys ({{RFC7250}}) in C509 CRL and C509 OCSP, including a virtual serial number derived from the raw public key.
+
+* Added the section "Conformance Requirements" for C509 OCSP clients and responders.
+
+* Restricted TLS OCSP stapling to `C509SimpleOCSPResponse`.
+
 ## Version -00 to -01 ## {#sec-00-01}
 
 * Added the section "Alternative Certificate Status Checking Mechanisms".
@@ -3971,13 +3991,9 @@ Annotated hex
 
 * Replaced the "C509 Hash Algorithms" registry with the "COSE Algorithms" registry.
 
-* Replaced `serialNumberHash` (`HashId20`) in OCSP requests and responses with the plain serial number (`serialNumber`), and removed `HashId20`.
-
 * Specified the PEM representation of C509 CRL and C509 OCSP messages.
 
 * Added the registries for C509 CRL types and C509 OCSP request and response types.
-
-* Merged `C509UnsignedOCSPRequest` and `C509SignedOCSPRequest` into `C509BasicOCSPRequest` (type 1).
 
 * Added the section "Implementation Status".
 
