@@ -5440,7 +5440,7 @@ C509CRL
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.4.1-1.1">
-              <p id="appendix-A.4.1-1.1.1">Size reduction: 60%<a href="#appendix-A.4.1-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.4.1-1.1.1">Size reduction: 62%<a href="#appendix-A.4.1-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.4.1-1.2">
               <p id="appendix-A.4.1-1.2.1">Simple OCSP Request (<code>C509SimpleOCSPRequest</code>)<a href="#appendix-A.4.1-1.2.1" class="pilcrow">¶</a></p>
@@ -5472,11 +5472,11 @@ ERE=
             <h5 id="name-c509-ocsp-request-2">
 <a href="#appendix-A.4.1.2" class="section-number selfRef">A.4.1.2. </a><a href="#name-c509-ocsp-request-2" class="section-name selfRef">C509 OCSP Request</a>
             </h5>
-<p id="appendix-A.4.1.2-1">Plain Hex (59 bytes):<a href="#appendix-A.4.1.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.4.1.2-1">Plain Hex (55 bytes):<a href="#appendix-A.4.1.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.4.1.2-2">
 <pre>
-86022F50111111111111111111111111111111115493059DED8E22C4433B1A4D85EF
-AE22F7F9D7E43C501234123412341234123412341234123480
+86022F501111111111111111111111111111111150A01C73A5F3B063344257D02693
+059DED501234123412341234123412341234123480
 </pre><a href="#appendix-A.4.1.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.4.1.2-3">Textual Representation<a href="#appendix-A.4.1.2-3" class="pilcrow">¶</a></p>
@@ -5486,8 +5486,7 @@ C509SimpleOCSPRequest
   Type: C509SimpleOCSPRequest (2)
   Hash Algorithm: SHA256 (-16)
   IssuerCertHash:
-    93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-    f9:d7:e4:3c
+    a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
   SerialNumber:
     12:34:12:34:12:34:12:34:12:34:12:34:12:34:12:34
   Nonce
@@ -5504,11 +5503,11 @@ C509SimpleOCSPRequest
  2:   2F             # [1]. hashAlgorithm=SHA256 (-16)
  3:   50             # [2]. nonce=byte[16]
  4:     11111111111111111111111111111111
-20:   54             # [3]. issuerCertHash=byte[20]
-21:     93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
-41:   50             # [4]. serialNumber=byte[16]
-42:     12341234123412341234123412341234
-58:   80             # [5]. extensions=array[0]
+20:   50             # [3]. issuerCertHash=byte[16]
+21:     A01C73A5F3B063344257D02693059DED
+37:   50             # [4]. serialNumber=byte[16]
+38:     12341234123412341234123412341234
+54:   80             # [5]. extensions=array[0]
 </pre><a href="#appendix-A.4.1.2-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -5522,7 +5521,7 @@ C509SimpleOCSPRequest
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.4.2-1.1">
-              <p id="appendix-A.4.2-1.1.1">Size reduction: 69%<a href="#appendix-A.4.2-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.4.2-1.1.1">Size reduction: 71%<a href="#appendix-A.4.2-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.4.2-1.2">
               <p id="appendix-A.4.2-1.2.1">Unsigned Basic OCSP Request (<code>C509BasicOCSPRequest</code>)<a href="#appendix-A.4.2-1.2.1" class="pilcrow">¶</a></p>
@@ -5560,14 +5559,13 @@ KwYBBQUHMAECBBARERERERERERERERERERER
             <h5 id="name-c509-ocsp-request-3">
 <a href="#appendix-A.4.2.2" class="section-number selfRef">A.4.2.2. </a><a href="#name-c509-ocsp-request-3" class="section-name selfRef">C509 OCSP Request</a>
             </h5>
-<p id="appendix-A.4.2.2-1">Plain Hex (141 bytes):<a href="#appendix-A.4.2.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.4.2.2-1">Plain Hex (133 bytes):<a href="#appendix-A.4.2.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.4.2.2-2">
 <pre>
-8601F62F501111111111111111111111111111111180865493059DED8E22C4433B1A
-4D85EFAE22F7F9D7E43C808650123412341234123412341234123412348050345634
-56345634563456345634563456805056785678567856785678567856785678805422
-22222222222222222222222222222222222222808250223322332233223322332233
-2233223380
+8601F62F5011111111111111111111111111111111808650A01C73A5F3B063344257
+D02693059DED80865012341234123412341234123412341234805034563456345634
+56345634563456345680505678567856785678567856785678567880502222222222
+22222222222222222222228082502233223322332233223322332233223380
 </pre><a href="#appendix-A.4.2.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.4.2.2-3">Textual Representation<a href="#appendix-A.4.2.2-3" class="pilcrow">¶</a></p>
@@ -5583,8 +5581,7 @@ C509BasicOCSPRequest
   Requests
     OcspPerIssuerRequest
       issuerCertHash
-        93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-        f9:d7:e4:3c
+        a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
       extensions: &lt;empty&gt;
       singleRequests
         SingleCertRequest
@@ -5601,8 +5598,7 @@ C509BasicOCSPRequest
           Extensions: &lt;empty&gt;
     OcspPerIssuerRequest
       issuerCertHash
-        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-        22:22:22:22
+        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
       extensions: &lt;empty&gt;
       singleRequests
         SingleCertRequest
@@ -5623,31 +5619,31 @@ C509BasicOCSPRequest
  21:   80             # [3]. extensions=array[0]
  22:   86             # [4]. requests=array[6]
                         #---PerIssuerRequests[0]---
- 23:     54             # [0]. issuerCertHash=byte[20]
- 24:       93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
- 44:     80             # [1]. extensions=array[0]
- 45:     86             # [2]. singleRequests=array[6]
+ 23:     50             # [0]. issuerCertHash=byte[16]
+ 24:       A01C73A5F3B063344257D02693059DED
+ 40:     80             # [1]. extensions=array[0]
+ 41:     86             # [2]. singleRequests=array[6]
                           #---SingleCertRequests[0]---
- 46:       50             # [0]. serialNumber=byte[16]
- 47:         12341234123412341234123412341234
- 63:       80             # [1]. extensions=array[0]
+ 42:       50             # [0]. serialNumber=byte[16]
+ 43:         12341234123412341234123412341234
+ 59:       80             # [1]. extensions=array[0]
                           #---SingleCertRequests[1]---
- 64:       50             # [2]. serialNumber=byte[16]
- 65:         34563456345634563456345634563456
- 81:       80             # [3]. extensions=array[0]
+ 60:       50             # [2]. serialNumber=byte[16]
+ 61:         34563456345634563456345634563456
+ 77:       80             # [3]. extensions=array[0]
                           #---SingleCertRequests[2]---
- 82:       50             # [4]. serialNumber=byte[16]
- 83:         56785678567856785678567856785678
- 99:       80             # [5]. extensions=array[0]
+ 78:       50             # [4]. serialNumber=byte[16]
+ 79:         56785678567856785678567856785678
+ 95:       80             # [5]. extensions=array[0]
                         #---PerIssuerRequests[1]---
-100:     54             # [3]. issuerCertHash=byte[20]
-101:       2222222222222222222222222222222222222222
-121:     80             # [4]. extensions=array[0]
-122:     82             # [5]. singleRequests=array[2]
+ 96:     50             # [3]. issuerCertHash=byte[16]
+ 97:       22222222222222222222222222222222
+113:     80             # [4]. extensions=array[0]
+114:     82             # [5]. singleRequests=array[2]
                           #---SingleCertRequests[0]---
-123:       50             # [0]. serialNumber=byte[16]
-124:         22332233223322332233223322332233
-140:       80             # [1]. extensions=array[0]
+115:       50             # [0]. serialNumber=byte[16]
+116:         22332233223322332233223322332233
+132:       80             # [1]. extensions=array[0]
 </pre><a href="#appendix-A.4.2.2-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -5661,7 +5657,7 @@ C509BasicOCSPRequest
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.4.3-1.1">
-              <p id="appendix-A.4.3-1.1.1">Size reduction: 60%<a href="#appendix-A.4.3-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.4.3-1.1.1">Size reduction: 62%<a href="#appendix-A.4.3-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.4.3-1.2">
               <p id="appendix-A.4.3-1.2.1">Verifiable with certificate in <a href="#ocsp-requestor-cert" class="auto internal xref">Appendix A.2.3.2</a><a href="#appendix-A.4.3-1.2.1" class="pilcrow">¶</a></p>
@@ -5704,16 +5700,16 @@ gMQVfiWeUpRj0I2byLGVImNkkcT4/Ap7T/FRlyaLAiDD10NHdbuyBA==
             <h5 id="name-c509-ocsp-request-4">
 <a href="#appendix-A.4.3.2" class="section-number selfRef">A.4.3.2. </a><a href="#name-c509-ocsp-request-4" class="section-name selfRef">C509 OCSP Request</a>
             </h5>
-<p id="appendix-A.4.3.2-1">Plain Hex (229 bytes):<a href="#appendix-A.4.3.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.4.3.2-1">Plain Hex (217 bytes):<a href="#appendix-A.4.3.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.4.3.2-2">
 <pre>
-89010C2F501111111111111111111111111111111180865493059DED8E22C4433B1A
-4D85EFAE22F7F9D7E43C808650123412341234123412341234123412348050345634
-56345634563456345634563456805056785678567856785678567856785678805422
-22222222222222222222222222222222222222808250223322332233223322332233
-2233223380546FF9A8B06FA79DE8146946FE254B00C62A622A5DF65840C5187EE3EA
-0E0E5B17A7F05208FE21413402E395B80388DDC85DA834754FBFAF47AF4ED3944803
-63CC4C34ED7E36865817250E860255421DD6C52535DF1F8E04
+89010C2F5011111111111111111111111111111111808650A01C73A5F3B063344257
+D02693059DED80865012341234123412341234123412341234805034563456345634
+56345634563456345680505678567856785678567856785678567880502222222222
+222222222222222222222280825022332233223322332233223322332233805044F0
+528B56F35AD998049B306FF9A8B0F65840510D01C9BAEBCEFC4A95A184A976919214
+380629192B2254C690F8FB17C8A150056B8320871B5A8A4596CCA47BB27B6F243315
+CC1638BB99DDE8E2A28243B404
 </pre><a href="#appendix-A.4.3.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.4.3.2-3">Textual Representation<a href="#appendix-A.4.3.2-3" class="pilcrow">¶</a></p>
@@ -5729,8 +5725,7 @@ C509BasicOCSPRequest
   Requests
     OcspPerIssuerRequest
       issuerCertHash
-        93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-        f9:d7:e4:3c
+        a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
       extensions: &lt;empty&gt;
       singleRequests
         SingleCertRequest
@@ -5747,8 +5742,7 @@ C509BasicOCSPRequest
           Extensions: &lt;empty&gt;
     OcspPerIssuerRequest
       issuerCertHash
-        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-        22:22:22:22
+        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
       extensions: &lt;empty&gt;
       singleRequests
         SingleCertRequest
@@ -5756,14 +5750,13 @@ C509BasicOCSPRequest
             22:33:22:33:22:33:22:33:22:33:22:33:22:33:22:33
           Extensions: &lt;empty&gt;
   RequestorCertHash
-    6f:f9:a8:b0:6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:
-    2a:62:2a:5d
+    44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0
   Requestor Certs: null
   signatureValue
-    c5:18:7e:e3:ea:0e:0e:5b:17:a7:f0:52:08:fe:21:41:
-    34:02:e3:95:b8:03:88:dd:c8:5d:a8:34:75:4f:bf:af:
-    47:af:4e:d3:94:48:03:63:cc:4c:34:ed:7e:36:86:58:
-    17:25:0e:86:02:55:42:1d:d6:c5:25:35:df:1f:8e:04
+    51:0d:01:c9:ba:eb:ce:fc:4a:95:a1:84:a9:76:91:92:
+    14:38:06:29:19:2b:22:54:c6:90:f8:fb:17:c8:a1:50:
+    05:6b:83:20:87:1b:5a:8a:45:96:cc:a4:7b:b2:7b:6f:
+    24:33:15:cc:16:38:bb:99:dd:e8:e2:a2:82:43:b4:04
 </pre><a href="#appendix-A.4.3.2-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.4.3.2-5">Annotated hex<a href="#appendix-A.4.3.2-5" class="pilcrow">¶</a></p>
@@ -5778,38 +5771,38 @@ C509BasicOCSPRequest
  21:   80             # [4]. extensions=array[0]
  22:   86             # [5]. requests=array[6]
                         #---PerIssuerRequests[0]---
- 23:     54             # [0]. issuerCertHash=byte[20]
- 24:       93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
- 44:     80             # [1]. extensions=array[0]
- 45:     86             # [2]. singleRequests=array[6]
+ 23:     50             # [0]. issuerCertHash=byte[16]
+ 24:       A01C73A5F3B063344257D02693059DED
+ 40:     80             # [1]. extensions=array[0]
+ 41:     86             # [2]. singleRequests=array[6]
                           #---SingleCertRequests[0]---
- 46:       50             # [0]. serialNumber=byte[16]
- 47:         12341234123412341234123412341234
- 63:       80             # [1]. extensions=array[0]
+ 42:       50             # [0]. serialNumber=byte[16]
+ 43:         12341234123412341234123412341234
+ 59:       80             # [1]. extensions=array[0]
                           #---SingleCertRequests[1]---
- 64:       50             # [2]. serialNumber=byte[16]
- 65:         34563456345634563456345634563456
- 81:       80             # [3]. extensions=array[0]
+ 60:       50             # [2]. serialNumber=byte[16]
+ 61:         34563456345634563456345634563456
+ 77:       80             # [3]. extensions=array[0]
                           #---SingleCertRequests[2]---
- 82:       50             # [4]. serialNumber=byte[16]
- 83:         56785678567856785678567856785678
- 99:       80             # [5]. extensions=array[0]
+ 78:       50             # [4]. serialNumber=byte[16]
+ 79:         56785678567856785678567856785678
+ 95:       80             # [5]. extensions=array[0]
                         #---PerIssuerRequests[1]---
-100:     54             # [3]. issuerCertHash=byte[20]
-101:       2222222222222222222222222222222222222222
-121:     80             # [4]. extensions=array[0]
-122:     82             # [5]. singleRequests=array[2]
+ 96:     50             # [3]. issuerCertHash=byte[16]
+ 97:       22222222222222222222222222222222
+113:     80             # [4]. extensions=array[0]
+114:     82             # [5]. singleRequests=array[2]
                           #---SingleCertRequests[0]---
-123:       50             # [0]. serialNumber=byte[16]
-124:         22332233223322332233223322332233
-140:       80             # [1]. extensions=array[0]
-141:   54             # [6]. requestorCertHash=byte[20]
-142:     6FF9A8B06FA79DE8146946FE254B00C62A622A5D
-162:   F6             # [7]. requestorCerts=&lt;null&gt;
-163:   58 40          # [8]. signatureValue=byte[64]
-165:     C5187EE3EA0E0E5B17A7F05208FE21413402E395B80388DDC85DA83475
-194:     4FBFAF47AF4ED394480363CC4C34ED7E36865817250E860255421DD6C5
-223:     2535DF1F8E04
+115:       50             # [0]. serialNumber=byte[16]
+116:         22332233223322332233223322332233
+132:       80             # [1]. extensions=array[0]
+133:   50             # [6]. requestorCertHash=byte[16]
+134:     44F0528B56F35AD998049B306FF9A8B0
+150:   F6             # [7]. requestorCerts=&lt;null&gt;
+151:   58 40          # [8]. signatureValue=byte[64]
+153:     510D01C9BAEBCEFC4A95A184A976919214380629192B2254C690F8FB17
+182:     C8A150056B8320871B5A8A4596CCA47BB27B6F243315CC1638BB99DDE8
+211:     E2A28243B404
 </pre><a href="#appendix-A.4.3.2-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -5823,7 +5816,7 @@ C509BasicOCSPRequest
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.4.4-1.1">
-              <p id="appendix-A.4.4-1.1.1">Size reduction: 57%<a href="#appendix-A.4.4-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.4.4-1.1.1">Size reduction: 58%<a href="#appendix-A.4.4-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.4.4-1.2">
               <p id="appendix-A.4.4-1.2.1">Verifiable with certificate in <a href="#ocsp-requestor-cert" class="auto internal xref">Appendix A.2.3.2</a><a href="#appendix-A.4.4-1.2.1" class="pilcrow">¶</a></p>
@@ -5876,22 +5869,22 @@ GlmWOBLI0no1fQI=
             <h5 id="name-c509-ocsp-request-5">
 <a href="#appendix-A.4.4.2" class="section-number selfRef">A.4.4.2. </a><a href="#name-c509-ocsp-request-5" class="section-name selfRef">C509 OCSP Request</a>
             </h5>
-<p id="appendix-A.4.4.2-1">Plain Hex (442 bytes):<a href="#appendix-A.4.4.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.4.4.2-1">Plain Hex (430 bytes):<a href="#appendix-A.4.4.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.4.4.2-2">
 <pre>
 89010C2F50111111111111111111111111111111118418818200011882840CF60082
-011818865493059DED8E22C4433B1A4D85EFAE22F7F9D7E43C808650123412341234
-12341234123412341234805034563456345634563456345634563456805056785678
-56785678567856785678567880542222222222222222222222222222222222222222
-8082502233223322332233223322332233223380546FF9A8B06FA79DE8146946FE25
-4B00C62A622A5D820458C38B024212360C6F746573742063726C6F6373702D63611A
-6775D7001A69570A806E6F6373702D726571756573746F720C582004530B1764EDD4
-B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51BDB2A2C7
-91C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C39005D492
-450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A597178DF8
-64A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED544
-2D075840625D88014F1DBC49D56B49229DAAA653681FB10337181FC1888B7036D6EB
-78D0C8977D4905FDC5E2297DDBC4C846E10E7563DE8A5400ECCF98C53B869F1DA50C
+0118188650A01C73A5F3B063344257D02693059DED80865012341234123412341234
+12341234123480503456345634563456345634563456345680505678567856785678
+56785678567856788050222222222222222222222222222222228082502233223322
+3322332233223322332233805044F0528B56F35AD998049B306FF9A8B0820458C38B
+024212360C6F746573742063726C6F6373702D63611A6775D7001A69570A806E6F63
+73702D726571756573746F720C582004530B1764EDD4B4E33AB44AF0F838961C0071
+76D74B6A3546ECB7FD57320DD3860154DD51BDB2A2C791C062D4027856DBACF52607
+F0BE210107542F45E78D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C
+3EFD50DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F772F
+F04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D075840A35F16CECA647427
+345BFF6BE9502F903DB7B4F8E23A7DB288FA88E52F2426FF36D42C2B5298C7834E2D
+3364929518502F190C7EE10C37E9EA3F78C07856440F
 </pre><a href="#appendix-A.4.4.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.4.4.2-3">Textual Representation<a href="#appendix-A.4.4.2-3" class="pilcrow">¶</a></p>
@@ -5918,8 +5911,7 @@ C509BasicOCSPRequest
   Requests
     OcspPerIssuerRequest
       issuerCertHash
-        93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-        f9:d7:e4:3c
+        a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
       extensions: &lt;empty&gt;
       singleRequests
         SingleCertRequest
@@ -5936,8 +5928,7 @@ C509BasicOCSPRequest
           Extensions: &lt;empty&gt;
     OcspPerIssuerRequest
       issuerCertHash
-        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-        22:22:22:22
+        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
       extensions: &lt;empty&gt;
       singleRequests
         SingleCertRequest
@@ -5945,8 +5936,7 @@ C509BasicOCSPRequest
             22:33:22:33:22:33:22:33:22:33:22:33:22:33:22:33
           Extensions: &lt;empty&gt;
   RequestorCertHash
-    6f:f9:a8:b0:6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:
-    2a:62:2a:5d
+    44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0
   Requestor Certs
     Type: C509
     Chain
@@ -5965,10 +5955,10 @@ C509BasicOCSPRequest
         60:d5:b4:b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:
         44:2d:07
   signatureValue
-    62:5d:88:01:4f:1d:bc:49:d5:6b:49:22:9d:aa:a6:53:
-    68:1f:b1:03:37:18:1f:c1:88:8b:70:36:d6:eb:78:d0:
-    c8:97:7d:49:05:fd:c5:e2:29:7d:db:c4:c8:46:e1:0e:
-    75:63:de:8a:54:00:ec:cf:98:c5:3b:86:9f:1d:a5:0c
+    a3:5f:16:ce:ca:64:74:27:34:5b:ff:6b:e9:50:2f:90:
+    3d:b7:b4:f8:e2:3a:7d:b2:88:fa:88:e5:2f:24:26:ff:
+    36:d4:2c:2b:52:98:c7:83:4e:2d:33:64:92:95:18:50:
+    2f:19:0c:7e:e1:0c:37:e9:ea:3f:78:c0:78:56:44:0f
 </pre><a href="#appendix-A.4.4.2-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.4.4.2-5">Annotated hex<a href="#appendix-A.4.4.2-5" class="pilcrow">¶</a></p>
@@ -6002,47 +5992,47 @@ C509BasicOCSPRequest
                             #      on curve brainpoolp256r1 (24)
  37:   86             # [5]. requests=array[6]
                         #---PerIssuerRequests[0]---
- 38:     54             # [0]. issuerCertHash=byte[20]
- 39:       93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
- 59:     80             # [1]. extensions=array[0]
- 60:     86             # [2]. singleRequests=array[6]
+ 38:     50             # [0]. issuerCertHash=byte[16]
+ 39:       A01C73A5F3B063344257D02693059DED
+ 55:     80             # [1]. extensions=array[0]
+ 56:     86             # [2]. singleRequests=array[6]
                           #---SingleCertRequests[0]---
- 61:       50             # [0]. serialNumber=byte[16]
- 62:         12341234123412341234123412341234
- 78:       80             # [1]. extensions=array[0]
+ 57:       50             # [0]. serialNumber=byte[16]
+ 58:         12341234123412341234123412341234
+ 74:       80             # [1]. extensions=array[0]
                           #---SingleCertRequests[1]---
- 79:       50             # [2]. serialNumber=byte[16]
- 80:         34563456345634563456345634563456
- 96:       80             # [3]. extensions=array[0]
+ 75:       50             # [2]. serialNumber=byte[16]
+ 76:         34563456345634563456345634563456
+ 92:       80             # [3]. extensions=array[0]
                           #---SingleCertRequests[2]---
- 97:       50             # [4]. serialNumber=byte[16]
- 98:         56785678567856785678567856785678
-114:       80             # [5]. extensions=array[0]
+ 93:       50             # [4]. serialNumber=byte[16]
+ 94:         56785678567856785678567856785678
+110:       80             # [5]. extensions=array[0]
                         #---PerIssuerRequests[1]---
-115:     54             # [3]. issuerCertHash=byte[20]
-116:       2222222222222222222222222222222222222222
-136:     80             # [4]. extensions=array[0]
-137:     82             # [5]. singleRequests=array[2]
+111:     50             # [3]. issuerCertHash=byte[16]
+112:       22222222222222222222222222222222
+128:     80             # [4]. extensions=array[0]
+129:     82             # [5]. singleRequests=array[2]
                           #---SingleCertRequests[0]---
-138:       50             # [0]. serialNumber=byte[16]
-139:         22332233223322332233223322332233
-155:       80             # [1]. extensions=array[0]
-156:   54             # [6]. requestorCertHash=byte[20]
-157:     6FF9A8B06FA79DE8146946FE254B00C62A622A5D
-177:   82             # [7]. requestorCerts=array[2]
-178:     04             # Type=C509 (4)
-179:     58 C3          # Chain(COSE_C509)=byte[195]
-181:       8B024212360C6F746573742063726C6F6373702D63611A6775D7001A
-209:       69570A806E6F6373702D726571756573746F720C582004530B1764ED
-237:       D4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD38601
-265:       54DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E7
-293:       8D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50
-321:       DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC
-349:       9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
-376:   58 40          # [8]. signatureValue=byte[64]
-378:     625D88014F1DBC49D56B49229DAAA653681FB10337181FC1888B7036D6
-407:     EB78D0C8977D4905FDC5E2297DDBC4C846E10E7563DE8A5400ECCF98C5
-436:     3B869F1DA50C
+130:       50             # [0]. serialNumber=byte[16]
+131:         22332233223322332233223322332233
+147:       80             # [1]. extensions=array[0]
+148:   50             # [6]. requestorCertHash=byte[16]
+149:     44F0528B56F35AD998049B306FF9A8B0
+165:   82             # [7]. requestorCerts=array[2]
+166:     04             # Type=C509 (4)
+167:     58 C3          # Chain(COSE_C509)=byte[195]
+169:       8B024212360C6F746573742063726C6F6373702D63611A6775D7001A
+197:       69570A806E6F6373702D726571756573746F720C582004530B1764ED
+225:       D4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD38601
+253:       54DD51BDB2A2C791C062D4027856DBACF52607F0BE210107542F45E7
+281:       8D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF8C3EFD50
+309:       DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC
+337:       9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
+364:   58 40          # [8]. signatureValue=byte[64]
+366:     A35F16CECA647427345BFF6BE9502F903DB7B4F8E23A7DB288FA88E52F
+395:     2426FF36D42C2B5298C7834E2D3364929518502F190C7EE10C37E9EA3F
+424:     78C07856440F
 </pre><a href="#appendix-A.4.4.2-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -6056,7 +6046,7 @@ C509BasicOCSPRequest
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.4.5-1.1">
-              <p id="appendix-A.4.5-1.1.1">Size reduction: 52%<a href="#appendix-A.4.5-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.4.5-1.1.1">Size reduction: 53%<a href="#appendix-A.4.5-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.4.5-1.2">
               <p id="appendix-A.4.5-1.2.1">Verifiable with certificate in <a href="#ocsp-requestor-cert" class="auto internal xref">Appendix A.2.3.2</a><a href="#appendix-A.4.5-1.2.1" class="pilcrow">¶</a></p>
@@ -6116,29 +6106,28 @@ PDOIIRs2vFY9QQI=
             <h5 id="name-c509-ocsp-request-6">
 <a href="#appendix-A.4.5.2" class="section-number selfRef">A.4.5.2. </a><a href="#name-c509-ocsp-request-6" class="section-name selfRef">C509 OCSP Request</a>
             </h5>
-<p id="appendix-A.4.5.2-1">Plain Hex (647 bytes):<a href="#appendix-A.4.5.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.4.5.2-1">Plain Hex (635 bytes):<a href="#appendix-A.4.5.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.4.5.2-2">
 <pre>
 89010C2F50111111111111111111111111111111118418818200011882840CF60082
-011818865493059DED8E22C4433B1A4D85EFAE22F7F9D7E43C808650123412341234
-12341234123412341234805034563456345634563456345634563456805056785678
-56785678567856785678567880542222222222222222222222222222222222222222
-8082502233223322332233223322332233223380546FF9A8B06FA79DE8146946FE25
-4B00C62A622A5D82048258C38B024212360C6F746573742063726C6F6373702D6361
-1A6775D7001A69570A806E6F6373702D726571756573746F720C582004530B1764ED
-D4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320DD3860154DD51BDB2A2
-C791C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C39005D4
-92450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A597178D
-F864A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5
-442D0758CA8B0241010C73746573742063726C6F6373702D726F6F7463611A677485
-801A6B36EC7F6F746573742063726C6F6373702D63610C58205EF8A355A001A7C50D
-23494701208131A4BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF36
-8CDF53C39005D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA8A
-839F557F0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA
-7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191
-310B0F5840228EE63EB61E16FE5DA1C9A21843ECD5968F0BCB33D571D84EB90D8C95
-7EBC0C1FE0DE0D9967E48EE771A427FCF96779FF8B386E4AA4C126B6E2C02036BFCA
-02
+0118188650A01C73A5F3B063344257D02693059DED80865012341234123412341234
+12341234123480503456345634563456345634563456345680505678567856785678
+56785678567856788050222222222222222222222222222222228082502233223322
+3322332233223322332233805044F0528B56F35AD998049B306FF9A8B082048258C3
+8B024212360C6F746573742063726C6F6373702D63611A6775D7001A69570A806E6F
+6373702D726571756573746F720C582004530B1764EDD4B4E33AB44AF0F838961C00
+7176D74B6A3546ECB7FD57320DD3860154DD51BDB2A2C791C062D4027856DBACF526
+07F0BE210107542F45E78D2CAEDF368CDF53C39005D492450E10565840F8C6183ECF
+8C3EFD50DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC9F77
+2FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D0758CA8B0241010C7374
+6573742063726C6F6373702D726F6F7463611A677485801A6B36EC7F6F7465737420
+63726C6F6373702D63610C58205EF8A355A001A7C50D23494701208131A4BB2AB920
+D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF368CDF53C39005D492450E1056
+211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E50465D60C
+02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F05D259847A4F4250B
+2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F5840A533371BBBC0C4
+155D2DA33E948D1DCBB63070EB5F69AA6FCFD0720B050FE7650EACAE7D714237B03B
+1F795A789C28140E250EEA9D86D53C59AC998C03BAE305
 </pre><a href="#appendix-A.4.5.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.4.5.2-3">Textual Representation<a href="#appendix-A.4.5.2-3" class="pilcrow">¶</a></p>
@@ -6165,8 +6154,7 @@ C509BasicOCSPRequest
   Requests
     OcspPerIssuerRequest
       issuerCertHash
-        93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-        f9:d7:e4:3c
+        a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
       extensions: &lt;empty&gt;
       singleRequests
         SingleCertRequest
@@ -6183,8 +6171,7 @@ C509BasicOCSPRequest
           Extensions: &lt;empty&gt;
     OcspPerIssuerRequest
       issuerCertHash
-        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-        22:22:22:22
+        22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
       extensions: &lt;empty&gt;
       singleRequests
         SingleCertRequest
@@ -6192,8 +6179,7 @@ C509BasicOCSPRequest
             22:33:22:33:22:33:22:33:22:33:22:33:22:33:22:33
           Extensions: &lt;empty&gt;
   RequestorCertHash
-    6f:f9:a8:b0:6f:a7:9d:e8:14:69:46:fe:25:4b:00:c6:
-    2a:62:2a:5d
+    44:f0:52:8b:56:f3:5a:d9:98:04:9b:30:6f:f9:a8:b0
   Requestor Certs
     Type: C509
     Chain
@@ -6226,10 +6212,10 @@ C509BasicOCSPRequest
         0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
         18:0a:a0:a2:d0:e1:91:31:0b:0f
   signatureValue
-    22:8e:e6:3e:b6:1e:16:fe:5d:a1:c9:a2:18:43:ec:d5:
-    96:8f:0b:cb:33:d5:71:d8:4e:b9:0d:8c:95:7e:bc:0c:
-    1f:e0:de:0d:99:67:e4:8e:e7:71:a4:27:fc:f9:67:79:
-    ff:8b:38:6e:4a:a4:c1:26:b6:e2:c0:20:36:bf:ca:02
+    a5:33:37:1b:bb:c0:c4:15:5d:2d:a3:3e:94:8d:1d:cb:
+    b6:30:70:eb:5f:69:aa:6f:cf:d0:72:0b:05:0f:e7:65:
+    0e:ac:ae:7d:71:42:37:b0:3b:1f:79:5a:78:9c:28:14:
+    0e:25:0e:ea:9d:86:d5:3c:59:ac:99:8c:03:ba:e3:05
 </pre><a href="#appendix-A.4.5.2-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.4.5.2-5">Annotated hex<a href="#appendix-A.4.5.2-5" class="pilcrow">¶</a></p>
@@ -6263,58 +6249,58 @@ C509BasicOCSPRequest
                             #      on curve brainpoolp256r1 (24)
  37:   86             # [5]. requests=array[6]
                         #---PerIssuerRequests[0]---
- 38:     54             # [0]. issuerCertHash=byte[20]
- 39:       93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
- 59:     80             # [1]. extensions=array[0]
- 60:     86             # [2]. singleRequests=array[6]
+ 38:     50             # [0]. issuerCertHash=byte[16]
+ 39:       A01C73A5F3B063344257D02693059DED
+ 55:     80             # [1]. extensions=array[0]
+ 56:     86             # [2]. singleRequests=array[6]
                           #---SingleCertRequests[0]---
- 61:       50             # [0]. serialNumber=byte[16]
- 62:         12341234123412341234123412341234
- 78:       80             # [1]. extensions=array[0]
+ 57:       50             # [0]. serialNumber=byte[16]
+ 58:         12341234123412341234123412341234
+ 74:       80             # [1]. extensions=array[0]
                           #---SingleCertRequests[1]---
- 79:       50             # [2]. serialNumber=byte[16]
- 80:         34563456345634563456345634563456
- 96:       80             # [3]. extensions=array[0]
+ 75:       50             # [2]. serialNumber=byte[16]
+ 76:         34563456345634563456345634563456
+ 92:       80             # [3]. extensions=array[0]
                           #---SingleCertRequests[2]---
- 97:       50             # [4]. serialNumber=byte[16]
- 98:         56785678567856785678567856785678
-114:       80             # [5]. extensions=array[0]
+ 93:       50             # [4]. serialNumber=byte[16]
+ 94:         56785678567856785678567856785678
+110:       80             # [5]. extensions=array[0]
                         #---PerIssuerRequests[1]---
-115:     54             # [3]. issuerCertHash=byte[20]
-116:       2222222222222222222222222222222222222222
-136:     80             # [4]. extensions=array[0]
-137:     82             # [5]. singleRequests=array[2]
+111:     50             # [3]. issuerCertHash=byte[16]
+112:       22222222222222222222222222222222
+128:     80             # [4]. extensions=array[0]
+129:     82             # [5]. singleRequests=array[2]
                           #---SingleCertRequests[0]---
-138:       50             # [0]. serialNumber=byte[16]
-139:         22332233223322332233223322332233
-155:       80             # [1]. extensions=array[0]
-156:   54             # [6]. requestorCertHash=byte[20]
-157:     6FF9A8B06FA79DE8146946FE254B00C62A622A5D
-177:   82             # [7]. requestorCerts=array[2]
-178:     04             # Type=C509 (4)
-179:     82             # Chain(COSE_C509)=array[2]
-180:       58 C3          # [0]. C509CertData=byte[195]
-182:         8B024212360C6F746573742063726C6F6373702D63611A6775D700
-209:         1A69570A806E6F6373702D726571756573746F720C582004530B17
-236:         64EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320D
-263:         D3860154DD51BDB2A2C791C062D4027856DBACF52607F0BE210107
-290:         542F45E78D2CAEDF368CDF53C39005D492450E10565840F8C6183E
-317:         CF8C3EFD50DD4942D172814C46EC0FC01DD586A597178DF864A0D9
-344:         DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A
-371:         3F5ED5442D07
-377:       58 CA          # [1]. C509CertData=byte[202]
-379:         8B0241010C73746573742063726C6F6373702D726F6F7463611A67
-406:         7485801A6B36EC7F6F746573742063726C6F6373702D63610C5820
-433:         5EF8A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6
-460:         AB28FF74008801542F45E78D2CAEDF368CDF53C39005D492450E10
-487:         56211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F
-514:         0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3
-541:         F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1
-568:         DB2CCD180AA0A2D0E191310B0F
-581:   58 40          # [8]. signatureValue=byte[64]
-583:     228EE63EB61E16FE5DA1C9A21843ECD5968F0BCB33D571D84EB90D8C95
-612:     7EBC0C1FE0DE0D9967E48EE771A427FCF96779FF8B386E4AA4C126B6E2
-641:     C02036BFCA02
+130:       50             # [0]. serialNumber=byte[16]
+131:         22332233223322332233223322332233
+147:       80             # [1]. extensions=array[0]
+148:   50             # [6]. requestorCertHash=byte[16]
+149:     44F0528B56F35AD998049B306FF9A8B0
+165:   82             # [7]. requestorCerts=array[2]
+166:     04             # Type=C509 (4)
+167:     82             # Chain(COSE_C509)=array[2]
+168:       58 C3          # [0]. C509CertData=byte[195]
+170:         8B024212360C6F746573742063726C6F6373702D63611A6775D700
+197:         1A69570A806E6F6373702D726571756573746F720C582004530B17
+224:         64EDD4B4E33AB44AF0F838961C007176D74B6A3546ECB7FD57320D
+251:         D3860154DD51BDB2A2C791C062D4027856DBACF52607F0BE210107
+278:         542F45E78D2CAEDF368CDF53C39005D492450E10565840F8C6183E
+305:         CF8C3EFD50DD4942D172814C46EC0FC01DD586A597178DF864A0D9
+332:         DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A
+359:         3F5ED5442D07
+365:       58 CA          # [1]. C509CertData=byte[202]
+367:         8B0241010C73746573742063726C6F6373702D726F6F7463611A67
+394:         7485801A6B36EC7F6F746573742063726C6F6373702D63610C5820
+421:         5EF8A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6
+448:         AB28FF74008801542F45E78D2CAEDF368CDF53C39005D492450E10
+475:         56211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F
+502:         0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3
+529:         F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1
+556:         DB2CCD180AA0A2D0E191310B0F
+569:   58 40          # [8]. signatureValue=byte[64]
+571:     A533371BBBC0C4155D2DA33E948D1DCBB63070EB5F69AA6FCFD0720B05
+600:     0FE7650EACAE7D714237B03B1F795A789C28140E250EEA9D86D53C59AC
+629:     998C03BAE305
 </pre><a href="#appendix-A.4.5.2-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -6395,7 +6381,7 @@ C509ErrorResponse
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.5.2-1.1">
-              <p id="appendix-A.5.2-1.1.1">Size reduction: 52%<a href="#appendix-A.5.2-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.5.2-1.1.1">Size reduction: 54%<a href="#appendix-A.5.2-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.5.2-1.2">
               <p id="appendix-A.5.2-1.2.1">Verifiable with certificate in <a href="#ocsp-responder-cert" class="auto internal xref">Appendix A.2.4.2</a><a href="#appendix-A.5.2-1.2.1" class="pilcrow">¶</a></p>
@@ -6433,14 +6419,14 @@ BBARERERERERERERERERERERMAUGAytlcANBAFhdl3GGrAQ4qbLb6GlNS6RIDW7v
             <h5 id="name-c509-ocsp-response-3">
 <a href="#appendix-A.5.2.2" class="section-number selfRef">A.5.2.2. </a><a href="#name-c509-ocsp-response-3" class="section-name selfRef">C509 OCSP Response</a>
             </h5>
-<p id="appendix-A.5.2.2-1">Plain Hex (160 bytes):<a href="#appendix-A.5.2.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.5.2.2-1">Plain Hex (152 bytes):<a href="#appendix-A.5.2.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.5.2.2-2">
 <pre>
-8E020C2F5011111111111111111111111111111111540C631C86B09A6DE7BC43E02A
-7AA7006A3443A3B25493059DED8E22C4433B1A4D85EFAE22F7F9D7E43C5012341234
-123412341234123412341234001A67C4F10039707F19627080F658403AF01A734425
-1213F28F72C355B5F28A2B9337E9A3FDACC484DA39060E246A6D12DE9114983D26DF
-03E57509CD5390321C6A9789E3698691C467C3DA60CBBE02
+8E020C2F5011111111111111111111111111111111500600867838E3311AA78B9ED6
+0C631C8650A01C73A5F3B063344257D02693059DED50123412341234123412341234
+12341234001A67C4F10039707F19627080F658404D74460A8F59A1B2A27A558A0809
+7AA0B3A825702393061ABC20D627C7FB4BD391FE921CA16E9CA8F3BA53694ABAFC02
+0E702DC975A34FF97D8444909F4A770C
 </pre><a href="#appendix-A.5.2.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.5.2.2-3">Textual Representation<a href="#appendix-A.5.2.2-3" class="pilcrow">¶</a></p>
@@ -6454,11 +6440,9 @@ C509SimpleOCSPResponse
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
-      0c:63:1c:86:b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:
-      34:43:a3:b2
+      06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86
     IssuerCertHash
-      93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-      f9:d7:e4:3c
+      a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
     SerialNumber
       12:34:12:34:12:34:12:34:12:34:12:34:12:34:12:34
     Cert Status: good
@@ -6468,10 +6452,10 @@ C509SimpleOCSPResponse
     Extensions: &lt;empty&gt;
     Responder Certs: null
   Signature Value
-    3a:f0:1a:73:44:25:12:13:f2:8f:72:c3:55:b5:f2:8a:
-    2b:93:37:e9:a3:fd:ac:c4:84:da:39:06:0e:24:6a:6d:
-    12:de:91:14:98:3d:26:df:03:e5:75:09:cd:53:90:32:
-    1c:6a:97:89:e3:69:86:91:c4:67:c3:da:60:cb:be:02
+    4d:74:46:0a:8f:59:a1:b2:a2:7a:55:8a:08:09:7a:a0:
+    b3:a8:25:70:23:93:06:1a:bc:20:d6:27:c7:fb:4b:d3:
+    91:fe:92:1c:a1:6e:9c:a8:f3:ba:53:69:4a:ba:fc:02:
+    0e:70:2d:c9:75:a3:4f:f9:7d:84:44:90:9f:4a:77:0c
 </pre><a href="#appendix-A.5.2.2-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.5.2.2-5">Annotated hex<a href="#appendix-A.5.2.2-5" class="pilcrow">¶</a></p>
@@ -6484,23 +6468,23 @@ C509SimpleOCSPResponse
   3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   54             # [4]. responderCertHash=byte[20]
- 22:     0C631C86B09A6DE7BC43E02A7AA7006A3443A3B2
- 42:   54             # [5]. issuerCertHash=byte[20]
- 43:     93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
- 63:   50             # [6]. serialNumber=byte[16]
- 64:     12341234123412341234123412341234
- 80:   00             # [7]. certStatus=good (0)
- 81:   1A 67C4F100    # [8]. producedAt=1740960000:
+ 21:   50             # [4]. responderCertHash=byte[16]
+ 22:     0600867838E3311AA78B9ED60C631C86
+ 38:   50             # [5]. issuerCertHash=byte[16]
+ 39:     A01C73A5F3B063344257D02693059DED
+ 55:   50             # [6]. serialNumber=byte[16]
+ 56:     12341234123412341234123412341234
+ 72:   00             # [7]. certStatus=good (0)
+ 73:   1A 67C4F100    # [8]. producedAt=1740960000:
                       #      2025-03-03T00:00:00Z
- 86:   39 707F        # [9]. thisUpdate=-28800: 2025-03-02T16:00:00Z
- 89:   19 6270        # [10]. nextUpdate=25200: 2025-03-03T07:00:00Z
- 92:   80             # [11]. extensions=array[0]
- 93:   F6             # [12]. responderCerts=&lt;null&gt;
- 94:   58 40          # [13]. signatureValue=byte[64]
- 96:     3AF01A7344251213F28F72C355B5F28A2B9337E9A3FDACC484DA39060E
-125:     246A6D12DE9114983D26DF03E57509CD5390321C6A9789E3698691C467
-154:     C3DA60CBBE02
+ 78:   39 707F        # [9]. thisUpdate=-28800: 2025-03-02T16:00:00Z
+ 81:   19 6270        # [10]. nextUpdate=25200: 2025-03-03T07:00:00Z
+ 84:   80             # [11]. extensions=array[0]
+ 85:   F6             # [12]. responderCerts=&lt;null&gt;
+ 86:   58 40          # [13]. signatureValue=byte[64]
+ 88:     4D74460A8F59A1B2A27A558A08097AA0B3A825702393061ABC20D627C7
+117:     FB4BD391FE921CA16E9CA8F3BA53694ABAFC020E702DC975A34FF97D84
+146:     44909F4A770C
 </pre><a href="#appendix-A.5.2.2-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -6514,7 +6498,7 @@ C509SimpleOCSPResponse
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.5.3-1.1">
-              <p id="appendix-A.5.3-1.1.1">Size reduction: 67%<a href="#appendix-A.5.3-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.5.3-1.1.1">Size reduction: 69%<a href="#appendix-A.5.3-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.5.3-1.2">
               <p id="appendix-A.5.3-1.2.1">Verifiable with certificate in <a href="#ocsp-responder-cert" class="auto internal xref">Appendix A.2.4.2</a><a href="#appendix-A.5.3-1.2.1" class="pilcrow">¶</a></p>
@@ -6563,17 +6547,17 @@ Ua9w9mtRMnsfVGU/nEXLzAQv7UuAnZogejVCdy+JhYMxVb8LwLr67lDNqguqoxBC
             <h5 id="name-c509-ocsp-response-4">
 <a href="#appendix-A.5.3.2" class="section-number selfRef">A.5.3.2. </a><a href="#name-c509-ocsp-response-4" class="section-name selfRef">C509 OCSP Response</a>
             </h5>
-<p id="appendix-A.5.3.2-1">Plain Hex (268 bytes):<a href="#appendix-A.5.3.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.5.3.2-1">Plain Hex (256 bytes):<a href="#appendix-A.5.3.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.5.3.2-2">
 <pre>
-8A010C2F5011111111111111111111111111111111540C631C86B09A6DE7BC43E02A
-7AA7006A3443A3B21A67C4F10080865493059DED8E22C4433B1A4D85EFAE22F7F9D7
-E43C808F50123412341234123412341234123412340039707F196270805034563456
-3456345634563456345634560139707F196270805056785678567856785678567856
-785678821A67C32F000439707F196270805422222222222222222222222222222222
-22222222808550223322332233223322332233223322330239707F19627080F65840
-5A57FE832E955B343810DFDE8BB99F8533132D7D02B70EE58139BA4D2EB9C9756AC3
-B3AD38F136FB4C1B5B139CFD986FB7DF6571EDD2CDBE7095E2217F1DF904
+8A010C2F5011111111111111111111111111111111500600867838E3311AA78B9ED6
+0C631C861A67C4F100808650A01C73A5F3B063344257D02693059DED808F50123412
+341234123412341234123412340039707F1962708050345634563456345634563456
+345634560139707F196270805056785678567856785678567856785678821A67C32F
+000439707F1962708050222222222222222222222222222222228085502233223322
+33223322332233223322330239707F19627080F65840786BF27C05B6B315CEF0443E
+E6B495E776AE758377E90B27CE7984AEF2E4118E9075CE9D87E82A60FD902E3A4478
+525EC0A5E92C53B32097E58C46B88D1B3006
 </pre><a href="#appendix-A.5.3.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.5.3.2-3">Textual Representation<a href="#appendix-A.5.3.2-3" class="pilcrow">¶</a></p>
@@ -6587,15 +6571,13 @@ C509BasicOCSPResponse
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
-      0c:63:1c:86:b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:
-      34:43:a3:b2
+      06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86
     ProducedAt: 2025-03-03T00:00:00Z
     Extensions: &lt;empty&gt;
     Responses
       OcspPerIssuerResponse
         IssuerCertHash
-          93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-          f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
         Extensions: &lt;empty&gt;
         SingleResponses
           SingleCertResponse
@@ -6622,8 +6604,7 @@ C509BasicOCSPResponse
             Extensions: &lt;empty&gt;
       OcspPerIssuerResponse
         IssuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22
+          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
         Extensions: &lt;empty&gt;
         SingleResponses
           SingleCertResponse
@@ -6635,10 +6616,10 @@ C509BasicOCSPResponse
             Extensions: &lt;empty&gt;
     Responder Certs: null
   Signature Value
-    5a:57:fe:83:2e:95:5b:34:38:10:df:de:8b:b9:9f:85:
-    33:13:2d:7d:02:b7:0e:e5:81:39:ba:4d:2e:b9:c9:75:
-    6a:c3:b3:ad:38:f1:36:fb:4c:1b:5b:13:9c:fd:98:6f:
-    b7:df:65:71:ed:d2:cd:be:70:95:e2:21:7f:1d:f9:04
+    78:6b:f2:7c:05:b6:b3:15:ce:f0:44:3e:e6:b4:95:e7:
+    76:ae:75:83:77:e9:0b:27:ce:79:84:ae:f2:e4:11:8e:
+    90:75:ce:9d:87:e8:2a:60:fd:90:2e:3a:44:78:52:5e:
+    c0:a5:e9:2c:53:b3:20:97:e5:8c:46:b8:8d:1b:30:06
 </pre><a href="#appendix-A.5.3.2-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.5.3.2-5">Annotated hex<a href="#appendix-A.5.3.2-5" class="pilcrow">¶</a></p>
@@ -6651,66 +6632,66 @@ C509BasicOCSPResponse
   3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   54             # [4]. responderCertHash=byte[20]
- 22:     0C631C86B09A6DE7BC43E02A7AA7006A3443A3B2
- 42:   1A 67C4F100    # [5]. producedAt=1740960000:
+ 21:   50             # [4]. responderCertHash=byte[16]
+ 22:     0600867838E3311AA78B9ED60C631C86
+ 38:   1A 67C4F100    # [5]. producedAt=1740960000:
                       #      2025-03-03T00:00:00Z
- 47:   80             # [6]. extensions=array[0]
- 48:   86             # [7]. responses=array[6]
+ 43:   80             # [6]. extensions=array[0]
+ 44:   86             # [7]. responses=array[6]
                         #---PerIssuerResponses[0]---
- 49:     54             # [0]. issuerCertHash=byte[20]
- 50:       93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
- 70:     80             # [1]. extensions=array[0]
- 71:     8F             # [2]. singleResponses=array[15]
+ 45:     50             # [0]. issuerCertHash=byte[16]
+ 46:       A01C73A5F3B063344257D02693059DED
+ 62:     80             # [1]. extensions=array[0]
+ 63:     8F             # [2]. singleResponses=array[15]
                           #---SingleCertResponses[0]---
- 72:       50             # [0]. serialNumber=byte[16]
- 73:         12341234123412341234123412341234
- 89:       00             # [1]. certStatus=good (0)
- 90:       39 707F        # [2]. thisUpdate=-28800:
+ 64:       50             # [0]. serialNumber=byte[16]
+ 65:         12341234123412341234123412341234
+ 81:       00             # [1]. certStatus=good (0)
+ 82:       39 707F        # [2]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
- 93:       19 6270        # [3]. nextUpdate=25200:
+ 85:       19 6270        # [3]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
- 96:       80             # [4]. extensions=array[0]
+ 88:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
- 97:       50             # [5]. serialNumber=byte[16]
- 98:         34563456345634563456345634563456
-114:       01             # [6]. certStatus=not-issued (1)
-115:       39 707F        # [7]. thisUpdate=-28800:
+ 89:       50             # [5]. serialNumber=byte[16]
+ 90:         34563456345634563456345634563456
+106:       01             # [6]. certStatus=not-issued (1)
+107:       39 707F        # [7]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
-118:       19 6270        # [8]. nextUpdate=25200:
+110:       19 6270        # [8]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
-121:       80             # [9]. extensions=array[0]
+113:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
-122:       50             # [10]. serialNumber=byte[16]
-123:         56785678567856785678567856785678
-139:       82             # [11]. certStatus=array[2]
-140:         1A 67C32F00    # [0]. revocationTime=1740844800:
+114:       50             # [10]. serialNumber=byte[16]
+115:         56785678567856785678567856785678
+131:       82             # [11]. certStatus=array[2]
+132:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
-145:         04             # [1]. revocationReason=superseded (4)
-146:       39 707F        # [12]. thisUpdate=-28800:
+137:         04             # [1]. revocationReason=superseded (4)
+138:       39 707F        # [12]. thisUpdate=-28800:
                           #       2025-03-02T16:00:00Z
-149:       19 6270        # [13]. nextUpdate=25200:
+141:       19 6270        # [13]. nextUpdate=25200:
                           #       2025-03-03T07:00:00Z
-152:       80             # [14]. extensions=array[0]
+144:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
-153:     54             # [3]. issuerCertHash=byte[20]
-154:       2222222222222222222222222222222222222222
-174:     80             # [4]. extensions=array[0]
-175:     85             # [5]. singleResponses=array[5]
+145:     50             # [3]. issuerCertHash=byte[16]
+146:       22222222222222222222222222222222
+162:     80             # [4]. extensions=array[0]
+163:     85             # [5]. singleResponses=array[5]
                           #---SingleCertResponses[0]---
-176:       50             # [0]. serialNumber=byte[16]
-177:         22332233223322332233223322332233
-193:       02             # [1]. certStatus=unknown (2)
-194:       39 707F        # [2]. thisUpdate=-28800:
+164:       50             # [0]. serialNumber=byte[16]
+165:         22332233223322332233223322332233
+181:       02             # [1]. certStatus=unknown (2)
+182:       39 707F        # [2]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
-197:       19 6270        # [3]. nextUpdate=25200:
+185:       19 6270        # [3]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
-200:       80             # [4]. extensions=array[0]
-201:   F6             # [8]. responderCerts=&lt;null&gt;
-202:   58 40          # [9]. signature value=byte[64]
-204:     5A57FE832E955B343810DFDE8BB99F8533132D7D02B70EE58139BA4D2E
-233:     B9C9756AC3B3AD38F136FB4C1B5B139CFD986FB7DF6571EDD2CDBE7095
-262:     E2217F1DF904
+188:       80             # [4]. extensions=array[0]
+189:   F6             # [8]. responderCerts=&lt;null&gt;
+190:   58 40          # [9]. signature value=byte[64]
+192:     786BF27C05B6B315CEF0443EE6B495E776AE758377E90B27CE7984AEF2
+221:     E4118E9075CE9D87E82A60FD902E3A4478525EC0A5E92C53B32097E58C
+250:     46B88D1B3006
 </pre><a href="#appendix-A.5.3.2-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -6724,7 +6705,7 @@ C509BasicOCSPResponse
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.5.4-1.1">
-              <p id="appendix-A.5.4-1.1.1">Size reduction: 60%<a href="#appendix-A.5.4-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.5.4-1.1.1">Size reduction: 61%<a href="#appendix-A.5.4-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.5.4-1.2">
               <p id="appendix-A.5.4-1.2.1">Verifiable with certificate in <a href="#ocsp-responder-cert" class="auto internal xref">Appendix A.2.4.2</a><a href="#appendix-A.5.4-1.2.1" class="pilcrow">¶</a></p>
@@ -6780,23 +6761,23 @@ ToCGEf1F3T0sXCiHCA==
             <h5 id="name-c509-ocsp-response-5">
 <a href="#appendix-A.5.4.2" class="section-number selfRef">A.5.4.2. </a><a href="#name-c509-ocsp-response-5" class="section-name selfRef">C509 OCSP Response</a>
             </h5>
-<p id="appendix-A.5.4.2-1">Plain Hex (468 bytes):<a href="#appendix-A.5.4.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.5.4.2-1">Plain Hex (456 bytes):<a href="#appendix-A.5.4.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.5.4.2-2">
 <pre>
-8A010C2F5011111111111111111111111111111111540C631C86B09A6DE7BC43E02A
-7AA7006A3443A3B21A67C4F10080865493059DED8E22C4433B1A4D85EFAE22F7F9D7
-E43C808F50123412341234123412341234123412340039707F196270805034563456
-3456345634563456345634560139707F196270805056785678567856785678567856
-785678821A67C32F000439707F196270805422222222222222222222222222222222
-22222222808550223322332233223322332233223322330239707F19627080820458
-C58B024212350C6F746573742063726C6F6373702D63611A6775D7001A69570A806E
-6F6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D75BF92CB7
-77D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629DB579DC8
-CCA453A8210107542F45E78D2CAEDF368CDF53C39005D492450E105627095840A01B
-0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F37
-531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A58408669917C
-ABAC082248E97B5D9E1BDB3A1E09AF867DDE39215A05D19943FB62F7209FBAE1426D
-9E1D79A47AB26AE1BB65776A5C8536B44347FFE22E0C4A89C00A
+8A010C2F5011111111111111111111111111111111500600867838E3311AA78B9ED6
+0C631C861A67C4F100808650A01C73A5F3B063344257D02693059DED808F50123412
+341234123412341234123412340039707F1962708050345634563456345634563456
+345634560139707F196270805056785678567856785678567856785678821A67C32F
+000439707F1962708050222222222222222222222222222222228085502233223322
+33223322332233223322330239707F19627080820458C58B024212350C6F74657374
+2063726C6F6373702D63611A6775D7001A69570A806E6F6373702D726573706F6E64
+65720C582081947BBC248AAC79738211A8D75BF92CB777D994073DF23AE06380EF2C
+573976880154B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E78D
+2CAEDF368CDF53C39005D492450E105627095840A01B0CBF3E34A4762D05404FD08A
+7AEC103035358314686D72B6159078C76E1D88597F37531886A3F52F256FD722192B
+289D6844014467F1F17F05ACBB7B660A584062B7066C43464C370CD22D50D7F7573C
+FE8E3472DC95C345EA8596F66B796AEB07E7A6914F54D8DEC4984BF9782A166E6C82
+D9D8100BD30BE590D5B0A3BA3309
 </pre><a href="#appendix-A.5.4.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.5.4.2-3">Textual Representation<a href="#appendix-A.5.4.2-3" class="pilcrow">¶</a></p>
@@ -6810,15 +6791,13 @@ C509BasicOCSPResponse
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
-      0c:63:1c:86:b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:
-      34:43:a3:b2
+      06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86
     ProducedAt: 2025-03-03T00:00:00Z
     Extensions: &lt;empty&gt;
     Responses
       OcspPerIssuerResponse
         IssuerCertHash
-          93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-          f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
         Extensions: &lt;empty&gt;
         SingleResponses
           SingleCertResponse
@@ -6845,8 +6824,7 @@ C509BasicOCSPResponse
             Extensions: &lt;empty&gt;
       OcspPerIssuerResponse
         IssuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22
+          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
         Extensions: &lt;empty&gt;
         SingleResponses
           SingleCertResponse
@@ -6874,10 +6852,10 @@ C509BasicOCSPResponse
           6f:d7:22:19:2b:28:9d:68:44:01:44:67:f1:f1:7f:05:
           ac:bb:7b:66:0a
   Signature Value
-    86:69:91:7c:ab:ac:08:22:48:e9:7b:5d:9e:1b:db:3a:
-    1e:09:af:86:7d:de:39:21:5a:05:d1:99:43:fb:62:f7:
-    20:9f:ba:e1:42:6d:9e:1d:79:a4:7a:b2:6a:e1:bb:65:
-    77:6a:5c:85:36:b4:43:47:ff:e2:2e:0c:4a:89:c0:0a
+    62:b7:06:6c:43:46:4c:37:0c:d2:2d:50:d7:f7:57:3c:
+    fe:8e:34:72:dc:95:c3:45:ea:85:96:f6:6b:79:6a:eb:
+    07:e7:a6:91:4f:54:d8:de:c4:98:4b:f9:78:2a:16:6e:
+    6c:82:d9:d8:10:0b:d3:0b:e5:90:d5:b0:a3:ba:33:09
 </pre><a href="#appendix-A.5.4.2-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.5.4.2-5">Annotated hex<a href="#appendix-A.5.4.2-5" class="pilcrow">¶</a></p>
@@ -6890,76 +6868,76 @@ C509BasicOCSPResponse
   3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   54             # [4]. responderCertHash=byte[20]
- 22:     0C631C86B09A6DE7BC43E02A7AA7006A3443A3B2
- 42:   1A 67C4F100    # [5]. producedAt=1740960000:
+ 21:   50             # [4]. responderCertHash=byte[16]
+ 22:     0600867838E3311AA78B9ED60C631C86
+ 38:   1A 67C4F100    # [5]. producedAt=1740960000:
                       #      2025-03-03T00:00:00Z
- 47:   80             # [6]. extensions=array[0]
- 48:   86             # [7]. responses=array[6]
+ 43:   80             # [6]. extensions=array[0]
+ 44:   86             # [7]. responses=array[6]
                         #---PerIssuerResponses[0]---
- 49:     54             # [0]. issuerCertHash=byte[20]
- 50:       93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
- 70:     80             # [1]. extensions=array[0]
- 71:     8F             # [2]. singleResponses=array[15]
+ 45:     50             # [0]. issuerCertHash=byte[16]
+ 46:       A01C73A5F3B063344257D02693059DED
+ 62:     80             # [1]. extensions=array[0]
+ 63:     8F             # [2]. singleResponses=array[15]
                           #---SingleCertResponses[0]---
- 72:       50             # [0]. serialNumber=byte[16]
- 73:         12341234123412341234123412341234
- 89:       00             # [1]. certStatus=good (0)
- 90:       39 707F        # [2]. thisUpdate=-28800:
+ 64:       50             # [0]. serialNumber=byte[16]
+ 65:         12341234123412341234123412341234
+ 81:       00             # [1]. certStatus=good (0)
+ 82:       39 707F        # [2]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
- 93:       19 6270        # [3]. nextUpdate=25200:
+ 85:       19 6270        # [3]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
- 96:       80             # [4]. extensions=array[0]
+ 88:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
- 97:       50             # [5]. serialNumber=byte[16]
- 98:         34563456345634563456345634563456
-114:       01             # [6]. certStatus=not-issued (1)
-115:       39 707F        # [7]. thisUpdate=-28800:
+ 89:       50             # [5]. serialNumber=byte[16]
+ 90:         34563456345634563456345634563456
+106:       01             # [6]. certStatus=not-issued (1)
+107:       39 707F        # [7]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
-118:       19 6270        # [8]. nextUpdate=25200:
+110:       19 6270        # [8]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
-121:       80             # [9]. extensions=array[0]
+113:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
-122:       50             # [10]. serialNumber=byte[16]
-123:         56785678567856785678567856785678
-139:       82             # [11]. certStatus=array[2]
-140:         1A 67C32F00    # [0]. revocationTime=1740844800:
+114:       50             # [10]. serialNumber=byte[16]
+115:         56785678567856785678567856785678
+131:       82             # [11]. certStatus=array[2]
+132:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
-145:         04             # [1]. revocationReason=superseded (4)
-146:       39 707F        # [12]. thisUpdate=-28800:
+137:         04             # [1]. revocationReason=superseded (4)
+138:       39 707F        # [12]. thisUpdate=-28800:
                           #       2025-03-02T16:00:00Z
-149:       19 6270        # [13]. nextUpdate=25200:
+141:       19 6270        # [13]. nextUpdate=25200:
                           #       2025-03-03T07:00:00Z
-152:       80             # [14]. extensions=array[0]
+144:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
-153:     54             # [3]. issuerCertHash=byte[20]
-154:       2222222222222222222222222222222222222222
-174:     80             # [4]. extensions=array[0]
-175:     85             # [5]. singleResponses=array[5]
+145:     50             # [3]. issuerCertHash=byte[16]
+146:       22222222222222222222222222222222
+162:     80             # [4]. extensions=array[0]
+163:     85             # [5]. singleResponses=array[5]
                           #---SingleCertResponses[0]---
-176:       50             # [0]. serialNumber=byte[16]
-177:         22332233223322332233223322332233
-193:       02             # [1]. certStatus=unknown (2)
-194:       39 707F        # [2]. thisUpdate=-28800:
+164:       50             # [0]. serialNumber=byte[16]
+165:         22332233223322332233223322332233
+181:       02             # [1]. certStatus=unknown (2)
+182:       39 707F        # [2]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
-197:       19 6270        # [3]. nextUpdate=25200:
+185:       19 6270        # [3]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
-200:       80             # [4]. extensions=array[0]
-201:   82             # [8]. responderCerts=array[2]
-202:     04             # Type=C509 (4)
-203:     58 C5          # Chain(COSE_C509)=byte[197]
-205:       8B024212350C6F746573742063726C6F6373702D63611A6775D7001A
-233:       69570A806E6F6373702D726573706F6E6465720C582081947BBC248A
-261:       AC79738211A8D75BF92CB777D994073DF23AE06380EF2C5739768801
-289:       54B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E7
-317:       8D2CAEDF368CDF53C39005D492450E105627095840A01B0CBF3E34A4
-345:       762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F
-373:       37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B66
-401:       0A
-402:   58 40          # [9]. signature value=byte[64]
-404:     8669917CABAC082248E97B5D9E1BDB3A1E09AF867DDE39215A05D19943
-433:     FB62F7209FBAE1426D9E1D79A47AB26AE1BB65776A5C8536B44347FFE2
-462:     2E0C4A89C00A
+188:       80             # [4]. extensions=array[0]
+189:   82             # [8]. responderCerts=array[2]
+190:     04             # Type=C509 (4)
+191:     58 C5          # Chain(COSE_C509)=byte[197]
+193:       8B024212350C6F746573742063726C6F6373702D63611A6775D7001A
+221:       69570A806E6F6373702D726573706F6E6465720C582081947BBC248A
+249:       AC79738211A8D75BF92CB777D994073DF23AE06380EF2C5739768801
+277:       54B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E7
+305:       8D2CAEDF368CDF53C39005D492450E105627095840A01B0CBF3E34A4
+333:       762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F
+361:       37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B66
+389:       0A
+390:   58 40          # [9]. signature value=byte[64]
+392:     62B7066C43464C370CD22D50D7F7573CFE8E3472DC95C345EA8596F66B
+421:     796AEB07E7A6914F54D8DEC4984BF9782A166E6C82D9D8100BD30BE590
+450:     D5B0A3BA3309
 </pre><a href="#appendix-A.5.4.2-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -6973,7 +6951,7 @@ C509BasicOCSPResponse
           </h4>
 <ul class="normal">
 <li class="normal" id="appendix-A.5.5-1.1">
-              <p id="appendix-A.5.5-1.1.1">Size reduction: 55%<a href="#appendix-A.5.5-1.1.1" class="pilcrow">¶</a></p>
+              <p id="appendix-A.5.5-1.1.1">Size reduction: 56%<a href="#appendix-A.5.5-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="appendix-A.5.5-1.2">
               <p id="appendix-A.5.5-1.2.1">Verifiable with certificate in <a href="#ocsp-responder-cert" class="auto internal xref">Appendix A.2.4.2</a><a href="#appendix-A.5.5-1.2.1" class="pilcrow">¶</a></p>
@@ -7036,29 +7014,29 @@ pvg8M4ghGza8Vj1BAg==
             <h5 id="name-c509-ocsp-response-6">
 <a href="#appendix-A.5.5.2" class="section-number selfRef">A.5.5.2. </a><a href="#name-c509-ocsp-response-6" class="section-name selfRef">C509 OCSP Response</a>
             </h5>
-<p id="appendix-A.5.5.2-1">Plain Hex (673 bytes):<a href="#appendix-A.5.5.2-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.5.5.2-1">Plain Hex (661 bytes):<a href="#appendix-A.5.5.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.5.5.2-2">
 <pre>
-8A010C2F5011111111111111111111111111111111540C631C86B09A6DE7BC43E02A
-7AA7006A3443A3B21A67C4F10080865493059DED8E22C4433B1A4D85EFAE22F7F9D7
-E43C808F50123412341234123412341234123412340039707F196270805034563456
-3456345634563456345634560139707F196270805056785678567856785678567856
-785678821A67C32F000439707F196270805422222222222222222222222222222222
-22222222808550223322332233223322332233223322330239707F19627080820482
-58C58B024212350C6F746573742063726C6F6373702D63611A6775D7001A69570A80
-6E6F6373702D726573706F6E6465720C582081947BBC248AAC79738211A8D75BF92C
-B777D994073DF23AE06380EF2C573976880154B5B4CAF35401D06151DF9629DB579D
-C8CCA453A8210107542F45E78D2CAEDF368CDF53C39005D492450E105627095840A0
-1B0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078C76E1D88597F
-37531886A3F52F256FD722192B289D6844014467F1F17F05ACBB7B660A58CA8B0241
-010C73746573742063726C6F6373702D726F6F7463611A677485801A6B36EC7F6F74
-6573742063726C6F6373702D63610C58205EF8A355A001A7C50D23494701208131A4
-BB2AB920D40BFB0EE1F6AB28FF74008801542F45E78D2CAEDF368CDF53C39005D492
-450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E5
-0465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA7C76F1F05D259847
-A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191310B0F5840D9F5FD
-76CC7E969CF73F2DD28B1E4661D30AE0E71149A3DB286B17542311ACA8144B68C0AA
-1C2DCAFC85C0E40899BADDB24F9A3BC04AEA26EB4989AE78A00700
+8A010C2F5011111111111111111111111111111111500600867838E3311AA78B9ED6
+0C631C861A67C4F100808650A01C73A5F3B063344257D02693059DED808F50123412
+341234123412341234123412340039707F1962708050345634563456345634563456
+345634560139707F196270805056785678567856785678567856785678821A67C32F
+000439707F1962708050222222222222222222222222222222228085502233223322
+33223322332233223322330239707F1962708082048258C58B024212350C6F746573
+742063726C6F6373702D63611A6775D7001A69570A806E6F6373702D726573706F6E
+6465720C582081947BBC248AAC79738211A8D75BF92CB777D994073DF23AE06380EF
+2C573976880154B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107542F45E7
+8D2CAEDF368CDF53C39005D492450E105627095840A01B0CBF3E34A4762D05404FD0
+8A7AEC103035358314686D72B6159078C76E1D88597F37531886A3F52F256FD72219
+2B289D6844014467F1F17F05ACBB7B660A58CA8B0241010C73746573742063726C6F
+6373702D726F6F7463611A677485801A6B36EC7F6F746573742063726C6F6373702D
+63610C58205EF8A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6AB28
+FF74008801542F45E78D2CAEDF368CDF53C39005D492450E1056211860230107542D
+A3A403F7D2F4E0B3D8031A73BA8A839F557F0F5840E50465D60C02A2111EF3FC6E44
+F2A36008765B552351F9A3F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2
+596D3CC1DB2CCD180AA0A2D0E191310B0F5840F8B3DCBAF5016BC3AFF85E53FD0C25
+B341FBBF730ACCEF355C57A5B932D52D07B1FF967AA7980C40C5DD793C4FA649C16C
+19AF34D0D03498DF758454B7AC2506
 </pre><a href="#appendix-A.5.5.2-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.5.5.2-3">Textual Representation<a href="#appendix-A.5.5.2-3" class="pilcrow">¶</a></p>
@@ -7072,15 +7050,13 @@ C509BasicOCSPResponse
     Nonce
       11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
     ResponderCertHash
-      0c:63:1c:86:b0:9a:6d:e7:bc:43:e0:2a:7a:a7:00:6a:
-      34:43:a3:b2
+      06:00:86:78:38:e3:31:1a:a7:8b:9e:d6:0c:63:1c:86
     ProducedAt: 2025-03-03T00:00:00Z
     Extensions: &lt;empty&gt;
     Responses
       OcspPerIssuerResponse
         IssuerCertHash
-          93:05:9d:ed:8e:22:c4:43:3b:1a:4d:85:ef:ae:22:f7:
-          f9:d7:e4:3c
+          a0:1c:73:a5:f3:b0:63:34:42:57:d0:26:93:05:9d:ed
         Extensions: &lt;empty&gt;
         SingleResponses
           SingleCertResponse
@@ -7107,8 +7083,7 @@ C509BasicOCSPResponse
             Extensions: &lt;empty&gt;
       OcspPerIssuerResponse
         IssuerCertHash
-          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:
-          22:22:22:22
+          22:22:22:22:22:22:22:22:22:22:22:22:22:22:22:22
         Extensions: &lt;empty&gt;
         SingleResponses
           SingleCertResponse
@@ -7150,10 +7125,10 @@ C509BasicOCSPResponse
           0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
           18:0a:a0:a2:d0:e1:91:31:0b:0f
   Signature Value
-    d9:f5:fd:76:cc:7e:96:9c:f7:3f:2d:d2:8b:1e:46:61:
-    d3:0a:e0:e7:11:49:a3:db:28:6b:17:54:23:11:ac:a8:
-    14:4b:68:c0:aa:1c:2d:ca:fc:85:c0:e4:08:99:ba:dd:
-    b2:4f:9a:3b:c0:4a:ea:26:eb:49:89:ae:78:a0:07:00
+    f8:b3:dc:ba:f5:01:6b:c3:af:f8:5e:53:fd:0c:25:b3:
+    41:fb:bf:73:0a:cc:ef:35:5c:57:a5:b9:32:d5:2d:07:
+    b1:ff:96:7a:a7:98:0c:40:c5:dd:79:3c:4f:a6:49:c1:
+    6c:19:af:34:d0:d0:34:98:df:75:84:54:b7:ac:25:06
 </pre><a href="#appendix-A.5.5.2-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.5.5.2-5">Annotated hex<a href="#appendix-A.5.5.2-5" class="pilcrow">¶</a></p>
@@ -7166,86 +7141,86 @@ C509BasicOCSPResponse
   3:   2F             # [2]. hashAlgorithm=SHA256 (-16)
   4:   50             # [3]. nonce=byte[16]
   5:     11111111111111111111111111111111
- 21:   54             # [4]. responderCertHash=byte[20]
- 22:     0C631C86B09A6DE7BC43E02A7AA7006A3443A3B2
- 42:   1A 67C4F100    # [5]. producedAt=1740960000:
+ 21:   50             # [4]. responderCertHash=byte[16]
+ 22:     0600867838E3311AA78B9ED60C631C86
+ 38:   1A 67C4F100    # [5]. producedAt=1740960000:
                       #      2025-03-03T00:00:00Z
- 47:   80             # [6]. extensions=array[0]
- 48:   86             # [7]. responses=array[6]
+ 43:   80             # [6]. extensions=array[0]
+ 44:   86             # [7]. responses=array[6]
                         #---PerIssuerResponses[0]---
- 49:     54             # [0]. issuerCertHash=byte[20]
- 50:       93059DED8E22C4433B1A4D85EFAE22F7F9D7E43C
- 70:     80             # [1]. extensions=array[0]
- 71:     8F             # [2]. singleResponses=array[15]
+ 45:     50             # [0]. issuerCertHash=byte[16]
+ 46:       A01C73A5F3B063344257D02693059DED
+ 62:     80             # [1]. extensions=array[0]
+ 63:     8F             # [2]. singleResponses=array[15]
                           #---SingleCertResponses[0]---
- 72:       50             # [0]. serialNumber=byte[16]
- 73:         12341234123412341234123412341234
- 89:       00             # [1]. certStatus=good (0)
- 90:       39 707F        # [2]. thisUpdate=-28800:
+ 64:       50             # [0]. serialNumber=byte[16]
+ 65:         12341234123412341234123412341234
+ 81:       00             # [1]. certStatus=good (0)
+ 82:       39 707F        # [2]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
- 93:       19 6270        # [3]. nextUpdate=25200:
+ 85:       19 6270        # [3]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
- 96:       80             # [4]. extensions=array[0]
+ 88:       80             # [4]. extensions=array[0]
                           #---SingleCertResponses[1]---
- 97:       50             # [5]. serialNumber=byte[16]
- 98:         34563456345634563456345634563456
-114:       01             # [6]. certStatus=not-issued (1)
-115:       39 707F        # [7]. thisUpdate=-28800:
+ 89:       50             # [5]. serialNumber=byte[16]
+ 90:         34563456345634563456345634563456
+106:       01             # [6]. certStatus=not-issued (1)
+107:       39 707F        # [7]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
-118:       19 6270        # [8]. nextUpdate=25200:
+110:       19 6270        # [8]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
-121:       80             # [9]. extensions=array[0]
+113:       80             # [9]. extensions=array[0]
                           #---SingleCertResponses[2]---
-122:       50             # [10]. serialNumber=byte[16]
-123:         56785678567856785678567856785678
-139:       82             # [11]. certStatus=array[2]
-140:         1A 67C32F00    # [0]. revocationTime=1740844800:
+114:       50             # [10]. serialNumber=byte[16]
+115:         56785678567856785678567856785678
+131:       82             # [11]. certStatus=array[2]
+132:         1A 67C32F00    # [0]. revocationTime=1740844800:
                             #      2025-03-01T16:00:00Z
-145:         04             # [1]. revocationReason=superseded (4)
-146:       39 707F        # [12]. thisUpdate=-28800:
+137:         04             # [1]. revocationReason=superseded (4)
+138:       39 707F        # [12]. thisUpdate=-28800:
                           #       2025-03-02T16:00:00Z
-149:       19 6270        # [13]. nextUpdate=25200:
+141:       19 6270        # [13]. nextUpdate=25200:
                           #       2025-03-03T07:00:00Z
-152:       80             # [14]. extensions=array[0]
+144:       80             # [14]. extensions=array[0]
                         #---PerIssuerResponses[1]---
-153:     54             # [3]. issuerCertHash=byte[20]
-154:       2222222222222222222222222222222222222222
-174:     80             # [4]. extensions=array[0]
-175:     85             # [5]. singleResponses=array[5]
+145:     50             # [3]. issuerCertHash=byte[16]
+146:       22222222222222222222222222222222
+162:     80             # [4]. extensions=array[0]
+163:     85             # [5]. singleResponses=array[5]
                           #---SingleCertResponses[0]---
-176:       50             # [0]. serialNumber=byte[16]
-177:         22332233223322332233223322332233
-193:       02             # [1]. certStatus=unknown (2)
-194:       39 707F        # [2]. thisUpdate=-28800:
+164:       50             # [0]. serialNumber=byte[16]
+165:         22332233223322332233223322332233
+181:       02             # [1]. certStatus=unknown (2)
+182:       39 707F        # [2]. thisUpdate=-28800:
                           #      2025-03-02T16:00:00Z
-197:       19 6270        # [3]. nextUpdate=25200:
+185:       19 6270        # [3]. nextUpdate=25200:
                           #      2025-03-03T07:00:00Z
-200:       80             # [4]. extensions=array[0]
-201:   82             # [8]. responderCerts=array[2]
-202:     04             # Type=C509 (4)
-203:     82             # Chain(COSE_C509)=array[2]
-204:       58 C5          # [0]. C509CertData=byte[197]
-206:         8B024212350C6F746573742063726C6F6373702D63611A6775D700
-233:         1A69570A806E6F6373702D726573706F6E6465720C582081947BBC
-260:         248AAC79738211A8D75BF92CB777D994073DF23AE06380EF2C5739
-287:         76880154B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107
-314:         542F45E78D2CAEDF368CDF53C39005D492450E105627095840A01B
-341:         0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078
-368:         C76E1D88597F37531886A3F52F256FD722192B289D6844014467F1
-395:         F17F05ACBB7B660A
-403:       58 CA          # [1]. C509CertData=byte[202]
-405:         8B0241010C73746573742063726C6F6373702D726F6F7463611A67
-432:         7485801A6B36EC7F6F746573742063726C6F6373702D63610C5820
-459:         5EF8A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6
-486:         AB28FF74008801542F45E78D2CAEDF368CDF53C39005D492450E10
-513:         56211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F
-540:         0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3
-567:         F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1
-594:         DB2CCD180AA0A2D0E191310B0F
-607:   58 40          # [9]. signature value=byte[64]
-609:     D9F5FD76CC7E969CF73F2DD28B1E4661D30AE0E71149A3DB286B175423
-638:     11ACA8144B68C0AA1C2DCAFC85C0E40899BADDB24F9A3BC04AEA26EB49
-667:     89AE78A00700
+188:       80             # [4]. extensions=array[0]
+189:   82             # [8]. responderCerts=array[2]
+190:     04             # Type=C509 (4)
+191:     82             # Chain(COSE_C509)=array[2]
+192:       58 C5          # [0]. C509CertData=byte[197]
+194:         8B024212350C6F746573742063726C6F6373702D63611A6775D700
+221:         1A69570A806E6F6373702D726573706F6E6465720C582081947BBC
+248:         248AAC79738211A8D75BF92CB777D994073DF23AE06380EF2C5739
+275:         76880154B5B4CAF35401D06151DF9629DB579DC8CCA453A8210107
+302:         542F45E78D2CAEDF368CDF53C39005D492450E105627095840A01B
+329:         0CBF3E34A4762D05404FD08A7AEC103035358314686D72B6159078
+356:         C76E1D88597F37531886A3F52F256FD722192B289D6844014467F1
+383:         F17F05ACBB7B660A
+391:       58 CA          # [1]. C509CertData=byte[202]
+393:         8B0241010C73746573742063726C6F6373702D726F6F7463611A67
+420:         7485801A6B36EC7F6F746573742063726C6F6373702D63610C5820
+447:         5EF8A355A001A7C50D23494701208131A4BB2AB920D40BFB0EE1F6
+474:         AB28FF74008801542F45E78D2CAEDF368CDF53C39005D492450E10
+501:         56211860230107542DA3A403F7D2F4E0B3D8031A73BA8A839F557F
+528:         0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3
+555:         F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1
+582:         DB2CCD180AA0A2D0E191310B0F
+595:   58 40          # [9]. signature value=byte[64]
+597:     F8B3DCBAF5016BC3AFF85E53FD0C25B341FBBF730ACCEF355C57A5B932
+626:     D52D07B1FF967AA7980C40C5DD793C4FA649C16C19AF34D0D03498DF75
+655:     8454B7AC2506
 </pre><a href="#appendix-A.5.5.2-6" class="pilcrow">¶</a>
 </div>
 </section>
