@@ -124,7 +124,7 @@ let mut crl = C509Crl {
         crl_type: 0,
         signature_algorithm: SIG_ED25519,
         authority_subject: Name::Text("crlocsp-ca".into()),
-        authority_key_identifier: Some(vec![0u8; 20]),
+        authority_key_identifier: vec![0u8; 20],
         crl_number: 1,
         this_update: 1_735_776_000,
         next_update: Some(1_736_380_800),

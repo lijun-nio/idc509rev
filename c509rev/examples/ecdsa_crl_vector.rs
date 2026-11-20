@@ -24,7 +24,7 @@ fn main() {
             crl_type: 0,
             signature_algorithm: c509rev::registry::SIG_ECDSA_SHA256,
             authority_subject: Name::Text("test crlocsp-ca".to_string()),
-            authority_key_identifier: Some(vec![0u8; 20]),
+            authority_key_identifier: vec![0u8; 20],
             crl_number: 1,
             this_update: 1735776000,
             next_update: Some(1736380800),

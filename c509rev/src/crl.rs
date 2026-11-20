@@ -84,7 +84,7 @@ pub struct CrlInfo {
     pub crl_type: u64,
     pub signature_algorithm: i64,
     pub authority_subject: Name,
-    pub authority_key_identifier: Option<Vec<u8>>,
+    pub authority_key_identifier: Vec<u8>,
     pub crl_number: u64,
     pub this_update: u64,
     /// Absolute next-update time, or `None` for null. Encoded on the wire as a
@@ -201,10 +201,7 @@ impl C509Crl {
             lcbor::lcbor_uint(i.crl_type),
             lcbor::lcbor_int(i.signature_algorithm),
             i.authority_subject.encode(),
-            match &i.authority_key_identifier {
-                Some(b) => lcbor::lcbor_bytes(b),
-                None => CBOR_NULL.to_vec(),
-            },
+            lcbor::lcbor_bytes(&i.authority_key_identifier),
             lcbor::lcbor_uint(i.crl_number),
             time::encode_abs(i.this_update),
             match i.next_update {
@@ -257,7 +254,7 @@ mod tests {
             crl_type: 0,
             signature_algorithm: crate::registry::SIG_ED25519,
             authority_subject: Name::Text("test crlocsp-ca".to_string()),
-            authority_key_identifier: Some(AKI.to_vec()),
+            authority_key_identifier: AKI.to_vec(),
             crl_number,
             this_update,
             next_update: Some(next_update),
@@ -395,7 +392,7 @@ a1592ce4a64bffd621f30e2ab93766b4f8818116ab7da7bedf7c3ebcbdeac6d0455f5f5669712006
             crl_type: 0,
             signature_algorithm: crate::registry::SIG_ED25519,
             authority_subject: Name::Text("crl-signer".to_string()),
-            authority_key_identifier: Some(AKI_SIGNER.to_vec()),
+            authority_key_identifier: AKI_SIGNER.to_vec(),
             crl_number: 4,
             this_update: 1736208754,
             next_update: Some(1736813554),
