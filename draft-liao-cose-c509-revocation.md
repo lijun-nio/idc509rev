@@ -53,10 +53,8 @@ normative:
   RFC5280:
   RFC6066:
   RFC6960:
-  RFC7120:
   RFC7250:
   RFC7468:
-  RFC8126:
   RFC8226:
   RFC8610:
   RFC8742:
@@ -975,9 +973,7 @@ The only per-type differences are in how identity hashes are computed and how ce
 
 | Field | C509 certificate | X.509 certificate | Raw public key |
 |:------|:-----------------|:------------------|:---------------|
-| `issuerCertHash`    | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate | Hash of DER-encoded `SubjectPublicKeyInfo` |
-| `requestorCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate | Hash of DER-encoded `SubjectPublicKeyInfo` |
-| `responderCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate | Hash of DER-encoded `SubjectPublicKeyInfo` |
+| `issuerCertHash` / `requestorCertHash` / `responderCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate | Hash of DER-encoded `SubjectPublicKeyInfo` |
 | `serialNumber`      | `certificateSerialNumber` | Serial number without leading zero byte | Derived from SHA-256 of DER-encoded `SubjectPublicKeyInfo` |
 | `requestorCerts` / `responderCerts` | `[4, COSE_C509]` | `[0, COSE_X509]` | `[2, SubjectPublicKeyInfo]` |
 {: #tab-certtypeinterop title="Per-type differences in C509 OCSP identity fields"}
