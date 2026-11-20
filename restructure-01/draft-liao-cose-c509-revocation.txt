@@ -3202,12 +3202,12 @@ A.3.2.2.  C509 CRL
 
    8B000C82046F746573742063726C6F6373702D6361542F45E78D2CAEDF368CDF53C3
    9005D492450E1056021A677C71721A00093A80F68085F6840310031A677488728218
-   571A6774858058781122112211221122112211221122112206978006123412341234
+   801A6774858058781122112211221122112211221122112206978006123412341234
    12341234123412341234000000013344334433443344334433443344334403F48006
    55665566556655665566556655665566015180065678567856785678567856785678
-   5678054600009ABC9ABC9ABC9ABC9ABC9ABC9ABC9ABC02A30000F65840857739B8FF
-   28AEE57EC8C433173D8DF7264AAD69B55280AFB324CE02C3077002266D2919151775
-   9BBED5F2EBDEFA3CACE08A6A12C574C15B09A87F4E15723706
+   5678054600009ABC9ABC9ABC9ABC9ABC9ABC9ABC9ABC02A30000F65840E4BCF220CE
+   CFB32410FB6AD0B90993F87CB3630F396CFF0016CBE45A86315EDC53F3C5275188A5
+   3DA4912CA2E37C4C5154349CB1E3AC3F4414579C7E1CE65C0D
 
    Textual Representation
 
@@ -3235,7 +3235,7 @@ A.3.2.2.  C509 CRL
            Date length: 3
            Base date: 2025-01-01T00:12:34Z
          Extensions
-           ExpiredCertsOnCRL (87)
+           ExpiredCertsOnCRL (128)
              2025-01-01T00:00:00Z
          RevokedCerts:
            0x11221122112211221122112211221122
@@ -3252,10 +3252,10 @@ A.3.2.2.  C509 CRL
                2025-01-03T00:12:34Z, unspecified
          RemovedFromCRLCerts: <null>
      Signature Value
-       85:77:39:b8:ff:28:ae:e5:7e:c8:c4:33:17:3d:8d:f7:
-       26:4a:ad:69:b5:52:80:af:b3:24:ce:02:c3:07:70:02:
-       26:6d:29:19:15:17:75:9b:be:d5:f2:eb:de:fa:3c:ac:
-       e0:8a:6a:12:c5:74:c1:5b:09:a8:7f:4e:15:72:37:06
+       e4:bc:f2:20:ce:cf:b3:24:10:fb:6a:d0:b9:09:93:f8:
+       7c:b3:63:0f:39:6c:ff:00:16:cb:e4:5a:86:31:5e:dc:
+       53:f3:c5:27:51:88:a5:3d:a4:91:2c:a2:e3:7c:4c:51:
+       54:34:9c:b1:e3:ac:3f:44:14:57:9c:7e:1c:e6:5c:0d
 
    Annotated hex
 
@@ -3285,7 +3285,7 @@ A.3.2.2.  C509 CRL
                              #      2025-01-01T00:12:34Z
     66:     82             # [2]. extensions=array[2]
                              #---extension[0]---
-    67:       18 57          # [0]. type=ExpiredCertsOnCRL (87)
+    67:       18 80          # [0]. type=ExpiredCertsOnCRL (128)
     69:       1A 67748580    # [1]. value=1735689600:
                              #      2025-01-01T00:00:00Z
     74:     58 78          # [3]. revokedCerts=byte[120], 6 entries
@@ -3321,9 +3321,9 @@ A.3.2.2.  C509 CRL
    195:       00             # reason=0: unspecified
    196:     F6             # [4]. removedFromCRLCerts=<null>
    197:   58 40          # [10]. signature value=byte[64]
-   199:     857739B8FF28AEE57EC8C433173D8DF7264AAD69B55280AFB324CE02C3
-   228:     077002266D29191517759BBED5F2EBDEFA3CACE08A6A12C574C15B09A8
-   257:     7F4E15723706
+   199:     E4BCF220CECFB32410FB6AD0B90993F87CB3630F396CFF0016CBE45A86
+   228:     315EDC53F3C5275188A53DA4912CA2E37C4C5154349CB1E3AC3F441457
+   257:     9C7E1CE65C0D
 
 A.3.3.  Delta CRL Example With Revoked Certificates
 
@@ -4014,7 +4014,7 @@ A.4.4.2.  C509 OCSP Request
 
    Plain Hex (442 bytes):
 
-   89010C2F501111111111111111111111111111111184185D820001185E840CF60082
+   89010C2F50111111111111111111111111111111118418818200011882840CF60082
    0118188654A01C73A5F3B063344257D02693059DED8E22C443808650123412341234
    12341234123412341234805034563456345634563456345634563456805056785678
    56785678567856785678567880542222222222222222222222222222222222222222
@@ -4025,8 +4025,8 @@ A.4.4.2.  C509 OCSP Request
    91C062D4027856DBACF52607F0BE210107542F45E78D2CAEDF368CDF53C39005D492
    450E10565840F8C6183ECF8C3EFD50DD4942D172814C46EC0FC01DD586A597178DF8
    64A0D9DA86B7CA17FC9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED544
-   2D075840A446084A399DCE392F4BB9CE3E7D10FF7A22C4A60F9531C1FE128CCD6945
-   78215E2BDA1107A8DF0822DFFEAB5F543E6D9AA19D7E225EB650835ACB214CE86504
+   2D075840C86227FB1AAB60EA3CDE1E640D8FCA31089E6693FA2C5172EF379D24677C
+   EE59DD7CCE94EADB7777CAA4E79784ED5F3E89B514D570A9ECC0179C43DCA51DB908
 
    Textual Representation
 
@@ -4037,10 +4037,10 @@ A.4.4.2.  C509 OCSP Request
      Nonce
        11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
      Extensions
-       AcceptOCSPResponseTypes (93)
+       AcceptOCSPResponseTypes (129)
          C509ErrorOCSPResponse (0)
          C509BasicOCSPResponse (1)
-       preferredSignatureAlgorithms (94)
+       preferredSignatureAlgorithms (130)
            Preferred Signature Algorithm:
              Signature Algorithm: Ed25519 (12)
            Preferred Signature Algorithm:
@@ -4098,10 +4098,10 @@ A.4.4.2.  C509 OCSP Request
            60:d5:b4:b6:24:08:a2:77:a5:b7:0d:0d:2a:3f:5e:d5:
            44:2d:07
      signatureValue
-       a4:46:08:4a:39:9d:ce:39:2f:4b:b9:ce:3e:7d:10:ff:
-       7a:22:c4:a6:0f:95:31:c1:fe:12:8c:cd:69:45:78:21:
-       5e:2b:da:11:07:a8:df:08:22:df:fe:ab:5f:54:3e:6d:
-       9a:a1:9d:7e:22:5e:b6:50:83:5a:cb:21:4c:e8:65:04
+       c8:62:27:fb:1a:ab:60:ea:3c:de:1e:64:0d:8f:ca:31:
+       08:9e:66:93:fa:2c:51:72:ef:37:9d:24:67:7c:ee:59:
+       dd:7c:ce:94:ea:db:77:77:ca:a4:e7:97:84:ed:5f:3e:
+       89:b5:14:d5:70:a9:ec:c0:17:9c:43:dc:a5:1d:b9:08
 
    Annotated hex
 
@@ -4113,13 +4113,13 @@ A.4.4.2.  C509 OCSP Request
      5:     11111111111111111111111111111111
     21:   84             # [4]. extensions=array[4]
                            #---extension[0]---
-    22:     18 5D          # [0]. type=AcceptOCSPResponseTypes (93)
+    22:     18 81          # [0]. type=AcceptOCSPResponseTypes (129)
     24:     82             # [1]. value=array[2]
     25:       00             # [0]. C509ErrorOCSPResponse (0)
     26:       01             # [1]. C509BasicOCSPResponse (1)
                            #---extension[1]---
-    27:     18 5E          # [2]. type=preferredSignatureAlgorithms
-                           #      (94)
+    27:     18 82          # [2]. type=preferredSignatureAlgorithms
+                           #      (130)
     29:     84             # [3]. value=array[4]
                              #---preferredSignatureAlgorithms[0]---
     30:       0C             # [0]. sigIdentifier=Ed25519 (12)
@@ -4171,9 +4171,9 @@ A.4.4.2.  C509 OCSP Request
    321:       DD4942D172814C46EC0FC01DD586A597178DF864A0D9DA86B7CA17FC
    349:       9F772FF04C80E98B60D5B4B62408A277A5B70D0D2A3F5ED5442D07
    376:   58 40          # [8]. signatureValue=byte[64]
-   378:     A446084A399DCE392F4BB9CE3E7D10FF7A22C4A60F9531C1FE128CCD69
-   407:     4578215E2BDA1107A8DF0822DFFEAB5F543E6D9AA19D7E225EB650835A
-   436:     CB214CE86504
+   378:     C86227FB1AAB60EA3CDE1E640D8FCA31089E6693FA2C5172EF379D2467
+   407:     7CEE59DD7CCE94EADB7777CAA4E79784ED5F3E89B514D570A9ECC0179C
+   436:     43DCA51DB908
 
 A.4.5.  Signed Basic OCSP Request Example With Requestor's Certificate
         Chain
@@ -4228,7 +4228,7 @@ A.4.5.2.  C509 OCSP Request
 
    Plain Hex (647 bytes):
 
-   89010C2F501111111111111111111111111111111184185D820001185E840CF60082
+   89010C2F50111111111111111111111111111111118418818200011882840CF60082
    0118188654A01C73A5F3B063344257D02693059DED8E22C443808650123412341234
    12341234123412341234805034563456345634563456345634563456805056785678
    56785678567856785678567880542222222222222222222222222222222222222222
@@ -4245,9 +4245,9 @@ A.4.5.2.  C509 OCSP Request
    8CDF53C39005D492450E1056211860230107542DA3A403F7D2F4E0B3D8031A73BA8A
    839F557F0F5840E50465D60C02A2111EF3FC6E44F2A36008765B552351F9A3F5B2AA
    7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1DB2CCD180AA0A2D0E191
-   310B0F5840671714CCC2D1344FBCDDF433850AD9FE6281A7A6F15C0562BD1AEC1109
-   A3129E61F3A373FED96F0CE6757DC12F5B51DF57D48AC77A4F98B04B810A66587AC6
-   05
+   310B0F5840C51529C058D93051E194125CDBDE7C85D4E9D3FC7A129013A5040B5FC5
+   393B805C1AE0B5D34E6AB8A872354CE95F9716A932F72992826D32444EE6CC976C7E
+   00
 
    Textual Representation
 
@@ -4258,10 +4258,10 @@ A.4.5.2.  C509 OCSP Request
      Nonce
        11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
      Extensions
-       AcceptOCSPResponseTypes (93)
+       AcceptOCSPResponseTypes (129)
          C509ErrorOCSPResponse (0)
          C509BasicOCSPResponse (1)
-       preferredSignatureAlgorithms (94)
+       preferredSignatureAlgorithms (130)
            Preferred Signature Algorithm:
              Signature Algorithm: Ed25519 (12)
            Preferred Signature Algorithm:
@@ -4333,10 +4333,10 @@ A.4.5.2.  C509 OCSP Request
            0b:2e:4b:0a:e2:09:97:62:a2:59:6d:3c:c1:db:2c:cd:
            18:0a:a0:a2:d0:e1:91:31:0b:0f
      signatureValue
-       67:17:14:cc:c2:d1:34:4f:bc:dd:f4:33:85:0a:d9:fe:
-       62:81:a7:a6:f1:5c:05:62:bd:1a:ec:11:09:a3:12:9e:
-       61:f3:a3:73:fe:d9:6f:0c:e6:75:7d:c1:2f:5b:51:df:
-       57:d4:8a:c7:7a:4f:98:b0:4b:81:0a:66:58:7a:c6:05
+       c5:15:29:c0:58:d9:30:51:e1:94:12:5c:db:de:7c:85:
+       d4:e9:d3:fc:7a:12:90:13:a5:04:0b:5f:c5:39:3b:80:
+       5c:1a:e0:b5:d3:4e:6a:b8:a8:72:35:4c:e9:5f:97:16:
+       a9:32:f7:29:92:82:6d:32:44:4e:e6:cc:97:6c:7e:00
 
    Annotated hex
 
@@ -4348,13 +4348,13 @@ A.4.5.2.  C509 OCSP Request
      5:     11111111111111111111111111111111
     21:   84             # [4]. extensions=array[4]
                            #---extension[0]---
-    22:     18 5D          # [0]. type=AcceptOCSPResponseTypes (93)
+    22:     18 81          # [0]. type=AcceptOCSPResponseTypes (129)
     24:     82             # [1]. value=array[2]
     25:       00             # [0]. C509ErrorOCSPResponse (0)
     26:       01             # [1]. C509BasicOCSPResponse (1)
                            #---extension[1]---
-    27:     18 5E          # [2]. type=preferredSignatureAlgorithms
-                           #      (94)
+    27:     18 82          # [2]. type=preferredSignatureAlgorithms
+                           #      (130)
     29:     84             # [3]. value=array[4]
                              #---preferredSignatureAlgorithms[0]---
     30:       0C             # [0]. sigIdentifier=Ed25519 (12)
@@ -4417,9 +4417,9 @@ A.4.5.2.  C509 OCSP Request
    541:         F5B2AA7C76F1F05D259847A4F4250B2E4B0AE2099762A2596D3CC1
    568:         DB2CCD180AA0A2D0E191310B0F
    581:   58 40          # [8]. signatureValue=byte[64]
-   583:     671714CCC2D1344FBCDDF433850AD9FE6281A7A6F15C0562BD1AEC1109
-   612:     A3129E61F3A373FED96F0CE6757DC12F5B51DF57D48AC77A4F98B04B81
-   641:     0A66587AC605
+   583:     C51529C058D93051E194125CDBDE7C85D4E9D3FC7A129013A5040B5FC5
+   612:     393B805C1AE0B5D34E6AB8A872354CE95F9716A932F72992826D32444E
+   641:     E6CC976C7E00
 
 A.5.  OCSP Response Examples
 
