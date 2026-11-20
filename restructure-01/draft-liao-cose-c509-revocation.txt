@@ -782,6 +782,15 @@ Table of Contents
    authoritySubject (i.e., the issuer field is null), and there are no
    non-empty per-issuer extensions.
 
+   Since each PerIssuerRevokedCerts entry identifies its issuer by a
+   NameVariant (Section 6.3.4), a single C509 CRL may contain entries
+   for certificates of different types.  For example, a CRL may contain
+   one PerIssuerRevokedCerts entry for C509 certificates, one for X.509
+   certificates, and one for raw public keys.  All certificates covered
+   by one PerIssuerRevokedCerts entry are of the type indicated by the
+   type of its issuer, or of authoritySubject if issuer is null;
+   certificates of different types are listed in separate entries.
+
    Each PerIssuerRevokedCerts entry describes revoked certificates for
    one issuer using the following fields:
 
