@@ -2492,7 +2492,7 @@ ExpiredCertsOnCRL = ~time
 <a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-hash-algorithms" class="section-name selfRef">Hash Algorithms</a>
         </h3>
 <p id="section-7.3-1">The <code>hashAlgorithm</code> field of C509 OCSP requests and responses identifies the hash algorithm used to compute the certificate hashes (<code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code>) within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry <span>[<a href="#IANA.cose" class="cite xref">IANA.cose</a>]</span>, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
-<p id="section-7.3-2">The hash algorithm <span class="bcp14">MUST</span> produce an output of at least 20 bytes, so that <code>HashedId20</code> values can be derived (see <a href="#cert-identification" class="auto internal xref">Section 7.4</a>).  Consequently, SHA-256/64 (-15) <span class="bcp14">MUST NOT</span> be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), <span class="bcp14">SHOULD NOT</span> be used: this document already defines the truncated identifier <code>HashedId20</code>, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) <span class="bcp14">MUST NOT</span> be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) <span>[<a href="#RFC9861" class="cite xref">RFC9861</a>]</span>, the output length is the length of the identifier being computed, i.e., 20 bytes for <code>HashedId20</code>.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+<p id="section-7.3-2">The hash algorithm <span class="bcp14">MUST</span> produce an output at least as long as the <code>HashedId</code> values derived from it (see <a href="#cert-identification" class="auto internal xref">Section 7.4</a>).  SHA-256/64 (-15) <span class="bcp14">MUST NOT</span> be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), <span class="bcp14">SHOULD NOT</span> be used: this document already defines the truncated identifier <code>HashedId</code>, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) <span class="bcp14">MUST NOT</span> be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) <span>[<a href="#RFC9861" class="cite xref">RFC9861</a>]</span>, the output length is the length of the <code>HashedId</code> being computed.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cert-identification">
@@ -2503,14 +2503,15 @@ ExpiredCertsOnCRL = ~time
 <p id="section-7.4-1">To reduce OCSP message size, this document defines a truncated-hash identifier type used to refer to certificates compactly:<a href="#section-7.4-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.4-2.1">
-            <p id="section-7.4-2.1.1"><code>HashedId20</code>: the low-order 20 bytes, i.e., the last 20 bytes, of the hash value computed using the enclosing <code>hashAlgorithm</code>.  This follows the convention of the hashed identifiers in IEEE 1609.2, e.g., <code>HashedId8</code>.  <code>HashedId20</code> is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures.  With 20 bytes, accidental collisions are negligible (about 2^80 certificates are needed for a collision by the birthday bound), so the identifier is unique in practice.<a href="#section-7.4-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-7.4-2.1.1"><code>HashedId</code>: the low-order bytes, i.e., the rightmost bytes, of the hash value computed using the enclosing <code>hashAlgorithm</code>.  A <code>HashedId</code> is 8 to 64 bytes long.  This follows the convention of the hashed identifiers in IEEE 1609.2, e.g., <code>HashedId8</code>.  <code>HashedId</code> is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures.<a href="#section-7.4-2.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div class="lang-cddl sourcecode" id="section-7.4-3">
 <pre>
-HashedId20  = bytes .size 20
+HashedId = bytes .size (8..64)
 </pre><a href="#section-7.4-3" class="pilcrow">¶</a>
 </div>
+<p id="section-7.4-4">The sender chooses the length of a <code>HashedId</code>; it <span class="bcp14">MUST NOT</span> be longer than the output of the hash algorithm.  The length is a trade-off between message size and collision resistance; see <a href="#sec-truncated-hash" class="auto internal xref">Section 9.2</a>.  A receiver compares a received <code>HashedId</code> with a certificate by computing the hash value of the certificate using <code>hashAlgorithm</code> and comparing its low-order bytes, as many as the received <code>HashedId</code> has, with the received <code>HashedId</code>.  An OCSP responder <span class="bcp14">MUST</span> use in a response the same <code>issuerCertHash</code> value as in the corresponding request.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cert-chain-variant">
@@ -2591,7 +2592,7 @@ C509BasicOCSPRequest = [
   extensions         : IntExtensions,
   requests           : PerIssuerOCSPRequests,
   ? (                  ; present if and only if signed
-    requestorCertHash  : HashedId20,
+    requestorCertHash  : HashedId,
     requestorCerts     : CertChainVariant / null,
     signatureValue     : any,
   )
@@ -2601,7 +2602,7 @@ C509SimpleOCSPRequest = [
   ocspRequestType    : 2, ; int16
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..128) / null,
-  issuerCertHash     : HashedId20,
+  issuerCertHash     : HashedId,
   serialNumber       : SerialNumber,
   extensions         : IntExtensions
 ]
@@ -2609,7 +2610,7 @@ C509SimpleOCSPRequest = [
 PerIssuerOCSPRequests = [ + PerIssuerOCSPRequest ]
 
 PerIssuerOCSPRequest = (
-  issuerCertHash   : HashedId20,
+  issuerCertHash   : HashedId,
   extensions       : IntExtensions,
   singleRequests   : SingleCertRequests,
 )
@@ -2826,7 +2827,7 @@ TBSBasicOCSPResponse = (
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..128) / null,
-  responderCertHash  : HashedId20,
+  responderCertHash  : HashedId,
   producedAt         : ~time,
   extensions         : IntExtensions,
   responses          : PerIssuerOCSPResponses,
@@ -2843,8 +2844,8 @@ TBSSimpleOCSPResponse = (
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..128) / null,
-  responderCertHash  : HashedId20,
-  issuerCertHash     : HashedId20,
+  responderCertHash  : HashedId,
+  issuerCertHash     : HashedId,
   serialNumber       : SerialNumber,
   certStatus         : CertStatus,
   producedAt         : ~time,
@@ -2862,7 +2863,7 @@ C509SimpleOCSPResponse = [
 PerIssuerOCSPResponses = [ + PerIssuerOCSPResponse ]
 
 PerIssuerOCSPResponse = (
-  issuerCertHash   : HashedId20,
+  issuerCertHash   : HashedId,
   extensions       : IntExtensions,
   singleResponses  : SingleCertResponses,
 )
@@ -3573,9 +3574,11 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
         <h3 id="name-truncated-hash-identifiers">
 <a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-truncated-hash-identifiers" class="section-name selfRef">Truncated Hash Identifiers</a>
         </h3>
-<p id="section-9.2-1"><code>HashedId20</code> (<a href="#cert-identification" class="auto internal xref">Section 7.4</a>) only selects a certificate and does not authenticate it; security relies on the signature verification in <a href="#sec-signature" class="auto internal xref">Section 9.1</a>.  A relying party <span class="bcp14">MUST</span> match a response to its request using hash values it has computed itself from the certificates it holds.  A receiver that finds several certificates matching a <code>HashedId20</code> <span class="bcp14">MUST NOT</span> assume that a particular one is intended.  An OCSP responder for which an <code>issuerCertHash</code> matches more than one of its issuers <span class="bcp14">MUST NOT</span> return the status <code>good</code> for that entry.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
-<p id="section-9.2-2"><code>HashedId20</code> identifies only the certificates of CAs, OCSP requestors, and OCSP responders; the certificate whose status is queried is identified by its serial number, not by a hash.  The number of certificates among which a <code>HashedId20</code> must be unique is therefore small, typically the CA and responder certificates known to a relying party or the CA certificates served by an OCSP responder.  With 20 bytes, the probability that any two of n distinct certificates have the same <code>HashedId20</code> is about n^2 / 2^161; even for n = 10^6 such certificates, this is below 10^-36, so accidental collisions are not a concern in practice.  Finding a certificate whose <code>HashedId20</code> equals that of a given certificate, e.g., to make a response for one certificate apply to another, requires about 2^160 operations for a secure hash algorithm.  An attacker can find two certificates with the same <code>HashedId20</code> with about 2^80 operations, but both certificates are then under the attacker's control; since <code>HashedId20</code> only selects a certificate and trust is established by the signature verification and the authorization checks in <a href="#sec-signature" class="auto internal xref">Section 9.1</a>, such a collision gives the attacker no advantage.  Since the serial number is carried in plain form, the pair of <code>issuerCertHash</code> and <code>serialNumber</code> is as unambiguous as <code>issuerCertHash</code> alone.<a href="#section-9.2-2" class="pilcrow">¶</a></p>
-<p id="section-9.2-3">The serial number <span class="bcp14">MUST</span> be normalized as specified in <a href="#cert-serial-number" class="auto internal xref">Section 7.6</a>; otherwise, a revoked certificate is not found.<a href="#section-9.2-3" class="pilcrow">¶</a></p>
+<p id="section-9.2-1"><code>HashedId</code> (<a href="#cert-identification" class="auto internal xref">Section 7.4</a>) only selects a certificate and does not authenticate it; security relies on the signature verification in <a href="#sec-signature" class="auto internal xref">Section 9.1</a>.  A relying party <span class="bcp14">MUST</span> match a response to its request using hash values it has computed itself from the certificates it holds.  A receiver that finds several certificates matching a <code>HashedId</code> <span class="bcp14">MUST NOT</span> assume that a particular one is intended.  An OCSP responder for which an <code>issuerCertHash</code> matches more than one of its issuers <span class="bcp14">MUST NOT</span> return the status <code>good</code> for that entry.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+<p id="section-9.2-2"><code>HashedId</code> identifies only the certificates of CAs, OCSP requestors, and OCSP responders; the certificate whose status is queried is identified by its serial number, not by a hash.  The number of certificates among which a <code>HashedId</code> must be unique is therefore small, typically the CA and responder certificates known to a relying party or the CA certificates served by an OCSP responder.  For a <code>HashedId</code> of L bytes, the probability that any two of n distinct certificates have the same <code>HashedId</code> is about n^2 / 2^(8L+1).  For n = 10^6 such certificates, this is about 2^-25 for L = 8, about 2^-89 (below 10^-26) for L = 16, and about 2^-121 (below 10^-36) for L = 20.<a href="#section-9.2-2" class="pilcrow">¶</a></p>
+<p id="section-9.2-3">Finding a certificate whose <code>HashedId</code> equals that of a given certificate, e.g., to make a response for one certificate apply to another, requires about 2^(8L) operations for a secure hash algorithm, i.e., 2^64 for L = 8 and 2^128 for L = 16.  An attacker can find two certificates with the same <code>HashedId</code> with about 2^(4L) operations, but both certificates are then under the attacker's control; since <code>HashedId</code> only selects a certificate and trust is established by the signature verification and the authorization checks in <a href="#sec-signature" class="auto internal xref">Section 9.1</a>, such a collision gives the attacker no advantage.  Since the serial number is carried in plain form, the pair of <code>issuerCertHash</code> and <code>serialNumber</code> is as unambiguous as <code>issuerCertHash</code> alone.<a href="#section-9.2-3" class="pilcrow">¶</a></p>
+<p id="section-9.2-4">A <code>HashedId</code> of 8 bytes is sufficient in closed deployments with a small number of CA, requestor, and responder certificates.  Where an attacker may be able to obtain certificates with chosen content from a CA that the relying party trusts, a <code>HashedId</code> of at least 16 bytes <span class="bcp14">SHOULD</span> be used.<a href="#section-9.2-4" class="pilcrow">¶</a></p>
+<p id="section-9.2-5">The serial number <span class="bcp14">MUST</span> be normalized as specified in <a href="#cert-serial-number" class="auto internal xref">Section 7.6</a>; otherwise, a revoked certificate is not found.<a href="#section-9.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-privacy">
@@ -7265,7 +7268,7 @@ C509BasicOCSPResponse
             <p id="appendix-B.1-1.1.1">Replaced <code>serialNumberHash</code> in OCSP requests and responses with the plain serial number (<code>serialNumber</code>).<a href="#appendix-B.1-1.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-B.1-1.2">
-            <p id="appendix-B.1-1.2.1">Replaced <code>HashId8</code> with <code>HashedId20</code> for the certificate hashes <code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code>, and discussed the collision probability in the Security Considerations. Use the trailing bytes instead leading bytes of the hash value.<a href="#appendix-B.1-1.2.1" class="pilcrow">¶</a></p>
+            <p id="appendix-B.1-1.2.1">Replaced <code>HashId8</code> with <code>HashedId</code>, the low-order 8 to 64 bytes of the hash value, for the certificate hashes <code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code>, and discussed the collision probability in the Security Considerations.<a href="#appendix-B.1-1.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-B.1-1.3">
             <p id="appendix-B.1-1.3.1">Merged <code>C509UnsignedOCSPRequest</code> and <code>C509SignedOCSPRequest</code> into <code>C509BasicOCSPRequest</code> (type 1).<a href="#appendix-B.1-1.3.1" class="pilcrow">¶</a></p>
