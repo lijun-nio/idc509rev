@@ -2791,26 +2791,26 @@ A.1.  Overview
    |          | Revoked         |            |            |           |
    |          | Certificates    |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Simple OCSP     | 146        | 59         | 60%       |
+   | Appendix | Simple OCSP     | 146        | 55         | 62%       |
    | A.4.1    | Request Example |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Unsigned Basic  | 459        | 141        | 69%       |
+   | Appendix | Unsigned Basic  | 459        | 133        | 71%       |
    | A.4.2    | OCSP Request    |            |            |           |
    |          | Example         |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Signed Basic    | 568        | 229        | 60%       |
+   | Appendix | Signed Basic    | 568        | 217        | 62%       |
    | A.4.3    | OCSP Request    |            |            |           |
    |          | Example Without |            |            |           |
    |          | Requestor's     |            |            |           |
    |          | Certificate     |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Signed Basic    | 1019       | 442        | 57%       |
+   | Appendix | Signed Basic    | 1019       | 430        | 58%       |
    | A.4.4    | OCSP Request    |            |            |           |
    |          | Example With    |            |            |           |
    |          | Requestor's     |            |            |           |
    |          | Certificate     |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Signed Basic    | 1355       | 647        | 52%       |
+   | Appendix | Signed Basic    | 1355       | 635        | 53%       |
    | A.4.5    | OCSP Request    |            |            |           |
    |          | Example With    |            |            |           |
    |          | Requestor's     |            |            |           |
@@ -2821,23 +2821,23 @@ A.1.  Overview
    | A.5.1    | Response        |            |            |           |
    |          | Example         |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Simple OCSP     | 332        | 160        | 52%       |
+   | Appendix | Simple OCSP     | 332        | 152        | 54%       |
    | A.5.2    | Response        |            |            |           |
    |          | Example         |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Basic OCSP      | 821        | 268        | 67%       |
+   | Appendix | Basic OCSP      | 821        | 256        | 69%       |
    | A.5.3    | Response        |            |            |           |
    |          | Example Without |            |            |           |
    |          | Responder's     |            |            |           |
    |          | Certificate     |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Basic OCSP      | 1165       | 468        | 60%       |
+   | Appendix | Basic OCSP      | 1165       | 456        | 61%       |
    | A.5.4    | Response        |            |            |           |
    |          | Example With    |            |            |           |
    |          | Responder's     |            |            |           |
    |          | Certificate     |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Basic OCSP      | 1501       | 673        | 55%       |
+   | Appendix | Basic OCSP      | 1501       | 661        | 56%       |
    | A.5.5    | Response        |            |            |           |
    |          | Example With    |            |            |           |
    |          | Responder's     |            |            |           |
