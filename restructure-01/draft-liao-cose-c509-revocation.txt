@@ -2803,44 +2803,44 @@ A.1.  Overview
    | Section  | Description     | size(X509) | size(C509) | Size      |
    |          |                 |            |            | Reduction |
    +==========+=================+============+============+===========+
-   | Appendix | CRL Example     | 147        | 120        | 18%       |
+   | Appendix | CRL Example     | 147        | 122        | 17%       |
    | A.3.1    | Without Revoked |            |            |           |
    |          | Certificates    |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | CRL Example     | 335        | 177        | 47%       |
+   | Appendix | CRL Example     | 421        | 263        | 38%       |
    | A.3.2    | With Revoked    |            |            |           |
    |          | Certificates    |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Delta CRL       | 335        | 160        | 52%       |
+   | Appendix | Delta CRL       | 421        | 248        | 41%       |
    | A.3.3    | Example With    |            |            |           |
    |          | Revoked         |            |            |           |
    |          | Certificates    |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Indirect CRL    | 409        | 202        | 51%       |
+   | Appendix | Indirect CRL    | 493        | 294        | 40%       |
    | A.3.4    | Example With    |            |            |           |
    |          | Revoked         |            |            |           |
    |          | Certificates    |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Simple OCSP     | 150        | 51         | 66%       |
+   | Appendix | Simple OCSP     | 146        | 59         | 60%       |
    | A.4.1    | Request Example |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Unsigned Basic  | 475        | 132        | 72%       |
+   | Appendix | Unsigned Basic  | 459        | 141        | 69%       |
    | A.4.2    | OCSP Request    |            |            |           |
    |          | Example         |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Signed Basic    | 584        | 209        | 64%       |
+   | Appendix | Signed Basic    | 568        | 229        | 60%       |
    | A.4.3    | OCSP Request    |            |            |           |
    |          | Example Without |            |            |           |
    |          | Requestor's     |            |            |           |
    |          | Certificate     |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Signed Basic    | 1035       | 420        | 59%       |
+   | Appendix | Signed Basic    | 1019       | 442        | 57%       |
    | A.4.4    | OCSP Request    |            |            |           |
    |          | Example With    |            |            |           |
    |          | Requestor's     |            |            |           |
    |          | Certificate     |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Signed Basic    | 1371       | 625        | 54%       |
+   | Appendix | Signed Basic    | 1355       | 647        | 52%       |
    | A.4.5    | OCSP Request    |            |            |           |
    |          | Example With    |            |            |           |
    |          | Requestor's     |            |            |           |
@@ -2851,23 +2851,23 @@ A.1.  Overview
    | A.5.1    | Response        |            |            |           |
    |          | Example         |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Simple OCSP     | 336        | 140        | 58%       |
+   | Appendix | Simple OCSP     | 332        | 160        | 52%       |
    | A.5.2    | Response        |            |            |           |
    |          | Example         |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Basic OCSP      | 837        | 248        | 70%       |
+   | Appendix | Basic OCSP      | 821        | 268        | 67%       |
    | A.5.3    | Response        |            |            |           |
    |          | Example Without |            |            |           |
    |          | Responder's     |            |            |           |
    |          | Certificate     |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Basic OCSP      | 1181       | 446        | 62%       |
+   | Appendix | Basic OCSP      | 1165       | 468        | 60%       |
    | A.5.4    | Response        |            |            |           |
    |          | Example With    |            |            |           |
    |          | Responder's     |            |            |           |
    |          | Certificate     |            |            |           |
    +----------+-----------------+------------+------------+-----------+
-   | Appendix | Basic OCSP      | 1517       | 651        | 57%       |
+   | Appendix | Basic OCSP      | 1501       | 673        | 55%       |
    | A.5.5    | Response        |            |            |           |
    |          | Example With    |            |            |           |
    |          | Responder's     |            |            |           |
