@@ -269,7 +269,7 @@ impl C509Crl {
             crl_type: as_u64(&a[0], "crlType")?,
             signature_algorithm: as_i64(&a[1], "signatureAlgorithm")?,
             authority_subject: decode_name(&a[2])?,
-            authority_key_identifier: opt_bytes(&a[3], "authorityKeyIdentifier")?,
+            authority_key_identifier: as_bytes(&a[3], "authorityKeyIdentifier")?,
             crl_number: as_u64(&a[4], "crlNumber")?,
             this_update,
             next_update: opt_u64(&a[6], "nextUpdate")?.map(|d| this_update + d),
@@ -447,9 +447,10 @@ impl C509OcspResponse {
                 if a.len() != 2 {
                     return Err(DecodeError::Malformed("Error response must be array[2]"));
                 }
-                Ok(C509OcspResponse::Error {
-                    response_status: as_i64(&a[1], "responseStatus")?,
-                })
+                // responseStatus is -128..127 in the draft CDDL.
+                let status = i8::try_from(as_i64(&a[1], "responseStatus")?)
+                    .map_err(|_| DecodeError::Malformed("responseStatus out of range (-128..=127)"))?;
+                Ok(C509OcspResponse::Error { response_status: status })
             }
             discriminator::OCSP_RESP_BASIC => {
                 if a.len() != 10 {
@@ -598,5 +599,24 @@ mod tests {
         assert!(matches!(C509OcspRequest::decode(&long), Err(DecodeError::Malformed(_))));
         assert!(C509OcspRequest::decode(&max).is_ok());
         assert!(C509OcspRequest::decode(&null).is_ok());
+    }
+
+    #[test]
+    fn authority_key_identifier_must_be_bytes() {
+        use super::DecodeError;
+        // NO_REVOKED carries a 20-byte authorityKeyIdentifier (0x54 ‖ 20 bytes).
+        let aki = "542f45e78d2caedf368cdf53c39005d492450e1056";
+        let null = hex::decode(NO_REVOKED.replacen(aki, "f6", 1)).unwrap();
+        assert!(matches!(C509Crl::decode(&null), Err(DecodeError::Malformed(_))));
+    }
+
+    #[test]
+    fn response_status_range_is_enforced() {
+        use super::DecodeError;
+        let decode = |h: &str| C509OcspResponse::decode(&hex::decode(h).unwrap());
+        assert!(decode("8200187f").is_ok());  //  127
+        assert!(decode("8200387f").is_ok());  // -128
+        assert!(matches!(decode("82001880"), Err(DecodeError::Malformed(_)))); //  128
+        assert!(matches!(decode("82003880"), Err(DecodeError::Malformed(_)))); // -129
     }
 }

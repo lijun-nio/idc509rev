@@ -114,8 +114,8 @@ fn encode_responses(responses: &[PerIssuerOCSPResponse]) -> Vec<u8> {
 /// A C509 OCSP response.
 #[derive(Clone, Debug)]
 pub enum C509OcspResponse {
-    /// `C509ErrorOCSPResponse` (type 0).
-    Error { response_status: i64 },
+    /// `C509ErrorOCSPResponse` (type 0); `responseStatus` is -128..127.
+    Error { response_status: i8 },
     /// `C509BasicOCSPResponse` (type 1).
     Basic {
         signature_algorithm: i64,
@@ -203,7 +203,7 @@ impl C509OcspResponse {
         match self {
             C509OcspResponse::Error { response_status } => lcbor::lcbor_array(&[
                 lcbor::lcbor_uint(discriminator::OCSP_RESP_ERROR),
-                lcbor::lcbor_int(*response_status),
+                lcbor::lcbor_int(i64::from(*response_status)),
             ]),
             C509OcspResponse::Basic { signature_value, .. }
             | C509OcspResponse::Simple { signature_value, .. } => {
