@@ -76,6 +76,15 @@ informative:
   RFC7925:
   RFC9654:
   RFC9861:
+  FIPS180-4:
+    title: Secure Hash Standard (SHS)
+    author:
+      org: National Institute of Standards and Technology
+    date: August 2015
+    seriesinfo:
+      "FIPS PUB": "180-4"
+      DOI: 10.6028/NIST.FIPS.180-4
+    target: https://doi.org/10.6028/NIST.FIPS.180-4
   POSIX:
     title: IEEE Standard for Information Technology--Portable Operating System Interface (POSIX(TM)) Base Specifications, Issue 7
     target: https://pubs.opengroup.org/onlinepubs/9699919799/
@@ -532,14 +541,14 @@ The hash algorithm MUST produce an output at least as long as the `HashedId` val
 
 To reduce OCSP message size, this document defines a truncated-hash identifier type used to refer to certificates compactly:
 
-- `HashedId`: the low-order bytes, i.e., the rightmost bytes, of the hash value computed using the enclosing `hashAlgorithm`.  A `HashedId` is 8 to 64 bytes long.  This follows the convention of the hashed identifiers in IEEE 1609.2, e.g., `HashedId8`.  `HashedId` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures.
+- `HashedId`: the leading bytes, i.e., the leftmost bytes, of the hash value computed using the enclosing `hashAlgorithm`.  A `HashedId` is 8 to 64 bytes long.  This is aligned with the truncation of hash values in SHA-512/256 {{FIPS180-4}} and SHA-256/64 {{RFC9054}}, which also keep the leftmost bits.  `HashedId` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures.
 
 ~~~~~~~~~~~ cddl
 HashedId = bytes .size (8..64)
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 
-The sender chooses the length of a `HashedId`; it MUST NOT be longer than the output of the hash algorithm.  The length is a trade-off between message size and collision resistance; see {{sec-truncated-hash}}.  A receiver compares a received `HashedId` with a certificate by computing the hash value of the certificate using `hashAlgorithm` and comparing its low-order bytes, as many as the received `HashedId` has, with the received `HashedId`.  An OCSP responder MUST use in a response the same `issuerCertHash` value as in the corresponding request.
+The sender chooses the length of a `HashedId`; it MUST NOT be longer than the output of the hash algorithm.  The length is a trade-off between message size and collision resistance; see {{sec-truncated-hash}}.  A receiver compares a received `HashedId` with a certificate by computing the hash value of the certificate using `hashAlgorithm` and comparing its leading bytes, as many as the received `HashedId` has, with the received `HashedId`.  An OCSP responder MUST use in a response the same `issuerCertHash` value as in the corresponding request.
 
 ## Certificate Chains {#cert-chain-variant}
 
@@ -3965,7 +3974,7 @@ Annotated hex
 
 * Replaced `serialNumberHash` in OCSP requests and responses with the plain serial number (`serialNumber`).
 
-* Replaced `HashId8` with `HashedId`, the low-order 8 to 64 bytes of the hash value, for the certificate hashes `issuerCertHash`, `requestorCertHash`, and `responderCertHash`, and discussed the collision probability in the Security Considerations.
+* Replaced `HashId8` with `HashedId`, the leading 8 to 64 bytes of the hash value, for the certificate hashes `issuerCertHash`, `requestorCertHash`, and `responderCertHash`, and discussed the collision probability in the Security Considerations.
 
 * Merged `C509UnsignedOCSPRequest` and `C509SignedOCSPRequest` into `C509BasicOCSPRequest` (type 1).
 
