@@ -396,7 +396,7 @@ Each `PerIssuerRevokedCerts` entry describes revoked certificates for one issuer
 
 - The `issuer` field identifies the issuer of the certificates covered by this `PerIssuerRevokedCerts` entry as a `NameVariant` ({{name-variant}}).  Its `type` is the type of the covered certificates, and its `name` is their `issuer` field.  For example, when the covered certificates are C509 certificates, `issuer` is `[4, name]`, where `name` is identical to the `issuer` field of the covered C509 certificates; when they are X.509 certificates, `issuer` is `[0, name]`, where `name` is a byte string containing the DER-encoded `issuer` field of the covered X.509 certificates.  If the issuer is identical to the CRL's `authoritySubject` field, it MUST be encoded as CBOR `null`.
 
-  The `type` of `issuer`, or of `authoritySubject` if `issuer` is `null`, also determines how the serial numbers in `revokedCerts` and `removedFromCRLCerts` are derived.  A raw public key ({{RFC7250}}), i.e., `type` = 2 (RawPublicKey), has no serial number.  Instead, a virtual serial number is used, defined as the leading 20 bytes of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded `SubjectPublicKeyInfo`.  If the first of these 20 bytes is 0x00, it is replaced by 0x7F.  The virtual serial number of a raw public key is therefore always 20 bytes long and has no leading zero byte.
+  The `type` of `issuer`, or of `authoritySubject` if `issuer` is `null`, also determines how the serial numbers in `revokedCerts` and `removedFromCRLCerts` are derived.  A raw public key ({{RFC7250}}), i.e., `type` = 2 (RawPublicKey), has no serial number.  Instead, a virtual serial number is used, defined as the low-order 20 bytes, i.e., the last 20 bytes, of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded `SubjectPublicKeyInfo`.  These 20 bytes are used as is, even if their first byte is 0x00; the virtual serial number of a raw public key is therefore always 20 bytes long.
 
 - The `revokedCertsControl` field defines the controls for interpreting `removedFromCRLCerts` and `revokedCerts`.  If either `removedFromCRLCerts` or `revokedCerts` is non-`null`, `revokedCertsControl` MUST NOT be `null`.  If both `removedFromCRLCerts` and `revokedCerts` are `null`, `revokedCertsControl` MUST be `null` to reduce CRL size.
 
@@ -534,7 +534,7 @@ The hash algorithm MUST produce an output of at least 20 bytes, so that `HashId2
 
 To reduce OCSP message size, this document defines a truncated-hash identifier type used to refer to certificates compactly:
 
-- `HashId20`: the leading 20 bytes of the hash value computed using the enclosing `hashAlgorithm`.  `HashId20` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures.  With 20 bytes, accidental collisions are negligible (about 2^80 certificates are needed for a collision by the birthday bound), so the identifier is unique in practice.
+- `HashId20`: the low-order 20 bytes, i.e., the last 20 bytes, of the hash value computed using the enclosing `hashAlgorithm`.  This follows the convention of the hashed identifiers in IEEE 1609.2, e.g., `HashedId8`.  `HashId20` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures.  With 20 bytes, accidental collisions are negligible (about 2^80 certificates are needed for a collision by the birthday bound), so the identifier is unique in practice.
 
 ~~~~~~~~~~~ cddl
 HashId20  = bytes .size 20
@@ -577,13 +577,13 @@ SerialNumber = bytes .size (1..20)
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
 
-The `serialNumber` field contains the certificate serial number of the target certificate as an unsigned big-endian integer without a leading zero byte, encoded as a byte string.  This is the encoding of `CertificateSerialNumber` in C509 certificates ({{I-D.ietf-cose-cbor-encoded-cert}}), so for a C509 certificate the value is the certificate's serial number as is.
+The `serialNumber` field contains the serial number of the target certificate, encoded as a byte string.  Its value depends on the certificate type.
+
+For a C509 certificate, `serialNumber` is the `certificateSerialNumber` of the certificate ({{I-D.ietf-cose-cbor-encoded-cert}}) as is.
 
 For an X.509 certificate, the serial number is an ASN.1 INTEGER ({{RFC5280, Section 4.1.2.2}}).  Its DER encoding is two's complement and therefore contains a leading zero byte when the most-significant bit of the value is set.  This leading zero byte is not part of `serialNumber`: the value is the contents octets of the DER-encoded INTEGER with a leading zero byte, if present, removed.  For example, the DER-encoded serial number `02 03 00 8F 01` gives `serialNumber` `h'8F01'`.
 
-For a raw public key ({{RFC7250}}), which has no serial number, a virtual serial number is derived as in C509 CRLs ({{revoked-certs-list}}): `serialNumber` is the leading 20 bytes of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded `SubjectPublicKeyInfo`.  If the first of these 20 bytes is 0x00, it is replaced by 0x7F.  The virtual serial number is always computed using SHA-256; the `hashAlgorithm` field of the enclosing structure does not apply to it.
-
-Since a serial number is a positive integer of at most 20 bytes ({{RFC5280, Section 4.1.2.2}}), and the serial number of a raw public key is 20 bytes long without a leading zero byte, `serialNumber` is 1 to 20 bytes long.
+For a raw public key ({{RFC7250}}), which has no serial number, a virtual serial number is derived as in C509 CRLs ({{revoked-certs-list}}): `serialNumber` is the low-order 20 bytes, i.e., the last 20 bytes, of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded `SubjectPublicKeyInfo`.  These 20 bytes are used as is, even if their first byte is 0x00, so `serialNumber` is always 20 bytes long.  The virtual serial number is always computed using SHA-256; the `hashAlgorithm` field of the enclosing structure does not apply to it.
 
 As in the `CertID` of {{RFC6960}}, the serial number is carried in plain form and is not hashed.  Serial numbers are not secret, and an unsalted hash would not prevent an observer with a set of candidate serial numbers from identifying the queried certificate (see {{sec-privacy}}).  The plain serial number is at most 20 bytes long, lets an OCSP responder look up the certificate directly, and cannot collide.
 
