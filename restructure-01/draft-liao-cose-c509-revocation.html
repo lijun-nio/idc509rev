@@ -1820,7 +1820,8 @@ int16 = -32768..32767
 
 IntAlgorithmIdentifier = int16
 
-IntExtension = ( extensionID: IntExtensionID, extensionValue: Defined )
+IntExtension = ( extensionID: IntExtensionID,
+                 extensionValue: Defined )
 
 IntExtensionID = 1..9223372036854775807 / ;   2^32 - 1
                  -9223372036854775807..-1  ; -(2^32 - 1)
@@ -2341,7 +2342,7 @@ Removed-certificate entries have fixed length.  If bit 0 of <code>flags</code> i
             </thead>
             <tbody>
               <tr>
-                <td class="text-left" rowspan="1" colspan="1">TBD4</td>
+                <td class="text-left" rowspan="1" colspan="1">TBD1 (128)</td>
                 <td class="text-left" rowspan="1" colspan="1">expiredCertsOnCRL</td>
                 <td class="text-left" rowspan="1" colspan="1">OID 2.5.29.60 (ITU-T X.509, Section 9.5.2.8)</td>
                 <td class="text-left" rowspan="1" colspan="1">-</td>
@@ -2592,7 +2593,8 @@ C509OCSPRequest = C509BasicOCSPRequest /
 
 C509BasicOCSPRequest = [
   ocspRequestType    : 1, ; int16
-  signatureAlgorithm : IntAlgorithmIdentifier / null, ; null if unsigned
+  ; null if unsigned
+  signatureAlgorithm : IntAlgorithmIdentifier / null,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..32) / null,
   extensions         : IntExtensions,
@@ -3172,7 +3174,7 @@ RevokedInfo = [
             <h5 id="name-ocsp-extensions">
 <a href="#section-7.8.2.13" class="section-number selfRef">7.8.2.13. </a><a href="#name-ocsp-extensions" class="section-name selfRef">OCSP Extensions</a>
             </h5>
-<p id="section-7.8.2.13-1"><a href="#tab-ocspext" class="auto internal xref">Table 9</a> describes the OCSP extensions defined in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span> and <span>[<a href="#I-D.ietf-stir-certificates-ocsp" class="cite xref">I-D.ietf-stir-certificates-ocsp</a>]</span> and their mapping in this document.<a href="#section-7.8.2.13-1" class="pilcrow">¶</a></p>
+<p id="section-7.8.2.13-1"><a href="#tab-ocspext" class="auto internal xref">Table 9</a> describes the OCSP extensions defined in <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span> and <span>[<a href="#STIR-OCSP" class="cite xref">STIR-OCSP</a>]</span> and their mapping in this document.<a href="#section-7.8.2.13-1" class="pilcrow">¶</a></p>
 <span id="name-ocsp-extensions-and-their-m"></span><div id="tab-ocspext">
 <table class="center" id="table-9">
               <caption>
@@ -3209,7 +3211,7 @@ RevokedInfo = [
                   <td class="text-left" rowspan="1" colspan="1">-</td>
                 </tr>
                 <tr>
-                  <td class="text-center" rowspan="1" colspan="1">TBD2</td>
+                  <td class="text-center" rowspan="1" colspan="1">TBD2 (129)</td>
                   <td class="text-left" rowspan="1" colspan="1">Acceptable Response Types</td>
                   <td class="text-left" rowspan="1" colspan="1">
                     <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.4.3" class="relref">Section 4.4.3</a></span>
@@ -3236,7 +3238,7 @@ RevokedInfo = [
                   <td class="text-left" rowspan="1" colspan="1">-</td>
                 </tr>
                 <tr>
-                  <td class="text-center" rowspan="1" colspan="1">TBD3</td>
+                  <td class="text-center" rowspan="1" colspan="1">TBD3 (130)</td>
                   <td class="text-left" rowspan="1" colspan="1">Preferred Signature Algorithms</td>
                   <td class="text-left" rowspan="1" colspan="1">
                     <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.4.7" class="relref">Section 4.4.7</a></span>
@@ -3254,10 +3256,10 @@ RevokedInfo = [
                   <td class="text-left" rowspan="1" colspan="1">cert status <code>not-issued</code> (for serial numbers not issued by a recognized issuer) and <code>unknown</code> (for unrecognized issuers)</td>
                 </tr>
                 <tr>
-                  <td class="text-center" rowspan="1" colspan="1">TBD6</td>
+                  <td class="text-center" rowspan="1" colspan="1">TBD4 (131)</td>
                   <td class="text-left" rowspan="1" colspan="1">TN Query</td>
                   <td class="text-left" rowspan="1" colspan="1">
-                    <span>[<a href="#I-D.ietf-stir-certificates-ocsp" class="cite xref">I-D.ietf-stir-certificates-ocsp</a>]</span>
+                    <span>[<a href="#STIR-OCSP" class="cite xref">STIR-OCSP</a>]</span>
 </td>
                   <td class="text-left" rowspan="1" colspan="1">Single Request Extension</td>
                   <td class="text-left" rowspan="1" colspan="1">-</td>
@@ -3318,7 +3320,7 @@ TNQuery = text .size (1..15)
 </pre><a href="#section-7.8.2.13-13" class="pilcrow">¶</a>
 </div>
 <p id="section-7.8.2.13-14">The <code>TNQuery</code> extension carries a telephone number string conforming to the TelephoneNumber ASN.1 type (<span>[<a href="#RFC8226" class="cite xref">RFC8226</a>], <a href="https://rfc-editor.org/rfc/rfc8226#section-3" class="relref">Section 3</a></span>).  When included in single request extensions, it specifies the telephone number for which the OCSP query is being performed (typically the number from the "orig" field of a PASSporT being validated).<a href="#section-7.8.2.13-14" class="pilcrow">¶</a></p>
-<p id="section-7.8.2.13-15">This extension is allowed only in the single-request extensions per <span>[<a href="#I-D.ietf-stir-certificates-ocsp" class="cite xref">I-D.ietf-stir-certificates-ocsp</a>]</span>.<a href="#section-7.8.2.13-15" class="pilcrow">¶</a></p>
+<p id="section-7.8.2.13-15">This extension is allowed only in the single-request extensions per <span>[<a href="#STIR-OCSP" class="cite xref">STIR-OCSP</a>]</span>.<a href="#section-7.8.2.13-15" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -3370,27 +3372,7 @@ TNQuery = text .size (1..15)
           <tbody>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issuerCertHash</code>
-</td>
-              <td class="text-left" rowspan="1" colspan="1">Hash of CBOR-encoded <code>C509Certificate</code>
-</td>
-              <td class="text-left" rowspan="1" colspan="1">Hash of DER-encoded X.509 certificate</td>
-              <td class="text-left" rowspan="1" colspan="1">Hash of DER-encoded <code>SubjectPublicKeyInfo</code>
-</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">
-                <code>requestorCertHash</code>
-</td>
-              <td class="text-left" rowspan="1" colspan="1">Hash of CBOR-encoded <code>C509Certificate</code>
-</td>
-              <td class="text-left" rowspan="1" colspan="1">Hash of DER-encoded X.509 certificate</td>
-              <td class="text-left" rowspan="1" colspan="1">Hash of DER-encoded <code>SubjectPublicKeyInfo</code>
-</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">
-                <code>responderCertHash</code>
+                <code>issuerCertHash</code> / <code>requestorCertHash</code> / <code>responderCertHash</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">Hash of CBOR-encoded <code>C509Certificate</code>
 </td>
@@ -3402,9 +3384,7 @@ TNQuery = text .size (1..15)
               <td class="text-left" rowspan="1" colspan="1">
                 <code>serialNumber</code>
 </td>
-              <td class="text-left" rowspan="1" colspan="1">
-                <code>certificateSerialNumber</code>
-</td>
+              <td class="text-left" rowspan="1" colspan="1">Serial number as is</td>
               <td class="text-left" rowspan="1" colspan="1">Serial number without leading zero byte</td>
               <td class="text-left" rowspan="1" colspan="1">Derived from SHA-256 of DER-encoded <code>SubjectPublicKeyInfo</code>
 </td>
@@ -3451,7 +3431,7 @@ TNQuery = text .size (1..15)
           </thead>
           <tbody>
             <tr>
-              <td class="text-center" rowspan="1" colspan="1">TBD1</td>
+              <td class="text-center" rowspan="1" colspan="1">TBD5</td>
               <td class="text-left" rowspan="1" colspan="1">c509_ocsp</td>
               <td class="text-left" rowspan="1" colspan="1">This document</td>
             </tr>
@@ -3754,7 +3734,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
         <h3 id="name-extension-identifiers-regis">
 <a href="#section-10.4" class="section-number selfRef">10.4. </a><a href="#name-extension-identifiers-regis" class="section-name selfRef">Extension Identifiers Registry</a>
         </h3>
-<p id="section-10.4-1">IANA is requested to assign the new values shown in <a href="#tab-extensions-iana" class="auto internal xref">Figure 10</a> in the "C509 Extensions" registry under the new registry group "CBOR Encoded X.509 (C509)" defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.<a href="#section-10.4-1" class="pilcrow">¶</a></p>
+<p id="section-10.4-1">IANA is requested to assign the new values shown in <a href="#tab-extensions-iana" class="auto internal xref">Figure 10</a> in the "C509 Extensions" registry under the new registry group "CBOR Encoded X.509 (C509)" defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.  The values in parentheses are suggested values; they are used by the implementation in <a href="#sec-implementation-2" class="auto internal xref">Section 8.2</a>.<a href="#section-10.4-1" class="pilcrow">¶</a></p>
 <span id="name-c509-extension-identifier-a"></span><div id="tab-extensions-iana">
 <figure id="figure-10">
           <div class="alignLeft art-text artwork" id="section-10.4-2.1">
@@ -3762,8 +3742,16 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 +-------+----------------------------------------------------------+
 | Value | Extension                                                |
 +=======+==========================================================+
+| TBD1  | Name:            Expired Certificates on CRL             |
+| (128) | Identifiers:     id-ce-expiredCertsOnCRL                 |
+|       | OID:             2.5.29.60                               |
+|       | DER:             06 03 55 1D 3C                          |
+|       | Comments:        ITU-T X.509, Section 9.5.2.8            |
+|       | extensionValue:  ExpiredCertsOnCRL                       |
+|       | Reference:       [[this document]]                       |
++-------+----------------------------------------------------------+
 | TBD2  | Name:            Acceptable Response Types               |
-|       | Identifiers:     id-pkix-ocsp-response                   |
+| (129) | Identifiers:     id-pkix-ocsp-response                   |
 |       | OID:             1.3.6.1.5.5.7.48.1.4                    |
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 04        |
 |       | Comments:        RFC 6960                                |
@@ -3771,23 +3759,15 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 |       | Reference:       [[this document]]                       |
 +-------+----------------------------------------------------------+
 | TBD3  | Name:            Preferred Signature Algorithms          |
-|       | Identifiers:     id-pkix-ocsp-pref-sig-algs              |
+| (130) | Identifiers:     id-pkix-ocsp-pref-sig-algs              |
 |       | OID:             1.3.6.1.5.5.7.48.1.8                    |
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 08        |
 |       | Comments:        RFC 6960                                |
 |       | extensionValue:  PreferredSignatureAlgorithms            |
 |       | Reference:       [[this document]]                       |
 +-------+----------------------------------------------------------+
-| TBD4  | Name:            Expired Certificates on CRL             |
-|       | Identifiers:     id-ce-expiredCertsOnCRL                 |
-|       | OID:             2.5.29.60                               |
-|       | DER:             06 03 55 1D 3C                          |
-|       | Comments:        ITU-T X.509, Section 9.5.2.8            |
-|       | extensionValue:  ExpiredCertsOnCRL                       |
-|       | Reference:       [[this document]]                       |
-+-------+----------------------------------------------------------+
-| TBD6  | Name:            TN Query                                |
-|       | Identifiers:     id-pkix-ocsp-stir-tn                    |
+| TBD4  | Name:            TN Query                                |
+| (131) | Identifiers:     id-pkix-ocsp-stir-tn                    |
 |       | OID:             1.3.6.1.5.5.7.48.1.10                   |
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 0A        |
 |       | Comments:        draft-ietf-stir-certificates-ocsp       |
@@ -3824,7 +3804,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
           </thead>
           <tbody>
             <tr>
-              <td class="text-center" rowspan="1" colspan="1">TBD1</td>
+              <td class="text-center" rowspan="1" colspan="1">TBD5</td>
               <td class="text-left" rowspan="1" colspan="1">c509_ocsp</td>
               <td class="text-left" rowspan="1" colspan="1">[RFC-XXXX]</td>
               <td class="text-left" rowspan="1" colspan="1">N/A</td>
@@ -3887,7 +3867,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
           <h4 id="name-media-type-application-c509">
 <a href="#section-10.7.1" class="section-number selfRef">10.7.1. </a><a href="#name-media-type-application-c509" class="section-name selfRef">Media Type application/c509-crl+cbor</a>
           </h4>
-<p id="section-10.7.1-1">When the application/c509-crl+cbor media type is used, the data is a C509CertificateList structure.  A stored file format is defined with "magic number" TBD11 using the reserved CBOR tag 55799 and the Content-Format TBD7, enveloped as described in <span>[<a href="#RFC9277" class="cite xref">RFC9277</a>], <a href="https://rfc-editor.org/rfc/rfc9277#section-2.2" class="relref">Section 2.2</a></span>.<a href="#section-10.7.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.7.1-1">When the application/c509-crl+cbor media type is used, the data is a C509CertificateList structure.  A stored file format is defined with "magic number" TBD6 using the reserved CBOR tag 55799 and the Content-Format TBD7, enveloped as described in <span>[<a href="#RFC9277" class="cite xref">RFC9277</a>], <a href="https://rfc-editor.org/rfc/rfc9277#section-2.2" class="relref">Section 2.2</a></span>.<a href="#section-10.7.1-1" class="pilcrow">¶</a></p>
 <p id="section-10.7.1-2">Subtype name: c509-crl+cbor<a href="#section-10.7.1-2" class="pilcrow">¶</a></p>
 <p id="section-10.7.1-3">Required parameters: N/A<a href="#section-10.7.1-3" class="pilcrow">¶</a></p>
 <p id="section-10.7.1-4">Optional parameters: N/A<a href="#section-10.7.1-4" class="pilcrow">¶</a></p>
@@ -3903,7 +3883,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
               <p id="section-10.7.1-12.1.1">Deprecated alias names for this type: N/A<a href="#section-10.7.1-12.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-10.7.1-12.2">
-              <p id="section-10.7.1-12.2.1">Magic number(s): TBD11<a href="#section-10.7.1-12.2.1" class="pilcrow">¶</a></p>
+              <p id="section-10.7.1-12.2.1">Magic number(s): TBD6<a href="#section-10.7.1-12.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-10.7.1-12.3">
               <p id="section-10.7.1-12.3.1">File extension(s): .c509<a href="#section-10.7.1-12.3.1" class="pilcrow">¶</a></p>
@@ -3924,7 +3904,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
           <h4 id="name-media-type-application-c509-">
 <a href="#section-10.7.2" class="section-number selfRef">10.7.2. </a><a href="#name-media-type-application-c509-" class="section-name selfRef">Media Type application/c509-crlinfo+cbor</a>
           </h4>
-<p id="section-10.7.2-1">When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.  A stored file format is defined with "magic number" TBD12 using the reserved CBOR tag 55799 and the Content-Format TBD8, enveloped as described in <span>[<a href="#RFC9277" class="cite xref">RFC9277</a>], <a href="https://rfc-editor.org/rfc/rfc9277#section-2.2" class="relref">Section 2.2</a></span>.<a href="#section-10.7.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.7.2-1">When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.  A stored file format is defined with "magic number" TBD8 using the reserved CBOR tag 55799 and the Content-Format TBD9, enveloped as described in <span>[<a href="#RFC9277" class="cite xref">RFC9277</a>], <a href="https://rfc-editor.org/rfc/rfc9277#section-2.2" class="relref">Section 2.2</a></span>.<a href="#section-10.7.2-1" class="pilcrow">¶</a></p>
 <p id="section-10.7.2-2">Subtype name: c509-crlinfo+cbor<a href="#section-10.7.2-2" class="pilcrow">¶</a></p>
 <p id="section-10.7.2-3">Required parameters: N/A<a href="#section-10.7.2-3" class="pilcrow">¶</a></p>
 <p id="section-10.7.2-4">Optional parameters: N/A<a href="#section-10.7.2-4" class="pilcrow">¶</a></p>
@@ -3940,7 +3920,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
               <p id="section-10.7.2-12.1.1">Deprecated alias names for this type: N/A<a href="#section-10.7.2-12.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-10.7.2-12.2">
-              <p id="section-10.7.2-12.2.1">Magic number(s): TBD12<a href="#section-10.7.2-12.2.1" class="pilcrow">¶</a></p>
+              <p id="section-10.7.2-12.2.1">Magic number(s): TBD8<a href="#section-10.7.2-12.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-10.7.2-12.3">
               <p id="section-10.7.2-12.3.1">File extension(s): .c509<a href="#section-10.7.2-12.3.1" class="pilcrow">¶</a></p>
@@ -3961,7 +3941,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
           <h4 id="name-media-type-application-c509-o">
 <a href="#section-10.7.3" class="section-number selfRef">10.7.3. </a><a href="#name-media-type-application-c509-o" class="section-name selfRef">Media Type application/c509-ocspreq+cbor</a>
           </h4>
-<p id="section-10.7.3-1">When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.  A stored file format is defined with "magic number" TBD13 using the reserved CBOR tag 55799 and the Content-Format TBD9, enveloped as described in <span>[<a href="#RFC9277" class="cite xref">RFC9277</a>], <a href="https://rfc-editor.org/rfc/rfc9277#section-2.2" class="relref">Section 2.2</a></span>.<a href="#section-10.7.3-1" class="pilcrow">¶</a></p>
+<p id="section-10.7.3-1">When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.  A stored file format is defined with "magic number" TBD10 using the reserved CBOR tag 55799 and the Content-Format TBD11, enveloped as described in <span>[<a href="#RFC9277" class="cite xref">RFC9277</a>], <a href="https://rfc-editor.org/rfc/rfc9277#section-2.2" class="relref">Section 2.2</a></span>.<a href="#section-10.7.3-1" class="pilcrow">¶</a></p>
 <p id="section-10.7.3-2">Subtype name: c509-ocspreq+cbor<a href="#section-10.7.3-2" class="pilcrow">¶</a></p>
 <p id="section-10.7.3-3">Required parameters: N/A<a href="#section-10.7.3-3" class="pilcrow">¶</a></p>
 <p id="section-10.7.3-4">Optional parameters: N/A<a href="#section-10.7.3-4" class="pilcrow">¶</a></p>
@@ -3977,7 +3957,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
               <p id="section-10.7.3-12.1.1">Deprecated alias names for this type: N/A<a href="#section-10.7.3-12.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-10.7.3-12.2">
-              <p id="section-10.7.3-12.2.1">Magic number(s): TBD13<a href="#section-10.7.3-12.2.1" class="pilcrow">¶</a></p>
+              <p id="section-10.7.3-12.2.1">Magic number(s): TBD10<a href="#section-10.7.3-12.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-10.7.3-12.3">
               <p id="section-10.7.3-12.3.1">File extension(s): .c509<a href="#section-10.7.3-12.3.1" class="pilcrow">¶</a></p>
@@ -3998,7 +3978,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
           <h4 id="name-media-type-application-c509-oc">
 <a href="#section-10.7.4" class="section-number selfRef">10.7.4. </a><a href="#name-media-type-application-c509-oc" class="section-name selfRef">Media Type application/c509-ocspresp+cbor</a>
           </h4>
-<p id="section-10.7.4-1">When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.  A stored file format is defined with "magic number" TBD14 using the reserved CBOR tag 55799 and the Content-Format TBD10, enveloped as described in <span>[<a href="#RFC9277" class="cite xref">RFC9277</a>], <a href="https://rfc-editor.org/rfc/rfc9277#section-2.2" class="relref">Section 2.2</a></span>.<a href="#section-10.7.4-1" class="pilcrow">¶</a></p>
+<p id="section-10.7.4-1">When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.  A stored file format is defined with "magic number" TBD12 using the reserved CBOR tag 55799 and the Content-Format TBD13, enveloped as described in <span>[<a href="#RFC9277" class="cite xref">RFC9277</a>], <a href="https://rfc-editor.org/rfc/rfc9277#section-2.2" class="relref">Section 2.2</a></span>.<a href="#section-10.7.4-1" class="pilcrow">¶</a></p>
 <p id="section-10.7.4-2">Subtype name: c509-ocspresp+cbor<a href="#section-10.7.4-2" class="pilcrow">¶</a></p>
 <p id="section-10.7.4-3">Required parameters: N/A<a href="#section-10.7.4-3" class="pilcrow">¶</a></p>
 <p id="section-10.7.4-4">Optional parameters: N/A<a href="#section-10.7.4-4" class="pilcrow">¶</a></p>
@@ -4014,7 +3994,7 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
               <p id="section-10.7.4-12.1.1">Deprecated alias names for this type: N/A<a href="#section-10.7.4-12.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-10.7.4-12.2">
-              <p id="section-10.7.4-12.2.1">Magic number(s): TBD14<a href="#section-10.7.4-12.2.1" class="pilcrow">¶</a></p>
+              <p id="section-10.7.4-12.2.1">Magic number(s): TBD12<a href="#section-10.7.4-12.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-10.7.4-12.3">
               <p id="section-10.7.4-12.3.1">File extension(s): .c509<a href="#section-10.7.4-12.3.1" class="pilcrow">¶</a></p>
@@ -4047,13 +4027,13 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 | application/            | -       | TBD7  | [[this     |
 | c509-crl+cbor           |         |       | document]] |
 +-------------------------+---------+-------+------------+
-| application/            |         | TBD8  | [[this     |
+| application/            |         | TBD9  | [[this     |
 | c509-crlinfo+cbor       | -       |       | document]] |
 +-------------------------+---------+-------+------------+
-| application/            | -       | TBD9  | [[this     |
+| application/            | -       | TBD11 | [[this     |
 | c509-ocspreq+cbor       |         |       | document]] |
 +-------------------------+---------+-------+------------+
-| application/            | -       | TBD10 | [[this     |
+| application/            | -       | TBD13 | [[this     |
 | c509-ocspresp+cbor      |         |       | document]] |
 +-------------------------+---------+-------+------------+
 </pre><a href="#section-10.8-2" class="pilcrow">¶</a>
@@ -4085,10 +4065,6 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
         <dd>
 <span class="refAuthor">Mattsson, J. P.</span>, <span class="refAuthor">Selander, G.</span>, <span class="refAuthor">Raza, S.</span>, <span class="refAuthor">Höglund, J.</span>, <span class="refAuthor">Furuhed, M.</span>, and <span class="refAuthor">L. Liao</span>, <span class="refTitle">"CBOR Encoded X.509 Certificates (C509 Certificates)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-cose-cbor-encoded-cert-21</span>, <time datetime="2026-09-24" class="refDate">24 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21">https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="I-D.ietf-stir-certificates-ocsp">[I-D.ietf-stir-certificates-ocsp]</dt>
-        <dd>
-<span class="refAuthor">Peterson, J.</span> and <span class="refAuthor">S. Turner</span>, <span class="refTitle">"OCSP Usage for Secure Telephone Identity Certificates"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-stir-certificates-ocsp-14</span>, <time datetime="2026-06-10" class="refDate">10 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-stir-certificates-ocsp-14">https://datatracker.ietf.org/doc/html/draft-ietf-stir-certificates-ocsp-14</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="IANA.cose">[IANA.cose]</dt>
         <dd>
 <span class="refAuthor">IANA</span>, <span class="refTitle">"CBOR Object Signing and Encryption (COSE)"</span>, <span>&lt;<a href="https://www.iana.org/assignments/cose">https://www.iana.org/assignments/cose</a>&gt;</span>. </dd>
@@ -4113,10 +4089,6 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
         <dd>
 <span class="refAuthor">Santesson, S.</span>, <span class="refAuthor">Myers, M.</span>, <span class="refAuthor">Ankney, R.</span>, <span class="refAuthor">Malpani, A.</span>, <span class="refAuthor">Galperin, S.</span>, and <span class="refAuthor">C. Adams</span>, <span class="refTitle">"X.509 Internet Public Key Infrastructure Online Certificate Status Protocol - OCSP"</span>, <span class="seriesInfo">RFC 6960</span>, <span class="seriesInfo">DOI 10.17487/RFC6960</span>, <time datetime="2013-06" class="refDate">June 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6960">https://www.rfc-editor.org/rfc/rfc6960</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC7120">[RFC7120]</dt>
-        <dd>
-<span class="refAuthor">Cotton, M.</span>, <span class="refTitle">"Early IANA Allocation of Standards Track Code Points"</span>, <span class="seriesInfo">BCP 100</span>, <span class="seriesInfo">RFC 7120</span>, <span class="seriesInfo">DOI 10.17487/RFC7120</span>, <time datetime="2014-01" class="refDate">January 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7120">https://www.rfc-editor.org/rfc/rfc7120</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC7250">[RFC7250]</dt>
         <dd>
 <span class="refAuthor">Wouters, P., Ed.</span>, <span class="refAuthor">Tschofenig, H., Ed.</span>, <span class="refAuthor">Gilmore, J.</span>, <span class="refAuthor">Weiler, S.</span>, and <span class="refAuthor">T. Kivinen</span>, <span class="refTitle">"Using Raw Public Keys in Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS)"</span>, <span class="seriesInfo">RFC 7250</span>, <span class="seriesInfo">DOI 10.17487/RFC7250</span>, <time datetime="2014-06" class="refDate">June 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7250">https://www.rfc-editor.org/rfc/rfc7250</a>&gt;</span>. </dd>
@@ -4124,10 +4096,6 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 <dt id="RFC7468">[RFC7468]</dt>
         <dd>
 <span class="refAuthor">Josefsson, S.</span> and <span class="refAuthor">S. Leonard</span>, <span class="refTitle">"Textual Encodings of PKIX, PKCS, and CMS Structures"</span>, <span class="seriesInfo">RFC 7468</span>, <span class="seriesInfo">DOI 10.17487/RFC7468</span>, <time datetime="2015-04" class="refDate">April 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7468">https://www.rfc-editor.org/rfc/rfc7468</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC8126">[RFC8126]</dt>
-        <dd>
-<span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Leiba, B.</span>, and <span class="refAuthor">T. Narten</span>, <span class="refTitle">"Guidelines for Writing an IANA Considerations Section in RFCs"</span>, <span class="seriesInfo">BCP 26</span>, <span class="seriesInfo">RFC 8126</span>, <span class="seriesInfo">DOI 10.17487/RFC8126</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8126">https://www.rfc-editor.org/rfc/rfc8126</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
         <dd>
@@ -4170,8 +4138,12 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 <span class="refAuthor">Bormann, C.</span>, <span class="refTitle">"Updates to the Concise Data Definition Language (CDDL) Grammar"</span>, <span class="seriesInfo">RFC 9682</span>, <span class="seriesInfo">DOI 10.17487/RFC9682</span>, <time datetime="2024-11" class="refDate">November 2024</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9682">https://www.rfc-editor.org/rfc/rfc9682</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9846">[RFC9846]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="seriesInfo">RFC 9846</span>, <span class="seriesInfo">DOI 10.17487/RFC9846</span>, <time datetime="2026-07" class="refDate">July 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9846">https://www.rfc-editor.org/rfc/rfc9846</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="STIR-OCSP">[STIR-OCSP]</dt>
+      <dd>
+<span class="refAuthor">Peterson, J.</span> and <span class="refAuthor">S. Turner</span>, <span class="refTitle">"OCSP Usage for Secure Telephone Identity Certificates"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-stir-certificates-ocsp-14</span>, <time datetime="2026-06-10" class="refDate">10 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-stir-certificates-ocsp-14">https://datatracker.ietf.org/doc/html/draft-ietf-stir-certificates-ocsp-14</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
