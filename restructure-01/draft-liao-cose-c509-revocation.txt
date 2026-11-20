@@ -2064,7 +2064,7 @@ Table of Contents
 
       -  Names are supported only in the single common-name text form.
 
-   *  Version compatibility: draft-liao-cose-c509-revocation-00
+   *  Version compatibility: draft-liao-cose-c509-revocation-02
 
    *  Interoperability: The encoder output matches the examples in this
       document byte for byte (for signed objects, the to-be-signed
@@ -2089,7 +2089,7 @@ Table of Contents
 
    *  Coverage: All structures and features specified in this document.
 
-   *  Version compatibility: draft-liao-cose-c509-revocation-00
+   *  Version compatibility: draft-liao-cose-c509-revocation-02
 
    *  Interoperability: This implementation was used to produce the
       examples in the appendices of this document.
