@@ -460,7 +460,7 @@ The `extensions` field of `PerIssuerRevokedCerts` contains per-issuer extensions
 
 | Code | Extension                | Reference         | Equivalent |
 |:-----|:-------------------------|:------------------| :------------------|
-| TBD4 | expiredCertsOnCRL        | OID 2.5.29.60 (ITU-T X.509, Section 9.5.2.8)  | - |
+| TBD1 (128) | expiredCertsOnCRL        | OID 2.5.29.60 (ITU-T X.509, Section 9.5.2.8)  | - |
 {: #tab-perIssuerExt title="Per-issuer extensions and their equivalents"}
 
 #### expiredCertsOnCRL {#ext-expired-certs}
@@ -904,12 +904,12 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 |:----:|:----------------------|:------------------| :----------|:--------------|
 |  -   | nonce                 | {{RFC6960, Section 4.4.1}}  | Request Extension, Response Extension | field `nonce` |
 |  -   | CRL References        | {{RFC6960, Section 4.4.2}}  | Single Response Extension | - |
-| TBD2 | Acceptable Response Types | {{RFC6960, Section 4.4.3}}  | Request Extension | - |
+| TBD2 (129) | Acceptable Response Types | {{RFC6960, Section 4.4.3}}  | Request Extension | - |
 |  -   | Archive Cutoff        | {{RFC6960, Section 4.4.4}}  | Response Extension | - |
 |  -   | Service Locator       | {{RFC6960, Section 4.4.5}}  | Request Extension | - |
-| TBD3 | Preferred Signature Algorithms | {{RFC6960, Section 4.4.7}} | Request Extension | - |
+| TBD3 (130) | Preferred Signature Algorithms | {{RFC6960, Section 4.4.7}} | Request Extension | - |
 |  -   | Extended Revoked Definition | {{RFC6960, Section 4.4.8}}  | Response Extension | cert status `not-issued` (for serial numbers not issued by a recognized issuer) and `unknown` (for unrecognized issuers) |
-| TBD6 | TN Query | {{STIR-OCSP}} | Single Request Extension | - |
+| TBD4 (131) | TN Query | {{STIR-OCSP}} | Single Request Extension | - |
 {: #tab-ocspext title="OCSP extensions and their mapping"}
 
 This document defines the following extension values:
@@ -990,7 +990,7 @@ In standard TLS certificate status stapling (see the `status_request` extension,
 
 | Value | Name              | Reference     |
 |:-----:|:------------------|:--------------|
-| TBD1  | c509_ocsp         | This document |
+| TBD5  | c509_ocsp         | This document |
 {: #tab-tlsstaple title="TLS CertificateStatusType for C509 OCSP"}
 
 When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509SimpleOCSPResponse` ({{C509SimpleOCSPResponse}}) instead of a DER-encoded `OCSPResponse`.  Other C509 OCSP response types MUST NOT be used.  A client that receives a different response type MUST treat the stapled response as absent.
@@ -1156,14 +1156,22 @@ IANA is requested to create a new registry titled "C509 OCSP Response Types" und
 
 ## Extension Identifiers Registry
 
-IANA is requested to assign the new values shown in {{tab-extensions-iana}} in the "C509 Extensions" registry under the new registry group "CBOR Encoded X.509 (C509)" defined in {{I-D.ietf-cose-cbor-encoded-cert}}.
+IANA is requested to assign the new values shown in {{tab-extensions-iana}} in the "C509 Extensions" registry under the new registry group "CBOR Encoded X.509 (C509)" defined in {{I-D.ietf-cose-cbor-encoded-cert}}.  The values in parentheses are suggested values; they are used by the implementation in {{sec-implementation-2}}.
 
 ~~~
 +-------+----------------------------------------------------------+
 | Value | Extension                                                |
 +=======+==========================================================+
+| TBD1  | Name:            Expired Certificates on CRL             |
+| (128) | Identifiers:     id-ce-expiredCertsOnCRL                 |
+|       | OID:             2.5.29.60                               |
+|       | DER:             06 03 55 1D 3C                          |
+|       | Comments:        ITU-T X.509, Section 9.5.2.8            |
+|       | extensionValue:  ExpiredCertsOnCRL                       |
+|       | Reference:       [[this document]]                       |
++-------+----------------------------------------------------------+
 | TBD2  | Name:            Acceptable Response Types               |
-|       | Identifiers:     id-pkix-ocsp-response                   |
+| (129) | Identifiers:     id-pkix-ocsp-response                   |
 |       | OID:             1.3.6.1.5.5.7.48.1.4                    |
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 04        |
 |       | Comments:        RFC 6960                                |
@@ -1171,23 +1179,15 @@ IANA is requested to assign the new values shown in {{tab-extensions-iana}} in t
 |       | Reference:       [[this document]]                       |
 +-------+----------------------------------------------------------+
 | TBD3  | Name:            Preferred Signature Algorithms          |
-|       | Identifiers:     id-pkix-ocsp-pref-sig-algs              |
+| (130) | Identifiers:     id-pkix-ocsp-pref-sig-algs              |
 |       | OID:             1.3.6.1.5.5.7.48.1.8                    |
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 08        |
 |       | Comments:        RFC 6960                                |
 |       | extensionValue:  PreferredSignatureAlgorithms            |
 |       | Reference:       [[this document]]                       |
 +-------+----------------------------------------------------------+
-| TBD4  | Name:            Expired Certificates on CRL             |
-|       | Identifiers:     id-ce-expiredCertsOnCRL                 |
-|       | OID:             2.5.29.60                               |
-|       | DER:             06 03 55 1D 3C                          |
-|       | Comments:        ITU-T X.509, Section 9.5.2.8            |
-|       | extensionValue:  ExpiredCertsOnCRL                       |
-|       | Reference:       [[this document]]                       |
-+-------+----------------------------------------------------------+
-| TBD6  | Name:            TN Query                                |
-|       | Identifiers:     id-pkix-ocsp-stir-tn                    |
+| TBD4  | Name:            TN Query                                |
+| (131) | Identifiers:     id-pkix-ocsp-stir-tn                    |
 |       | OID:             1.3.6.1.5.5.7.48.1.10                   |
 |       | DER:             06 09 2B 06 01 05 05 07 30 01 0A        |
 |       | Comments:        draft-ietf-stir-certificates-ocsp       |
@@ -1203,7 +1203,7 @@ IANA is requested to assign the value shown in {{tab-tls-certstatus-iana}} in th
 
 | Value | Description | Reference     | Comment |
 |:-----:|:------------|:--------------|:--------------|
-| TBD1  | c509_ocsp   | {{&SELF}}     | N/A |
+| TBD5  | c509_ocsp   | {{&SELF}}     | N/A |
 {: #tab-tls-certstatus-iana title="TLS CertificateStatusType allocation request"}
 
 ## PEM Label Registry {#iana-pem}
@@ -1223,7 +1223,7 @@ IANA is requested to assign the following entries in the "application" registry 
 
 ### Media Type application/c509-crl+cbor
 
-When the application/c509-crl+cbor media type is used, the data is a C509CertificateList structure.  A stored file format is defined with "magic number" TBD11 using the reserved CBOR tag 55799 and the Content-Format TBD7, enveloped as described in {{RFC9277, Section 2.2}}.
+When the application/c509-crl+cbor media type is used, the data is a C509CertificateList structure.  A stored file format is defined with "magic number" TBD6 using the reserved CBOR tag 55799 and the Content-Format TBD7, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-crl+cbor
 
@@ -1246,7 +1246,7 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): TBD11
+* Magic number(s): TBD6
 * File extension(s): .c509
 * Macintosh file type code(s): N/A
 
@@ -1262,7 +1262,7 @@ Change controller: IETF
 
 ### Media Type application/c509-crlinfo+cbor
 
-When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.  A stored file format is defined with "magic number" TBD12 using the reserved CBOR tag 55799 and the Content-Format TBD8, enveloped as described in {{RFC9277, Section 2.2}}.
+When the application/c509-crlinfo+cbor media type is used, the data is a C509CRLInfo structure.  A stored file format is defined with "magic number" TBD8 using the reserved CBOR tag 55799 and the Content-Format TBD9, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-crlinfo+cbor
 
@@ -1285,7 +1285,7 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): TBD12
+* Magic number(s): TBD8
 * File extension(s): .c509
 * Macintosh file type code(s): N/A
 
@@ -1301,7 +1301,7 @@ Change controller: IETF
 
 ### Media Type application/c509-ocspreq+cbor
 
-When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.  A stored file format is defined with "magic number" TBD13 using the reserved CBOR tag 55799 and the Content-Format TBD9, enveloped as described in {{RFC9277, Section 2.2}}.
+When the application/c509-ocspreq+cbor media type is used, the data is a C509OCSPRequest structure.  A stored file format is defined with "magic number" TBD10 using the reserved CBOR tag 55799 and the Content-Format TBD11, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-ocspreq+cbor
 
@@ -1324,7 +1324,7 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): TBD13
+* Magic number(s): TBD10
 * File extension(s): .c509
 * Macintosh file type code(s): N/A
 
@@ -1340,7 +1340,7 @@ Change controller: IETF
 
 ### Media Type application/c509-ocspresp+cbor
 
-When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.  A stored file format is defined with "magic number" TBD14 using the reserved CBOR tag 55799 and the Content-Format TBD10, enveloped as described in {{RFC9277, Section 2.2}}.
+When the application/c509-ocspresp+cbor media type is used, the data is a C509OCSPResponse structure.  A stored file format is defined with "magic number" TBD12 using the reserved CBOR tag 55799 and the Content-Format TBD13, enveloped as described in {{RFC9277, Section 2.2}}.
 
 Subtype name: c509-ocspresp+cbor
 
@@ -1363,7 +1363,7 @@ Fragment identifier considerations: N/A
 Additional information:
 
 * Deprecated alias names for this type: N/A
-* Magic number(s): TBD14
+* Magic number(s): TBD12
 * File extension(s): .c509
 * Macintosh file type code(s): N/A
 
@@ -1389,13 +1389,13 @@ IANA is requested to add entries for "application/c509-crl+cbor", "application/c
 | application/            | -       | TBD7  | [[this     |
 | c509-crl+cbor           |         |       | document]] |
 +-------------------------+---------+-------+------------+
-| application/            |         | TBD8  | [[this     |
+| application/            |         | TBD9  | [[this     |
 | c509-crlinfo+cbor       | -       |       | document]] |
 +-------------------------+---------+-------+------------+
-| application/            | -       | TBD9  | [[this     |
+| application/            | -       | TBD11 | [[this     |
 | c509-ocspreq+cbor       |         |       | document]] |
 +-------------------------+---------+-------+------------+
-| application/            | -       | TBD10 | [[this     |
+| application/            | -       | TBD13 | [[this     |
 | c509-ocspresp+cbor      |         |       | document]] |
 +-------------------------+---------+-------+------------+
 ~~~
