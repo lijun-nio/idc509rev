@@ -1993,10 +1993,7 @@ RevokedCertsControl = [
               <p id="section-6.3.4-4.1.1"><code>type</code> = 0 (X509): <code>name</code> is a byte string containing the DER-encoded (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>) X.500 <code>Name</code> (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-4.1.2.4" class="relref">Section 4.1.2.4</a></span>).<a href="#section-6.3.4-4.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-6.3.4-4.2">
-              <p id="section-6.3.4-4.2.1"><code>type</code> = 2 (RawPublicKey): <code>name</code> is a byte string that identifies the authority responsible for the raw public keys (<span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span>).  Its value is assigned by the deployment, e.g., a fixed value in a closed environment, and is compared byte for byte.<a href="#section-6.3.4-4.2.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-6.3.4-4.3">
-              <p id="section-6.3.4-4.3.1"><code>type</code> = 4 (C509): <code>name</code> is a <code>Name</code> as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.<a href="#section-6.3.4-4.3.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.4-4.2.1"><code>type</code> = 4 (C509): <code>name</code> is a <code>Name</code> as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.<a href="#section-6.3.4-4.2.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-6.3.4-5">For any other certificate type that defines names, the name is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, <code>name</code> is the CBOR data item that represents the name in the certificate; otherwise, <code>name</code> is a byte string containing the name in the original encoding of the certificate type.<a href="#section-6.3.4-5" class="pilcrow">¶</a></p>
@@ -2144,13 +2141,11 @@ RevokedCertsControl = [
 <a href="#section-6.3.10.2" class="section-number selfRef">6.3.10.2. </a><a href="#name-fields" class="section-name selfRef">Fields</a>
             </h5>
 <p id="section-6.3.10.2-1">The <code>revokedCertsList</code> field is either a CBOR array of one or more <code>PerIssuerRevokedCerts</code> entries, each describing the revocation state for certificates issued by one issuer, or CBOR <code>null</code>.  Since <code>PerIssuerRevokedCerts</code> is a CDDL group, the fields of each entry are inlined in the array rather than wrapped in a nested array; an array with n entries therefore contains 5n elements.  <code>revokedCertsList</code> <span class="bcp14">MUST</span> be encoded as CBOR <code>null</code> when all of the following conditions hold: no certificates are currently revoked, no certificates have been removed from the CRL, the only issuer that would appear is the CRL's own <code>authoritySubject</code> (i.e., the <code>issuer</code> field is <code>null</code>), and there are no non-empty per-issuer extensions.<a href="#section-6.3.10.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.3.10.2-2">Since each <code>PerIssuerRevokedCerts</code> entry identifies its issuer by a <code>NameVariant</code> (<a href="#name-variant" class="auto internal xref">Section 6.3.4</a>), a single C509 CRL may contain entries for certificates of different types.  For example, a CRL may contain one <code>PerIssuerRevokedCerts</code> entry for C509 certificates, one for X.509 certificates, and one for raw public keys.  All certificates covered by one <code>PerIssuerRevokedCerts</code> entry are of the type indicated by the <code>type</code> of its <code>issuer</code>, or of <code>authoritySubject</code> if <code>issuer</code> is <code>null</code>; certificates of different types are listed in separate entries.<a href="#section-6.3.10.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.3.10.2-2">Since each <code>PerIssuerRevokedCerts</code> entry identifies its issuer by a <code>NameVariant</code> (<a href="#name-variant" class="auto internal xref">Section 6.3.4</a>), a single C509 CRL may contain entries for certificates of different types.  For example, a CRL may contain one <code>PerIssuerRevokedCerts</code> entry for C509 certificates and one for X.509 certificates.  All certificates covered by one <code>PerIssuerRevokedCerts</code> entry are of the type indicated by the <code>type</code> of its <code>issuer</code>, or of <code>authoritySubject</code> if <code>issuer</code> is <code>null</code>; certificates of different types are listed in separate entries.<a href="#section-6.3.10.2-2" class="pilcrow">¶</a></p>
 <p id="section-6.3.10.2-3">Each <code>PerIssuerRevokedCerts</code> entry describes revoked certificates for one issuer using the following fields:<a href="#section-6.3.10.2-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-6.3.10.2-4.1">
                 <p id="section-6.3.10.2-4.1.1">The <code>issuer</code> field identifies the issuer of the certificates covered by this <code>PerIssuerRevokedCerts</code> entry as a <code>NameVariant</code> (<a href="#name-variant" class="auto internal xref">Section 6.3.4</a>).  Its <code>type</code> is the type of the covered certificates, and its <code>name</code> is their <code>issuer</code> field.  For example, when the covered certificates are C509 certificates, <code>issuer</code> is <code>[4, name]</code>, where <code>name</code> is identical to the <code>issuer</code> field of the covered C509 certificates; when they are X.509 certificates, <code>issuer</code> is <code>[0, name]</code>, where <code>name</code> is a byte string containing the DER-encoded <code>issuer</code> field of the covered X.509 certificates.  If the issuer is identical to the CRL's <code>authoritySubject</code> field, it <span class="bcp14">MUST</span> be encoded as CBOR <code>null</code>.<a href="#section-6.3.10.2-4.1.1" class="pilcrow">¶</a></p>
-<p id="section-6.3.10.2-4.1.2">
-The <code>type</code> of <code>issuer</code>, or of <code>authoritySubject</code> if <code>issuer</code> is <code>null</code>, also determines how the serial numbers in <code>revokedCerts</code> and <code>removedFromCRLCerts</code> are derived.  A raw public key (<span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span>), i.e., <code>type</code> = 2 (RawPublicKey), has no serial number.  Instead, a virtual serial number is used, defined as the low-order 20 bytes, i.e., the last 20 bytes, of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded <code>SubjectPublicKeyInfo</code>.  These 20 bytes are used as is, even if their first byte is 0x00; the virtual serial number of a raw public key is therefore always 20 bytes long.<a href="#section-6.3.10.2-4.1.2" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.3.10.2-4.2">
                 <p id="section-6.3.10.2-4.2.1">The <code>revokedCertsControl</code> field defines the controls for interpreting <code>removedFromCRLCerts</code> and <code>revokedCerts</code>.  If either <code>removedFromCRLCerts</code> or <code>revokedCerts</code> is non-<code>null</code>, <code>revokedCertsControl</code> <span class="bcp14">MUST NOT</span> be <code>null</code>.  If both <code>removedFromCRLCerts</code> and <code>revokedCerts</code> are <code>null</code>, <code>revokedCertsControl</code> <span class="bcp14">MUST</span> be <code>null</code> to reduce CRL size.<a href="#section-6.3.10.2-4.2.1" class="pilcrow">¶</a></p>
@@ -2496,7 +2491,7 @@ ExpiredCertsOnCRL = ~time
         <h3 id="name-hash-algorithms">
 <a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-hash-algorithms" class="section-name selfRef">Hash Algorithms</a>
         </h3>
-<p id="section-7.3-1">The <code>hashAlgorithm</code> field of C509 OCSP requests and responses identifies the hash algorithm used to compute the certificate hashes (<code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code>) within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry <span>[<a href="#IANA.cose" class="cite xref">IANA.cose</a>]</span>, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.  The <code>hashAlgorithm</code> field does not apply to the virtual serial number of a raw public key, which is always computed using SHA-256 (see <a href="#cert-serial-number" class="auto internal xref">Section 7.6</a>).<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<p id="section-7.3-1">The <code>hashAlgorithm</code> field of C509 OCSP requests and responses identifies the hash algorithm used to compute the certificate hashes (<code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code>) within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry <span>[<a href="#IANA.cose" class="cite xref">IANA.cose</a>]</span>, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
 <p id="section-7.3-2">The hash algorithm <span class="bcp14">MUST</span> produce an output of at least 20 bytes, so that <code>HashedId20</code> values can be derived (see <a href="#cert-identification" class="auto internal xref">Section 7.4</a>).  Consequently, SHA-256/64 (-15) <span class="bcp14">MUST NOT</span> be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), <span class="bcp14">SHOULD NOT</span> be used: this document already defines the truncated identifier <code>HashedId20</code>, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) <span class="bcp14">MUST NOT</span> be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) <span>[<a href="#RFC9861" class="cite xref">RFC9861</a>]</span>, the output length is the length of the identifier being computed, i.e., 20 bytes for <code>HashedId20</code>.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2516,7 +2511,6 @@ ExpiredCertsOnCRL = ~time
 HashedId20  = bytes .size 20
 </pre><a href="#section-7.4-3" class="pilcrow">¶</a>
 </div>
-<p id="section-7.4-4">For a raw public key (<span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span>), which has no certificate, the raw public key takes the place of the certificate: <code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code> are computed over the DER-encoded <code>SubjectPublicKeyInfo</code> of the raw public key.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cert-chain-variant">
@@ -2547,10 +2541,7 @@ CertChainVariant = [
             <p id="section-7.5-5.1.1"><code>type</code> = 0 (X509): <code>chain</code> is a <code>COSE_X509</code> (<span>[<a href="#RFC9360" class="cite xref">RFC9360</a>]</span>).<a href="#section-7.5-5.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.5-5.2">
-            <p id="section-7.5-5.2.1"><code>type</code> = 2 (RawPublicKey): <code>chain</code> is a byte string containing the DER-encoded <code>SubjectPublicKeyInfo</code> of the signer's raw public key (<span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span>).  A raw public key has no certificate chain; the receiver needs to already trust the raw public key.<a href="#section-7.5-5.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-7.5-5.3">
-            <p id="section-7.5-5.3.1"><code>type</code> = 4 (C509): <code>chain</code> is a <code>COSE_C509</code> (<span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>).<a href="#section-7.5-5.3.1" class="pilcrow">¶</a></p>
+            <p id="section-7.5-5.2.1"><code>type</code> = 4 (C509): <code>chain</code> is a <code>COSE_C509</code> (<span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>).<a href="#section-7.5-5.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-7.5-6">For any other certificate type, the chain is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, <code>chain</code> is a CBOR array of the CBOR data items representing the certificates; otherwise, <code>chain</code> is a CBOR array of byte strings, each containing a certificate in the original encoding of the certificate type.<a href="#section-7.5-6" class="pilcrow">¶</a></p>
@@ -2571,8 +2562,7 @@ SerialNumber = bytes .size (1..20)
 <p id="section-7.6-3">The <code>serialNumber</code> field contains the serial number of the target certificate, encoded as a byte string.  Its value depends on the certificate type.<a href="#section-7.6-3" class="pilcrow">¶</a></p>
 <p id="section-7.6-4">For a C509 certificate, <code>serialNumber</code> is the <code>certificateSerialNumber</code> of the certificate (<span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>) as is.<a href="#section-7.6-4" class="pilcrow">¶</a></p>
 <p id="section-7.6-5">For an X.509 certificate, the serial number is an ASN.1 INTEGER (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-4.1.2.2" class="relref">Section 4.1.2.2</a></span>).  Its DER encoding is two's complement and therefore contains a leading zero byte when the most-significant bit of the value is set.  This leading zero byte is not part of <code>serialNumber</code>: the value is the contents octets of the DER-encoded INTEGER with a leading zero byte, if present, removed.  For example, the DER-encoded serial number <code>02 03 00 8F 01</code> gives <code>serialNumber</code> <code>h'8F01'</code>.<a href="#section-7.6-5" class="pilcrow">¶</a></p>
-<p id="section-7.6-6">For a raw public key (<span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span>), which has no serial number, a virtual serial number is derived as in C509 CRLs (<a href="#revoked-certs-list" class="auto internal xref">Section 6.3.10</a>): <code>serialNumber</code> is the low-order 20 bytes, i.e., the last 20 bytes, of the SHA-256 hash value over the raw public key, i.e., over the DER-encoded <code>SubjectPublicKeyInfo</code>.  These 20 bytes are used as is, even if their first byte is 0x00, so <code>serialNumber</code> is always 20 bytes long.  The virtual serial number is always computed using SHA-256; the <code>hashAlgorithm</code> field of the enclosing structure does not apply to it.<a href="#section-7.6-6" class="pilcrow">¶</a></p>
-<p id="section-7.6-7">As in the <code>CertID</code> of <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>, the serial number is carried in plain form and is not hashed.  Serial numbers are not secret, and an unsalted hash would not prevent an observer with a set of candidate serial numbers from identifying the queried certificate (see <a href="#sec-privacy" class="auto internal xref">Section 9.3</a>).  The plain serial number is at most 20 bytes long, lets an OCSP responder look up the certificate directly, and cannot collide.<a href="#section-7.6-7" class="pilcrow">¶</a></p>
+<p id="section-7.6-6">As in the <code>CertID</code> of <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>, the serial number is carried in plain form and is not hashed.  Serial numbers are not secret, and an unsalted hash would not prevent an observer with a set of candidate serial numbers from identifying the queried certificate (see <a href="#sec-privacy" class="auto internal xref">Section 9.3</a>).  The plain serial number is at most 20 bytes long, lets an OCSP responder look up the certificate directly, and cannot collide.<a href="#section-7.6-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ocsp-request">
@@ -2687,7 +2677,7 @@ SingleCertRequest = (
 <p id="section-7.7.2.2-1">The <code>issuerCertHash</code> field appears in <code>PerIssuerOCSPRequest</code>, <code>PerIssuerOCSPResponse</code>, <code>C509SimpleOCSPRequest</code>, and <code>TBSSimpleOCSPResponse</code>.  It contains a hash of the issuer certificate:<a href="#section-7.7.2.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.7.2.2-2.1">
-                <p id="section-7.7.2.2-2.1.1"><code>issuerCertHash</code>: hash computed over the deterministically encoded certificate, i.e., the CBOR-encoded C509Certificate or the DER-encoded (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>) X.509 certificate.  If the issuer holds a raw public key (<span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span>) instead of a certificate, the hash is computed over the DER-encoded <code>SubjectPublicKeyInfo</code> of the raw public key (see <a href="#cert-identification" class="auto internal xref">Section 7.4</a>).  For a CBOR re-encoded X.509 certificate (<code>c509CertificateType</code> = 3, see <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.1.1" class="relref">Section 3.1.1</a></span>), the hash <span class="bcp14">MUST</span> be computed over the DER-encoded X.509 certificate, not over its C509 encoding, since such a certificate may have more than one conformant CBOR encoding (see <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.4" class="relref">Section 3.4</a></span>).  The hash algorithm is specified by the <code>hashAlgorithm</code> field of the enclosing request or response structure.<a href="#section-7.7.2.2-2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-7.7.2.2-2.1.1"><code>issuerCertHash</code>: hash computed over the deterministically encoded certificate, i.e., the CBOR-encoded C509Certificate or the DER-encoded (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>) X.509 certificate.  For a CBOR re-encoded X.509 certificate (<code>c509CertificateType</code> = 3, see <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.1.1" class="relref">Section 3.1.1</a></span>), the hash <span class="bcp14">MUST</span> be computed over the DER-encoded X.509 certificate, not over its C509 encoding, since such a certificate may have more than one conformant CBOR encoding (see <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-cbor-encoded-cert-21#section-3.4" class="relref">Section 3.4</a></span>).  The hash algorithm is specified by the <code>hashAlgorithm</code> field of the enclosing request or response structure.<a href="#section-7.7.2.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 <p id="section-7.7.2.2-3">In X.509 OCSP (<span>[<a href="#RFC6960" class="cite xref">RFC6960</a>], <a href="https://rfc-editor.org/rfc/rfc6960#section-4.1.1" class="relref">Section 4.1.1</a></span>), the <code>CertID</code> structure identifies the issuer using two separate hashes: <code>issuerNameHash</code> (a hash of the DER-encoded issuer name) and <code>issuerKeyHash</code> (a hash of the issuer's public key bit string).  This two-hash approach was designed for interoperability with DER-encoded X.509 structures, but it doubles the per-issuer overhead in the message.  In C509 OCSP, the issuer is identified by a single hash of the issuer certificate (<code>issuerCertHash</code>), which is simpler, smaller, and unambiguous.  Implementations that need to cross-reference a C509 <code>issuerCertHash</code> with an RFC 6960 DER-encoded <code>CertID</code> must recompute the respective hash inputs; the values are not directly comparable.<a href="#section-7.7.2.2-3" class="pilcrow">¶</a></p>
@@ -3354,7 +3344,7 @@ TNQuery = text .size (1..15)
         <h3 id="name-certificate-type-interopera">
 <a href="#section-7.9" class="section-number selfRef">7.9. </a><a href="#name-certificate-type-interopera" class="section-name selfRef">Certificate Type Interoperability</a>
         </h3>
-<p id="section-7.9-1">C509 OCSP uses a single set of request and response structures that handles C509 certificates, X.509 certificates, and raw public keys without modification.  All participants (requestor, responder, issuer) are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 <code>ResponderID</code> CHOICE (<code>byName</code> or <code>byKey</code>).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), raw public keys (<span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span>), and any future certificate types.<a href="#section-7.9-1" class="pilcrow">¶</a></p>
+<p id="section-7.9-1">C509 OCSP uses a single set of request and response structures that handles C509 certificates and X.509 certificates without modification.  All participants (requestor, responder, issuer) are identified by a hash over their certificate rather than by type-specific fields such as a Subject distinguished name, SubjectKeyIdentifier, or the X.509 <code>ResponderID</code> CHOICE (<code>byName</code> or <code>byKey</code>).  Because a hash applies uniformly regardless of the certificate encoding, the same OCSP structures accommodate C509 certificates (CBOR-encoded), X.509 certificates (DER-encoded), and any future certificate types.<a href="#section-7.9-1" class="pilcrow">¶</a></p>
 <p id="section-7.9-2">The only per-type differences are in how identity hashes and serial numbers are computed and how certificate chains are carried:<a href="#section-7.9-2" class="pilcrow">¶</a></p>
 <span id="name-per-type-differences-in-c50"></span><div id="tab-certtypeinterop">
 <table class="center" id="table-10">
@@ -3367,7 +3357,6 @@ TNQuery = text .size (1..15)
               <th class="text-left" rowspan="1" colspan="1">Field</th>
               <th class="text-left" rowspan="1" colspan="1">C509 certificate</th>
               <th class="text-left" rowspan="1" colspan="1">X.509 certificate</th>
-              <th class="text-left" rowspan="1" colspan="1">Raw public key</th>
             </tr>
           </thead>
           <tbody>
@@ -3378,8 +3367,6 @@ TNQuery = text .size (1..15)
               <td class="text-left" rowspan="1" colspan="1">Hash of CBOR-encoded <code>C509Certificate</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">Hash of DER-encoded X.509 certificate</td>
-              <td class="text-left" rowspan="1" colspan="1">Hash of DER-encoded <code>SubjectPublicKeyInfo</code>
-</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
@@ -3387,8 +3374,6 @@ TNQuery = text .size (1..15)
 </td>
               <td class="text-left" rowspan="1" colspan="1">Serial number as is</td>
               <td class="text-left" rowspan="1" colspan="1">Serial number without leading zero byte</td>
-              <td class="text-left" rowspan="1" colspan="1">Derived from SHA-256 of DER-encoded <code>SubjectPublicKeyInfo</code>
-</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
@@ -3400,15 +3385,12 @@ TNQuery = text .size (1..15)
               <td class="text-left" rowspan="1" colspan="1">
                 <code>[0, COSE_X509]</code>
 </td>
-              <td class="text-left" rowspan="1" colspan="1">
-                <code>[2, SubjectPublicKeyInfo]</code>
-</td>
             </tr>
           </tbody>
         </table>
 </div>
 <p id="section-7.9-4">In this table, "C509 certificate" refers to a natively signed C509 certificate (<code>c509CertificateType</code> = 2).  A CBOR re-encoded X.509 certificate (<code>c509CertificateType</code> = 3) is treated as an X.509 certificate: its identity hash <span class="bcp14">MUST</span> be computed over the DER-encoded X.509 certificate.<a href="#section-7.9-4" class="pilcrow">¶</a></p>
-<p id="section-7.9-5">In a hybrid deployment where the responder holds an X.509 certificate, <code>responderCertHash</code> contains the hash of the DER-encoded X.509 certificate and <code>responderCerts</code> carries <code>[0, COSE_X509]</code>.  In a deployment using C509 certificates throughout, all identity hashes are computed over CBOR-encoded certificates and certificate chains are carried as <code>[4, COSE_C509]</code>.  The <code>hashAlgorithm</code> field at the top level of each request or response structure governs all certificate hashes within that structure, but not the virtual serial number of a raw public key, which always uses SHA-256.<a href="#section-7.9-5" class="pilcrow">¶</a></p>
+<p id="section-7.9-5">In a hybrid deployment where the responder holds an X.509 certificate, <code>responderCertHash</code> contains the hash of the DER-encoded X.509 certificate and <code>responderCerts</code> carries <code>[0, COSE_X509]</code>.  In a deployment using C509 certificates throughout, all identity hashes are computed over CBOR-encoded certificates and certificate chains are carried as <code>[4, COSE_C509]</code>.  The <code>hashAlgorithm</code> field at the top level of each request or response structure governs all certificate hashes within that structure.<a href="#section-7.9-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ocsp-stapling">
@@ -4089,10 +4071,6 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 <dt id="RFC6960">[RFC6960]</dt>
         <dd>
 <span class="refAuthor">Santesson, S.</span>, <span class="refAuthor">Myers, M.</span>, <span class="refAuthor">Ankney, R.</span>, <span class="refAuthor">Malpani, A.</span>, <span class="refAuthor">Galperin, S.</span>, and <span class="refAuthor">C. Adams</span>, <span class="refTitle">"X.509 Internet Public Key Infrastructure Online Certificate Status Protocol - OCSP"</span>, <span class="seriesInfo">RFC 6960</span>, <span class="seriesInfo">DOI 10.17487/RFC6960</span>, <time datetime="2013-06" class="refDate">June 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6960">https://www.rfc-editor.org/rfc/rfc6960</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC7250">[RFC7250]</dt>
-        <dd>
-<span class="refAuthor">Wouters, P., Ed.</span>, <span class="refAuthor">Tschofenig, H., Ed.</span>, <span class="refAuthor">Gilmore, J.</span>, <span class="refAuthor">Weiler, S.</span>, and <span class="refAuthor">T. Kivinen</span>, <span class="refTitle">"Using Raw Public Keys in Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS)"</span>, <span class="seriesInfo">RFC 7250</span>, <span class="seriesInfo">DOI 10.17487/RFC7250</span>, <time datetime="2014-06" class="refDate">June 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7250">https://www.rfc-editor.org/rfc/rfc7250</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7468">[RFC7468]</dt>
         <dd>
@@ -7287,7 +7265,7 @@ C509BasicOCSPResponse
             <p id="appendix-B.1-1.1.1">Replaced <code>serialNumberHash</code> in OCSP requests and responses with the plain serial number (<code>serialNumber</code>).<a href="#appendix-B.1-1.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-B.1-1.2">
-            <p id="appendix-B.1-1.2.1">Replaced <code>HashId8</code> with <code>HashedId20</code> for the certificate hashes <code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code>, and discussed the collision probability in the Security Considerations.<a href="#appendix-B.1-1.2.1" class="pilcrow">¶</a></p>
+            <p id="appendix-B.1-1.2.1">Replaced <code>HashId8</code> with <code>HashedId20</code> for the certificate hashes <code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code>, and discussed the collision probability in the Security Considerations. Use the trailing bytes instead leading bytes of the hash value.<a href="#appendix-B.1-1.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-B.1-1.3">
             <p id="appendix-B.1-1.3.1">Merged <code>C509UnsignedOCSPRequest</code> and <code>C509SignedOCSPRequest</code> into <code>C509BasicOCSPRequest</code> (type 1).<a href="#appendix-B.1-1.3.1" class="pilcrow">¶</a></p>
@@ -7302,13 +7280,10 @@ C509BasicOCSPResponse
             <p id="appendix-B.1-1.6.1">Introduced <code>CertChainVariant</code> for the OCSP fields <code>requestorCerts</code> and <code>responderCerts</code>, replacing <code>COSE_C509 / #6.121(COSE_X509)</code>.<a href="#appendix-B.1-1.6.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-B.1-1.7">
-            <p id="appendix-B.1-1.7.1">Added support for raw public keys (<span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span>) in C509 CRL and C509 OCSP, including a virtual serial number derived from the raw public key.<a href="#appendix-B.1-1.7.1" class="pilcrow">¶</a></p>
+            <p id="appendix-B.1-1.7.1">Added the section "Conformance Requirements" for C509 OCSP clients and responders.<a href="#appendix-B.1-1.7.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-B.1-1.8">
-            <p id="appendix-B.1-1.8.1">Added the section "Conformance Requirements" for C509 OCSP clients and responders.<a href="#appendix-B.1-1.8.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="appendix-B.1-1.9">
-            <p id="appendix-B.1-1.9.1">Restricted TLS OCSP stapling to <code>C509SimpleOCSPResponse</code>.<a href="#appendix-B.1-1.9.1" class="pilcrow">¶</a></p>
+            <p id="appendix-B.1-1.8.1">Restricted TLS OCSP stapling to <code>C509SimpleOCSPResponse</code>.<a href="#appendix-B.1-1.8.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
