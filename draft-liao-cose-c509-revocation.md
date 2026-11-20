@@ -66,7 +66,7 @@ normative:
   RFC9277:
   RFC9846:
   I-D.ietf-cose-cbor-encoded-cert:
-  I-D.ietf-stir-certificates-ocsp:
+  STIR-OCSP: I-D.ietf-stir-certificates-ocsp
   IANA.cose:
   IANA.tls-extensiontype-values:
 
@@ -201,7 +201,8 @@ int16 = -32768..32767
 
 IntAlgorithmIdentifier = int16
 
-IntExtension = ( extensionID: IntExtensionID, extensionValue: Defined )
+IntExtension = ( extensionID: IntExtensionID,
+                 extensionValue: Defined )
 
 IntExtensionID = 1..9223372036854775807 / ;   2^32 - 1
                  -9223372036854775807..-1  ; -(2^32 - 1)
@@ -595,7 +596,8 @@ C509OCSPRequest = C509BasicOCSPRequest /
 
 C509BasicOCSPRequest = [
   ocspRequestType    : 1, ; int16
-  signatureAlgorithm : IntAlgorithmIdentifier / null, ; null if unsigned
+  ; null if unsigned
+  signatureAlgorithm : IntAlgorithmIdentifier / null,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..32) / null,
   extensions         : IntExtensions,
@@ -896,7 +898,7 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 
 #### OCSP Extensions {#ocsp-extensions}
 
-{{tab-ocspext}} describes the OCSP extensions defined in {{RFC6960}} and {{I-D.ietf-stir-certificates-ocsp}} and their mapping in this document.
+{{tab-ocspext}} describes the OCSP extensions defined in {{RFC6960}} and {{STIR-OCSP}} and their mapping in this document.
 
 | Code | Extension             | RFC Reference     | Applied in | Replaced in this document |
 |:----:|:----------------------|:------------------| :----------|:--------------|
@@ -907,7 +909,7 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 |  -   | Service Locator       | {{RFC6960, Section 4.4.5}}  | Request Extension | - |
 | TBD3 | Preferred Signature Algorithms | {{RFC6960, Section 4.4.7}} | Request Extension | - |
 |  -   | Extended Revoked Definition | {{RFC6960, Section 4.4.8}}  | Response Extension | cert status `not-issued` (for serial numbers not issued by a recognized issuer) and `unknown` (for unrecognized issuers) |
-| TBD6 | TN Query | {{I-D.ietf-stir-certificates-ocsp}} | Single Request Extension | - |
+| TBD6 | TN Query | {{STIR-OCSP}} | Single Request Extension | - |
 {: #tab-ocspext title="OCSP extensions and their mapping"}
 
 This document defines the following extension values:
@@ -952,7 +954,7 @@ TNQuery = text .size (1..15)
 
 The `TNQuery` extension carries a telephone number string conforming to the TelephoneNumber ASN.1 type ({{RFC8226, Section 3}}).  When included in single request extensions, it specifies the telephone number for which the OCSP query is being performed (typically the number from the "orig" field of a PASSporT being validated).
 
-This extension is allowed only in the single-request extensions per {{I-D.ietf-stir-certificates-ocsp}}.
+This extension is allowed only in the single-request extensions per {{STIR-OCSP}}.
 
 ### PEM Representation
 
@@ -974,7 +976,7 @@ The only per-type differences are in how identity hashes are computed and how ce
 | Field | C509 certificate | X.509 certificate | Raw public key |
 |:------|:-----------------|:------------------|:---------------|
 | `issuerCertHash` / `requestorCertHash` / `responderCertHash` | Hash of CBOR-encoded `C509Certificate` | Hash of DER-encoded X.509 certificate | Hash of DER-encoded `SubjectPublicKeyInfo` |
-| `serialNumber`      | `certificateSerialNumber` | Serial number without leading zero byte | Derived from SHA-256 of DER-encoded `SubjectPublicKeyInfo` |
+| `serialNumber`      | Serial number as is | Serial number without leading zero byte | Derived from SHA-256 of DER-encoded `SubjectPublicKeyInfo` |
 | `requestorCerts` / `responderCerts` | `[4, COSE_C509]` | `[0, COSE_X509]` | `[2, SubjectPublicKeyInfo]` |
 {: #tab-certtypeinterop title="Per-type differences in C509 OCSP identity fields"}
 
