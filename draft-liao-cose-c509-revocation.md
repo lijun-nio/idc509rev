@@ -526,18 +526,20 @@ To ensure interoperability, implementations of C509 OCSP MUST support the follow
 
 The `hashAlgorithm` field of C509 OCSP requests and responses identifies the hash algorithm used to compute the certificate hashes (`issuerCertHash`, `requestorCertHash`, and `responderCertHash`) within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry {{IANA.cose}}, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 {{RFC9054}}.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.
 
-The hash algorithm MUST produce an output of at least 20 bytes, so that `HashedId20` values can be derived (see {{cert-identification}}).  Consequently, SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifier `HashedId20`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) {{RFC9861}}, the output length is the length of the identifier being computed, i.e., 20 bytes for `HashedId20`.
+The hash algorithm MUST produce an output at least as long as the `HashedId` values derived from it (see {{cert-identification}}).  SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifier `HashedId`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) {{RFC9861}}, the output length is the length of the `HashedId` being computed.
 
 ## Identification of Certificates {#cert-identification}
 
 To reduce OCSP message size, this document defines a truncated-hash identifier type used to refer to certificates compactly:
 
-- `HashedId20`: the low-order 20 bytes, i.e., the last 20 bytes, of the hash value computed using the enclosing `hashAlgorithm`.  This follows the convention of the hashed identifiers in IEEE 1609.2, e.g., `HashedId8`.  `HashedId20` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures.  With 20 bytes, accidental collisions are negligible (about 2^80 certificates are needed for a collision by the birthday bound), so the identifier is unique in practice.
+- `HashedId`: the low-order bytes, i.e., the rightmost bytes, of the hash value computed using the enclosing `hashAlgorithm`.  A `HashedId` is 8 to 64 bytes long.  This follows the convention of the hashed identifiers in IEEE 1609.2, e.g., `HashedId8`.  `HashedId` is used to identify issuer certificates and the certificates of OCSP requestors and responders in request and response structures.
 
 ~~~~~~~~~~~ cddl
-HashedId20  = bytes .size 20
+HashedId = bytes .size (8..64)
 ~~~~~~~~~~~
 {: sourcecode-name="c509ocsp.cddl"}
+
+The sender chooses the length of a `HashedId`; it MUST NOT be longer than the output of the hash algorithm.  The length is a trade-off between message size and collision resistance; see {{sec-truncated-hash}}.  A receiver compares a received `HashedId` with a certificate by computing the hash value of the certificate using `hashAlgorithm` and comparing its low-order bytes, as many as the received `HashedId` has, with the received `HashedId`.  An OCSP responder MUST use in a response the same `issuerCertHash` value as in the corresponding request.
 
 ## Certificate Chains {#cert-chain-variant}
 
@@ -597,7 +599,7 @@ C509BasicOCSPRequest = [
   extensions         : IntExtensions,
   requests           : PerIssuerOCSPRequests,
   ? (                  ; present if and only if signed
-    requestorCertHash  : HashedId20,
+    requestorCertHash  : HashedId,
     requestorCerts     : CertChainVariant / null,
     signatureValue     : any,
   )
@@ -607,7 +609,7 @@ C509SimpleOCSPRequest = [
   ocspRequestType    : 2, ; int16
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..128) / null,
-  issuerCertHash     : HashedId20,
+  issuerCertHash     : HashedId,
   serialNumber       : SerialNumber,
   extensions         : IntExtensions
 ]
@@ -615,7 +617,7 @@ C509SimpleOCSPRequest = [
 PerIssuerOCSPRequests = [ + PerIssuerOCSPRequest ]
 
 PerIssuerOCSPRequest = (
-  issuerCertHash   : HashedId20,
+  issuerCertHash   : HashedId,
   extensions       : IntExtensions,
   singleRequests   : SingleCertRequests,
 )
@@ -718,7 +720,7 @@ TBSBasicOCSPResponse = (
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..128) / null,
-  responderCertHash  : HashedId20,
+  responderCertHash  : HashedId,
   producedAt         : ~time,
   extensions         : IntExtensions,
   responses          : PerIssuerOCSPResponses,
@@ -735,8 +737,8 @@ TBSSimpleOCSPResponse = (
   signatureAlgorithm : IntAlgorithmIdentifier,
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..128) / null,
-  responderCertHash  : HashedId20,
-  issuerCertHash     : HashedId20,
+  responderCertHash  : HashedId,
+  issuerCertHash     : HashedId,
   serialNumber       : SerialNumber,
   certStatus         : CertStatus,
   producedAt         : ~time,
@@ -754,7 +756,7 @@ C509SimpleOCSPResponse = [
 PerIssuerOCSPResponses = [ + PerIssuerOCSPResponse ]
 
 PerIssuerOCSPResponse = (
-  issuerCertHash   : HashedId20,
+  issuerCertHash   : HashedId,
   extensions       : IntExtensions,
   singleResponses  : SingleCertResponses,
 )
@@ -1058,9 +1060,13 @@ The signatures of C509 CRLs and of signed C509 OCSP messages cover all fields ex
 
 ## Truncated Hash Identifiers {#sec-truncated-hash}
 
-`HashedId20` ({{cert-identification}}) only selects a certificate and does not authenticate it; security relies on the signature verification in {{sec-signature}}.  A relying party MUST match a response to its request using hash values it has computed itself from the certificates it holds.  A receiver that finds several certificates matching a `HashedId20` MUST NOT assume that a particular one is intended.  An OCSP responder for which an `issuerCertHash` matches more than one of its issuers MUST NOT return the status `good` for that entry.
+`HashedId` ({{cert-identification}}) only selects a certificate and does not authenticate it; security relies on the signature verification in {{sec-signature}}.  A relying party MUST match a response to its request using hash values it has computed itself from the certificates it holds.  A receiver that finds several certificates matching a `HashedId` MUST NOT assume that a particular one is intended.  An OCSP responder for which an `issuerCertHash` matches more than one of its issuers MUST NOT return the status `good` for that entry.
 
-`HashedId20` identifies only the certificates of CAs, OCSP requestors, and OCSP responders; the certificate whose status is queried is identified by its serial number, not by a hash.  The number of certificates among which a `HashedId20` must be unique is therefore small, typically the CA and responder certificates known to a relying party or the CA certificates served by an OCSP responder.  With 20 bytes, the probability that any two of n distinct certificates have the same `HashedId20` is about n^2 / 2^161; even for n = 10^6 such certificates, this is below 10^-36, so accidental collisions are not a concern in practice.  Finding a certificate whose `HashedId20` equals that of a given certificate, e.g., to make a response for one certificate apply to another, requires about 2^160 operations for a secure hash algorithm.  An attacker can find two certificates with the same `HashedId20` with about 2^80 operations, but both certificates are then under the attacker's control; since `HashedId20` only selects a certificate and trust is established by the signature verification and the authorization checks in {{sec-signature}}, such a collision gives the attacker no advantage.  Since the serial number is carried in plain form, the pair of `issuerCertHash` and `serialNumber` is as unambiguous as `issuerCertHash` alone.
+`HashedId` identifies only the certificates of CAs, OCSP requestors, and OCSP responders; the certificate whose status is queried is identified by its serial number, not by a hash.  The number of certificates among which a `HashedId` must be unique is therefore small, typically the CA and responder certificates known to a relying party or the CA certificates served by an OCSP responder.  For a `HashedId` of L bytes, the probability that any two of n distinct certificates have the same `HashedId` is about n^2 / 2^(8L+1).  For n = 10^6 such certificates, this is about 2^-25 for L = 8, about 2^-89 (below 10^-26) for L = 16, and about 2^-121 (below 10^-36) for L = 20.
+
+Finding a certificate whose `HashedId` equals that of a given certificate, e.g., to make a response for one certificate apply to another, requires about 2^(8L) operations for a secure hash algorithm, i.e., 2^64 for L = 8 and 2^128 for L = 16.  An attacker can find two certificates with the same `HashedId` with about 2^(4L) operations, but both certificates are then under the attacker's control; since `HashedId` only selects a certificate and trust is established by the signature verification and the authorization checks in {{sec-signature}}, such a collision gives the attacker no advantage.  Since the serial number is carried in plain form, the pair of `issuerCertHash` and `serialNumber` is as unambiguous as `issuerCertHash` alone.
+
+A `HashedId` of 8 bytes is sufficient in closed deployments with a small number of CA, requestor, and responder certificates.  Where an attacker may be able to obtain certificates with chosen content from a CA that the relying party trusts, a `HashedId` of at least 16 bytes SHOULD be used.
 
 The serial number MUST be normalized as specified in {{cert-serial-number}}; otherwise, a revoked certificate is not found.
 
@@ -3959,7 +3965,7 @@ Annotated hex
 
 * Replaced `serialNumberHash` in OCSP requests and responses with the plain serial number (`serialNumber`).
 
-* Replaced `HashId8` with `HashedId20` for the certificate hashes `issuerCertHash`, `requestorCertHash`, and `responderCertHash`, and discussed the collision probability in the Security Considerations. Use the trailing bytes instead leading bytes of the hash value.
+* Replaced `HashId8` with `HashedId`, the low-order 8 to 64 bytes of the hash value, for the certificate hashes `issuerCertHash`, `requestorCertHash`, and `responderCertHash`, and discussed the collision probability in the Security Considerations.
 
 * Merged `C509UnsignedOCSPRequest` and `C509SignedOCSPRequest` into `C509BasicOCSPRequest` (type 1).
 
