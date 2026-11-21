@@ -3427,7 +3427,7 @@ TNQuery = text .size (1..15)
         </table>
 </div>
 <p id="section-7.10-3">When <code>CertificateStatusType</code> is <code>c509_ocsp</code>, the <code>status</code> field contains a CBOR-encoded <code>C509SimpleOCSPResponse</code> (<a href="#C509SimpleOCSPResponse" class="auto internal xref">Section 7.8.2.3</a>) instead of a DER-encoded <code>OCSPResponse</code>.  Other C509 OCSP response types <span class="bcp14">MUST NOT</span> be used.  A TLS client that receives a different response type <span class="bcp14">MUST</span> treat the stapled response as absent.<a href="#section-7.10-3" class="pilcrow">¶</a></p>
-<p id="section-7.10-4">The <code>issuerCertHash</code> and <code>serialNumber</code> of the stapled response <span class="bcp14">MUST</span> match the certificate the response is stapled to.  Since a stapled response is not obtained in reply to a request from the TLS client, its <code>nonce</code> is not checked by the TLS client; the TLS server, acting as OCSP client, <span class="bcp14">SHOULD</span> send its request to the OCSP responder without a nonce.<a href="#section-7.10-4" class="pilcrow">¶</a></p>
+<p id="section-7.10-4">The <code>issuerCertHash</code> and <code>serialNumber</code> of the stapled response <span class="bcp14">MUST</span> match the certificate the response is stapled to.<a href="#section-7.10-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
