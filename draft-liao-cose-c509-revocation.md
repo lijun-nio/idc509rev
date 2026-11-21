@@ -325,7 +325,7 @@ A `NameVariant` carries the name of a CA, together with the type of the certific
 
 This document defines the encoding of `name` for the following certificate types:
 
-- `type` = 0 (X509): `name` is a byte string containing the DER-encoded ({{X.690}}) X.500 `Name` ({{RFC5280, Section 4.1.2.4}}).
+- `type` = 0 (X509): `name` is a byte string containing the DER-encoded ({{X.690}}) X.501 `Name` ({{RFC5280, Section 4.1.2.4}}).
 - `type` = 4 (C509): `name` is a `Name` as defined in {{I-D.ietf-cose-cbor-encoded-cert}}.
 
 For any other certificate type that defines names, the name is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, `name` is the CBOR data item that represents the name in the certificate; otherwise, `name` is a byte string containing the name in the original encoding of the certificate type.
@@ -525,7 +525,7 @@ C509 OCSP requests and responses are not wire-format-compatible with DER-encoded
 
 To ensure interoperability, implementations of C509 OCSP MUST support the following message types:
 
-- An OCSP client MUST support `C509SimpleOCSPRequest` ({{C509SimpleOCSPRequest}}) and `C509SimpleOCSPResponse` ({{C509SimpleOCSPResponse}}).  Support for `C509BasicOCSPRequest` and `C509BasicOCSPResponse` is OPTIONAL.
+- An OCSP client MUST support `C509SimpleOCSPRequest` ({{C509SimpleOCSPRequest}}) and `C509SimpleOCSPResponse` ({{C509SimpleOCSPResponse}}).  An OCSP client MAY support `C509BasicOCSPRequest`.  If an OCSP client supports `C509BasicOCSPRequest`, it MUST support `C509BasicOCSPResponse`.
 
 - An OCSP responder MUST support `C509SimpleOCSPRequest`, `C509SimpleOCSPResponse`, `C509BasicOCSPRequest`, and `C509BasicOCSPResponse`.
 
@@ -535,7 +535,7 @@ To ensure interoperability, implementations of C509 OCSP MUST support the follow
 
 The `hashAlgorithm` field of C509 OCSP requests and responses identifies the hash algorithm used to compute the certificate hashes (`issuerCertHash`, `requestorCertHash`, and `responderCertHash`) within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry {{IANA.cose}}, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 {{RFC9054}}.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.
 
-The hash algorithm MUST produce an output at least as long as the `HashedId` values derived from it (see {{cert-identification}}).  SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifier `HashedId`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) {{RFC9861}}, the output length is the length of the `HashedId` being computed.
+The hash algorithm MUST produce an output whose length is at least that of the `HashedId` values derived from it (see {{cert-identification}}).  SHA-256/64 (-15) MUST NOT be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), SHOULD NOT be used: this document already defines the truncated identifier `HashedId`, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) MUST NOT be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in {{RFC9054}}, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) {{RFC9861}}, the output length is the length of the `HashedId` being computed.
 
 ## Identification of Certificates {#cert-identification}
 
@@ -552,7 +552,7 @@ The sender chooses the length of a `HashedId`; it MUST NOT be longer than the ou
 
 ## Certificate Chains {#cert-chain-variant}
 
-The `requestorCerts` and `responderCerts` fields carry the certificate chain of the signer as a `CertChainVariant`, together with the type of the certificates in the chain.  This follows the same pattern as `NameVariant` ({{name-variant}}).
+The `requestorCerts` and `responderCerts` fields carry the ordered certificate chain of the signer as a `CertChainVariant`, together with the type of the certificates in the chain.  This follows the same pattern as `NameVariant` ({{name-variant}}).
 
 ~~~~~~~~~~~ cddl
 CertChainVariant = [
@@ -563,14 +563,14 @@ CertChainVariant = [
 {: sourcecode-name="c509ocsp.cddl"}
 
 - The `type` field identifies the certificate type.  Its value is taken from the "TLS Certificate Types" registry {{IANA.tls-extensiontype-values}}.
-- The `chain` field contains the certificate chain, starting with the signer's certificate, encoded as determined by `type`.
+- The `chain` field contains the ordered certificate chain, starting with the signer's certificate, encoded as determined by `type`.
 
 This document defines the encoding of `chain` for the following certificate types:
 
-- `type` = 0 (X509): `chain` is a `COSE_X509` ({{RFC9360}}).
-- `type` = 4 (C509): `chain` is a `COSE_C509` ({{I-D.ietf-cose-cbor-encoded-cert}}).
+- `type` = 0 (X509): `chain` is a `COSE_X509` ({{RFC9360}}) containing an ordered chain of X.509 certificates.
+- `type` = 4 (C509): `chain` is a `COSE_C509` ({{I-D.ietf-cose-cbor-encoded-cert}}) containing an ordered chain of C509 certificates.
 
-For any other certificate type, the chain is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, `chain` is a CBOR array of the CBOR data items representing the certificates; otherwise, `chain` is a CBOR array of byte strings, each containing a certificate in the original encoding of the certificate type.
+For any other certificate type, the ordered certificate chain is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, `chain` is a CBOR array of the CBOR data items representing the certificates; otherwise, `chain` is a CBOR array of byte strings, each containing a certificate in the original encoding of the certificate type.
 
 A receiver that does not support the certificate type indicated by `type` cannot interpret `chain`.  It MUST NOT use such a `CertChainVariant` to verify the signature.
 
@@ -587,7 +587,9 @@ The `serialNumber` field contains the serial number of the target certificate, e
 
 For a C509 certificate, `serialNumber` is the `certificateSerialNumber` of the certificate ({{I-D.ietf-cose-cbor-encoded-cert}}) as is.
 
-For an X.509 certificate, the serial number is an ASN.1 INTEGER ({{RFC5280, Section 4.1.2.2}}).  Its DER encoding is two's complement and therefore contains a leading zero byte when the most-significant bit of the value is set.  This leading zero byte is not part of `serialNumber`: the value is the contents octets of the DER-encoded INTEGER with a leading zero byte, if present, removed.  For example, the DER-encoded serial number `02 03 00 8F 01` gives `serialNumber` `h'8F01'`.
+For an X.509 certificate, the serial number is an ASN.1 INTEGER ({{RFC5280, Section 4.1.2.2}}).  Its DER encoding is two's complement and therefore contains a leading zero byte when the most-significant bit of the value is set.  This leading zero byte is not part of `serialNumber`: the value is the contents octets of the DER-encoded INTEGER with a leading zero byte removed (if present).  For example, the DER-encoded serial number `02 03 00 8F 01` gives `serialNumber` `h'8F01'`, and the DER-encoded serial number `02 02 0F 01` gives `serialNumber` `h'0F01'`.
+
+{{RFC5280, Section 4.1.2.2}} requires serial numbers to be positive.  A non-conforming X.509 certificate with serial number zero (DER-encoded `02 01 00`) would result in an empty `serialNumber`, which is not a valid `SerialNumber`.  An OCSP responder MUST reject a request with an invalid `serialNumber` by returning a `C509ErrorOCSPResponse` with `responseStatus` set to `malformedRequest` (1).
 
 As in the `CertID` of {{RFC6960}}, the serial number is carried in plain form and is not hashed.  Serial numbers are not secret, and an unsalted hash would not prevent an observer with a set of candidate serial numbers from identifying the queried certificate (see {{sec-privacy}}).  The plain serial number is at most 20 bytes long, lets an OCSP responder look up the certificate directly, and cannot collide.
 
@@ -601,8 +603,7 @@ C509OCSPRequest = C509BasicOCSPRequest /
 
 C509BasicOCSPRequest = [
   ocspRequestType    : 1, ; int16
-  ; null if unsigned
-  signatureAlgorithm : IntAlgorithmIdentifier / null,
+  signatureAlgorithm : IntAlgorithmIdentifier / null, ; null=unsigned
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..128) / null,
   extensions         : IntExtensions,
@@ -649,6 +650,7 @@ The `ocspRequestType` field serves as the discriminator for `C509OCSPRequest`:
 
 | Value | Type |
 |:-----:|:-----|
+| 0 | Reserved |
 | 1 | `C509BasicOCSPRequest`  |
 | 2 | `C509SimpleOCSPRequest` |
 {: #tab-ocspreq-types title="OCSP request types"}
@@ -683,8 +685,8 @@ Each `SingleCertRequest` contains:
 - The `nonce` field contains the request nonce, or MUST be `null` when no nonce is present.  The nonce MUST be generated by a cryptographically strong pseudorandom number generator and MUST be between 16 and 128 bytes long.  An OCSP responder MUST reject a request whose nonce is shorter than 16 bytes or longer than 128 bytes by returning a `C509ErrorOCSPResponse` with `responseStatus` set to `malformedRequest` (1).
 - The `extensions` field contains request-level extensions; see {{ocsp-extensions}}.
 - The `requests` field is a list of `PerIssuerOCSPRequest` entries, each grouping target certificates by issuer; see {{per-issuer-requests}}.
-- The `requestorCertHash` field, present only in a signed request, is a hash of the signer's certificate, computed using `hashAlgorithm`.  When `requestorCerts` is not `null`, that field carries the corresponding certificate chain so that the receiver can verify the identity of the requestor.
-- The `requestorCerts` field, present only in a signed request, contains the certificate chain of the signer as a `CertChainVariant` ({{cert-chain-variant}}), or MUST be `null` if no certificates are transported.
+- The `requestorCertHash` field, present only in a signed request, is a hash of the signer's certificate, computed using `hashAlgorithm`.
+- The `requestorCerts` field, present only in a signed request, contains the ordered certificate chain of the signer as a `CertChainVariant` ({{cert-chain-variant}}), so that the receiver can verify the identity of the requestor, or MUST be `null` if no certificates are transported.
 - The `signatureValue` field, present only in a signed request, is the signature computed over the CBOR Sequence of all elements of the `C509BasicOCSPRequest` array except `signatureValue`, i.e., from `ocspRequestType` to `requestorCerts`.
 
 #### C509SimpleOCSPRequest {#C509SimpleOCSPRequest}
@@ -998,9 +1000,9 @@ In standard TLS certificate status stapling (see the `status_request` extension,
 | TBD5  | c509_ocsp         | This document |
 {: #tab-tlsstaple title="TLS CertificateStatusType for C509 OCSP"}
 
-When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509SimpleOCSPResponse` ({{C509SimpleOCSPResponse}}) instead of a DER-encoded `OCSPResponse`.  Other C509 OCSP response types MUST NOT be used.  A client that receives a different response type MUST treat the stapled response as absent.
+When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509SimpleOCSPResponse` ({{C509SimpleOCSPResponse}}) instead of a DER-encoded `OCSPResponse`.  Other C509 OCSP response types MUST NOT be used.  A TLS client that receives a different response type MUST treat the stapled response as absent.
 
-The `issuerCertHash` and `serialNumber` of the stapled response MUST match the certificate the response is stapled to.  Since a stapled response is not obtained in reply to a request from the TLS client, its `nonce` is not checked by the client; the server SHOULD obtain the response without a nonce.
+The `issuerCertHash` and `serialNumber` of the stapled response MUST match the certificate the response is stapled to.  Since a stapled response is not obtained in reply to a request from the TLS client, its `nonce` is not checked by the TLS client; the TLS server, acting as OCSP client, SHOULD send its request to the OCSP responder without a nonce.
 
 # Implementation Status # {#sec-implementation-status}
 {:removeinrfc}
@@ -1136,6 +1138,8 @@ IANA is requested to create a new registry titled "C509 OCSP Request Types" unde
 +-------+-------------------------------+-------------------+
 | Value | Description                   | Reference         |
 +=======+===============================+===================+
+|     0 | Reserved                      | [[this document]] |
++-------+-------------------------------+-------------------+
 |     1 | C509 Basic OCSP Request       | [[this document]] |
 +-------+-------------------------------+-------------------+
 |     2 | C509 Simple OCSP Request      | [[this document]] |
