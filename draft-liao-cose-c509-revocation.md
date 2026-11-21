@@ -1002,7 +1002,7 @@ In standard TLS certificate status stapling (see the `status_request` extension,
 
 When `CertificateStatusType` is `c509_ocsp`, the `status` field contains a CBOR-encoded `C509SimpleOCSPResponse` ({{C509SimpleOCSPResponse}}) instead of a DER-encoded `OCSPResponse`.  Other C509 OCSP response types MUST NOT be used.  A TLS client that receives a different response type MUST treat the stapled response as absent.
 
-The `issuerCertHash` and `serialNumber` of the stapled response MUST match the certificate the response is stapled to.  Since a stapled response is not obtained in reply to a request from the TLS client, its `nonce` is not checked by the TLS client; the TLS server, acting as OCSP client, SHOULD send its request to the OCSP responder without a nonce.
+The `issuerCertHash` and `serialNumber` of the stapled response MUST match the certificate the response is stapled to.
 
 # Implementation Status # {#sec-implementation-status}
 {:removeinrfc}
