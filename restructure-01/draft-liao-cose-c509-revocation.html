@@ -1049,7 +1049,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Liao, et al.</td>
-<td class="center">Expires 24 May 2027</td>
+<td class="center">Expires 25 May 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1062,12 +1062,12 @@ svg {
 <dd class="internet-draft">draft-liao-cose-c509-revocation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-11-20" class="published">20 November 2026</time>
+<time datetime="2026-11-21" class="published">21 November 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-05-24">24 May 2027</time></dd>
+<dd class="expires"><time datetime="2027-05-25">25 May 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1132,7 +1132,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 25 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1990,7 +1990,7 @@ RevokedCertsControl = [
 <p id="section-6.3.4-3">This document defines the encoding of <code>name</code> for the following certificate types:<a href="#section-6.3.4-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-6.3.4-4.1">
-              <p id="section-6.3.4-4.1.1"><code>type</code> = 0 (X509): <code>name</code> is a byte string containing the DER-encoded (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>) X.500 <code>Name</code> (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-4.1.2.4" class="relref">Section 4.1.2.4</a></span>).<a href="#section-6.3.4-4.1.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.4-4.1.1"><code>type</code> = 0 (X509): <code>name</code> is a byte string containing the DER-encoded (<span>[<a href="#X.690" class="cite xref">X.690</a>]</span>) X.501 <code>Name</code> (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-4.1.2.4" class="relref">Section 4.1.2.4</a></span>).<a href="#section-6.3.4-4.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-6.3.4-4.2">
               <p id="section-6.3.4-4.2.1"><code>type</code> = 4 (C509): <code>name</code> is a <code>Name</code> as defined in <span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>.<a href="#section-6.3.4-4.2.1" class="pilcrow">¶</a></p>
@@ -2475,7 +2475,7 @@ ExpiredCertsOnCRL = ~time
 <p id="section-7.2-1">To ensure interoperability, implementations of C509 OCSP <span class="bcp14">MUST</span> support the following message types:<a href="#section-7.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.2-2.1">
-            <p id="section-7.2-2.1.1">An OCSP client <span class="bcp14">MUST</span> support <code>C509SimpleOCSPRequest</code> (<a href="#C509SimpleOCSPRequest" class="auto internal xref">Section 7.7.2.5</a>) and <code>C509SimpleOCSPResponse</code> (<a href="#C509SimpleOCSPResponse" class="auto internal xref">Section 7.8.2.3</a>).  Support for <code>C509BasicOCSPRequest</code> and <code>C509BasicOCSPResponse</code> is <span class="bcp14">OPTIONAL</span>.<a href="#section-7.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-7.2-2.1.1">An OCSP client <span class="bcp14">MUST</span> support <code>C509SimpleOCSPRequest</code> (<a href="#C509SimpleOCSPRequest" class="auto internal xref">Section 7.7.2.5</a>) and <code>C509SimpleOCSPResponse</code> (<a href="#C509SimpleOCSPResponse" class="auto internal xref">Section 7.8.2.3</a>).  An OCSP client <span class="bcp14">MAY</span> support <code>C509BasicOCSPRequest</code>.  If an OCSP client supports <code>C509BasicOCSPRequest</code>, it <span class="bcp14">MUST</span> support <code>C509BasicOCSPResponse</code>.<a href="#section-7.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.2-2.2">
             <p id="section-7.2-2.2.1">An OCSP responder <span class="bcp14">MUST</span> support <code>C509SimpleOCSPRequest</code>, <code>C509SimpleOCSPResponse</code>, <code>C509BasicOCSPRequest</code>, and <code>C509BasicOCSPResponse</code>.<a href="#section-7.2-2.2.1" class="pilcrow">¶</a></p>
@@ -2492,7 +2492,7 @@ ExpiredCertsOnCRL = ~time
 <a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-hash-algorithms" class="section-name selfRef">Hash Algorithms</a>
         </h3>
 <p id="section-7.3-1">The <code>hashAlgorithm</code> field of C509 OCSP requests and responses identifies the hash algorithm used to compute the certificate hashes (<code>issuerCertHash</code>, <code>requestorCertHash</code>, and <code>responderCertHash</code>) within the enclosing structure.  Its value is the integer identifier of a hash algorithm from the "COSE Algorithms" registry <span>[<a href="#IANA.cose" class="cite xref">IANA.cose</a>]</span>, e.g., -16 for SHA-256, -43 for SHA-384, and -44 for SHA-512 <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>.  Any hash algorithm in that registry can be used, subject to the restrictions below; for example, SHA3-256 or SM3 can be used once they are registered.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
-<p id="section-7.3-2">The hash algorithm <span class="bcp14">MUST</span> produce an output at least as long as the <code>HashedId</code> values derived from it (see <a href="#cert-identification" class="auto internal xref">Section 7.4</a>).  SHA-256/64 (-15) <span class="bcp14">MUST NOT</span> be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), <span class="bcp14">SHOULD NOT</span> be used: this document already defines the truncated identifier <code>HashedId</code>, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) <span class="bcp14">MUST NOT</span> be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) <span>[<a href="#RFC9861" class="cite xref">RFC9861</a>]</span>, the output length is the length of the <code>HashedId</code> being computed.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+<p id="section-7.3-2">The hash algorithm <span class="bcp14">MUST</span> produce an output whose length is at least that of the <code>HashedId</code> values derived from it (see <a href="#cert-identification" class="auto internal xref">Section 7.4</a>).  SHA-256/64 (-15) <span class="bcp14">MUST NOT</span> be used.  Other truncated hash algorithms, such as SHA-512/256 (-17), <span class="bcp14">SHOULD NOT</span> be used: this document already defines the truncated identifier <code>HashedId</code>, so using a truncated hash algorithm provides no benefit.  SHA-1 (-14) <span class="bcp14">MUST NOT</span> be used either, since it is not collision resistant.  For SHAKE128 (-18) and SHAKE256 (-45), the output length is as specified in <span>[<a href="#RFC9054" class="cite xref">RFC9054</a>]</span>, i.e., 256 and 512 bits, respectively.  For an extendable-output function whose output length is not fixed by its registration, such as TurboSHAKE128 (-261) and TurboSHAKE256 (-262) <span>[<a href="#RFC9861" class="cite xref">RFC9861</a>]</span>, the output length is the length of the <code>HashedId</code> being computed.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cert-identification">
@@ -2519,7 +2519,7 @@ HashedId = bytes .size (8..64)
         <h3 id="name-certificate-chains">
 <a href="#section-7.5" class="section-number selfRef">7.5. </a><a href="#name-certificate-chains" class="section-name selfRef">Certificate Chains</a>
         </h3>
-<p id="section-7.5-1">The <code>requestorCerts</code> and <code>responderCerts</code> fields carry the certificate chain of the signer as a <code>CertChainVariant</code>, together with the type of the certificates in the chain.  This follows the same pattern as <code>NameVariant</code> (<a href="#name-variant" class="auto internal xref">Section 6.3.4</a>).<a href="#section-7.5-1" class="pilcrow">¶</a></p>
+<p id="section-7.5-1">The <code>requestorCerts</code> and <code>responderCerts</code> fields carry the ordered certificate chain of the signer as a <code>CertChainVariant</code>, together with the type of the certificates in the chain.  This follows the same pattern as <code>NameVariant</code> (<a href="#name-variant" class="auto internal xref">Section 6.3.4</a>).<a href="#section-7.5-1" class="pilcrow">¶</a></p>
 <div class="lang-cddl sourcecode" id="section-7.5-2">
 <pre>
 CertChainVariant = [
@@ -2533,19 +2533,19 @@ CertChainVariant = [
             <p id="section-7.5-3.1.1">The <code>type</code> field identifies the certificate type.  Its value is taken from the "TLS Certificate Types" registry <span>[<a href="#IANA.tls-extensiontype-values" class="cite xref">IANA.tls-extensiontype-values</a>]</span>.<a href="#section-7.5-3.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.5-3.2">
-            <p id="section-7.5-3.2.1">The <code>chain</code> field contains the certificate chain, starting with the signer's certificate, encoded as determined by <code>type</code>.<a href="#section-7.5-3.2.1" class="pilcrow">¶</a></p>
+            <p id="section-7.5-3.2.1">The <code>chain</code> field contains the ordered certificate chain, starting with the signer's certificate, encoded as determined by <code>type</code>.<a href="#section-7.5-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-7.5-4">This document defines the encoding of <code>chain</code> for the following certificate types:<a href="#section-7.5-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.5-5.1">
-            <p id="section-7.5-5.1.1"><code>type</code> = 0 (X509): <code>chain</code> is a <code>COSE_X509</code> (<span>[<a href="#RFC9360" class="cite xref">RFC9360</a>]</span>).<a href="#section-7.5-5.1.1" class="pilcrow">¶</a></p>
+            <p id="section-7.5-5.1.1"><code>type</code> = 0 (X509): <code>chain</code> is a <code>COSE_X509</code> (<span>[<a href="#RFC9360" class="cite xref">RFC9360</a>]</span>) containing an ordered chain of X.509 certificates.<a href="#section-7.5-5.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.5-5.2">
-            <p id="section-7.5-5.2.1"><code>type</code> = 4 (C509): <code>chain</code> is a <code>COSE_C509</code> (<span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>).<a href="#section-7.5-5.2.1" class="pilcrow">¶</a></p>
+            <p id="section-7.5-5.2.1"><code>type</code> = 4 (C509): <code>chain</code> is a <code>COSE_C509</code> (<span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>) containing an ordered chain of C509 certificates.<a href="#section-7.5-5.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-7.5-6">For any other certificate type, the chain is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, <code>chain</code> is a CBOR array of the CBOR data items representing the certificates; otherwise, <code>chain</code> is a CBOR array of byte strings, each containing a certificate in the original encoding of the certificate type.<a href="#section-7.5-6" class="pilcrow">¶</a></p>
+<p id="section-7.5-6">For any other certificate type, the ordered certificate chain is encoded as follows, unless the specification of that certificate type defines otherwise: if the certificate type is CBOR-encoded, <code>chain</code> is a CBOR array of the CBOR data items representing the certificates; otherwise, <code>chain</code> is a CBOR array of byte strings, each containing a certificate in the original encoding of the certificate type.<a href="#section-7.5-6" class="pilcrow">¶</a></p>
 <p id="section-7.5-7">A receiver that does not support the certificate type indicated by <code>type</code> cannot interpret <code>chain</code>.  It <span class="bcp14">MUST NOT</span> use such a <code>CertChainVariant</code> to verify the signature.<a href="#section-7.5-7" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2562,8 +2562,9 @@ SerialNumber = bytes .size (1..20)
 </div>
 <p id="section-7.6-3">The <code>serialNumber</code> field contains the serial number of the target certificate, encoded as a byte string.  Its value depends on the certificate type.<a href="#section-7.6-3" class="pilcrow">¶</a></p>
 <p id="section-7.6-4">For a C509 certificate, <code>serialNumber</code> is the <code>certificateSerialNumber</code> of the certificate (<span>[<a href="#I-D.ietf-cose-cbor-encoded-cert" class="cite xref">I-D.ietf-cose-cbor-encoded-cert</a>]</span>) as is.<a href="#section-7.6-4" class="pilcrow">¶</a></p>
-<p id="section-7.6-5">For an X.509 certificate, the serial number is an ASN.1 INTEGER (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-4.1.2.2" class="relref">Section 4.1.2.2</a></span>).  Its DER encoding is two's complement and therefore contains a leading zero byte when the most-significant bit of the value is set.  This leading zero byte is not part of <code>serialNumber</code>: the value is the contents octets of the DER-encoded INTEGER with a leading zero byte, if present, removed.  For example, the DER-encoded serial number <code>02 03 00 8F 01</code> gives <code>serialNumber</code> <code>h'8F01'</code>.<a href="#section-7.6-5" class="pilcrow">¶</a></p>
-<p id="section-7.6-6">As in the <code>CertID</code> of <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>, the serial number is carried in plain form and is not hashed.  Serial numbers are not secret, and an unsalted hash would not prevent an observer with a set of candidate serial numbers from identifying the queried certificate (see <a href="#sec-privacy" class="auto internal xref">Section 9.3</a>).  The plain serial number is at most 20 bytes long, lets an OCSP responder look up the certificate directly, and cannot collide.<a href="#section-7.6-6" class="pilcrow">¶</a></p>
+<p id="section-7.6-5">For an X.509 certificate, the serial number is an ASN.1 INTEGER (<span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-4.1.2.2" class="relref">Section 4.1.2.2</a></span>).  Its DER encoding is two's complement and therefore contains a leading zero byte when the most-significant bit of the value is set.  This leading zero byte is not part of <code>serialNumber</code>: the value is the contents octets of the DER-encoded INTEGER with a leading zero byte removed (if present).  For example, the DER-encoded serial number <code>02 03 00 8F 01</code> gives <code>serialNumber</code> <code>h'8F01'</code>, and the DER-encoded serial number <code>02 02 0F 01</code> gives <code>serialNumber</code> <code>h'0F01'</code>.<a href="#section-7.6-5" class="pilcrow">¶</a></p>
+<p id="section-7.6-6"><span>[<a href="#RFC5280" class="cite xref">RFC5280</a>], <a href="https://rfc-editor.org/rfc/rfc5280#section-4.1.2.2" class="relref">Section 4.1.2.2</a></span> requires serial numbers to be positive.  A non-conforming X.509 certificate with serial number zero (DER-encoded <code>02 01 00</code>) would result in an empty <code>serialNumber</code>, which is not a valid <code>SerialNumber</code>.  An OCSP responder <span class="bcp14">MUST</span> reject a request with an invalid <code>serialNumber</code> by returning a <code>C509ErrorOCSPResponse</code> with <code>responseStatus</code> set to <code>malformedRequest</code> (1).<a href="#section-7.6-6" class="pilcrow">¶</a></p>
+<p id="section-7.6-7">As in the <code>CertID</code> of <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>, the serial number is carried in plain form and is not hashed.  Serial numbers are not secret, and an unsalted hash would not prevent an observer with a set of candidate serial numbers from identifying the queried certificate (see <a href="#sec-privacy" class="auto internal xref">Section 9.3</a>).  The plain serial number is at most 20 bytes long, lets an OCSP responder look up the certificate directly, and cannot collide.<a href="#section-7.6-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ocsp-request">
@@ -2585,8 +2586,7 @@ C509OCSPRequest = C509BasicOCSPRequest /
 
 C509BasicOCSPRequest = [
   ocspRequestType    : 1, ; int16
-  ; null if unsigned
-  signatureAlgorithm : IntAlgorithmIdentifier / null,
+  signatureAlgorithm : IntAlgorithmIdentifier / null, ; null=unsigned
   hashAlgorithm      : IntAlgorithmIdentifier,
   nonce              : bytes .size (16..128) / null,
   extensions         : IntExtensions,
@@ -2653,6 +2653,10 @@ SingleCertRequest = (
                 </tr>
               </thead>
               <tbody>
+                <tr>
+                  <td class="text-center" rowspan="1" colspan="1">0</td>
+                  <td class="text-left" rowspan="1" colspan="1">Reserved</td>
+                </tr>
                 <tr>
                   <td class="text-center" rowspan="1" colspan="1">1</td>
                   <td class="text-left" rowspan="1" colspan="1">
@@ -2735,10 +2739,10 @@ SingleCertRequest = (
                 <p id="section-7.7.2.4-2.6.1">The <code>requests</code> field is a list of <code>PerIssuerOCSPRequest</code> entries, each grouping target certificates by issuer; see <a href="#per-issuer-requests" class="auto internal xref">Section 7.7.2.3</a>.<a href="#section-7.7.2.4-2.6.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.7.2.4-2.7">
-                <p id="section-7.7.2.4-2.7.1">The <code>requestorCertHash</code> field, present only in a signed request, is a hash of the signer's certificate, computed using <code>hashAlgorithm</code>.  When <code>requestorCerts</code> is not <code>null</code>, that field carries the corresponding certificate chain so that the receiver can verify the identity of the requestor.<a href="#section-7.7.2.4-2.7.1" class="pilcrow">¶</a></p>
+                <p id="section-7.7.2.4-2.7.1">The <code>requestorCertHash</code> field, present only in a signed request, is a hash of the signer's certificate, computed using <code>hashAlgorithm</code>.<a href="#section-7.7.2.4-2.7.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.7.2.4-2.8">
-                <p id="section-7.7.2.4-2.8.1">The <code>requestorCerts</code> field, present only in a signed request, contains the certificate chain of the signer as a <code>CertChainVariant</code> (<a href="#cert-chain-variant" class="auto internal xref">Section 7.5</a>), or <span class="bcp14">MUST</span> be <code>null</code> if no certificates are transported.<a href="#section-7.7.2.4-2.8.1" class="pilcrow">¶</a></p>
+                <p id="section-7.7.2.4-2.8.1">The <code>requestorCerts</code> field, present only in a signed request, contains the ordered certificate chain of the signer as a <code>CertChainVariant</code> (<a href="#cert-chain-variant" class="auto internal xref">Section 7.5</a>), so that the receiver can verify the identity of the requestor, or <span class="bcp14">MUST</span> be <code>null</code> if no certificates are transported.<a href="#section-7.7.2.4-2.8.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-7.7.2.4-2.9">
                 <p id="section-7.7.2.4-2.9.1">The <code>signatureValue</code> field, present only in a signed request, is the signature computed over the CBOR Sequence of all elements of the <code>C509BasicOCSPRequest</code> array except <code>signatureValue</code>, i.e., from <code>ocspRequestType</code> to <code>requestorCerts</code>.<a href="#section-7.7.2.4-2.9.1" class="pilcrow">¶</a></p>
@@ -3422,8 +3426,8 @@ TNQuery = text .size (1..15)
           </tbody>
         </table>
 </div>
-<p id="section-7.10-3">When <code>CertificateStatusType</code> is <code>c509_ocsp</code>, the <code>status</code> field contains a CBOR-encoded <code>C509SimpleOCSPResponse</code> (<a href="#C509SimpleOCSPResponse" class="auto internal xref">Section 7.8.2.3</a>) instead of a DER-encoded <code>OCSPResponse</code>.  Other C509 OCSP response types <span class="bcp14">MUST NOT</span> be used.  A client that receives a different response type <span class="bcp14">MUST</span> treat the stapled response as absent.<a href="#section-7.10-3" class="pilcrow">¶</a></p>
-<p id="section-7.10-4">The <code>issuerCertHash</code> and <code>serialNumber</code> of the stapled response <span class="bcp14">MUST</span> match the certificate the response is stapled to.  Since a stapled response is not obtained in reply to a request from the TLS client, its <code>nonce</code> is not checked by the client; the server <span class="bcp14">SHOULD</span> obtain the response without a nonce.<a href="#section-7.10-4" class="pilcrow">¶</a></p>
+<p id="section-7.10-3">When <code>CertificateStatusType</code> is <code>c509_ocsp</code>, the <code>status</code> field contains a CBOR-encoded <code>C509SimpleOCSPResponse</code> (<a href="#C509SimpleOCSPResponse" class="auto internal xref">Section 7.8.2.3</a>) instead of a DER-encoded <code>OCSPResponse</code>.  Other C509 OCSP response types <span class="bcp14">MUST NOT</span> be used.  A TLS client that receives a different response type <span class="bcp14">MUST</span> treat the stapled response as absent.<a href="#section-7.10-3" class="pilcrow">¶</a></p>
+<p id="section-7.10-4">The <code>issuerCertHash</code> and <code>serialNumber</code> of the stapled response <span class="bcp14">MUST</span> match the certificate the response is stapled to.  Since a stapled response is not obtained in reply to a request from the TLS client, its <code>nonce</code> is not checked by the TLS client; the TLS server, acting as OCSP client, <span class="bcp14">SHOULD</span> send its request to the OCSP responder without a nonce.<a href="#section-7.10-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -3676,6 +3680,8 @@ to use this information as they see fit".<a href="#section-8-5" class="pilcrow">
 +-------+-------------------------------+-------------------+
 | Value | Description                   | Reference         |
 +=======+===============================+===================+
+|     0 | Reserved                      | [[this document]] |
++-------+-------------------------------+-------------------+
 |     1 | C509 Basic OCSP Request       | [[this document]] |
 +-------+-------------------------------+-------------------+
 |     2 | C509 Simple OCSP Request      | [[this document]] |
