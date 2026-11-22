@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-19T04:54:48.614447+00:00",
+  "timestamp": "2026-11-22T03:54:59.250125+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -736,7 +736,7 @@
       "labels": [],
       "body": "Feedback from chairs: NIO are interested. Are there any other parties besides them interested in this work?",
       "createdAt": "2026-10-19T11:54:52Z",
-      "updatedAt": "2026-11-02T14:52:07Z",
+      "updatedAt": "2026-11-19T10:03:43Z",
       "closedAt": null,
       "comments": [
         {
@@ -766,6 +766,13 @@
           "body": "Reminder: Fill in more info here as we get confirmation of interest from parties",
           "createdAt": "2026-11-02T14:52:07Z",
           "updatedAt": "2026-11-02T14:52:07Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Got also the confirmation of China Mobile.",
+          "createdAt": "2026-11-19T10:03:43Z",
+          "updatedAt": "2026-11-19T10:03:43Z"
         }
       ]
     },
@@ -905,7 +912,7 @@
       "labels": [],
       "body": "**In draft-ietf-cose-cbor-encoded-cert:**\n\n```\nName = [ * RDNAttribute ] / SpecialText\n\nSpecialText = text / bytes / tag\n```\n\n**In this draft**, the CRL structure has the following definitions:\n\n```\nauthoritySubject       : Name / #6.121(bytes),\n\nissuer                 : Name / #6.121(bytes) / null,\n```\n\nThis creates an ambiguity. `#6.121` (the tag for alternative 0) is meant to mark a DER-encoded X.509 name, but because `SpecialText` allows `tag`, the same encoding can also be parsed as a `Name`. I see two ways to solve this:\n\n**Option 1: Update draft-ietf-cose-cbor-encoded-cert.** Specify that a name consisting of a single commonName, which is currently encoded using the tag alternative, is instead encoded as `[ * RDNAttribute ]`.\n\n- Pros:\n  - Names in certificates and CRLs use the same encoding, so they can be matched byte for byte.\n- Cons:\n  - Requires a change to the C509 base specification.\n\n**Option 2: Define a new CDDL type in this draft**, e.g. `RDNAttributes`:\n\n```\nRDNAttributes = [ * RDNAttribute ]\n\nauthoritySubject       : RDNAttributes / #6.121(bytes),\n\nissuer                 : RDNAttributes / #6.121(bytes) / null,\n```\n\n- Pros:\n  - No change to the C509 base specification is needed.\n- Cons:\n  - If a certificate's Name consists of a single commonName attribute, it must be re-encoded before it can be compared with the CRL's name.\n\nWhich option would the you prefer?\n@marco-tiloca-sics @highlunder @comsats \n\n@rikard-sics : Maybe we could bring this up during the COSE WG presentation?",
       "createdAt": "2026-11-03T05:53:36Z",
-      "updatedAt": "2026-11-18T22:25:11Z",
+      "updatedAt": "2026-11-20T09:25:15Z",
       "closedAt": null,
       "comments": [
         {
@@ -956,6 +963,27 @@
           "body": "Did you get any feedback from the IETF meeting?\n\nIn any case: \n\n`NameVariant = [type: int, name: any]` works for me: it is unambiguous, it keeps the X.509 case, and the C509 name inside it is still byte-for-byte the name from the certificate.\n\nTwo remarks:\n\n1. Cost. It adds two bytes to every name (array header and type). That is small, but it applies to every CRL, so the size tables and all CRL examples change.\n\n2. About registry. I would be fine with reusing \"TLS Certificate Types\" (X.509 = 0, C509 = 4) as proposed in #29 instead of creating a registry. The name would then be encoded as names are encoded in certificates of that type. If so, we probably want to explicitly state that only 0 and 4 are used in this document, since not every registered type has a name encoding. The numbering is then 0 = DER-encoded X.509 Name, 4 = C509 Name, the reverse of the proposal above. The CDDL could spell out both cases, which would let a tool check the `name` element:\n\n   ```\n   NameVariant = [ type: 0, name: bytes ] / [ type: 4, name: Name ]\n   ```\n\nI will update the Rust implementation when this is decided.",
           "createdAt": "2026-11-18T22:25:10Z",
           "updatedAt": "2026-11-18T22:25:10Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "> What about the following CDDL definition?\n> \n> ```\n> NameChoice = [type int, name Defined]\n> \n> -- For type 0: name = Name (C509 Name defined in the C509 base draft)\n> -- For type 1: name = bstr (DER-encoded X.509 name)\n> \n> authoritySubject       : NameChoice,\n> \n> issuer                 : NameChoice / null,\n> ```\n> \n> We need to add new IANA registry to register the type for NameChoice. With this suggestion, it is still possible to compare octet-by-octet between CRL and C509 certificate / X509 certificate.\n\nIf we do not want to manage a new registry group, we can also use the IANA registry \"TLS Certificate Types\" under https://www.iana.org/assignments/tls-extensiontype-values .",
+          "createdAt": "2026-11-19T09:01:33Z",
+          "updatedAt": "2026-11-19T09:01:33Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "I prefer also to use NameVariant, and to re-use the TLS certificate types registry.",
+          "createdAt": "2026-11-19T09:01:55Z",
+          "updatedAt": "2026-11-19T09:01:55Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "For the certificate chain in OCSP messages, similar mechanism applies:\n\nCURRENT:\n\nrequestorCerts / responderCerts: COSE_C509 / #6.121(COSE_X509) / null\n\nNEW:\n\nCertChainVariant = [\n  type: int,\n  chain: any\n]\n\nrequestorCerts / responderCerts: CertChainVariant / null\n",
+          "createdAt": "2026-11-20T09:25:15Z",
+          "updatedAt": "2026-11-20T09:25:15Z"
         }
       ]
     },
@@ -971,7 +999,7 @@
       "labels": [],
       "body": "Currently we use `HashId20` (trunctat hash value) over the serial number. I discussed this with some PKI industry experts, and they wish us to use the raw serial number instead. The main reasons are\n- OCSP database needs to have columns to contain HashId20 of the serial numbers. This is difficult to implement. The hash algorithms may vary from OCSP request to request (it is specified in the field `hashAlgorithm`), so the database needs to be extended to have multiple HashId20 columns (each column for one supported hash algorithm). And new algorithms may be registered in the future, and once the database schema is created, it is quite difficult to change it by adding new columns.\n- Our proposal supports also X.509, that means the software needs to support old existing OCSP database, which do not contain such HashId20 columns.\n- The current codebase for X.509 OCSP uses serial number, there are lots of work to support HashId20.\n- The benefit of privacy of using hash value is limited. If one collects enough serial numbers, it can still find the serial number according to the hash value (via look-up).\n\nI needs your input. @rikard-sics  @highlunder @marco-tiloca-sics @comsats.\n\n@rikard-sics : should we also add this point to your presentation slides?\n",
       "createdAt": "2026-11-14T20:53:54Z",
-      "updatedAt": "2026-11-18T22:05:28Z",
+      "updatedAt": "2026-11-20T09:30:15Z",
       "closedAt": null,
       "comments": [
         {
@@ -1001,6 +1029,161 @@
           "body": "I support using the serial number itself.\n\nFrom the constrained-client side it is an improvement, not a cost:\n\n- The client does not have to hash the serial number.\n- The message does not grow. `serialNumberHash` is always 20 bytes; a serial number is at most 20 bytes and usually shorter.\n- The match becomes exact. The rule that a responder must not return `good` when a `serialNumberHash` matches more than one serial number is no longer needed.\n- It is consistent with the C509 CRL, which already carries serial numbers in the clear.\n\nI agree that the privacy argument is weak: the hash is unsalted, so anyone with a set of candidate serial numbers can identify the certificate. The Security Considerations already say that requests and responses should be protected (DTLS, OSCORE) or stapled where this matters, and that remains the answer.\n\nThings to update if we do this:\n\n- Encoding: the serial number as a byte string in big-endian order without a leading zero byte, as in C509 certificates, so that the value can be copied from the certificate.\n- The overview bullet that lists hashed serial numbers as a privacy feature, and the paragraphs on `serialNumberHash` in the Security Considerations.\n- OCSP examples.\n- I assume `HashId20` itself can go.\n\nI will adapt the Rust implementation (c509rev) once the CDDL is settled.",
           "createdAt": "2026-11-18T22:05:27Z",
           "updatedAt": "2026-11-18T22:05:27Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "> If we do not want to manage a new registry group, we can also use the IANA registry \"TLS Certificate Types\" under https://www.iana.org/assignments/tls-extensiontype-values .\n\nSorry, this comment shall target on #28.",
+          "createdAt": "2026-11-19T05:36:08Z",
+          "updatedAt": "2026-11-19T05:36:08Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "Thank you all. So I understand that nobody is against the use of raw serial number.",
+          "createdAt": "2026-11-19T08:57:44Z",
+          "updatedAt": "2026-11-19T08:57:44Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "By changing serial number in OCSP from HashId20 to raw serial number we will usually save 4 - 8 bytes per serial number.\n\nTo reduce the chance of others questioning it, I would like to change the certHash from HashId8 to HashId20.",
+          "createdAt": "2026-11-20T09:30:15Z",
+          "updatedAt": "2026-11-20T09:30:15Z"
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "id": "I_kwDOTDu4zs8AAAABgpej7g",
+      "title": "Merge C509UnsignedOCSPRequest and C509SignedOCSPRequest",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/31",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Currently we have three OCSP request types: Simple, Unsigned and Signed. In the most case, Simple will be used. I am considering to merge both Unsigned and Signed. This align also the OCSP response which has Simple and Basic, besides the Error Response.\n\n@highlunder @rikard-sics @marco-tiloca-sics @comsats Need your input.\n\n# OLD\n\n```\nC509UnsignedOCSPRequest = [\n  ocspRequestType    : 0, ; int16\n  hashAlgorithm      : IntAlgorithmIdentifier,\n  nonce              : bytes .size (16..32) / null,\n  extensions         : IntExtensions,\n  requests           : PerIssuerOCSPRequests\n]\n\nTBSOCSPRequest = (\n  ocspRequestType    : 1, ; int16\n  signatureAlgorithm : IntAlgorithmIdentifier,\n  hashAlgorithm      : IntAlgorithmIdentifier,\n  nonce              : bytes .size (16..32) / null,\n  requestorCertHash  : HashId8,\n  extensions         : IntExtensions,\n  requests           : PerIssuerOCSPRequests,\n  requestorCerts     : COSE_C509 / #6.121(COSE_X509) / null,\n)\n\nC509SignedOCSPRequest = [\n  TBSOCSPRequest,\n  signatureValue     : any,\n]\n```\n\n# NEW:\n\n```\nC509BasicOCSPRequest = [\n  ocspRequestType    : 1, ; int16\n  signatureAlgorithm : IntAlgorithmIdentifier / null, -- null if unsigned\n  hashAlgorithm      : IntAlgorithmIdentifier,\n  nonce              : bytes .size (16..32) / null,\n  extensions         : IntExtensions,\n  requests           : PerIssuerOCSPRequests\n ? ( -- Not present if unsigned\n    requestorCertHash  : HashId8 ,\n    requestorCerts     : COSE_C509 / #6.121(COSE_X509) / null,\n    signatureValue     : any\n  )\n]\n```\nThe signatureAlgorithm field is not in the last group since we need it at the beginning to allow one-pass signature verification.",
+      "createdAt": "2026-11-19T08:54:41Z",
+      "updatedAt": "2026-11-19T16:32:10Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "comsats",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Hi Lijun,\r\n\r\nI support the merger.\r\nA comment: I guess C509BasicOCSPRequest should be defined as a CBOR array using [...], not just a group using (\u2026)?\r\n\r\nBest\r\nShahid\r\n\r\n\r\n________________________________\r\nFrom: lijun-nio ***@***.***>\r\nDate: Thursday, 19 November 2026 at 09:55\r\nTo: lijun-nio/idc509rev ***@***.***>\r\nCc: Shahid Raza ***@***.***>; Mention ***@***.***>\r\nSubject: [lijun-nio/idc509rev] Merge C509UnsignedOCSPRequest and C509SignedOCSPRequest (Issue #31)\r\n\r\n[https://avatars.githubusercontent.com/u/296440266?s=20&v=4]lijun-nio created an issue (lijun-nio/idc509rev#31)<https://github.com/lijun-nio/idc509rev/issues/31>\r\n\r\nCurrently we have three OCSP request types: Simple, Unsigned and Signed. In the most case, Simple will be used. I am considering to merge both Unsigned and Signed. This align also the OCSP response which has Simple and Basic, besides the Error Response.\r\n\r\n@highlunder<https://github.com/highlunder> @rikard-sics<https://github.com/rikard-sics> @marco-tiloca-sics<https://github.com/marco-tiloca-sics> @comsats<https://github.com/comsats> Need your input.\r\n\r\nOLD\r\n\r\nC509UnsignedOCSPRequest = [\r\n  ocspRequestType    : 0, ; int16\r\n  hashAlgorithm      : IntAlgorithmIdentifier,\r\n  nonce              : bytes .size (16..32) / null,\r\n  extensions         : IntExtensions,\r\n  requests           : PerIssuerOCSPRequests\r\n]\r\n\r\nTBSOCSPRequest = (\r\n  ocspRequestType    : 1, ; int16\r\n  signatureAlgorithm : IntAlgorithmIdentifier,\r\n  hashAlgorithm      : IntAlgorithmIdentifier,\r\n  nonce              : bytes .size (16..32) / null,\r\n  requestorCertHash  : HashId8,\r\n  extensions         : IntExtensions,\r\n  requests           : PerIssuerOCSPRequests,\r\n  requestorCerts     : COSE_C509 / #6.121(COSE_X509) / null,\r\n)\r\n\r\nC509SignedOCSPRequest = [\r\n  TBSOCSPRequest,\r\n  signatureValue     : any,\r\n]\r\n\r\n\r\nNEW:\r\n\r\nC509BasicOCSPRequest = (\r\n  ocspRequestType    : 1, ; int16\r\n  signatureAlgorithm : IntAlgorithmIdentifier / null, -- null if unsigned\r\n  hashAlgorithm      : IntAlgorithmIdentifier,\r\n  nonce              : bytes .size (16..32) / null,\r\n  extensions         : IntExtensions,\r\n  requests           : PerIssuerOCSPRequests\r\n ? (\r\n    requestorCertHash  : HashId8 ,\r\n    requestorCerts     : COSE_C509 / #6.121(COSE_X509) / null,\r\n    signatureValue     : any\r\n  )\r\n)\r\n\r\n\r\nThe signatureAlgorithm field is not in the last group since we need it at the beginning to allow one-pass signature verification.\r\n\r\n\u2014\r\nReply to this email directly, view it on GitHub<https://github.com/lijun-nio/idc509rev/issues/31?email_source=notifications&email_token=ABB6R3DEY3CYWXRXMILQFZ35Z2YOXA5CNFSL4Z3JMQ5C6L3HNF2C22DVMIXUS43TOVSS6NRUHA2TSNBTGI3TRJTSMVQXG33OU5WWK3TUNFXW5JLFOZSW45FMMZXW65DFOJPWG3DJMNVQ>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/ABB6R3AUXD22QAPK6JBAMPT5Z2YOXAVCNFSNUABGKJSXA33TNF2G64TZHMYTENZYHE4DEMZVGA5US43TOVSTWNRUHA2TSNBTGI3TRILWAI>.\r\nTriage notifications, keep track of coding agent tasks and review pull requests on the go with GitHub Mobile for iOS<https://github.com/notifications/mobile/ios/ABB6R3EUQ4ZG2KYMENBM5ZL5Z2YOXA5CNFSL4Z3JMQ5C6L3HNF2C22DVMIXUS43TOVSS6NRUHA2TSNBTGI3TRJTSMVQXG33OU5WWK3TUNFXW5JLFOZSW45FKMZXW65DFOJPWS33T> and Android<https://github.com/notifications/mobile/android/ABB6R3GEODCDGUOAZEGLN435Z2YOXA5CNFSL4Z3JMQ5C6L3HNF2C22DVMIXUS43TOVSS6NRUHA2TSNBTGI3TRJTSMVQXG33OU5WWK3TUNFXW5JLFOZSW45FOMZXW65DFOJPWC3TEOJXWSZA>. Download it today!\r\nYou are receiving this because you were mentioned.\r\n",
+          "createdAt": "2026-11-19T09:24:20Z",
+          "updatedAt": "2026-11-19T09:24:20Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "> A comment: I guess C509BasicOCSPRequest should be defined as a CBOR array using [...], not just a group using (\u2026)?\n\nYes. Corrected.",
+          "createdAt": "2026-11-19T09:35:47Z",
+          "updatedAt": "2026-11-19T09:35:47Z"
+        },
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "The new `C509BasicOCSPRequest` looks good. Thanks!",
+          "createdAt": "2026-11-19T16:32:10Z",
+          "updatedAt": "2026-11-19T16:32:10Z"
+        }
+      ]
+    },
+    {
+      "number": 32,
+      "id": "I_kwDOTDu4zs8AAAABgptWyA",
+      "title": "Rename C509CRL to C509CertificateList to align RFC 5280",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/32",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "What about renaming C509CRL to C509CertificateList. ",
+      "createdAt": "2026-11-19T09:09:12Z",
+      "updatedAt": "2026-11-19T16:32:32Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "body": "That makes sense.",
+          "createdAt": "2026-11-19T16:32:32Z",
+          "updatedAt": "2026-11-19T16:32:32Z"
+        }
+      ]
+    },
+    {
+      "number": 33,
+      "id": "I_kwDOTDu4zs8AAAABgw13mw",
+      "title": "Add support of Raw Public Key in CRL and OCSP",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/33",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-11-19T16:01:07Z",
+      "updatedAt": "2026-11-19T16:01:07Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 34,
+      "id": "I_kwDOTDu4zs8AAAABg_z1SA",
+      "title": "Add Conformance Requirements",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/34",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-11-20T10:13:17Z",
+      "updatedAt": "2026-11-20T10:13:17Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 35,
+      "id": "I_kwDOTDu4zs8AAAABg_0PSw",
+      "title": "Restricted TLS OCSP stapling to `C509SimpleOCSPResponse`",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/35",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-11-20T10:13:42Z",
+      "updatedAt": "2026-11-20T10:13:42Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 37,
+      "id": "I_kwDOTDu4zs8AAAABhB875Q",
+      "title": "Suggest values for the extension IDs",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/37",
+      "state": "OPEN",
+      "author": "xipki",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The IDs are needed for the examples",
+      "createdAt": "2026-11-20T12:41:17Z",
+      "updatedAt": "2026-11-20T12:41:30Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Resolved in #36 ",
+          "createdAt": "2026-11-20T12:41:30Z",
+          "updatedAt": "2026-11-20T12:41:30Z"
         }
       ]
     }
@@ -1608,24 +1791,252 @@
       "id": "PR_kwDOTDu4zs8AAAABQQLFnA",
       "title": "c509rev: follow the CDDL changes of 1b375b9",
       "url": "https://github.com/lijun-nio/idc509rev/pull/30",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "highlunder",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Code updates to follow the CDDL changes of 1b375b9\n\n- `authorityKeyIdentifier` is a byte string and no longer `null`: `CrlInfo` holds it as bytes and the decoder rejects `null`.\n- `responseStatus` of `C509ErrorOCSPResponse` is limited to -128..127: it is held as `i8` and the decoder rejects values outside that range.\n\nTwo tests added. `cargo test --all-targets`: 44 passed, 0 warnings.\n\n[I will merge myself unless someone complains soon. And maybe we should agree to just keep the implementation in a separate branch, so I can push updates without touching main.]\n",
       "createdAt": "2026-11-18T23:10:18Z",
-      "updatedAt": "2026-11-18T23:10:18Z",
+      "updatedAt": "2026-11-20T10:15:54Z",
       "baseRepository": "lijun-nio/idc509rev",
       "baseRefName": "main",
       "baseRefOid": "1b375b9d03dd5ac08ee741b7ae13d46b802730ed",
       "headRepository": "lijun-nio/idc509rev",
       "headRefName": "c509rev/cddl-sync",
       "headRefOid": "aa2727cf2f941af940d03e9f593db407cf945fb4",
+      "closedAt": "2026-11-20T10:15:54Z",
+      "mergedAt": "2026-11-20T10:15:54Z",
+      "mergedBy": "lijun-nio",
+      "mergeCommit": {
+        "oid": "bd876dc88979ad16cc6e435e6d5599ffcc9af0dd"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 36,
+      "id": "PR_kwDOTDu4zs8AAAABQo5WHw",
+      "title": "Restructure 01",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/36",
+      "state": "OPEN",
+      "author": "lijun-nio",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "comsats",
+        "highlunder",
+        "marco-tiloca-sics",
+        "rikard-sics"
+      ],
+      "labels": [],
+      "body": "* Replaced `serialNumberHash` in OCSP requests and responses with the plain serial number (`serialNumber`). #29 \r\n\r\n* Replaced `HashId8` with `HashedId` (bstr .size 8..64) for the certificate hashes `issuerCertHash`, `requestorCertHash`, and `responderCertHash`, and discussed the collision probability in the Security Considerations. #29 \r\n\r\n* Merged `C509UnsignedOCSPRequest` and `C509SignedOCSPRequest` into `C509BasicOCSPRequest` (type 1). #31 \r\n\r\n* Renamed `C509CRL` to `C509CertificateList`, aligned with `CertificateList` in {{RFC5280}}, and named CRL type 0 \"Basic\". #32 \r\n\r\n* Introduced `NameVariant` for the CRL fields `authoritySubject` and `issuer`, replacing `Name / #6.121(bytes)`.  The name type is taken from the \"TLS Certificate Types\" registry. #28 \r\n\r\n* Introduced `CertChainVariant` for the OCSP fields `requestorCerts` and `responderCerts`, replacing `COSE_C509 / #6.121(COSE_X509)`. #28 \r\n\r\n* Added the section \"Conformance Requirements\" for C509 OCSP clients and responders. #34\r\n\r\n* Restricted TLS OCSP stapling to `C509SimpleOCSPResponse`.  #35\r\n",
+      "createdAt": "2026-11-20T10:13:59Z",
+      "updatedAt": "2026-11-21T19:05:21Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "main",
+      "baseRefOid": "8fcdb6186127c71bef3e01588251f543dc750780",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "restructure-01",
+      "headRefOid": "963eda404be14cb5b7e27ce23e7f85ae1bbf4bcc",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
+      "comments": [
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "This is a collection of changes related to the last discussions (some not discussed yet). \r\nPlease review @highlunder @rikard-sics @marco-tiloca-sics @comsats ",
+          "createdAt": "2026-11-20T10:17:17Z",
+          "updatedAt": "2026-11-20T10:17:17Z"
+        },
+        {
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "body": "1. Implementation status: before -02 is published, the implementation shall align to the draft -02.\r\n\r\n2. HashedId*: I change it back to use the leading instead of trailing bytes to align with truncated hash function.\r\n\r\n3. There was no discussion in IETF meeting. But the trend shows longer identifier is wished, as the length of nonce in OCSP is increased from 1.. (RFC 6960) to 16..32 (RFC 8954) and now 32..128 (RFC 9654). Since we save several bytes by using raw serial number instead HashId20, And most important is RFC 6960 uses 2x20 byte to identify the certificate.\r\nI changed now the fixed-length HashedId20 to \"HashedId = bstr .size 8..64\"\r\n\r\n4. Raw public key: this is not discussed at IETF. I delete it from this PR, and will create a separate PR if needed after discussion.\r\n  In CRL, the identifier is Name while in OCSP it is cert-hash. And in CRL, the CRL generator is able to be configured with an identifier. Such identifier is in OCSP usually not available.",
+          "createdAt": "2026-11-20T16:45:39Z",
+          "updatedAt": "2026-11-20T18:00:19Z"
+        },
+        {
+          "author": "xipki",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@highlunder Thanks for the important input. Please see the comment above and the diff.\r\n",
+          "createdAt": "2026-11-20T18:01:48Z",
+          "updatedAt": "2026-11-20T18:01:48Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABZV_6Bg",
+          "commit": {
+            "abbreviatedOid": "313de24"
+          },
+          "author": "highlunder",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "Thanks for pulling all of this together! I checked the CDDL, the field descriptions, the Security Considerations and the IANA section. Most of it matches what we discussed (plain serial number, `NameVariant` with the TLS certificate types, the merged request, the rename), and the merged request is clear about what the signature covers. Four points, the first two before this is merged:\n\n**1. Implementation Status, implementation #1 (c509rev).** The entry now says \"Version compatibility: draft-liao-cose-c509-revocation-02\" and still says that the encoder output matches the examples byte for byte. The Rust code implements the structures on `main` (`serialNumberHash`, `HashId8`, separate unsigned and signed requests, `Name / #6.121`), so that is not true for the examples in this PR. I will update the implementation once the structures are settled. Until then, could the entry say -01, or could we hold the -02 submission until the implementation follows?\n\n**2. Which bytes of the hash are kept.** On `main` a truncated identifier is \"the leading\" bytes of the hash; in this PR `HashId20` is the low-order 20 bytes, following IEEE 1609.2. I have no objection to that convention if we think it's relevant to follow, but the change is not in the PR description or in the list of changes from -01 to -02, and it changes every hash value in the examples and in existing implementations. Could it get its own line in the change list?\n\n**3. `HashId8` to `HashId20`: the cost, for illustration.** From the examples in the two versions:\n\n| Example | `main` | this PR |\n|---|---|---|\n| Simple OCSP request | 51 | 59 |\n| Simple OCSP response | 140 | 160 |\n| Unsigned basic request | 132 | 141 |\n| Basic response without responder certificate | 248 | 268 |\n\nThe plain serial number saves 4 bytes in these examples and each 20-byte hash adds 12. With the serial number change alone, the simple request would be about 47 bytes and the simple response about 136; with 20-byte hashes they are 59 and 160. These two are the messages every client has to support.\n\nOn the security side, the new text in the Security Considerations says that the identifier \"only selects a certificate and does not authenticate it; security relies on the signature verification\", and that it has to be unique only among the CA and responder certificates a party knows. With 8 bytes the probability that any two of n certificates collide is about n^2 / 2^65: about 3 * 10^-14 for 1,000 certificates and 3 * 10^-8 for a million. \n\nWas this increased hash length requested at the IETF meeting? Otherwise I'm inclined to try to defend the shorter hashes.\n\n**4. Raw public keys (#33).** This is new and has not been discussed. Was this brought up at IETF? Maybe it could deserve separate PR. One initial question:\n\n- In a CRL the authority for raw public keys is a byte string \"assigned by the deployment\". In OCSP the issuer of a raw public key is identified by `issuerCertHash` over a `SubjectPublicKeyInfo`. How do the two relate, and who is \"the issuer\" of a raw public key?\n",
+          "createdAt": "2026-11-20T16:13:19Z",
+          "updatedAt": "2026-11-20T16:13:19Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABZZexwg",
+          "commit": {
+            "abbreviatedOid": "ae2ca25"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2026-11-20T21:07:10Z",
+          "updatedAt": "2026-11-21T03:24:38Z",
+          "comments": [
+            {
+              "originalPosition": 166,
+              "body": "Based on Section 4.1.2.4 of RFC 5280, shouldn't that be X.501 `Name` instead?",
+              "createdAt": "2026-11-20T21:07:10Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 259,
+              "body": "I think we mean:\n\n> An OCSP client MAY support `C509BasicOCSPRequest`. If an OCSP client supports `C509BasicOCSPRequest`, it MUST support `C509BasicOCSPResponse`.",
+              "createdAt": "2026-11-20T21:31:22Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 271,
+              "body": "Suggested rephrasing:\n\nOLD\n> The hash algorithm MUST produce an output at least as long as the `HashedId` values derived from it\n\nNEW\n> The hash algorithm MUST produce an output whose length is at least that of the `HashedId` values derived from it",
+              "createdAt": "2026-11-20T21:35:40Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 289,
+              "body": "s/certificate chain/certificate ordered chain",
+              "createdAt": "2026-11-20T21:47:07Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 301,
+              "body": "s/certificate chain/certificate ordered chain",
+              "createdAt": "2026-11-20T21:47:44Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 305,
+              "body": "OLD\n> `chain` is a `COSE_X509` ({{RFC9360}}).\n\nNEW\n> `chain` is a `COSE_X509` ({{RFC9360}}) as an ordered chain of X.509 certificates.\n\nIn general `COSE_X509` is also used to denote an unordered bag of X.509 certificates.",
+              "createdAt": "2026-11-20T21:49:45Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 306,
+              "body": "OLD\n> `chain` is a `COSE_C509` ({{I-D.ietf-cose-cbor-encoded-cert}}).\n\nNEW\n> `chain` is a `COSE_C509` as an ordered chain of C509 certificates ({{I-D.ietf-cose-cbor-encoded-cert}}).\n\nIn general `COSE_C509` is also used to denote an unordered bag of C509 certificates.",
+              "createdAt": "2026-11-20T21:51:25Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 309,
+              "body": "s/the chain is encoded/the ordered chain is encoded",
+              "createdAt": "2026-11-20T21:54:05Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 331,
+              "body": "* Suggested rephrasing:\r\n\r\n  OLD\r\n  > zero byte, if present, removed.\r\n\r\n  NEW\r\n  > zero byte removed (if present).\r\n\r\n* Can you add an example where the value is not 0x8F01, but instead 0x0F01?",
+              "createdAt": "2026-11-20T23:46:18Z",
+              "updatedAt": "2026-11-21T03:25:42Z"
+            },
+            {
+              "originalPosition": 356,
+              "body": "`; null if unsigned` better fits as a side CDDL comment in the same line below where `signatureAlgorithm` is defined.",
+              "createdAt": "2026-11-20T23:50:58Z",
+              "updatedAt": "2026-11-21T03:26:07Z"
+            },
+            {
+              "originalPosition": 414,
+              "body": "Now 0 is not used anymore. Is it meant to be left as \"Reserved\"?",
+              "createdAt": "2026-11-20T23:53:55Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 451,
+              "body": "Does \"that field carries\" refer to `requestorCerts`? If so, why is that sentence relevant in this bullet point instead of in the next one about `requestorCerts`?",
+              "createdAt": "2026-11-21T01:50:11Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 667,
+              "body": "s/A client that/An OCSP client that\n\n(To avoid confusion with \"TLS client\")",
+              "createdAt": "2026-11-21T02:13:36Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            },
+            {
+              "originalPosition": 669,
+              "body": "s/by the client/by the OCSP client\n\n(To avoid confusion with \"TLS client\")\n\n---\n\n> the server SHOULD obtain the response without a nonce.\n\nWhat does it mean that a server (the OCSP server?) obtains a response? Isn't a response produced by a server?\n",
+              "createdAt": "2026-11-21T02:14:59Z",
+              "updatedAt": "2026-11-21T03:24:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABZfFVaA",
+          "commit": {
+            "abbreviatedOid": "fb5ba63"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2026-11-21T12:48:54Z",
+          "updatedAt": "2026-11-21T12:49:00Z",
+          "comments": [
+            {
+              "originalPosition": 671,
+              "body": "> Since a stapled response is not obtained in reply to a request from the TLS client, its `nonce` is not checked by the TLS client; the TLS server, acting as OCSP client, SHOULD send its request to the OCSP responder without a nonce.\n\nIf the TLS server still includes a nonce in the OCSP request, the nonce will be present in the stapled response.\n\nWill the TLS client simply ignore the nonce? If the TLS client behavior is the same as usual (i.e., irrespective of the CertificateStatusType being specifically c509_ocsp), then we can just remove the quoted sentence.",
+              "createdAt": "2026-11-21T12:48:54Z",
+              "updatedAt": "2026-11-21T12:49:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOTDu4zs8AAAABZhOXtw",
+          "commit": {
+            "abbreviatedOid": "963eda4"
+          },
+          "author": "marco-tiloca-sics",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Looks good; thanks for addressing my comments!",
+          "createdAt": "2026-11-21T19:05:21Z",
+          "updatedAt": "2026-11-21T19:05:21Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 38,
+      "id": "PR_kwDOTDu4zs8AAAABQsY0lg",
+      "title": "merge from main",
+      "url": "https://github.com/lijun-nio/idc509rev/pull/38",
+      "state": "MERGED",
+      "author": "xipki",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-11-20T14:47:14Z",
+      "updatedAt": "2026-11-20T14:48:07Z",
+      "baseRepository": "lijun-nio/idc509rev",
+      "baseRefName": "restructure-01",
+      "baseRefOid": "747d5326f0ce99e5728d21f75598dcd18af79fbb",
+      "headRepository": "lijun-nio/idc509rev",
+      "headRefName": "main",
+      "headRefOid": "8fcdb6186127c71bef3e01588251f543dc750780",
+      "closedAt": "2026-11-20T14:48:06Z",
+      "mergedAt": "2026-11-20T14:48:06Z",
+      "mergedBy": "xipki",
+      "mergeCommit": {
+        "oid": "458213fca3ab83a862718547db36fa79fd111e69"
+      },
       "comments": [],
       "reviews": []
     }
