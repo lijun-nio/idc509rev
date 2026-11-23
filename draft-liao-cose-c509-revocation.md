@@ -182,7 +182,7 @@ This section considers both widely deployed certificate-status mechanisms and cl
 
 - **Compact CBOR revocation for IoT (TinyOCSP and CCRL)** {{TinyOCSP}} are prior research mechanisms that reduce OCSP and CRL overhead for low-power IoT, confirming the feasibility and benefits of CBOR-based revocation on constrained hardware.  They are a precursor to this work.  However, they were specified as point solutions rather than as interoperable, certificate-type-agnostic wire formats aligned with the C509 certificate encoding {{I-D.ietf-cose-cbor-encoded-cert}}; this document generalizes those mechanisms into complete C509 CRL and C509 OCSP structures usable with C509, X.509, and future certificate types.
 
-The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 17% to 41% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 421 to 263 bytes, a 38% reduction), and C509 OCSP messages are 40% to 69% smaller (for example, a Simple OCSP request from 146 to 59 bytes, and a Basic OCSP response without the responder's certificate from 821 to 268 bytes); see {{tab-examples-overview}}.
+The compactness benefit over the DER-encoded baselines is concrete and substantial.  For the representative profiles in the worked examples ({{examples}}), C509 CRLs are 17% to 41% smaller than the equivalent X.509 CRLs (for example, a CRL carrying revoked certificates is reduced from 421 to 263 bytes, a 38% reduction), and C509 OCSP messages are 40% to 69% smaller (for example, a Simple OCSP request from 146 to 55 bytes, and a Basic OCSP response without the responder's certificate from 821 to 256 bytes); see {{tab-examples-overview}}.
 
 These alternatives are useful in specific deployments, but they do not provide the CBOR-based, certificate-type-agnostic revocation structures defined here for C509, X.509, and future certificate types.
 
@@ -913,7 +913,7 @@ The integer values are chosen to align with the ASN.1 IMPLICIT tag numbers of `C
 |  -   | CRL References        | {{RFC6960, Section 4.4.2}}  | Single Response Extension | - |
 | TBD2 (129) | Acceptable Response Types | {{RFC6960, Section 4.4.3}}  | Request Extension | - |
 |  -   | Archive Cutoff        | {{RFC6960, Section 4.4.4}}  | Response Extension | - |
-|  -   | Service Locator       | {{RFC6960, Section 4.4.5}}  | Request Extension | - |
+|  -   | Service Locator       | {{RFC6960, Section 4.4.6}}  | Request Extension | - |
 | TBD3 (130) | Preferred Signature Algorithms | {{RFC6960, Section 4.4.7}} | Request Extension | - |
 |  -   | Extended Revoked Definition | {{RFC6960, Section 4.4.8}}  | Response Extension | cert status `not-issued` (for serial numbers not issued by a recognized issuer) and `unknown` (for unrecognized issuers) |
 | TBD4 (131) | TN Query | {{STIR-OCSP}} | Single Request Extension | - |
