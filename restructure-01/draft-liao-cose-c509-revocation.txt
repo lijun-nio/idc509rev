@@ -5,12 +5,12 @@
 COSE Working Group                                               L. Liao
 Internet-Draft                                                  NIO Inc.
 Intended status: Standards Track                               M. Tiloca
-Expires: 25 May 2027                                          J. Höglund
+Expires: 27 May 2027                                          J. Höglund
                                                               R. Höglund
                                                                  RISE AB
                                                                  S. Raza
                                                    University of Glasgow
-                                                        21 November 2026
+                                                        23 November 2026
 
 
              CBOR Encoded Certificate Revocation Management
@@ -68,7 +68,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 May 2027.
+   This Internet-Draft will expire on 27 May 2027.
 
 Copyright Notice
 
@@ -401,8 +401,8 @@ Table of Contents
    equivalent X.509 CRLs (for example, a CRL carrying revoked
    certificates is reduced from 421 to 263 bytes, a 38% reduction), and
    C509 OCSP messages are 40% to 69% smaller (for example, a Simple OCSP
-   request from 146 to 59 bytes, and a Basic OCSP response without the
-   responder's certificate from 821 to 268 bytes); see Table 14.
+   request from 146 to 55 bytes, and a Basic OCSP response without the
+   responder's certificate from 821 to 256 bytes); see Table 14.
 
    These alternatives are useful in specific deployments, but they do
    not provide the CBOR-based, certificate-type-agnostic revocation
@@ -1794,7 +1794,7 @@ Table of Contents
     +-------+------------+-------------+------------+-----------------+
     |   -   | Service    | [RFC6960],  | Request    | -               |
     |       | Locator    | Section     | Extension  |                 |
-    |       |            | 4.4.5       |            |                 |
+    |       |            | 4.4.6       |            |                 |
     +-------+------------+-------------+------------+-----------------+
     |  TBD3 | Preferred  | [RFC6960],  | Request    | -               |
     | (130) | Signature  | Section     | Extension  |                 |
