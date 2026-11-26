@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-24T07:28:48.287385+00:00",
+  "timestamp": "2026-11-26T05:50:37.459462+00:00",
   "repo": "lijun-nio/idc509rev",
   "labels": [
     {
@@ -667,7 +667,7 @@
       "labels": [],
       "body": "In the meantime I submitted some changes to cover #13 and #12, and also other enhancement.\n\n@rikard-sics @comsats @highlunder @marco-tiloca-sics Please share your commits, comments, etc. to make our draft mature for a CfA.\n\n\n\n",
       "createdAt": "2026-08-06T07:12:04Z",
-      "updatedAt": "2026-11-02T14:56:20Z",
+      "updatedAt": "2026-11-25T06:43:43Z",
       "closedAt": null,
       "comments": [
         {
@@ -697,6 +697,13 @@
           "body": "Existing/ongoing implementations:\n- Joel's in Rust (https://github.com/lijun-nio/idc509rev/tree/main/c509rev)\n- Joel's implementation for Contiki-NG\n- Lijun's implementation (Java - internal)\n- Student from Shahid (WIP for Contiki-NG)\n\n~~**Action:** We should add an \"Implementation Status\" section (RFC 7942). Good to do before the submission of the next version. Joel + Lijun will do. Example section can [be found here](https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-groupcomm-28#name-implementation-status).~~ **DONE in 4789d81ab8ddec51e0ebf36ac73aa7959f5e52e9**\n\n**Action:** Add further test vectors (in appendix or separate files)\n\n**Action:** Move Joel's implementation to separate repo + add licensing info\n",
           "createdAt": "2026-10-19T11:45:59Z",
           "updatedAt": "2026-11-02T14:56:20Z"
+        },
+        {
+          "author": "lijun-nio",
+          "authorAssociation": "OWNER",
+          "body": "I merged #36.\n\n@rikard-sics Could you upload -02 and ask the WG for comments?",
+          "createdAt": "2026-11-25T06:43:43Z",
+          "updatedAt": "2026-11-25T06:43:43Z"
         }
       ]
     },
@@ -1186,6 +1193,22 @@
           "updatedAt": "2026-11-20T12:41:30Z"
         }
       ]
+    },
+    {
+      "number": 39,
+      "id": "I_kwDOTDu4zs8AAAABikp7sA",
+      "title": "Implementation feedback: X.509 example fixes and unspecified receiver behavior",
+      "url": "https://github.com/lijun-nio/idc509rev/issues/39",
+      "state": "OPEN",
+      "author": "ligefeiBouncycastle",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "I implemented the CRL, CRLInfo and OCSP structures of the draft (at 8a34532) as a local prototype. All 14 examples parse and re-encode byte for byte, the 11 signatures verify and re-sign identically with the example keys, and every certificate hash matches. The points below came up along the way.\n\n### Examples\n\n1. The X.509 CRL examples have no extensions at all:\n   - None of them has cRLNumber or authorityKeyIdentifier (both MUST, RFC 5280 Sections 5.2.3 and 5.2.1).\n   - The delta CRL has no deltaCRLIndicator, so it is a full CRL that carries removeFromCRL entries.\n   - The indirect CRL has no issuingDistributionPoint with indirectCRL TRUE (Section 5.2.5).\n   - The C509 CRL with expiredCertsOnCRL has no X.509 counterpart of it.\n\n   I rebuilt the four with these extensions and re-signed them with the example keys. They are 196, 496, 485 and 559 bytes, so the reductions are 38%, 47%, 49% and 47%, not 17%, 38%, 41% and 40%.\n2. In every X.509 OCSP example except the error response, the nonce extnValue is the raw 16-byte nonce, not the DER of `Nonce ::= OCTET STRING` (RFC 6960 Section 4.4.1). The nonce is also shorter than the 32 octets RFC 9654 requires of requesters. Each X.509 message would grow by 2 bytes, or 18 with a 32-byte nonce.\n3. The two signed request examples that carry the requestor's certificate (and chain) send AcceptableResponseTypes `[0, 1]`. By the text, that ranks the error response as the most preferred type, and type 0 \"does not need to be listed\". `[1]` would match the X.509 requests, which list only id-pkix-ocsp-basic.\n4. The Introduction says C509 OCSP messages are \"40% to 69% smaller\", but the table includes 71% (Unsigned Basic OCSP Request).\n\n### Text\n\n1. dateLength: \"the offset MUST fit within the specified byte length without leading zero bytes\" cannot hold when the largest offset is 0. That happens with one entry dated at the RECOMMENDED baseDate, which needs dateLength 1 and the byte 0x00. The delta example's first entry is `0000`. Suggest: \"dateLength is the smallest number of bytes that holds the largest offset in revokedCerts and removedFromCRLCerts (1 if all offsets are 0)\". Say the same for serialNumberLength, across both lists.\n2. With dateLength 0, the draft does not say what baseDate holds, although the field is mandatory and the notBefore rule still applies to it. The value then carries no information. Suggest: baseDate MUST be 0 and receivers ignore it, with the notBefore rule not applying (see the next item).\n3. \"baseDate MUST be greater than or equal to the issuer certificate's notBefore\" has three problems:\n   - It does not say which certificate applies in an indirect CRL.\n   - A receiver cannot check it without that certificate.\n   - After a CA certificate is renewed with a later notBefore, an earlier revocation date can no longer be encoded.\n\n   Suggest dropping it, or replacing it with \"baseDate MUST NOT be later than the earliest date in the entries\".\n4. removedFromCRLCerts is not excluded from a full CRL. RFC 5280 Section 5.3.1 allows removeFromCRL only in delta CRLs. Suggest: MUST be null when baseCrlNumber is null.\n5. Nothing forbids two PerIssuerRevokedCerts for the same issuer, or a serial number that appears twice (within revokedCerts, or in both lists). A binary search then returns one of them arbitrarily. Suggest MUST NOT, and \"strictly ascending\" for bit 0.\n6. The draft does not say what a receiver does with reason byte 7, 8 or above 10 in revokedCerts, or in RevokedInfo.revocationReason (uint8). Suggest: reject.\n7. IntExtension keeps only the int branch of the C509 Extension and drops the ~oid branch, so a CRL or OCSP extension without a registry value cannot be carried at all. The draft does not say whether this is deliberate. If it is, please say so and say how an unregistered extension is to be handled. If not, add the ~oid branch, as in C509 certificates. This affects:\n   - issuingDistributionPoint: it has neither a field nor a value. The issuer field of PerIssuerRevokedCerts stands in for indirectCRL, but distributionPoint, onlyContainsUserCerts, onlyContainsCACerts and onlySomeReasons have no equivalent. So scoped or partitioned CRLs cannot be expressed, and the scope checks of RFC 5280 Section 6.3.3 cannot be applied.\n   - issuerAltName, freshestCRL and authorityInfoAccess: Table \"CRL extensions\" marks them \"-\", although the C509 Extensions registry has 25, 29 and 9. Please say whether those values may be used in crlExtensions.\n   - invalidityDate: it has no per-entry place in a CRL, and it is common with keyCompromise. In OCSP, RFC 6960 Section 4.4.5 allows the CRL entry extensions as singleExtensions, but Table \"OCSP extensions\" leaves out Section 4.4.5, and the single response extensions have no value for invalidityDate either.\n\n   There is also no rule that an extensionID appears only once.\n8. Two cases where NameVariant for the issuer is not defined:\n   - A C509 certificate whose issuer field is null (self-issued, e.g. a key rollover certificate) has no \"issuer field\" to copy. Suggest \"the issuer name (the subject when issuer is null)\".\n   - For a type 3 certificate, the CRL section does not say whether to use NameVariant type 0 or 4, although the OCSP section treats type 3 as X.509.\n9. signatureAlgorithm should exclude id-alg-unsigned (5) and the ECDH PoP algorithms (14 to 16): neither gives a signature a relying party can check. In C509BasicOCSPRequest, 5 would be a second way to say \"unsigned\" next to null.\n10. hashAlgorithm is typed IntAlgorithmIdentifier, which the draft defines as the int form of the C509 AlgorithmIdentifier, but its values come from the COSE Algorithms registry. A separate alias, e.g. `COSEHashAlgorithm = int16`, would avoid reading it against the wrong registry.\n11. \"An OCSP responder MUST use in a response the same issuerCertHash value as in the corresponding request\" only works if the response uses the request's hashAlgorithm, but that is not stated. Also, nothing says what a receiver does when the first certificate in requestorCerts or responderCerts does not match requestorCertHash or responderCertHash. Suggest: reject.\n12. TN Query is \"allowed only in the single-request extensions\", so C509SimpleOCSPRequest, the only request type clients MUST support, cannot carry it. A STIR client must then use C509BasicOCSPRequest, which clients only MAY support. Either allow TN Query in the Simple request's extensions, or say STIR clients MUST support Basic.\n13. responseStatus: the CDDL allows -128..127, but the table gives successful no value and defines only 1, 2, 3, 5 and 6. Say how a receiver treats any other value, such as `[0, 0]`, an error response whose status reads as successful. Suggest: reject.\n14. Serial number normalization is only a sender rule. Say a responder returns malformedRequest for a serialNumber with a leading zero byte, as it does for serial number 0.\n15. PEM labels: the \"Textual Encoding Label\" registry under \"PKIX Parameters\" does not exist (as already noted for additions).",
+      "createdAt": "2026-11-25T22:32:09Z",
+      "updatedAt": "2026-11-25T22:32:09Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -1819,7 +1842,7 @@
       "id": "PR_kwDOTDu4zs8AAAABQo5WHw",
       "title": "Restructure 01",
       "url": "https://github.com/lijun-nio/idc509rev/pull/36",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "lijun-nio",
       "authorAssociation": "OWNER",
       "assignees": [
@@ -1831,17 +1854,19 @@
       "labels": [],
       "body": "* Replaced `serialNumberHash` in OCSP requests and responses with the plain serial number (`serialNumber`). #29 \r\n\r\n* Replaced `HashId8` with `HashedId` (bstr .size 8..64) for the certificate hashes `issuerCertHash`, `requestorCertHash`, and `responderCertHash`, and discussed the collision probability in the Security Considerations. #29 \r\n\r\n* Merged `C509UnsignedOCSPRequest` and `C509SignedOCSPRequest` into `C509BasicOCSPRequest` (type 1). #31 \r\n\r\n* Renamed `C509CRL` to `C509CertificateList`, aligned with `CertificateList` in {{RFC5280}}, and named CRL type 0 \"Basic\". #32 \r\n\r\n* Introduced `NameVariant` for the CRL fields `authoritySubject` and `issuer`, replacing `Name / #6.121(bytes)`.  The name type is taken from the \"TLS Certificate Types\" registry. #28 \r\n\r\n* Introduced `CertChainVariant` for the OCSP fields `requestorCerts` and `responderCerts`, replacing `COSE_C509 / #6.121(COSE_X509)`. #28 \r\n\r\n* Added the section \"Conformance Requirements\" for C509 OCSP clients and responders. #34\r\n\r\n* Restricted TLS OCSP stapling to `C509SimpleOCSPResponse`.  #35\r\n",
       "createdAt": "2026-11-20T10:13:59Z",
-      "updatedAt": "2026-11-23T20:15:38Z",
+      "updatedAt": "2026-11-25T06:40:22Z",
       "baseRepository": "lijun-nio/idc509rev",
       "baseRefName": "main",
       "baseRefOid": "8fcdb6186127c71bef3e01588251f543dc750780",
       "headRepository": "lijun-nio/idc509rev",
       "headRefName": "restructure-01",
       "headRefOid": "5ed27ff5cbb3189ea112af0c8cf287d5fbc7384c",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2026-11-25T06:40:22Z",
+      "mergedAt": "2026-11-25T06:40:22Z",
+      "mergedBy": "lijun-nio",
+      "mergeCommit": {
+        "oid": "8a34532641a6ab7a62e40a8480574435a289a4fe"
+      },
       "comments": [
         {
           "author": "lijun-nio",
